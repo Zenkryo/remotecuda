@@ -1,0 +1,7 @@
+*.o
+*.so
+*.swp
+server
+test
+!test/
+gen/

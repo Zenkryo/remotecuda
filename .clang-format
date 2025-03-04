@@ -1,0 +1,13 @@
+---
+Language:        Cpp
+BasedOnStyle:    LLVM
+PointerAlignment: Right
+SpaceBeforeParens: Never
+BreakBeforeBraces: Attach
+SpaceAfterCStyleCast: false
+ColumnLimit: 512
+IndentWidth: 4
+UseTab: Never
+SortIncludes: false
+SeparateDefinitionBlocks: Always
+...

@@ -1,0 +1,7 @@
+此项目用于生成hook.so和server这两个程序
+hook.so通过LD_PRELOAD环境变量预先加载以替换需要hook的函数
+当这些函数被调用时，实际是使用hook.so中的函数实现
+hook.so中的hook函数会序列换函数参数和函数名，然后通过rpc发送给server，然后等待server返回结果
+server接收到rpc请求后，解析函数名和参数，然后调用真正的函数，然后将结果序列化后返回给hook.so
+
+hook.py是用于生成hook.so和server的脚本，它根据参数生成hook函数，和server端相应函数的handler函数
