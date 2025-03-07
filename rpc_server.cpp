@@ -113,12 +113,12 @@ void *rpc_handle_client(void *arg) {
             fprintf(stderr, "Invalid request header\n");
             break;
         }
-        printf("==> ");
-        for(int i = 0; i < sizeof(header); i++) {
-            printf("%02x ", ((unsigned char *)&header)[i]);
-        }
-        printf("\n");
-        printf("---- len = %d, funcId = %x\n", ntohs(header.len), header.funcId);
+        // printf("==> ");
+        // for(int i = 0; i < sizeof(header); i++) {
+        //     printf("%02x ", ((unsigned char *)&header)[i]);
+        // }
+        // printf("\n");
+        // printf("---- len = %d, funcId = %x\n", ntohs(header.len), header.funcId);
         header.len = ntohs(header.len);
         client.funcId = header.funcId;
         // 取得函数ID对应的处理函数

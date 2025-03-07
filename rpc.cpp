@@ -29,11 +29,17 @@ static int rpc_connect(const char *server, uint16_t port) {
 
 //  rpc_thread
 static void *rpc_thread(void *arg) {
+    // 获取环境变量CUDA_SERVER
+    const char *cuda_server = getenv("CUDA_SERVER");
+    if(!cuda_server) {
+        cuda_server = "127.0.0.1"; // fallback
+    }
+
     while(1) {
         pthread_mutex_lock(&pool_lock);
         for(int i = 0; i < MAX_CONNECTIONS; i++) {
             if(clients_pool[i].sockfd == -1) {
-                int sockfd = rpc_connect("127.0.0.1", 12345);
+                int sockfd = rpc_connect(cuda_server, 12345);
                 if(sockfd != -1) {
                     clients_pool[i].sockfd = sockfd;
                 }
@@ -66,11 +72,11 @@ static ssize_t writev_all(int sockfd, struct iovec *iov, int iovcnt) {
     uint16_t lengths[MAX_IOCV_COUNT];
     size_t total_length = 0;
     for(int i = 0; i < iovcnt; i++) {
-        printf("1===========\n");
-        if(iov[i].iov_len > UINT32_MAX) {
-            errno = EOVERFLOW;
-            return -1;
-        }
+        // printf("1===========\n");
+        // if(iov[i].iov_len > UINT32_MAX) {
+        //     errno = EOVERFLOW;
+        //     return -1;
+        // }
         lengths[i] = htons((uint16_t)iov[i].iov_len);
         new_iov[i * 2].iov_base = &lengths[i];
         new_iov[i * 2].iov_len = sizeof(uint16_t);
@@ -80,16 +86,7 @@ static ssize_t writev_all(int sockfd, struct iovec *iov, int iovcnt) {
     }
     // 使用一次 writev 发送所有数据
     while(total_length > 0) {
-        printf("2=========== %d\n", new_iovcnt);
-        for(int i = 0; i < new_iovcnt; i++) {
-            printf("<== ");
-            for(int j = 0; j < new_iov[i].iov_len; j++) {
-                printf("%02x ", ((uint8_t *)new_iov[i].iov_base)[j]);
-            }
-            printf("\n");
-        }
         bytes_sent = writev(sockfd, new_iov, new_iovcnt);
-        printf("3=========== %d\n", bytes_sent);
         if(bytes_sent < 0) {
             if(errno == EINTR) {
                 continue;
@@ -98,13 +95,13 @@ static ssize_t writev_all(int sockfd, struct iovec *iov, int iovcnt) {
         }
         int dumped = 0;
         // dump print data just sent
-        for(int i = 0; i < new_iovcnt; i++) {
-            printf("<== ");
-            for(int j = 0; j < new_iov[i].iov_len && dumped < bytes_sent; j++, dumped++) {
-                printf("%02x ", ((uint8_t *)new_iov[i].iov_base)[j]);
-            }
-            printf("\n");
-        }
+        // for(int i = 0; i < new_iovcnt; i++) {
+        //     printf("<== ");
+        //     for(int j = 0; j < new_iov[i].iov_len && dumped < bytes_sent; j++, dumped++) {
+        //         printf("%02x ", ((uint8_t *)new_iov[i].iov_base)[j]);
+        //     }
+        //     printf("\n");
+        // }
 
         total_sent += bytes_sent;
 
@@ -150,11 +147,11 @@ static ssize_t readv_all(int sockfd, struct iovec *iov, int iovcnt) {
             if(bytes_read == 0) {
                 return -1; // 对端关闭连接
             }
-            printf("==> ");
-            for(int j = 0; j < bytes_read; j++) {
-                printf("%02x ", (length_ptr)[j]);
-            }
-            printf("\n");
+            // printf("==> ");
+            // for(int j = 0; j < bytes_read; j++) {
+            //     printf("%02x ", (length_ptr)[j]);
+            // }
+            // printf("\n");
             length_ptr += bytes_read;
             length_bytes -= bytes_read;
             total_read += bytes_read;
@@ -185,11 +182,11 @@ static ssize_t readv_all(int sockfd, struct iovec *iov, int iovcnt) {
                 return -1; // 对端关闭连接
             }
 
-            printf("==> ");
-            for(int j = 0; j < bytes_read; j++) {
-                printf("%02x ", (data_ptr)[j]);
-            }
-            printf("\n");
+            // printf("==> ");
+            // for(int j = 0; j < bytes_read; j++) {
+            //     printf("%02x ", (data_ptr)[j]);
+            // }
+            // printf("\n");
             total_read += bytes_read;
             data_ptr += bytes_read;
             remaining -= bytes_read;

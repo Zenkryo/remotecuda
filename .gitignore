@@ -3,5 +3,5 @@
 *.swp
 server
 test
-!test/
+test/
 gen/

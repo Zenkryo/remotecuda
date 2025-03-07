@@ -14,15 +14,15 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    # "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    # "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
-    # "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    # "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
@@ -541,6 +541,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             function_map[header_file] = []
             for function in parsed_header.namespace.functions:
+                if function.inline:
+                    continue
                 function_name = function.name.format()
                 if function_name in INLINE_FUNCTIONS:
                     continue
@@ -604,6 +606,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         f.write(f'#include "{os.path.basename(header_file)}"\n\n')
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             for function in parsed_header.namespace.functions:
+                if function.inline:
+                    continue
                 function_name = function.name.format()
                 if function_name in MANUAL_FUNCTIONS:
                     continue

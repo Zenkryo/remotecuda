@@ -370,9 +370,7 @@ extern "C" cudaError_t cudaFree(void *devPtr) {
     rpc_prepare_request(client, RPC_cudaFree);
     rpc_write(client, &serverPtr, sizeof(serverPtr));
     rpc_read(client, &_result, sizeof(_result));
-    printf("1----------------------\n");
     if(rpc_submit_request(client) != 0) {
-        printf("2----------------------\n");
         std::cerr << "Failed to submit request" << std::endl;
         exit(1);
     }
@@ -810,7 +808,7 @@ extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool po
 }
 
 // 用#ifdef来区分不同的cuda版本,如果没有CUDA_VERSION或其值大于11040定义下面的函数
-// #if CUDA_VERSION > 11040
+#if CUDA_VERSION > 11040
 extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) {
     std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
     CUresult _result;
@@ -927,7 +925,7 @@ extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibra
     return _result;
 }
 
-// #endif
+#endif
 
 extern "C" CUresult cuIpcOpenMemHandle_v2(CUdeviceptr *pdptr, CUipcMemHandle handle, unsigned int Flags) {
     std::cout << "Hook: cuIpcOpenMemHandle_v2 called" << std::endl;
