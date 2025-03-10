@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <cstdlib>
 #include "cuda_runtime.h"
@@ -7,6 +8,8 @@
 #include "cuda.h"
 #include "gen/hook_api.h"
 #include "rpc.h"
+
+extern std::unordered_map<std::string, void *> functionMap;
 
 // 映射客户端主机内存地址到服务器主机内存地址
 std::map<void *, std::pair<void *, size_t>> cs_host_mems;
@@ -1200,3 +1203,181 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
     rpc_free_client(client);
     return _result;
 }
+
+extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
+    // std::cout << "Hook: cuGetProcAddress called" << std::endl;
+    // printf("symbol: %s\n", symbol);
+    auto it = functionMap.find(symbol);
+    if(it != functionMap.end()) {
+        *pfn = (void *)it->second;
+        return CUDA_SUCCESS;
+    }
+    printf("symbol %s not found\n", symbol);
+    return CUDA_ERROR_NOT_FOUND;
+    // CUresult _result;
+    // RpcClient *client = rpc_get_client();
+    // if(client == nullptr) {
+    //     std::cerr << "Failed to get rpc client" << std::endl;
+    //     exit(1);
+    // }
+    // rpc_prepare_request(client, RPC_cuGetProcAddress);
+    // rpc_write(client, symbol, strlen(symbol) + 1);
+    // // PARAM void **pfn
+    // rpc_write(client, &cudaVersion, sizeof(cudaVersion));
+    // rpc_write(client, &flags, sizeof(flags));
+    // rpc_read(client, &_result, sizeof(_result));
+    // if(rpc_submit_request(client) != 0) {
+    //     std::cerr << "Failed to submit request" << std::endl;
+    //     rpc_release_client(client);
+    //     exit(1);
+    // }
+    // // PARAM void **pfn
+    // rpc_free_client(client);
+    // return _result;
+}
+
+extern "C" char __cudaInitModule(void **fatCubinHandle) {
+    std::cout << "Hook: __cudaInitModule called" << std::endl;
+    char _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaInitModule);
+    rpc_read(client, fatCubinHandle, sizeof(void *));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim, size_t *sharedMem, void *stream) {
+    std::cout << "Hook: __cudaPopCallConfiguration called" << std::endl;
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaPopCallConfiguration);
+    rpc_read(client, &gridDim, sizeof(gridDim));
+    rpc_read(client, &blockDim, sizeof(blockDim));
+    rpc_read(client, &sharedMem, sizeof(sharedMem));
+    rpc_read(client, &stream, sizeof(stream));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    return _result;
+}
+
+extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem = 0, struct CUstream_st *stream = 0) {
+    std::cout << "Hook: __cudaPushCallConfiguration called" << std::endl;
+    unsigned _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaPushCallConfiguration);
+    rpc_write(client, &gridDim, sizeof(gridDim));
+    rpc_write(client, &blockDim, sizeof(blockDim));
+    rpc_write(client, &sharedMem, sizeof(sharedMem));
+    rpc_write(client, &stream, sizeof(stream));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    return _result;
+}
+
+extern void **__cudaRegisterFatBinary(void *fatCubin) {
+    std::cout << "Hook: __cudaRegisterFatBinary called" << std::endl;
+    void *_result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaRegisterFatBinary);
+    // TODO 将fatCubin的数据结构以及其数据块发送到服务器
+    rpc_write(client, &fatCubin, sizeof(fatCubin));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return &_result;
+}
+
+extern void __cudaRegisterFatBinaryEnd(void **fatCubinHandle) {
+    std::cout << "Hook: __cudaRegisterFatBinaryEnd called" << std::endl;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaRegisterFatBinaryEnd);
+    rpc_read(client, fatCubinHandle, sizeof(void *));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+}
+
+extern void __cudaUnregisterFatBinary(void **fatCubinHandle) {
+    std::cout << "Hook: __cudaUnregisterFatBinary called" << std::endl;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaUnregisterFatBinary);
+    rpc_read(client, fatCubinHandle, sizeof(void *));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+}
+
+extern void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *deviceAddress, const char *deviceName, int ext, size_t size, int constant, int global) {
+    std::cout << "Hook: __cudaRegisterVar called" << std::endl;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaRegisterVar);
+    rpc_write(client, &fatCubinHandle, sizeof(void *));
+    rpc_write(client, &hostVar, sizeof(hostVar));
+    rpc_write(client, &deviceAddress, sizeof(deviceAddress));
+    rpc_write(client, deviceName, strlen(deviceName) + 1);
+    rpc_write(client, &ext, sizeof(ext));
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &constant, sizeof(constant));
+    rpc_write(client, &global, sizeof(global));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+}
+
+extern void __cudaRegisterManagedVar(
+extern void __cudaRegisterTexture(
+extern void __cudaRegisterSurface(
+extern void __cudaRegisterFunction(
