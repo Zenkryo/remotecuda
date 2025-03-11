@@ -8,6 +8,7 @@
 #include "cuda.h"
 #include "gen/hook_api.h"
 #include "rpc.h"
+#include "hidden_api.h"
 
 extern std::unordered_map<std::string, void *> functionMap;
 
@@ -1254,13 +1255,14 @@ extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, siz
     rpc_write(client, &gridDim, sizeof(gridDim));
     rpc_write(client, &blockDim, sizeof(blockDim));
     rpc_write(client, &sharedMem, sizeof(sharedMem));
-    rpc_read(client, &stream, sizeof(stream));
+    rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
     }
+    printf("------- _result: %d\n", _result);
     rpc_free_client(client);
     return _result;
 }
@@ -1277,8 +1279,7 @@ extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim,
     rpc_read(client, gridDim, sizeof(*gridDim));
     rpc_read(client, blockDim, sizeof(*blockDim));
     rpc_read(client, sharedMem, sizeof(*sharedMem));
-    void *_0stream = getServerHostPtr(stream);
-    // PARAM void * stream
+    rpc_read(client, stream, sizeof(cudaStream_t));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1286,20 +1287,35 @@ extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim,
         exit(1);
     }
     rpc_free_client(client);
+    printf("------- _result: %d\n", _result);
     return _result;
 }
 
 extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
     std::cout << "Hook: __cudaRegisterFatBinary called" << std::endl;
     void **_result = nullptr;
+    if(*(unsigned *)fatCubin != __cudaFatMAGIC2) {
+        std::cerr << "Invalid fat binary magic" << std::endl;
+        return nullptr;
+    }
+
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    __cudaFatCudaBinary2 *binary;
+    __cudaFatCudaBinary2Header *header;
+    unsigned long long size;
+
     rpc_prepare_request(client, RPC___cudaRegisterFatBinary);
-    printf("------- fatCubin: %p\n", fatCubin);
-    rpc_write(client, &fatCubin, sizeof(fatCubin));
+
+    binary = (__cudaFatCudaBinary2 *)fatCubin;
+    header = (__cudaFatCudaBinary2Header *)binary->text;
+    size = sizeof(__cudaFatCudaBinary2Header) + header->size;
+    rpc_write(client, binary, sizeof(__cudaFatCudaBinary2));
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, header, size);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1321,13 +1337,11 @@ extern "C" void __cudaRegisterFatBinaryEnd(void **fatCubinHandle) {
     rpc_prepare_request(client, RPC___cudaRegisterFatBinaryEnd);
     printf("-- fatCubinHandle: %p\n", fatCubinHandle);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
-    // PARAM void **fatCubinHandle
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **fatCubinHandle
     rpc_free_client(client);
 }
 
@@ -1479,24 +1493,41 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    uint3 _tid;
-    uint3 _bid;
-    dim3 _bDim;
-    dim3 _gDim;
-    int _wSize;
     rpc_prepare_request(client, RPC___cudaRegisterFunction);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
-    rpc_write(client, hostFun, strlen(hostFun) + 1);
+    rpc_write(client, &hostFun, sizeof(hostFun)); // 写入指针地址
     rpc_write(client, deviceFun, strlen(deviceFun) + 1);
     rpc_write(client, deviceName, strlen(deviceName) + 1);
     rpc_write(client, &thread_limit, sizeof(thread_limit));
-    rpc_read(client, &_tid, sizeof(_tid));
-    rpc_read(client, &_bid, sizeof(_bid));
-    rpc_read(client, &_bDim, sizeof(_bDim));
-    rpc_read(client, &_gDim, sizeof(_gDim));
-    rpc_read(client, &_wSize, sizeof(_wSize));
+    uint8_t mask = 0;
+    if(tid != nullptr)
+        mask |= 1 << 0;
+    if(bid != nullptr)
+        mask |= 1 << 1;
+    if(bDim != nullptr)
+        mask |= 1 << 2;
+    if(gDim != nullptr)
+        mask |= 1 << 3;
+    if(wSize != nullptr)
+        mask |= 1 << 4;
+    rpc_write(client, &mask, sizeof(mask));
+    if(tid != nullptr) {
+        rpc_write(client, tid, sizeof(uint3));
+    }
+    if(bid != nullptr) {
+        rpc_write(client, bid, sizeof(uint3));
+    }
+    if(bDim != nullptr) {
+        rpc_write(client, bDim, sizeof(dim3));
+    }
+    if(gDim != nullptr) {
+        rpc_write(client, gDim, sizeof(dim3));
+    }
+    if(wSize != nullptr) {
+        rpc_write(client, wSize, sizeof(int));
+    }
     printf("------- fatCubinHandle: %p\n", fatCubinHandle);
-    printf("------- hostFun: %s\n", hostFun);
+    printf("------- hostFun: %p\n", hostFun);
     printf("------- deviceFun: %s\n", deviceFun);
     printf("------- deviceName: %s\n", deviceName);
     printf("------- thread_limit: %d\n", thread_limit);
@@ -1504,26 +1535,6 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
-    }
-    printf("------- tid: x: %d, y: %d, z: %d\n", _tid.x, _tid.y, _tid.z);
-    printf("------- bid: x: %d, y: %d, z: %d\n", _bid.x, _bid.y, _bid.z);
-    printf("------- bDim: x: %d, y: %d, z: %d\n", _bDim.x, _bDim.y, _bDim.z);
-    printf("------- gDim: x: %d, y: %d, z: %d\n", _gDim.x, _gDim.y, _gDim.z);
-    printf("------- wSize: %d\n", _wSize);
-    if(tid != nullptr) {
-        *tid = _tid;
-    }
-    if(bid != nullptr) {
-        *bid = _bid;
-    }
-    if(bDim != nullptr) {
-        *bDim = _bDim;
-    }
-    if(gDim != nullptr) {
-        *gDim = _gDim;
-    }
-    if(wSize != nullptr) {
-        *wSize = _wSize;
     }
     rpc_free_client(client);
 }

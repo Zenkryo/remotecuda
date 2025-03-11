@@ -462,7 +462,6 @@ int handle___cudaPushCallConfiguration(void *args0) {
         return 1;
     }
     unsigned _result = __cudaPushCallConfiguration(gridDim, blockDim, sharedMem, stream);
-    rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -478,16 +477,16 @@ int handle___cudaPopCallConfiguration(void *args0) {
     dim3 gridDim;
     dim3 blockDim;
     size_t sharedMem;
-    void *stream;
-    // PARAM void * stream
+    cudaStream_t stream;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    cudaError_t _result = __cudaPopCallConfiguration(&gridDim, &blockDim, &sharedMem, stream);
+    cudaError_t _result = __cudaPopCallConfiguration(&gridDim, &blockDim, &sharedMem, &stream);
     rpc_write(client, &gridDim, sizeof(gridDim));
     rpc_write(client, &blockDim, sizeof(blockDim));
     rpc_write(client, &sharedMem, sizeof(sharedMem));
+    rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -500,13 +499,26 @@ int handle___cudaPopCallConfiguration(void *args0) {
 int handle___cudaRegisterFatBinary(void *args0) {
     std::cout << "Handle function __cudaRegisterFatBinary called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
-    void *fatCubin;
-    // PARAM void * fatCubin
-    rpc_read(client, &fatCubin, sizeof(fatCubin));
+    __cudaFatCudaBinary2 *fatCubin = (__cudaFatCudaBinary2 *)malloc(sizeof(__cudaFatCudaBinary2));
+    if(fatCubin == nullptr) {
+        std::cerr << "Failed to allocate fatCubin" << std::endl;
+        return 1;
+    }
+    unsigned long long size;
+    rpc_read(client, fatCubin, sizeof(__cudaFatCudaBinary2));
+    rpc_read(client, &size, sizeof(size));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
+    void *cubin = malloc(size);
+    if(cubin == nullptr) {
+        std::cerr << "Failed to allocate cubin" << std::endl;
+        free(fatCubin);
+        return 1;
+    }
+    rpc_read_now(client, cubin, size);
+    fatCubin->text = (uint64_t)cubin;
     void **_result = __cudaRegisterFatBinary(fatCubin);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -531,7 +543,6 @@ int handle___cudaRegisterFatBinaryEnd(void *args0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
     }
-
     return 0;
 }
 
@@ -719,7 +730,7 @@ int handle___cudaRegisterFunction(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **fatCubinHandle
     void **fatCubinHandle;
-    char hostFun[1024];
+    char *hostFun;
     char deviceFun[1024];
     char deviceName[1024];
     int thread_limit;
@@ -728,34 +739,37 @@ int handle___cudaRegisterFunction(void *args0) {
     dim3 bDim;
     dim3 gDim;
     int wSize;
+    uint8_t mask;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
-    rpc_read(client, hostFun, 1024);
+    rpc_read(client, &hostFun, sizeof(hostFun));
     rpc_read(client, deviceFun, 1024);
     rpc_read(client, deviceName, 1024);
     rpc_read(client, &thread_limit, sizeof(thread_limit));
-    rpc_write(client, &tid, sizeof(tid));
-    rpc_write(client, &bid, sizeof(bid));
-    rpc_write(client, &bDim, sizeof(bDim));
-    rpc_write(client, &gDim, sizeof(gDim));
-    rpc_write(client, &wSize, sizeof(wSize));
+    rpc_read(client, &mask, sizeof(mask));
+
+    if(mask & 1 << 0) {
+        rpc_read(client, &tid, sizeof(uint3));
+    }
+    if(mask & 1 << 1) {
+        rpc_read(client, &bid, sizeof(uint3));
+    }
+    if(mask & 1 << 2) {
+        rpc_read(client, &bDim, sizeof(dim3));
+    }
+    if(mask & 1 << 3) {
+        rpc_read(client, &gDim, sizeof(dim3));
+    }
+    if(mask & 1 << 4) {
+        rpc_read(client, &wSize, sizeof(wSize));
+    }
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    __cudaRegisterFunction(fatCubinHandle, hostFun, deviceFun, deviceName, thread_limit, &tid, &bid, &bDim, &gDim, &wSize);
+    __cudaRegisterFunction(fatCubinHandle, hostFun, deviceFun, deviceName, thread_limit, mask & 1 << 0 ? &tid : nullptr, mask & 1 << 1 ? &bid : nullptr, mask & 1 << 2 ? &bDim : nullptr, mask & 1 << 3 ? &gDim : nullptr, mask & 1 << 4 ? &wSize : nullptr);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
     }
-    printf("------- fatCubinHandle: %p\n", fatCubinHandle);
-    printf("------- hostFun: %s\n", hostFun);
-    printf("------- deviceFun: %s\n", deviceFun);
-    printf("------- deviceName: %s\n", deviceName);
-    printf("------- thread_limit: %d\n", thread_limit);
-    printf("------- tid: x: %d, y: %d, z: %d\n", tid.x, tid.y, tid.z);
-    printf("------- bid: x: %d, y: %d, z: %d\n", bid.x, bid.y, bid.z);
-    printf("------- bDim: x: %d, y: %d, z: %d\n", bDim.x, bDim.y, bDim.z);
-    printf("------- gDim: x: %d, y: %d, z: %d\n", gDim.x, gDim.y, gDim.z);
-    printf("------- wSize: %d\n", wSize);
     return 0;
 }

@@ -1,5 +1,27 @@
 // 隐藏的cuda runtime API
+#ifndef HIDDEN_API_H
+#define HIDDEN_API_H
+
 #include <cuda_runtime_api.h>
+#define __cudaFatMAGIC2 0x466243b1
+
+typedef struct __attribute__((__packed__)) __cudaFatCudaBinaryRec2 {
+    uint32_t magic;
+    uint32_t version;
+    uint64_t text; // points to first text section
+    uint64_t data; // points to outside of the file
+    uint64_t unknown;
+    uint64_t text2; // points to second text section
+    uint64_t zero;
+} __cudaFatCudaBinary2;
+
+typedef struct __attribute__((__packed__)) __cudaFatCudaBinary2HeaderRec {
+    uint32_t magic;
+    uint16_t version;
+    uint16_t header_size;
+    uint64_t size;
+} __cudaFatCudaBinary2Header;
+
 extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem = 0, struct CUstream_st *stream = 0);
 
 extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim, size_t *sharedMem, void *stream);
@@ -21,3 +43,5 @@ extern "C" void __cudaRegisterTexture(void **fatCubinHandle, const struct textur
 extern "C" void __cudaRegisterSurface(void **fatCubinHandle, const struct surfaceReference *hostVar, const void **deviceAddress, const char *deviceName, int dim, int ext);
 
 extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun, char *deviceFun, const char *deviceName, int thread_limit, uint3 *tid, uint3 *bid, dim3 *bDim, dim3 *gDim, int *wSize);
+
+#endif
