@@ -20,6 +20,7 @@ DEFAULT_H_SO_MAP = {
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
+    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
     "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
     "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
     "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
@@ -78,6 +79,18 @@ MANUAL_FUNCTIONS = [
     "cuModuleGetGlobal_v2",
     "cudaMemcpy",
     "cudaMemset",
+    "cuGetProcAddress",
+    "__cudaPushCallConfiguration",
+    "__cudaPopCallConfiguration",
+    "__cudaRegisterFatBinary",
+    "__cudaRegisterFatBinaryEnd",
+    "__cudaUnregisterFatBinary",
+    "__cudaRegisterVar",
+    "__cudaRegisterManagedVar",
+    "__cudaInitModule",
+    "__cudaRegisterTexture",
+    "__cudaRegisterSurface",
+    "__cudaRegisterFunction",
 ]
 
 # 隐藏类型
@@ -180,7 +193,10 @@ def generate_client_cpp(output_dir, function_map, so_files):
 
         # 包含所有头文件
         for header_file in function_map.keys():
-            f.write(f'#include "{os.path.basename(header_file)}"\n')
+            if header_file.startswith("/"):
+                f.write(f'#include "{os.path.basename(header_file)}"\n\n')
+            else:
+                f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
         f.write("\n")
 
         # 写入自定义的 dlsym 实现
@@ -567,7 +583,10 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         # 包含必要的头文件
         f.write("#include <iostream>\n")
         f.write("#include <unordered_map>\n")
-        f.write(f'#include "{os.path.basename(header_file)}"\n\n')
+        if header_file.startswith("/"):
+            f.write(f'#include "{os.path.basename(header_file)}"\n\n')
+        else:
+            f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
         f.write('#include "hook_api.h"\n')
         f.write('#include "../rpc.h"\n')
 
@@ -642,7 +661,10 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         f.write('#include "hook_api.h"\n')
         f.write('#include "handle_server.h"\n')
         f.write('#include "../rpc.h"\n')
-        f.write(f'#include "{os.path.basename(header_file)}"\n\n')
+        if header_file.startswith("/"):
+            f.write(f'#include "{os.path.basename(header_file)}"\n\n')
+        else:
+            f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             for function in parsed_header.namespace.functions:
                 if function.inline:
