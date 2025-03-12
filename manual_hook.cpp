@@ -2,6 +2,7 @@
 #include <map>
 #include <unordered_map>
 #include <set>
+#include <vector>
 #include <cstdlib>
 #include "cuda_runtime.h"
 #include <sys/mman.h>
@@ -84,17 +85,11 @@ extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int fla
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
-    printf("------- pHost: %p\n", pHost);
-    printf("------- size: %lu\n", size);
-    printf("------- flags: %u\n", flags);
     if(rpc_submit_request(client) != 0) {
-        printf("----------------------------- submit request failed\n");
         std::cerr << "Failed to submit request" << std::endl;
         free(*pHost);
         exit(1);
     }
-    printf("------- serverPtr: %p\n", serverPtr);
-    printf("------- _result: %d\n", _result);
     if(_result == cudaSuccess) {
         cs_host_mems[*pHost] = std::make_pair(serverPtr, size);
     } else {
@@ -1213,34 +1208,305 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
 
 extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
     // std::cout << "Hook: cuGetProcAddress called" << std::endl;
-    // printf("symbol: %s\n", symbol);
     auto it = functionMap.find(symbol);
     if(it != functionMap.end()) {
         *pfn = (void *)it->second;
         return CUDA_SUCCESS;
     }
-    printf("symbol %s not found\n", symbol);
     return CUDA_ERROR_NOT_FOUND;
-    // CUresult _result;
-    // RpcClient *client = rpc_get_client();
-    // if(client == nullptr) {
-    //     std::cerr << "Failed to get rpc client" << std::endl;
-    //     exit(1);
-    // }
-    // rpc_prepare_request(client, RPC_cuGetProcAddress);
-    // rpc_write(client, symbol, strlen(symbol) + 1);
-    // // PARAM void **pfn
-    // rpc_write(client, &cudaVersion, sizeof(cudaVersion));
-    // rpc_write(client, &flags, sizeof(flags));
-    // rpc_read(client, &_result, sizeof(_result));
-    // if(rpc_submit_request(client) != 0) {
-    //     std::cerr << "Failed to submit request" << std::endl;
-    //     rpc_release_client(client);
-    //     exit(1);
-    // }
-    // // PARAM void **pfn
-    // rpc_free_client(client);
-    // return _result;
+}
+
+// Function to parse a PTX string and fill functions into a dynamically
+// allocated array
+#define MAX_FUNCTION_NAME 128
+#define MAX_ARGS 32
+
+struct Function {
+    char *name;
+    void *fat_cubin;       // the fat cubin that this function is a part of.
+    const char *host_func; // if registered, points at the host function.
+    int *arg_sizes;
+    int arg_count;
+};
+
+std::vector<Function> functions;
+
+int get_type_size(const char *type) {
+    if(*type == 'u' || *type == 's' || *type == 'f')
+        type++;
+    else
+        return 0; // Unknown type
+    if(*type == '8')
+        return 1;
+    if(*type == '1' && *(type + 1) == '6')
+        return 2;
+    if(*type == '3' && *(type + 1) == '2')
+        return 4;
+    if(*type == '6' && *(type + 1) == '4')
+        return 8;
+    return 0; // Unknown type
+}
+
+void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned long long ptx_len) {
+    for(unsigned long long i = 0; i < ptx_len; i++) {
+        if(ptx_string[i] != '.' || i + 5 >= ptx_len || strncmp(ptx_string + i + 1, "entry", strlen("entry")) != 0)
+            continue;
+
+        char *name = (char *)malloc(MAX_FUNCTION_NAME);
+        if(name == nullptr) {
+            std::cerr << "Failed to allocate memory" << std::endl;
+            exit(1);
+        }
+        int *arg_sizes = (int *)malloc(MAX_ARGS * sizeof(int));
+        if(arg_sizes == nullptr) {
+            std::cerr << "Failed to allocate memory" << std::endl;
+            exit(1);
+        }
+        int arg_count = 0;
+
+        i += strlen(".entry");
+        while(i < ptx_len && !isalnum(ptx_string[i]) && ptx_string[i] != '_') {
+            i++;
+        }
+
+        int j = 0;
+        for(; j < MAX_FUNCTION_NAME - 1 && i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_');) {
+            name[j++] = ptx_string[i++];
+        }
+        name[j] = '\0';
+
+        while(i < ptx_len && ptx_string[i] != '(' && ptx_string[i] != '{') {
+            i++;
+        }
+
+        if(ptx_string[i] == '(') {
+            for(; arg_count < MAX_ARGS; arg_count++) {
+                int arg_size = 0;
+
+                while(i < ptx_len && (ptx_string[i] != '.' && ptx_string[i] != ')')) {
+                    i++;
+                }
+
+                if(ptx_string[i] == ')') {
+                    break;
+                }
+
+                // assert that the next token is "param"
+                if(i + 5 >= ptx_len || strncmp(ptx_string + i, ".param", strlen(".param")) != 0) {
+                    continue;
+                }
+
+                while(true) {
+                    while(i < ptx_len && (ptx_string[i] != '.' && ptx_string[i] != ',' && ptx_string[i] != ')' && ptx_string[i] != '[')) {
+                        i++;
+                    }
+
+                    if(ptx_string[i] == '.') {
+                        // read the type, ignoring if it's not a valid type
+                        int type_size = get_type_size(ptx_string + (++i));
+                        if(type_size == 0) {
+                            continue;
+                        }
+                        arg_size = type_size;
+                    } else if(ptx_string[i] == '[') {
+                        // this is an array type. read until the ]
+                        int start = i + 1;
+                        while(i < ptx_len && ptx_string[i] != ']') {
+                            i++;
+                        }
+
+                        // parse the int value
+                        int n = 0;
+                        for(int j = start; j < i; j++) {
+                            n = n * 10 + ptx_string[j] - '0';
+                        }
+                        arg_size *= n;
+                    } else if(ptx_string[i] == ',' || ptx_string[i] == ')') {
+                        break;
+                    }
+                }
+                arg_sizes[arg_count] = arg_size;
+            }
+        }
+        // add the function to the list
+        functions.push_back(Function{
+            .name = name,
+            .fat_cubin = fatCubin,
+            .host_func = nullptr,
+            .arg_sizes = arg_sizes,
+            .arg_count = arg_count,
+        });
+        // printf("function %s has %d arguments\n", name, arg_count);
+    }
+}
+
+static size_t decompress(const uint8_t *input, size_t input_size, uint8_t *output, size_t output_size) {
+    size_t ipos = 0, opos = 0;
+    uint64_t next_nclen;  // length of next non-compressed segment
+    uint64_t next_clen;   // length of next compressed segment
+    uint64_t back_offset; // negative offset where redudant data is located,
+                          // relative to current opos
+
+    while(ipos < input_size) {
+        next_nclen = (input[ipos] & 0xf0) >> 4;
+        next_clen = 4 + (input[ipos] & 0xf);
+        if(next_nclen == 0xf) {
+            do {
+                next_nclen += input[++ipos];
+            } while(input[ipos] == 0xff);
+        }
+
+        if(memcpy(output + opos, input + (++ipos), next_nclen) == NULL) {
+            fprintf(stderr, "Error copying data");
+            return 0;
+        }
+
+        ipos += next_nclen;
+        opos += next_nclen;
+        if(ipos >= input_size || opos >= output_size) {
+            break;
+        }
+        back_offset = input[ipos] + (input[ipos + 1] << 8);
+        ipos += 2;
+        if(next_clen == 0xf + 4) {
+            do {
+                next_clen += input[ipos++];
+            } while(input[ipos - 1] == 0xff);
+        }
+
+        if(next_clen <= back_offset) {
+            if(memcpy(output + opos, output + opos - back_offset, next_clen) == NULL) {
+                fprintf(stderr, "Error copying data");
+                return 0;
+            }
+        } else {
+            if(memcpy(output + opos, output + opos - back_offset, back_offset) == NULL) {
+                fprintf(stderr, "Error copying data");
+                return 0;
+            }
+            for(size_t i = back_offset; i < next_clen; i++) {
+                output[opos + i] = output[opos + i - back_offset];
+            }
+        }
+
+        opos += next_clen;
+    }
+    return opos;
+}
+
+static ssize_t decompress_single_section(const uint8_t *input, uint8_t **output, size_t *output_size, struct __cudaFatCudaBinary2HeaderRec *eh, struct __cudaFatCudaBinary2EntryRec *th) {
+    size_t padding;
+    size_t input_read = 0;
+    size_t output_written = 0;
+    size_t decompress_ret = 0;
+    const uint8_t zeroes[8] = {0};
+
+    if(input == NULL || output == NULL || eh == NULL || th == NULL) {
+        return 1;
+    }
+
+    uint8_t *mal = (uint8_t *)malloc(th->uncompressedBinarySize + 7);
+
+    // add max padding of 7 bytes
+    if((*output = mal) == NULL) {
+        goto error;
+    }
+
+    decompress_ret = decompress(input, th->binarySize, *output, th->uncompressedBinarySize);
+
+    // @brodey - keeping this temporarily so that we can compare the compression
+    // returns
+    if(decompress_ret != th->uncompressedBinarySize) {
+        std::cout << "failed actual decompress..." << std::endl;
+        goto error;
+    }
+    input_read += th->binarySize;
+    output_written += th->uncompressedBinarySize;
+
+    padding = ((8 - (size_t)(input + input_read)) % 8);
+    if(memcmp(input + input_read, zeroes, padding) != 0) {
+        goto error;
+    }
+    input_read += padding;
+
+    padding = ((8 - (size_t)th->uncompressedBinarySize) % 8);
+    // Because we always allocated enough memory for one more elf_header and this
+    // is smaller than the maximal padding of 7, we do not have to reallocate
+    // here.
+    memset(*output, 0, padding);
+    output_written += padding;
+
+    *output_size = output_written;
+    return input_read;
+error:
+    free(*output);
+    *output = NULL;
+    return -1;
+}
+
+void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
+    char *base = (char *)(header + 1);
+    long long unsigned int offset = 0;
+    __cudaFatCudaBinary2EntryRec *entry = (__cudaFatCudaBinary2EntryRec *)(base);
+
+    while(offset < header->size) {
+        entry = (__cudaFatCudaBinary2EntryRec *)(base + offset);
+        offset += entry->binary + entry->binarySize;
+        if(!(entry->type & FATBIN_2_PTX))
+            continue;
+        if(entry->flags & FATBIN_FLAG_COMPRESS) {
+            uint8_t *text_data = NULL;
+            size_t text_data_size = 0;
+            if(decompress_single_section((const uint8_t *)entry + entry->binary, &text_data, &text_data_size, header, entry) < 0) {
+                std::cout << "decompressing failed..." << std::endl;
+                return;
+            }
+            parse_ptx_string(fatCubin, (char *)text_data, text_data_size);
+        } else {
+            parse_ptx_string(fatCubin, (char *)entry + entry->binary, entry->binarySize);
+        }
+    }
+}
+
+extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blockDim, void **args, size_t sharedMem, cudaStream_t stream) {
+    std::cout << "Hook: cudaLaunchKernel called" << std::endl;
+    cudaError_t _result;
+    Function *f = nullptr;
+    for(auto &function : functions) {
+        if(function.host_func == func) {
+            f = &function;
+            break;
+        }
+    }
+    if(f == nullptr) {
+        std::cerr << "Failed to find function" << std::endl;
+        return cudaErrorInvalidDeviceFunction;
+    }
+
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaLaunchKernel);
+    rpc_write(client, &func, sizeof(func));
+    rpc_write(client, &gridDim, sizeof(gridDim));
+    rpc_write(client, &blockDim, sizeof(blockDim));
+    rpc_write(client, &sharedMem, sizeof(sharedMem));
+    rpc_write(client, &stream, sizeof(stream));
+    rpc_write(client, &f->arg_count, sizeof(f->arg_count));
+
+    for(int i = 0; i < f->arg_count; i++) {
+        rpc_write(client, args[i], f->arg_sizes[i]);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
 }
 
 extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem, struct CUstream_st *stream) {
@@ -1262,7 +1528,6 @@ extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, siz
         rpc_release_client(client);
         exit(1);
     }
-    printf("------- _result: %d\n", _result);
     rpc_free_client(client);
     return _result;
 }
@@ -1287,34 +1552,33 @@ extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim,
         exit(1);
     }
     rpc_free_client(client);
-    printf("------- _result: %d\n", _result);
     return _result;
 }
 
 extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
     std::cout << "Hook: __cudaRegisterFatBinary called" << std::endl;
     void **_result = nullptr;
+    __cudaFatCudaBinary2 *binary;
+    __cudaFatCudaBinary2Header *header;
+    unsigned long long size;
+
+    binary = (__cudaFatCudaBinary2 *)fatCubin;
+    header = (__cudaFatCudaBinary2Header *)binary->text;
+    size = sizeof(__cudaFatCudaBinary2Header) + header->size;
+
     if(*(unsigned *)fatCubin != __cudaFatMAGIC2) {
         std::cerr << "Invalid fat binary magic" << std::endl;
         return nullptr;
     }
+    parseFatBinary(fatCubin, header);
 
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    __cudaFatCudaBinary2 *binary;
-    __cudaFatCudaBinary2Header *header;
-    unsigned long long size;
-
     rpc_prepare_request(client, RPC___cudaRegisterFatBinary);
-
-    binary = (__cudaFatCudaBinary2 *)fatCubin;
-    header = (__cudaFatCudaBinary2Header *)binary->text;
-    size = sizeof(__cudaFatCudaBinary2Header) + header->size;
     rpc_write(client, binary, sizeof(__cudaFatCudaBinary2));
-    rpc_write(client, &size, sizeof(size));
     rpc_write(client, header, size);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1323,7 +1587,6 @@ extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
         exit(1);
     }
     rpc_free_client(client);
-    printf("------- _result: %p\n", _result);
     return _result;
 }
 
@@ -1335,7 +1598,6 @@ extern "C" void __cudaRegisterFatBinaryEnd(void **fatCubinHandle) {
         exit(1);
     }
     rpc_prepare_request(client, RPC___cudaRegisterFatBinaryEnd);
-    printf("-- fatCubinHandle: %p\n", fatCubinHandle);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1353,13 +1615,12 @@ extern "C" void __cudaUnregisterFatBinary(void **fatCubinHandle) {
         exit(1);
     }
     rpc_prepare_request(client, RPC___cudaUnregisterFatBinary);
-    // PARAM void **fatCubinHandle
+    rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **fatCubinHandle
     rpc_free_client(client);
 }
 
@@ -1370,10 +1631,13 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    printf("------------- hostVar: %p\n", hostVar);
+    printf("------------- deviceAddress: %s\n", deviceAddress);
+    printf("------------- deviceName: %s\n", deviceName);
     rpc_prepare_request(client, RPC___cudaRegisterVar);
-    // PARAM void **fatCubinHandle
-    rpc_read(client, hostVar, size);
-    rpc_read(client, deviceAddress, size);
+    rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
+    rpc_write(client, &hostVar, sizeof(hostVar));
+    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1);
     rpc_write(client, deviceName, strlen(deviceName) + 1);
     rpc_write(client, &ext, sizeof(ext));
     rpc_write(client, &size, sizeof(size));
@@ -1384,7 +1648,6 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **fatCubinHandle
     rpc_free_client(client);
 }
 
@@ -1396,9 +1659,9 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
         exit(1);
     }
     rpc_prepare_request(client, RPC___cudaRegisterManagedVar);
-    // PARAM void **fatCubinHandle
-    // PARAM void **hostVarPtrAddress
-    rpc_read(client, deviceAddress, size);
+    rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
+    rpc_write(client, &hostVarPtrAddress, sizeof(hostVarPtrAddress));
+    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1);
     rpc_write(client, deviceName, strlen(deviceName) + 1);
     rpc_write(client, &ext, sizeof(ext));
     rpc_write(client, &size, sizeof(size));
@@ -1409,8 +1672,7 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **fatCubinHandle
-    // PARAM void **hostVarPtrAddress
+
     rpc_free_client(client);
 }
 
@@ -1435,57 +1697,6 @@ extern "C" char __cudaInitModule(void **fatCubinHandle) {
     return _result;
 }
 
-extern "C" void __cudaRegisterTexture(void **fatCubinHandle, const struct textureReference *hostVar, const void **deviceAddress, const char *deviceName, int dim, int norm, int ext) {
-    std::cout << "Hook: __cudaRegisterTexture called" << std::endl;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC___cudaRegisterTexture);
-    // PARAM void **fatCubinHandle
-    rpc_write(client, hostVar, sizeof(*hostVar));
-    // PARAM const void **deviceAddress
-    rpc_read(client, deviceAddress, sizeof(*deviceAddress));
-    rpc_write(client, deviceName, strlen(deviceName) + 1);
-    rpc_write(client, &dim, sizeof(dim));
-    rpc_write(client, &norm, sizeof(norm));
-    rpc_write(client, &ext, sizeof(ext));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **fatCubinHandle
-    // PARAM const void **deviceAddress
-    rpc_free_client(client);
-}
-
-extern "C" void __cudaRegisterSurface(void **fatCubinHandle, const struct surfaceReference *hostVar, const void **deviceAddress, const char *deviceName, int dim, int ext) {
-    std::cout << "Hook: __cudaRegisterSurface called" << std::endl;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC___cudaRegisterSurface);
-    // PARAM void **fatCubinHandle
-    rpc_write(client, hostVar, sizeof(*hostVar));
-    // PARAM const void **deviceAddress
-    rpc_read(client, deviceAddress, sizeof(*deviceAddress));
-    rpc_write(client, deviceName, strlen(deviceName) + 1);
-    rpc_write(client, &dim, sizeof(dim));
-    rpc_write(client, &ext, sizeof(ext));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **fatCubinHandle
-    // PARAM const void **deviceAddress
-    rpc_free_client(client);
-}
-
 extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun, char *deviceFun, const char *deviceName, int thread_limit, uint3 *tid, uint3 *bid, dim3 *bDim, dim3 *gDim, int *wSize) {
     std::cout << "Hook: __cudaRegisterFunction called" << std::endl;
     RpcClient *client = rpc_get_client();
@@ -1495,7 +1706,7 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     }
     rpc_prepare_request(client, RPC___cudaRegisterFunction);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
-    rpc_write(client, &hostFun, sizeof(hostFun)); // 写入指针地址
+    rpc_write(client, &hostFun, sizeof(hostFun));
     rpc_write(client, deviceFun, strlen(deviceFun) + 1);
     rpc_write(client, deviceName, strlen(deviceName) + 1);
     rpc_write(client, &thread_limit, sizeof(thread_limit));
@@ -1526,15 +1737,17 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     if(wSize != nullptr) {
         rpc_write(client, wSize, sizeof(int));
     }
-    printf("------- fatCubinHandle: %p\n", fatCubinHandle);
-    printf("------- hostFun: %p\n", hostFun);
-    printf("------- deviceFun: %s\n", deviceFun);
-    printf("------- deviceName: %s\n", deviceName);
-    printf("------- thread_limit: %d\n", thread_limit);
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
     }
     rpc_free_client(client);
+    // also memorize the host pointer function
+    for(auto &function : functions) {
+        if(strcmp(function.name, deviceName) == 0) {
+            function.host_func = hostFun;
+            // printf("register function %s %p\n", function.name, function.host_func);
+        }
+    }
 }

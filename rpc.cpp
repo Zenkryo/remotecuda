@@ -274,6 +274,79 @@ ssize_t rpc_read_now(RpcClient *client, void *buffer, size_t len) {
     return readv_all(client->sockfd, iov, 1);
 }
 
+ssize_t rpc_read_now2(RpcClient *client, void **buffer, int *size) {
+
+    ssize_t total_read = 0; // 已读取的总字节数
+    ssize_t bytes_read;     // 每次读取的字节数
+    size_t remaining = 0;
+
+    // 读取长度字段 (2 字节)
+    uint16_t length;
+    size_t length_bytes = sizeof(length);
+    uint8_t *length_ptr = (uint8_t *)&length;
+
+    while(length_bytes > 0) {
+        bytes_read = read(client->sockfd, length_ptr, length_bytes);
+        if(bytes_read < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if(bytes_read == 0) {
+            return -1; // 对端关闭连接
+        }
+        // printf("==> ");
+        // for(int j = 0; j < bytes_read; j++) {
+        //     printf("%02x ", (length_ptr)[j]);
+        // }
+        // printf("\n");
+        length_ptr += bytes_read;
+        length_bytes -= bytes_read;
+        total_read += bytes_read;
+    }
+
+    length = ntohs(length); // 转换为主机字节序
+    *size = length;
+    if(length <= 0) {
+        return -1;
+    }
+
+    *buffer = malloc(length);
+    if(*buffer == NULL) {
+        errno = ENOBUFS; // 缓冲区不足
+        return -1;
+    }
+
+    // 读取数据
+    remaining = length;
+    uint8_t *data_ptr = (uint8_t *)*buffer;
+
+    while(remaining > 0) {
+        bytes_read = read(client->sockfd, data_ptr, remaining);
+        if(bytes_read < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if(bytes_read == 0) {
+            free(*buffer);
+            return -1; // 对端关闭连接
+        }
+
+        // printf("==> ");
+        // for(int j = 0; j < bytes_read; j++) {
+        //     printf("%02x ", (data_ptr)[j]);
+        // }
+        // printf("\n");
+        total_read += bytes_read;
+        data_ptr += bytes_read;
+        remaining -= bytes_read;
+    }
+    return 0;
+}
+
 // 请求并等待响应
 int rpc_submit_request(RpcClient *client) {
     if(writev_all(client->sockfd, client->iov_send, client->iov_send_count) < 0) {
@@ -309,4 +382,27 @@ int rpc_submit_response(RpcClient *client) {
     }
     client->iov_send_count = 0;
     return 0;
+}
+
+void hexdump(char *desc, void *buf, size_t len) {
+    unsigned char *p = (unsigned char *)buf;
+    printf("%s len: %lu\n", desc, len);
+    // 每行显示16个字节
+    for(size_t i = 0; i < len; i += 16) {
+        printf("%08lx: ", i);
+        for(size_t j = 0; j < 16; j++) {
+            if(i + j < len) {
+                printf("%02x ", p[i + j]);
+            } else {
+                printf("   ");
+            }
+        }
+        printf(" ");
+        for(size_t j = 0; j < 16; j++) {
+            if(i + j < len) {
+                printf("%c", isprint(p[i + j]) ? p[i + j] : '.');
+            }
+        }
+        printf("\n");
+    }
 }

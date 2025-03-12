@@ -9,6 +9,7 @@
   "C_Cpp.default.includePath": [
     "/usr/local/cuda/include",
     "/usr/local/cudnn/include",
+    "${workspaceFolder}",
   ],
   "files.associations": {
     "cstdint": "cpp",

@@ -140,11 +140,7 @@ int handle_cudaHostAlloc(void *args) {
         std::cerr << "Failed to prepare response" << std::endl;
         return cudaErrorUnknown;
     }
-    printf("---- size: %lu\n", size);
-    printf("---- flags: %u\n", flags);
     cudaError_t _result = cudaHostAlloc(&pHost, size, flags);
-    printf("pHost: %p\n", pHost);
-    printf("result: %d\n", _result);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -446,6 +442,46 @@ int handle_cuGetProcAddress(void *args0) {
     return 0;
 }
 
+int handle_cudaLaunchKernel(void *args0) {
+    std::cout << "Handle function cudaLaunchKernel called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    const void *func;
+    dim3 gridDim;
+    dim3 blockDim;
+    void **args;
+    size_t sharedMem;
+    cudaStream_t stream;
+    int arg_count;
+    rpc_read(client, &func, sizeof(func));
+    rpc_read(client, &gridDim, sizeof(gridDim));
+    rpc_read(client, &blockDim, sizeof(blockDim));
+    rpc_read(client, &sharedMem, sizeof(sharedMem));
+    rpc_read(client, &stream, sizeof(stream));
+    rpc_read(client, &arg_count, sizeof(arg_count));
+
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    args = (void **)malloc(sizeof(void *) * arg_count);
+    for(int i = 0; i < arg_count; i++) {
+        int size;
+        rpc_read_now2(client, &args[i], &size);
+    }
+    cudaError_t _result = cudaLaunchKernel(func, gridDim, blockDim, args, sharedMem, stream);
+    for(int i = 0; i < arg_count; i++) {
+        free(args[i]);
+    }
+    free(args);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 int handle___cudaPushCallConfiguration(void *args0) {
     std::cout << "Handle function __cudaPushCallConfiguration called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
@@ -504,20 +540,14 @@ int handle___cudaRegisterFatBinary(void *args0) {
         std::cerr << "Failed to allocate fatCubin" << std::endl;
         return 1;
     }
-    unsigned long long size;
     rpc_read(client, fatCubin, sizeof(__cudaFatCudaBinary2));
-    rpc_read(client, &size, sizeof(size));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    void *cubin = malloc(size);
-    if(cubin == nullptr) {
-        std::cerr << "Failed to allocate cubin" << std::endl;
-        free(fatCubin);
-        return 1;
-    }
-    rpc_read_now(client, cubin, size);
+    void *cubin = nullptr;
+    int len;
+    rpc_read_now2(client, &cubin, &len);
     fatCubin->text = (uint64_t)cubin;
     void **_result = __cudaRegisterFatBinary(fatCubin);
     rpc_write(client, &_result, sizeof(_result));
@@ -525,7 +555,6 @@ int handle___cudaRegisterFatBinary(void *args0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
     }
-
     return 0;
 }
 
@@ -549,31 +578,30 @@ int handle___cudaRegisterFatBinaryEnd(void *args0) {
 int handle___cudaUnregisterFatBinary(void *args0) {
     std::cout << "Handle function __cudaUnregisterFatBinary called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
-    void *fatCubinHandle;
+    void **fatCubinHandle;
+    rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    // PARAM void **fatCubinHandle
-    __cudaUnregisterFatBinary(&fatCubinHandle);
-    // PARAM void **fatCubinHandle
+    __cudaUnregisterFatBinary(fatCubinHandle);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
     }
-
     return 0;
 }
 
 int handle___cudaRegisterVar(void *args0) {
     std::cout << "Handle function __cudaRegisterVar called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
-    void *fatCubinHandle;
-    char hostVar[1024];
-    char deviceAddress[1024];
-    char deviceName[1024];
+    void **fatCubinHandle;
+    char *hostVar;
+    char *deviceAddress = (char *)malloc(1024);
+    char *deviceName = (char *)malloc(1024);
+    rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
+    rpc_read(client, &hostVar, sizeof(hostVar));
+    rpc_read(client, deviceAddress, 1024);
     rpc_read(client, deviceName, 1024);
     int ext;
     rpc_read(client, &ext, sizeof(ext));
@@ -587,11 +615,7 @@ int handle___cudaRegisterVar(void *args0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    // PARAM void **fatCubinHandle
-    __cudaRegisterVar(&fatCubinHandle, hostVar, deviceAddress, deviceName, ext, size, constant, global);
-    // PARAM void **fatCubinHandle
-    rpc_write(client, hostVar, strlen(hostVar) + 1);
-    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1);
+    __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext, size, constant, global);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
@@ -603,12 +627,13 @@ int handle___cudaRegisterVar(void *args0) {
 int handle___cudaRegisterManagedVar(void *args0) {
     std::cout << "Handle function __cudaRegisterManagedVar called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
-    void *fatCubinHandle;
-    // PARAM void **hostVarPtrAddress
-    void *hostVarPtrAddress;
+    void **fatCubinHandle;
+    void **hostVarPtrAddress;
     char deviceAddress[1024];
     char deviceName[1024];
+    rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
+    rpc_read(client, &hostVarPtrAddress, sizeof(hostVarPtrAddress));
+    rpc_read(client, deviceAddress, 1024);
     rpc_read(client, deviceName, 1024);
     int ext;
     rpc_read(client, &ext, sizeof(ext));
@@ -622,12 +647,7 @@ int handle___cudaRegisterManagedVar(void *args0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    // PARAM void **fatCubinHandle
-    // PARAM void **hostVarPtrAddress
-    __cudaRegisterManagedVar(&fatCubinHandle, &hostVarPtrAddress, deviceAddress, deviceName, ext, size, constant, global);
-    // PARAM void **fatCubinHandle
-    // PARAM void **hostVarPtrAddress
-    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1);
+    __cudaRegisterManagedVar(fatCubinHandle, hostVarPtrAddress, deviceAddress, deviceName, ext, size, constant, global);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
@@ -657,82 +677,14 @@ int handle___cudaInitModule(void *args0) {
     return 0;
 }
 
-int handle___cudaRegisterTexture(void *args0) {
-    std::cout << "Handle function __cudaRegisterTexture called" << std::endl;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
-    void *fatCubinHandle;
-    struct textureReference hostVar;
-    rpc_read(client, &hostVar, sizeof(hostVar));
-    // PARAM const void **deviceAddress
-    const void *deviceAddress;
-    char deviceName[1024];
-    rpc_read(client, deviceName, 1024);
-    int dim;
-    rpc_read(client, &dim, sizeof(dim));
-    int norm;
-    rpc_read(client, &norm, sizeof(norm));
-    int ext;
-    rpc_read(client, &ext, sizeof(ext));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    // PARAM void **fatCubinHandle
-    // PARAM const void **deviceAddress
-    __cudaRegisterTexture(&fatCubinHandle, &hostVar, &deviceAddress, deviceName, dim, norm, ext);
-    // PARAM void **fatCubinHandle
-    // PARAM const void **deviceAddress
-    rpc_write(client, &deviceAddress, sizeof(deviceAddress));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
-int handle___cudaRegisterSurface(void *args0) {
-    std::cout << "Handle function __cudaRegisterSurface called" << std::endl;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
-    void *fatCubinHandle;
-    struct surfaceReference hostVar;
-    rpc_read(client, &hostVar, sizeof(hostVar));
-    // PARAM const void **deviceAddress
-    const void *deviceAddress;
-    char deviceName[1024];
-    rpc_read(client, deviceName, 1024);
-    int dim;
-    rpc_read(client, &dim, sizeof(dim));
-    int ext;
-    rpc_read(client, &ext, sizeof(ext));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    // PARAM void **fatCubinHandle
-    // PARAM const void **deviceAddress
-    __cudaRegisterSurface(&fatCubinHandle, &hostVar, &deviceAddress, deviceName, dim, ext);
-    // PARAM void **fatCubinHandle
-    // PARAM const void **deviceAddress
-    rpc_write(client, &deviceAddress, sizeof(deviceAddress));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
 int handle___cudaRegisterFunction(void *args0) {
     std::cout << "Handle function __cudaRegisterFunction called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **fatCubinHandle
     void **fatCubinHandle;
     char *hostFun;
-    char deviceFun[1024];
-    char deviceName[1024];
+    char *deviceFun = (char *)malloc(1024);
+    char *deviceName = (char *)malloc(1024);
     int thread_limit;
     uint3 tid;
     uint3 bid;
@@ -771,5 +723,22 @@ int handle___cudaRegisterFunction(void *args0) {
         std::cerr << "Failed to submit response" << std::endl;
         return 1;
     }
+    if(mask & 1 << 0) {
+        printf("tid: %u %u %u\n", tid.x, tid.y, tid.z);
+    }
+    if(mask & 1 << 1) {
+        printf("bid: %u %u %u\n", bid.x, bid.y, bid.z);
+    }
+    if(mask & 1 << 2) {
+        printf("bDim: %u %u %u\n", bDim.x, bDim.y, bDim.z);
+    }
+    if(mask & 1 << 3) {
+        printf("gDim: %u %u %u\n", gDim.x, gDim.y, gDim.z);
+    }
+    if(mask & 1 << 4) {
+        printf("wSize: %d\n", wSize);
+    }
+    // free(deviceFun);
+    // free(deviceName);
     return 0;
 }

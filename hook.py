@@ -80,17 +80,16 @@ MANUAL_FUNCTIONS = [
     "cudaMemcpy",
     "cudaMemset",
     "cuGetProcAddress",
-    "__cudaPushCallConfiguration",
+    "cudaLaunchKernel" ,
+    "__cudaInitModule",
     "__cudaPopCallConfiguration",
+    "__cudaPushCallConfiguration",
     "__cudaRegisterFatBinary",
     "__cudaRegisterFatBinaryEnd",
-    "__cudaUnregisterFatBinary",
-    "__cudaRegisterVar",
-    "__cudaRegisterManagedVar",
-    "__cudaInitModule",
-    "__cudaRegisterTexture",
-    "__cudaRegisterSurface",
     "__cudaRegisterFunction",
+    "__cudaRegisterManagedVar",
+    "__cudaRegisterVar",
+    "__cudaUnregisterFatBinary",
 ]
 
 # 隐藏类型

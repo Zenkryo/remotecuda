@@ -11,7 +11,7 @@
 #include "rpc.h"
 #include "server.h"
 
-#define MAX_IOCV_COUNT 16
+#define MAX_IOCV_COUNT 32
 #define THREAD_POOL_SIZE 10
 
 // RPC服务器端结构
