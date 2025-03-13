@@ -742,3 +742,84 @@ int handle___cudaRegisterFunction(void *args0) {
     // free(deviceName);
     return 0;
 }
+
+int handle_cudaMemcpyToSymbol(void *args0) {
+    std::cout << "Handle function cudaMemcpyToSymbol called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    void *symbol;
+    void *src;
+    size_t count;
+    size_t offset;
+    enum cudaMemcpyKind kind;
+    rpc_read(client, &symbol, sizeof(symbol));
+    rpc_read(client, &count, sizeof(count));
+    rpc_read(client, &offset, sizeof(offset));
+    rpc_read(client, &kind, sizeof(kind));
+    rpc_read(client, &src, sizeof(src));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    bool is_malloc = false;
+    if(src == nullptr) {
+        src = malloc(count);
+        rpc_read_now(client, (uint8_t *)src, count);
+    }
+    cudaError_t _result = cudaMemcpyToSymbol(symbol, src, count, offset, kind);
+    if(is_malloc) {
+        free(src);
+    }
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+int handle_cudaMemcpyFromSymbol(void *args0) {
+    std::cout << "Handle function cudaMemcpyFromSymbol called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    void *dst;
+    void *symbol;
+    size_t count;
+    size_t offset;
+    enum cudaMemcpyKind kind;
+    rpc_read(client, &dst, sizeof(dst));
+    rpc_read(client, &symbol, sizeof(symbol));
+    rpc_read(client, &count, sizeof(count));
+    rpc_read(client, &offset, sizeof(offset));
+    rpc_read(client, &kind, sizeof(kind));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    bool is_malloc = false;
+    if(dst == nullptr) {
+        dst = malloc(count);
+        if(dst == nullptr) {
+            std::cerr << "Failed to allocate memory for dst" << std::endl;
+            return 1;
+        }
+        is_malloc = true;
+    }
+    cudaError_t _result = cudaMemcpyFromSymbol(dst, symbol, count, offset, kind);
+    bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
+    if(dst_is_union || is_malloc) {
+        rpc_write(client, dst, count);
+    }
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        if(is_malloc) {
+            free(dst);
+        }
+        return 1;
+    }
+    if(is_malloc) {
+        free(dst);
+    }
+
+    return 0;
+}

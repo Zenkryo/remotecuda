@@ -1631,9 +1631,6 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    printf("------------- hostVar: %p\n", hostVar);
-    printf("------------- deviceAddress: %s\n", deviceAddress);
-    printf("------------- deviceName: %s\n", deviceName);
     rpc_prepare_request(client, RPC___cudaRegisterVar);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_write(client, &hostVar, sizeof(hostVar));
@@ -1750,4 +1747,70 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
             // printf("register function %s %p\n", function.name, function.host_func);
         }
     }
+}
+
+extern "C" cudaError_t cudaMemcpyToSymbol(const void *symbol, const void *src, size_t count, size_t offset, enum cudaMemcpyKind kind) {
+    std::cout << "Hook: cudaMemcpyToSymbol called" << std::endl;
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaMemcpyToSymbol);
+    rpc_write(client, &symbol, sizeof(symbol));
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, &offset, sizeof(offset));
+    rpc_write(client, &kind, sizeof(kind));
+    // 如果是统一内存，或设备内存都只需要将指针地址拷贝到server
+    // 否则，写入null指针，然后再写入数据到server
+    void *serverSrc = getUnionPtr((void *)src);
+    if(serverSrc == nullptr) {
+        serverSrc = getServerDevPtr((void *)src);
+    }
+    rpc_write(client, &serverSrc, sizeof(serverSrc));
+    if(serverSrc == nullptr) {
+        rpc_write(client, (uint8_t *)src, count);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset, enum cudaMemcpyKind kind) {
+    std::cout << "Hook: cudaMemcpyFromSymbol called" << std::endl;
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaMemcpyFromSymbol);
+    bool is_managed = true;
+    void *serverDst = getUnionPtr(dst);
+    if(serverDst == nullptr) {
+        is_managed = false;
+        serverDst = getServerDevPtr(dst);
+    }
+    rpc_write(client, &serverDst, sizeof(serverDst));
+    rpc_write(client, &symbol, sizeof(symbol));
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, &offset, sizeof(offset));
+    rpc_write(client, &kind, sizeof(kind));
+    if(is_managed || serverDst == nullptr) {
+        rpc_read(client, dst, count);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
 }

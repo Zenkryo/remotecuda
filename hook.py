@@ -81,6 +81,8 @@ MANUAL_FUNCTIONS = [
     "cudaMemset",
     "cuGetProcAddress",
     "cudaLaunchKernel" ,
+    "cudaMemcpyToSymbol",
+    "cudaMemcpyFromSymbol",
     "__cudaInitModule",
     "__cudaPopCallConfiguration",
     "__cudaPushCallConfiguration",
