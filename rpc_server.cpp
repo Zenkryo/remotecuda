@@ -26,7 +26,6 @@ typedef struct _RpcServer {
 #pragma pack(push, 1) // 按 1 字节对齐
 
 typedef struct _ReqHeader {
-    uint16_t len;
     uint32_t funcId;
 } ReqHeader;
 
@@ -113,13 +112,8 @@ void *rpc_handle_client(void *arg) {
             fprintf(stderr, "Invalid request header\n");
             break;
         }
-        // printf("==> ");
-        // for(int i = 0; i < sizeof(header); i++) {
-        //     printf("%02x ", ((unsigned char *)&header)[i]);
-        // }
-        // printf("\n");
-        // printf("---- len = %d, funcId = %x\n", ntohs(header.len), header.funcId);
-        header.len = ntohs(header.len);
+        hexdump("==> ", &header, sizeof(header));
+        printf("---- funcId = %x\n", header.funcId);
         client.funcId = header.funcId;
         // 取得函数ID对应的处理函数
         RequestHandler handler = get_handler(client.funcId);
@@ -129,7 +123,9 @@ void *rpc_handle_client(void *arg) {
         }
         handler(&client);
         client.iov_read_count = 0;
+        client.iov_read2_count = 0;
         client.iov_send_count = 0;
+        client.iov_send2_count = 0;
     }
 
     close(connfd);

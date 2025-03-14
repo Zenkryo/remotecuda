@@ -57,6 +57,7 @@ extern "C" cudaError_t cudaMallocHost(void **ptr, size_t size) {
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*ptr);
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -64,6 +65,7 @@ extern "C" cudaError_t cudaMallocHost(void **ptr, size_t size) {
     } else {
         free(*ptr);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -88,6 +90,7 @@ extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int fla
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*pHost);
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -95,6 +98,7 @@ extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int fla
     } else {
         free(*pHost);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -118,6 +122,7 @@ extern "C" CUresult cuMemAllocHost_v2(void **pp, size_t bytesize) {
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*pp);
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -125,6 +130,7 @@ extern "C" CUresult cuMemAllocHost_v2(void **pp, size_t bytesize) {
     } else {
         free(*pp);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -149,6 +155,7 @@ extern "C" CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flag
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*pp);
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -156,6 +163,7 @@ extern "C" CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flag
     } else {
         free(*pp);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -175,6 +183,7 @@ extern "C" CUresult cuMemCreate(CUmemGenericAllocationHandle *handle, size_t siz
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -185,6 +194,7 @@ extern "C" CUresult cuMemCreate(CUmemGenericAllocationHandle *handle, size_t siz
         }
 #endif
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -212,6 +222,7 @@ extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t al
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         munmap((void *)*ptr, size);
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -219,6 +230,7 @@ extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t al
     } else {
         munmap((void *)*ptr, size);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -255,6 +267,7 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
         if(isHost) {
             munmap((void *)ptr, size);
         }
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -269,6 +282,7 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
             munmap((void *)ptr, size);
         }
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -297,9 +311,11 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
     }
     if(_result == cudaSuccess) {
         cs_union_mems[*devPtr] = std::make_pair(serverPtr, size);
+        rpc_release_client(client);
     } else {
         free(*devPtr);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -321,12 +337,14 @@ extern "C" cudaError_t cudaFreeHost(void *ptr) {
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == cudaSuccess) {
         free(ptr);
         cs_host_mems.erase(ptr);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -348,12 +366,14 @@ extern "C" CUresult cuMemFreeHost(void *p) {
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
         free(p);
         cs_host_mems.erase(p);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -377,11 +397,13 @@ extern "C" cudaError_t cudaFree(void *devPtr) {
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == cudaSuccess) {
         freeDevPtr(devPtr);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -403,6 +425,7 @@ extern "C" CUresult cuMemRelease(CUmemGenericAllocationHandle handle) {
     if(_result == CUDA_SUCCESS) {
         host_handles.erase(handle);
     }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -426,7 +449,7 @@ extern "C" cudaError_t cudaMalloc(void **devPtr, size_t size) {
     if(_result == cudaSuccess) {
         server_dev_mems[*devPtr] = size;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -452,7 +475,7 @@ extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t widt
     if(_result == cudaSuccess) {
         server_dev_mems[*devPtr] = *pitch * height;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -476,7 +499,7 @@ extern "C" cudaError_t cudaMalloc3D(struct cudaPitchedPtr *pitchedDevPtr, struct
     if(_result == cudaSuccess) {
         server_dev_mems[pitchedDevPtr->ptr] = pitchedDevPtr->pitch * extent.height;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -500,7 +523,7 @@ extern "C" cudaError_t cudaGetSymbolAddress(void **devPtr, const void *symbol) {
     if(_result == cudaSuccess) {
         server_dev_mems[*devPtr] = 0;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -524,7 +547,7 @@ extern "C" CUresult cuMemAlloc_v2(CUdeviceptr *dptr, size_t bytesize) {
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*dptr] = bytesize;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -551,7 +574,7 @@ extern "C" CUresult cuMemAllocPitch_v2(CUdeviceptr *dptr, size_t *pPitch, size_t
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*dptr] = *pPitch * Height;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -576,7 +599,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*dptr] = bytesize;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -602,7 +625,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*dptr] = bytesize;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -632,7 +655,7 @@ extern "C" CUresult cuMemAllocManaged(CUdeviceptr *dptr, size_t bytesize, unsign
     if(_result == CUDA_SUCCESS) {
         cs_union_mems[(void *)*dptr] = std::make_pair((void *)serverPtr, bytesize);
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -657,7 +680,7 @@ extern "C" CUresult cuMemGetAddressRange_v2(CUdeviceptr *pbase, size_t *psize, C
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*pbase] = *psize;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -682,7 +705,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr *pDevPtr, 
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*pDevPtr] = *pSize;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -706,7 +729,7 @@ extern "C" CUresult cuTexRefGetAddress_v2(CUdeviceptr *pdptr, CUtexref hTexRef) 
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*pdptr] = 0;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -732,7 +755,7 @@ extern "C" CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr *
             server_dev_mems[(void *)*dptr_out] = 0;
         }
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -757,7 +780,7 @@ extern "C" CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr *devPtr, CUexter
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*devPtr] = bufferDesc->size;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -781,7 +804,7 @@ extern "C" CUresult cuImportExternalMemory(CUexternalMemory *extMem_out, const C
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*extMem_out] = memHandleDesc->size;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -808,7 +831,7 @@ extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool po
             server_dev_mems[(void *)*ptr_out] = 0;
         }
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -869,7 +892,7 @@ extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, siz
         rpc_release_client(client);
         exit(1);
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -900,7 +923,7 @@ extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibr
         }
         cs_union_mems[p] = std::make_pair((void *)*dptr, *bytes);
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -926,7 +949,7 @@ extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibra
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*dptr] = *bytes;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -953,7 +976,7 @@ extern "C" CUresult cuIpcOpenMemHandle_v2(CUdeviceptr *pdptr, CUipcMemHandle han
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*pdptr] = 0;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -983,7 +1006,7 @@ extern "C" CUresult cuMemHostGetDevicePointer_v2(CUdeviceptr *pdptr, void *p, un
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*pdptr] = 0;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -1009,7 +1032,7 @@ extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmod
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*dptr] = *bytes;
     }
-    rpc_release_client(client);
+    rpc_free_client(client);
     return _result;
 }
 
@@ -1051,6 +1074,7 @@ void freeDevPtr(void *ptr) {
 
 extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
     std::cout << "Hook: cudaMemcpy called" << std::endl;
+    printf("dst: %p, src: %p, count: %ld, kind: %d\n", dst, src, count, kind);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1062,6 +1086,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
     void *serverDst;
     bool src_is_union;
     bool dst_is_union;
+
     switch(kind) {
     case cudaMemcpyHostToDevice:
         serverSrc = getServerHostPtr((void *)src);
@@ -1082,7 +1107,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count);
+        rpc_write(client, src, count, true);
         break;
     case cudaMemcpyDeviceToHost:
         serverSrc = getUnionPtr((void *)src);
@@ -1101,7 +1126,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_read(client, dst, count);
+        rpc_read(client, dst, count, true);
         break;
     case cudaMemcpyDeviceToDevice:
         serverSrc = getUnionPtr((void *)src);
@@ -1157,7 +1182,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count);
+        rpc_write(client, src, count, true);
         break;
     }
     rpc_read(client, &_result, sizeof(_result));
@@ -1231,7 +1256,7 @@ struct Function {
 
 std::vector<Function> functions;
 
-int get_type_size(const char *type) {
+static int get_type_size(const char *type) {
     if(*type == 'u' || *type == 's' || *type == 'f')
         type++;
     else
@@ -1247,7 +1272,7 @@ int get_type_size(const char *type) {
     return 0; // Unknown type
 }
 
-void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned long long ptx_len) {
+static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned long long ptx_len) {
     for(unsigned long long i = 0; i < ptx_len; i++) {
         if(ptx_string[i] != '.' || i + 5 >= ptx_len || strncmp(ptx_string + i + 1, "entry", strlen("entry")) != 0)
             continue;
@@ -1444,7 +1469,7 @@ error:
     return -1;
 }
 
-void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
+static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
     char *base = (char *)(header + 1);
     long long unsigned int offset = 0;
     __cudaFatCudaBinary2EntryRec *entry = (__cudaFatCudaBinary2EntryRec *)(base);
@@ -1580,6 +1605,7 @@ extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
     rpc_prepare_request(client, RPC___cudaRegisterFatBinary);
     rpc_write(client, binary, sizeof(__cudaFatCudaBinary2));
     rpc_write(client, header, size);
+    printf("~~~~~~~~~~~~~~~~~~ %llu\n", size);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1747,6 +1773,7 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
             // printf("register function %s %p\n", function.name, function.host_func);
         }
     }
+    rpc_free_client(client);
 }
 
 extern "C" cudaError_t cudaMemcpyToSymbol(const void *symbol, const void *src, size_t count, size_t offset, enum cudaMemcpyKind kind) {

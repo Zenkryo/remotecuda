@@ -279,7 +279,7 @@ cudaMemoryType checkPointer(void *ptr) {
     cudaError_t err = cudaPointerGetAttributes(&attributes, ptr);
 
     if(err != cudaSuccess) {
-        printf("Error: %s\n", cudaGetErrorString(err));
+        perror(cudaGetErrorString(err));
         return cudaMemoryTypeUnregistered;
     }
 
@@ -303,6 +303,7 @@ int handle_cudaMemcpy(void *args0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return cudaErrorUnknown;
     }
+    printf("dst: %p, src: %p, count: %ld, kind: %d\n", dst, src, count, kind);
     switch(kind) {
     case cudaMemcpyHostToDevice:
         toFree = nullptr;
@@ -314,7 +315,8 @@ int handle_cudaMemcpy(void *args0) {
             }
             toFree = src;
         }
-        if(rpc_read_now(client, src, count) != 0) {
+        printf("---- read src %p\n", src);
+        if(read_one_now(client, src, count) != 0) {
             std::cerr << "Failed to read src" << std::endl;
             return cudaErrorUnknown;
         }
@@ -364,7 +366,7 @@ int handle_cudaMemcpy(void *args0) {
             bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
             bool src_is_union = checkPointer(src) == cudaMemoryTypeManaged;
             if(src_is_union) {
-                rpc_read_now(client, src, count);
+                read_one_now(client, src, count);
             }
             if(src_is_union && dst_is_union) {
             }
@@ -393,7 +395,7 @@ int handle_cudaMemcpy(void *args0) {
             }
             toFree = src;
         }
-        if(rpc_read_now(client, src, count) != 0) {
+        if(read_one_now(client, src, count) != 0) {
             std::cerr << "Failed to read src" << std::endl;
             return cudaErrorUnknown;
         }
@@ -464,10 +466,15 @@ int handle_cudaLaunchKernel(void *args0) {
         return 1;
     }
     args = (void **)malloc(sizeof(void *) * arg_count);
-    for(int i = 0; i < arg_count; i++) {
-        int size;
-        rpc_read_now2(client, &args[i], &size);
+    if(args == nullptr) {
+        std::cerr << "Failed to allocate args" << std::endl;
+        return 1;
     }
+    if(read_all_now(client, args, nullptr, arg_count) == -1) {
+        std::cerr << "Failed to read args" << std::endl;
+        return 1;
+    }
+
     cudaError_t _result = cudaLaunchKernel(func, gridDim, blockDim, args, sharedMem, stream);
     for(int i = 0; i < arg_count; i++) {
         free(args[i]);
@@ -547,7 +554,7 @@ int handle___cudaRegisterFatBinary(void *args0) {
     }
     void *cubin = nullptr;
     int len;
-    rpc_read_now2(client, &cubin, &len);
+    read_all_now(client, &cubin, &len, 1);
     fatCubin->text = (uint64_t)cubin;
     void **_result = __cudaRegisterFatBinary(fatCubin);
     rpc_write(client, &_result, sizeof(_result));
@@ -763,7 +770,7 @@ int handle_cudaMemcpyToSymbol(void *args0) {
     bool is_malloc = false;
     if(src == nullptr) {
         src = malloc(count);
-        rpc_read_now(client, (uint8_t *)src, count);
+        read_one_now(client, (uint8_t *)src, count);
     }
     cudaError_t _result = cudaMemcpyToSymbol(symbol, src, count, offset, kind);
     if(is_malloc) {

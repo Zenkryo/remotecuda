@@ -27,7 +27,7 @@ static int rpc_connect(const char *server, uint16_t port) {
     return sockfd;
 }
 
-//  rpc_thread
+//  线程函数，用于维护连接
 static void *rpc_thread(void *arg) {
     // 获取环境变量CUDA_SERVER
     const char *cuda_server = getenv("CUDA_SERVER");
@@ -61,141 +61,211 @@ static void rpc_close(RpcClient *client) {
     pthread_mutex_unlock(&pool_lock); // 解锁
 }
 
-// 确保所有数据发送完毕
-static ssize_t writev_all(int sockfd, struct iovec *iov, int iovcnt) {
-    ssize_t total_sent = 0;
-    ssize_t bytes_sent;
-    struct iovec new_iov[MAX_IOCV_COUNT * 2];
-    // 计算所需的总 iovec 数量（每个原始 iovec 需要两个：长度 + 数据）
-    int new_iovcnt = iovcnt * 2;
-    // 为每个 iovec 创建长度字段并填充新数组
-    uint16_t lengths[MAX_IOCV_COUNT];
-    size_t total_length = 0;
-    for(int i = 0; i < iovcnt; i++) {
-        // printf("1===========\n");
-        // if(iov[i].iov_len > UINT32_MAX) {
-        //     errno = EOVERFLOW;
-        //     return -1;
-        // }
-        lengths[i] = htons((uint16_t)iov[i].iov_len);
-        new_iov[i * 2].iov_base = &lengths[i];
-        new_iov[i * 2].iov_len = sizeof(uint16_t);
-        new_iov[i * 2 + 1].iov_base = iov[i].iov_base;
-        new_iov[i * 2 + 1].iov_len = iov[i].iov_len;
-        total_length += sizeof(uint16_t) + iov[i].iov_len;
-    }
-    // 使用一次 writev 发送所有数据
-    while(total_length > 0) {
-        bytes_sent = writev(sockfd, new_iov, new_iovcnt);
-        if(bytes_sent < 0) {
+static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
+    ssize_t total_bytes = 0; // 总共写入的字节数
+    ssize_t bytes_written;   // 单次写入的字节数
+
+    while(iovcnt > 0) {
+        // 使用 writev 将数据写入 socket
+        bytes_written = writev(sockfd, iov, iovcnt);
+
+        if(bytes_written < 0) {
+            // 写入错误
             if(errno == EINTR) {
+                // 被信号中断，继续尝试写入
                 continue;
             }
+            return -1; // 其他错误返回-1
+        }
+
+        if(bytes_written == 0) {
+            // 连接关闭（通常不会发生，但为健壮性考虑）
             return -1;
         }
-        int dumped = 0;
-        // dump print data just sent
-        // for(int i = 0; i < new_iovcnt; i++) {
-        //     printf("<== ");
-        //     for(int j = 0; j < new_iov[i].iov_len && dumped < bytes_sent; j++, dumped++) {
-        //         printf("%02x ", ((uint8_t *)new_iov[i].iov_base)[j]);
-        //     }
-        //     printf("\n");
-        // }
 
-        total_sent += bytes_sent;
+        // 更新总字节数
+        total_bytes += bytes_written;
 
-        // 更新 iovec 数组以处理部分写入
-        size_t bytes_remaining = bytes_sent;
-        for(int i = 0; i < new_iovcnt && bytes_remaining > 0; i++) {
-            if(bytes_remaining >= new_iov[i].iov_len) {
-                bytes_remaining -= new_iov[i].iov_len;
-                new_iov[i].iov_len = 0;
+        // 调试输出（可选，仿照 read_full_iovec）
+        ssize_t bytes_remaining = bytes_written;
+        for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
+            int len = iov[i].iov_len > bytes_remaining ? bytes_remaining : iov[i].iov_len;
+            hexdump("<== ", iov[i].iov_base, len);
+            bytes_remaining -= len;
+        }
+
+        // 调整 iovec 数组以处理部分写入的情况
+        while(bytes_written > 0 && iovcnt > 0) {
+            if(bytes_written >= iov->iov_len) {
+                // 当前缓冲区已全部写入，移动到下一个
+                bytes_written -= iov->iov_len;
+                iov++;
+                iovcnt--;
             } else {
-                new_iov[i].iov_base = (char *)new_iov[i].iov_base + bytes_remaining;
-                new_iov[i].iov_len -= bytes_remaining;
-                bytes_remaining = 0;
+                // 当前缓冲区未写完，更新指针和长度
+                iov->iov_base = (char *)iov->iov_base + bytes_written;
+                iov->iov_len -= bytes_written;
+                bytes_written = 0;
             }
         }
-        total_length -= bytes_sent;
     }
-    if(total_length > 0) {
-        return -1;
-    }
-    return 0;
+
+    return total_bytes;
 }
 
-// 确保所有数据读取完毕
-static ssize_t readv_all(int sockfd, struct iovec *iov, int iovcnt) {
-    ssize_t total_read = 0; // 已读取的总字节数
-    ssize_t bytes_read;     // 每次读取的字节数
-    size_t remaining = 0;
-    for(int i = 0; i < iovcnt; i++) {
-        // 读取长度字段 (2 字节)
-        uint16_t length;
-        size_t length_bytes = sizeof(length);
-        uint8_t *length_ptr = (uint8_t *)&length;
+static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
+    ssize_t total_bytes = 0; // 总共读取的字节数
+    ssize_t bytes_read;      // 单次读取的字节数
 
-        while(length_bytes > 0) {
-            bytes_read = read(sockfd, length_ptr, length_bytes);
-            if(bytes_read < 0) {
-                if(errno == EINTR) {
-                    continue;
-                }
-                return -1;
+    while(iovcnt > 0) {
+        // 使用 readv 从 socket 读取数据
+        bytes_read = readv(sockfd, iov, iovcnt);
+
+        if(bytes_read < 0) {
+            // 读取错误
+            if(errno == EINTR) {
+                // 被信号中断，继续尝试读取
+                continue;
             }
-            if(bytes_read == 0) {
-                return -1; // 对端关闭连接
-            }
-            // printf("==> ");
-            // for(int j = 0; j < bytes_read; j++) {
-            //     printf("%02x ", (length_ptr)[j]);
-            // }
-            // printf("\n");
-            length_ptr += bytes_read;
-            length_bytes -= bytes_read;
-            total_read += bytes_read;
+            return -1; // 其他错误返回-1
         }
 
-        length = ntohs(length); // 转换为主机字节序
-        // 检查缓冲区是否足够大
-        if(length > iov[i].iov_len) {
-            errno = ENOBUFS; // 缓冲区不足
+        if(bytes_read == 0) {
+            // 连接关闭
             return -1;
         }
-        // 更新当前 iovec 的长度为实际数据长度
-        iov[i].iov_len = length;
 
-        // 读取数据
-        remaining = length;
-        uint8_t *data_ptr = (uint8_t *)iov[i].iov_base;
+        // 更新总字节数
+        total_bytes += bytes_read;
 
-        while(remaining > 0) {
-            bytes_read = read(sockfd, data_ptr, remaining);
-            if(bytes_read < 0) {
-                if(errno == EINTR) {
-                    continue;
-                }
-                return -1;
+        ssize_t bytes_remaining = bytes_read;
+
+        for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
+            int len = iov[i].iov_len > bytes_remaining ? bytes_remaining : iov[i].iov_len;
+            hexdump("==> ", iov[i].iov_base, len);
+            bytes_remaining -= len;
+        }
+
+        // 调整 iovec 数组以处理部分读取的情况
+        while(bytes_read > 0 && iovcnt > 0) {
+            if(bytes_read >= iov->iov_len) {
+                // 当前缓冲区已满，移动到下一个
+                bytes_read -= iov->iov_len;
+                iov++;
+                iovcnt--;
+            } else {
+                // 当前缓冲区未满，更新指针和长度
+                iov->iov_base = (char *)iov->iov_base + bytes_read;
+                iov->iov_len -= bytes_read;
+                bytes_read = 0;
             }
-            if(bytes_read == 0) {
-                return -1; // 对端关闭连接
-            }
-
-            // printf("==> ");
-            // for(int j = 0; j < bytes_read; j++) {
-            //     printf("%02x ", (data_ptr)[j]);
-            // }
-            // printf("\n");
-            total_read += bytes_read;
-            data_ptr += bytes_read;
-            remaining -= bytes_read;
         }
     }
-    if(remaining > 0) {
-        return -1;
+
+    return total_bytes;
+}
+
+// 发送client里待发送数据，支持发送数据和长度+数据两种模式
+static ssize_t writev_all(RpcClient *client, bool with_len = false) {
+    uint32_t lengths[MAX_IOCV_COUNT];
+    struct iovec iov_with_len[MAX_IOCV_COUNT * 2];
+
+    struct iovec *iov2send = client->iov_send;
+    int iov2send_count = client->iov_send_count;
+
+    if(with_len) {
+        iov2send_count = client->iov_send2_count * 2;
+        iov2send = iov_with_len;
+        for(int i = 0; i < client->iov_send2_count; i++) {
+            lengths[i] = htonl((uint32_t)client->iov_send2[i].iov_len);
+            iov_with_len[2 * i].iov_base = &lengths[i];
+            iov_with_len[2 * i].iov_len = sizeof(uint32_t);
+            iov_with_len[2 * i + 1].iov_base = client->iov_send2[i].iov_base;
+            iov_with_len[2 * i + 1].iov_len = client->iov_send2[i].iov_len;
+        }
     }
-    return 0;
+    return write_full_iovec(client->sockfd, iov2send, iov2send_count);
+}
+
+// 读取数据到client的缓冲区，支持读取数据和长度+数据两种模式
+static ssize_t readv_all(RpcClient *client, bool with_len = false) {
+    ssize_t total_read = 0; // 已读取的总字节数
+    ssize_t bytes_read;     // 每次读取的字节数
+
+    std::set<void *> buffers;
+    if(with_len) {
+        for(int i = 0; i < client->iov_read2_count; i++) {
+            // 先读取长度字段
+            struct iovec iov_for_len;
+            uint32_t length;
+            iov_for_len.iov_base = &length;
+            iov_for_len.iov_len = sizeof(length);
+            bytes_read = read_full_iovec(client->sockfd, &iov_for_len, 1);
+            if(bytes_read < 0) {
+                goto ERR;
+            }
+            total_read += bytes_read;
+            length = ntohl(length);
+            if(client->iov_read2[i].iov_len > 0 && length > client->iov_read2[i].iov_len) {
+                errno = ENOBUFS; // 缓冲区不足
+                goto ERR;
+            }
+            client->iov_read2[i].iov_len = length;
+            // iov_len为0表示需要动态分配缓冲区
+            if(client->iov_read2[i].iov_len == 0) {
+                void **buffer = (void **)client->iov_read2[i].iov_base;
+                *buffer = malloc(length);
+                if(*buffer == nullptr) {
+                    errno = ENOBUFS; // 缓冲区不足
+                    goto ERR;
+                }
+                buffers.insert(*buffer);
+                client->iov_read2[i].iov_base = *buffer; // 更新iov[i].iov_base
+                client->iov_read2[i].iov_len = length;
+            }
+            bytes_read = read_full_iovec(client->sockfd, client->iov_read2 + i, 1);
+            if(bytes_read < 0) {
+                goto ERR;
+            }
+            total_read += bytes_read;
+        }
+    } else {
+        bytes_read = read_full_iovec(client->sockfd, client->iov_read, client->iov_read_count);
+        if(bytes_read < 0) {
+            return -1;
+        }
+        total_read += bytes_read;
+    }
+    return total_read;
+ERR:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        free(*it);
+    }
+    return -1;
+}
+
+// 打印缓冲区内容
+void hexdump(const char *desc, void *buf, size_t len) {
+    unsigned char *p = (unsigned char *)buf;
+    printf("%s len: %lu\n", desc, len);
+    // 每行显示16个字节
+    for(size_t i = 0; i < len; i += 16) {
+        printf("%08lx: ", i);
+        for(size_t j = 0; j < 16; j++) {
+            if(i + j < len) {
+                printf("%02x ", p[i + j]);
+            } else {
+                printf("   ");
+            }
+        }
+        printf(" ");
+        for(size_t j = 0; j < 16; j++) {
+            if(i + j < len) {
+                printf("%c", isprint(p[i + j]) ? p[i + j] : '.');
+            }
+        }
+        printf("\n");
+    }
 }
 
 // 初始化连接池
@@ -218,7 +288,9 @@ RpcClient *rpc_get_client() {
             if(clients_pool[i].sockfd != -1 && !clients_pool[i].in_use) {
                 clients_pool[i].in_use = 1;
                 clients_pool[i].iov_send_count = 0;
+                clients_pool[i].iov_send2_count = 0;
                 clients_pool[i].iov_read_count = 0;
+                clients_pool[i].iov_read2_count = 0;
                 pthread_mutex_unlock(&pool_lock);
                 return &clients_pool[i];
             }
@@ -234,7 +306,9 @@ void rpc_free_client(RpcClient *client) {
     pthread_mutex_lock(&pool_lock);
     client->in_use = 0;
     client->iov_send_count = 0;
+    client->iov_send2_count = 0;
     client->iov_read_count = 0;
+    client->iov_read2_count = 0;
     pthread_mutex_unlock(&pool_lock);
 }
 
@@ -252,157 +326,153 @@ void rpc_prepare_request(RpcClient *client, uint32_t funcId) {
     client->iov_send_count = 1;
 }
 
-// 写入数据
-void rpc_write(RpcClient *client, const void *data, size_t len) {
-    client->iov_send[client->iov_send_count].iov_base = (void *)data;
-    client->iov_send[client->iov_send_count].iov_len = len;
-    client->iov_send_count++;
+// 准备要发送的数据
+void rpc_write(RpcClient *client, const void *data, size_t len, bool with_len) {
+    if(with_len) {
+        client->iov_send2[client->iov_send_count].iov_base = (void *)data;
+        client->iov_send2[client->iov_send_count].iov_len = len;
+        client->iov_send2_count++;
+    } else {
+        client->iov_send[client->iov_send_count].iov_base = (void *)data;
+        client->iov_send[client->iov_send_count].iov_len = len;
+        client->iov_send_count++;
+    }
 }
 
-// 注册接收数据的缓冲区
-void rpc_read(RpcClient *client, void *buffer, size_t len) {
-    client->iov_read[client->iov_read_count].iov_base = buffer;
-    client->iov_read[client->iov_read_count].iov_len = len;
-    client->iov_read_count++;
+// 准备接收数据的缓冲区
+void rpc_read(RpcClient *client, void *buffer, size_t len, bool with_len) {
+    if(with_len) {
+        if(len == 0) {
+            // 此时buffer一定是一个指向指针的指针，用于存储动态分配的缓冲区的地址, 这里保存buffer本身的地址
+            client->iov_read2[client->iov_read2_count].iov_base = &buffer;
+        } else {
+            client->iov_read2[client->iov_read2_count].iov_base = buffer;
+        }
+        client->iov_read2[client->iov_read2_count].iov_len = len;
+        client->iov_read2_count++;
+    } else {
+        client->iov_read[client->iov_read_count].iov_base = buffer;
+        client->iov_read[client->iov_read_count].iov_len = len;
+        client->iov_read_count++;
+    }
 }
 
-ssize_t rpc_read_now(RpcClient *client, void *buffer, size_t len) {
-    struct iovec iov[1];
-    iov[0].iov_base = buffer;
-    iov[0].iov_len = len;
-
-    return readv_all(client->sockfd, iov, 1);
-}
-
-ssize_t rpc_read_now2(RpcClient *client, void **buffer, int *size) {
-
+// 读取count个带长度的数据到动态分配的缓冲区
+ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
     ssize_t total_read = 0; // 已读取的总字节数
     ssize_t bytes_read;     // 每次读取的字节数
-    size_t remaining = 0;
 
-    // 读取长度字段 (2 字节)
-    uint16_t length;
-    size_t length_bytes = sizeof(length);
-    uint8_t *length_ptr = (uint8_t *)&length;
-
-    while(length_bytes > 0) {
-        bytes_read = read(client->sockfd, length_ptr, length_bytes);
+    for(int i = 0; i < count; i++) {
+        struct iovec iov;
+        uint32_t length;
+        iov.iov_base = &length;
+        iov.iov_len = sizeof(length);
+        bytes_read = read_full_iovec(client->sockfd, &iov, 1);
         if(bytes_read < 0) {
-            if(errno == EINTR) {
-                continue;
-            }
             return -1;
         }
-        if(bytes_read == 0) {
-            return -1; // 对端关闭连接
+        total_read += bytes_read;
+        length = ntohl(length);
+        printf("================ length = %lu\n", length);
+        iov.iov_len = length;
+        iov.iov_base = malloc(length);
+        if(iov.iov_base == NULL) {
+            errno = ENOBUFS; // 缓冲区不足
+            return -1;
         }
-        // printf("==> ");
-        // for(int j = 0; j < bytes_read; j++) {
-        //     printf("%02x ", (length_ptr)[j]);
-        // }
-        // printf("\n");
-        length_ptr += bytes_read;
-        length_bytes -= bytes_read;
+        bytes_read = read_full_iovec(client->sockfd, &iov, 1);
+        if(bytes_read < 0) {
+            free(iov.iov_base);
+            return -1;
+        }
+        buffer[i] = iov.iov_base;
+        size[i] = length;
         total_read += bytes_read;
     }
+    return total_read;
+}
 
-    length = ntohs(length); // 转换为主机字节序
-    *size = length;
-    if(length <= 0) {
+// 读取1个带长度的数据到以分配的缓冲区
+ssize_t read_one_now(RpcClient *client, void *buffer, int size) {
+    ssize_t total_read = 0; // 已读取的总字节数
+    ssize_t bytes_read;     // 每次读取的字节数
+
+    struct iovec iov;
+    uint32_t length;
+    iov.iov_base = &length;
+    iov.iov_len = sizeof(length);
+    bytes_read = read_full_iovec(client->sockfd, &iov, 1);
+    if(bytes_read < 0) {
         return -1;
     }
-
-    *buffer = malloc(length);
-    if(*buffer == NULL) {
+    total_read += bytes_read;
+    length = ntohl(length);
+    if(length > size) {
         errno = ENOBUFS; // 缓冲区不足
         return -1;
     }
-
-    // 读取数据
-    remaining = length;
-    uint8_t *data_ptr = (uint8_t *)*buffer;
-
-    while(remaining > 0) {
-        bytes_read = read(client->sockfd, data_ptr, remaining);
-        if(bytes_read < 0) {
-            if(errno == EINTR) {
-                continue;
-            }
-            return -1;
-        }
-        if(bytes_read == 0) {
-            free(*buffer);
-            return -1; // 对端关闭连接
-        }
-
-        // printf("==> ");
-        // for(int j = 0; j < bytes_read; j++) {
-        //     printf("%02x ", (data_ptr)[j]);
-        // }
-        // printf("\n");
-        total_read += bytes_read;
-        data_ptr += bytes_read;
-        remaining -= bytes_read;
+    iov.iov_len = length;
+    iov.iov_base = buffer;
+    bytes_read = read_full_iovec(client->sockfd, &iov, 1);
+    if(bytes_read < 0) {
+        return -1;
     }
-    return 0;
+    total_read += bytes_read;
+    return total_read;
 }
 
 // 请求并等待响应
 int rpc_submit_request(RpcClient *client) {
-    if(writev_all(client->sockfd, client->iov_send, client->iov_send_count) < 0) {
+    // 发送不带长度信息的数据
+    if(writev_all(client) < 0) {
         perror("Failed to send request");
         rpc_release_client(client);
         return -1;
     }
-    client->iov_send_count = 0;
-    if(readv_all(client->sockfd, client->iov_read, client->iov_read_count) < 0) {
+    // 发送带长度信息的数据
+    if(writev_all(client, true) < 0) {
+        perror("Failed to send request");
+        rpc_release_client(client);
+        return -1;
+    }
+
+    // 读取不带长度信息的数据
+    if(readv_all(client) < 0) {
         perror("Failed to read response");
         rpc_release_client(client);
         return -1;
     }
-    client->iov_read_count = 0;
+    // 读取带长度信息的数据
+    if(readv_all(client, true) < 0) {
+        perror("Failed to read response");
+        rpc_release_client(client);
+        return -1;
+    }
     return 0;
 }
 
 // 读取所有的RPC请求参数
 int rpc_prepare_response(RpcClient *client) {
-    if(readv_all(client->sockfd, client->iov_read, client->iov_read_count) < 0) {
+    if(readv_all(client) < 0) {
         perror("Failed to read request");
         return -1;
     }
-    client->iov_read_count = 0;
+    if(readv_all(client, true) < 0) {
+        perror("Failed to read request");
+        return -1;
+    }
     return 0;
 }
 
 // 提交RPC响应
 int rpc_submit_response(RpcClient *client) {
-    if(writev_all(client->sockfd, client->iov_send, client->iov_send_count) < 0) {
+    if(writev_all(client) < 0) {
         perror("Failed to send response");
         return -1;
     }
-    client->iov_send_count = 0;
-    return 0;
-}
-
-void hexdump(char *desc, void *buf, size_t len) {
-    unsigned char *p = (unsigned char *)buf;
-    printf("%s len: %lu\n", desc, len);
-    // 每行显示16个字节
-    for(size_t i = 0; i < len; i += 16) {
-        printf("%08lx: ", i);
-        for(size_t j = 0; j < 16; j++) {
-            if(i + j < len) {
-                printf("%02x ", p[i + j]);
-            } else {
-                printf("   ");
-            }
-        }
-        printf(" ");
-        for(size_t j = 0; j < 16; j++) {
-            if(i + j < len) {
-                printf("%c", isprint(p[i + j]) ? p[i + j] : '.');
-            }
-        }
-        printf("\n");
+    if(writev_all(client, true) < 0) {
+        perror("Failed to send response");
+        return -1;
     }
+    return 0;
 }

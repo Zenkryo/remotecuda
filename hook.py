@@ -260,7 +260,7 @@ def getArrayLengthParam(function):
     """
     for param in function.parameters:
         if isinstance(param.type, Type):
-            if param.name in ["batchCount"]:
+            if param.name in ["batchCount", "batchSize"]:
                 return param.name
     return "0"
 
@@ -329,14 +329,14 @@ def handle_param_pchar(function, param, f, is_client=True, position=0):
         if position==0:
             # 现在都做输出参数处理，遇到例外再特殊处理
             len = getCharParamLength(function)
-            f.write(f"    rpc_read(client, {param.name}, {len});\n")
+            f.write(f"    rpc_read(client, {param.name}, {len}, true);\n")
     else:
         if position==0:
             # 服务器端定义一个局部变量来临时保存字符串
             f.write(f"    char {param.name}[1024];\n")
             return param.name
         elif position==1:
-            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1);\n")
+            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
 
 
 # 处理const void *参数
@@ -344,12 +344,12 @@ def handle_param_pconstchar(function, param, f, is_client=True, position=0):
     if is_client:
         if position==0:
             # const char * 类型的参数必然是输入参数
-            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1);\n")
+            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
     else:
         if position==0:
             # 服务器端定义一个局部变量来临时保存字符串
-            f.write(f"    char {param.name}[1024];\n")
-            f.write(f"    rpc_read(client, {param.name}, 1024);\n")
+            f.write(f"    char *{param.name} = nullptr;\n")
+            f.write(f"    rpc_read(client, {param.name}, 0, true);\n")
             return param.name
 
 
@@ -447,7 +447,7 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
         if position==0:
             # 定义一个静态变量来保存字符串
             f.write(f"    static char _{function_name}_{param.name}[1024];\n")
-            f.write(f"    rpc_read(client, _{function_name}_{param.name}, 1024);\n")
+            f.write(f"    rpc_read(client, _{function_name}_{param.name}, 1024, true);\n")
         elif position==1:
             f.write(f"    *{param.name} = _{function_name}_{param.name};\n")
     else:
@@ -455,7 +455,7 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
             f.write(f"    const char *{param.name};\n")
             return "&" + param.name
         elif position==1:
-            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1);\n")
+            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
 
 
 # 处理const type **参数
@@ -488,19 +488,21 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
     if is_client:
         function_name = function.name.format()
         if position==0:
-            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *)*{len});\n")
+            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *)*{len}, true);\n")
     else:
         if position == 0:
+            f.write(f"    {param_type_name} **{param.name} = nullptr;\n")
+            f.write(f"    rpc_read(client, {param.name}, 0, true);\n")
             return param.name
-        elif position==1:
-            f.write(f"    free({param.name});\n")
-        elif position==2:
-            f.write(f"    {param_type_name} **{param.name} = ({param_type_name} **)malloc(sizeof({param_type_name} *) * {len});\n")
-            f.write(f"    if({param.name} == nullptr) {{\n")
-            f.write(f'        std::cerr << "Failed to malloc memory" << std::endl;\n')
-            f.write(f"        return 1;\n")
-            f.write(f"    }}\n")
-            f.write(f"    rpc_read_now(client, {param.name}, sizeof({param_type_name} *) * {len});\n")
+        # elif position==1:
+        #     f.write(f"    free({param.name});\n")
+        # elif position==2:
+            # f.write(f"    {param_type_name} **{param.name} = ({param_type_name} **)malloc(sizeof({param_type_name} *) * {len});\n")
+            # f.write(f"    if({param.name} == nullptr) {{\n")
+            # f.write(f'        std::cerr << "Failed to malloc memory" << std::endl;\n')
+            # f.write(f"        return 1;\n")
+            # f.write(f"    }}\n")
+            # f.write(f"    rpc_read(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
 
 
 
@@ -633,7 +635,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     for param in function.parameters:
                         handle_param(function, param, f, True, 0)
                     if return_type == "const char *":
-                        f.write(f"    rpc_read(client, _{function_name}_result, 1024);\n")
+                        f.write(f"    rpc_read(client, _{function_name}_result, 1024, true);\n")
                     elif return_type != "void":
                         f.write(f"    rpc_read(client, &_result, sizeof(_result));\n")
                     f.write(f"    if(rpc_submit_request(client) != 0) {{\n")
@@ -708,7 +710,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 for param in function.parameters:
                     handle_param(function, param, f, False, 1)
                 if return_type == "const char *":
-                    f.write(f"    rpc_write(client, _result, strlen(_result) + 1);\n")
+                    f.write(f"    rpc_write(client, _result, strlen(_result) + 1, true);\n")
                 elif return_type != "void":
                     f.write(f"    rpc_write(client, &_result, sizeof(_result));\n")
                 f.write(f"    if(rpc_submit_response(client) != 0) {{\n")
