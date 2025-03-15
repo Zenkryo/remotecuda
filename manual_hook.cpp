@@ -1107,7 +1107,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count, true);
+        rpc_write(client, src, count, false);
         break;
     case cudaMemcpyDeviceToHost:
         serverSrc = getUnionPtr((void *)src);
@@ -1126,7 +1126,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_read(client, dst, count, true);
+        rpc_read(client, dst, count, false);
         break;
     case cudaMemcpyDeviceToDevice:
         serverSrc = getUnionPtr((void *)src);
@@ -1161,7 +1161,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
             memcpy(dst, src, count);
         } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
-            rpc_read(client, dst, count);
+            rpc_read(client, dst, count, false);
         }
         break;
     case cudaMemcpyHostToHost:
@@ -1182,7 +1182,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count, true);
+        rpc_write(client, src, count, false);
         break;
     }
     rpc_read(client, &_result, sizeof(_result));
@@ -1231,15 +1231,15 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
     return _result;
 }
 
-extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
-    // std::cout << "Hook: cuGetProcAddress called" << std::endl;
-    auto it = functionMap.find(symbol);
-    if(it != functionMap.end()) {
-        *pfn = (void *)it->second;
-        return CUDA_SUCCESS;
-    }
-    return CUDA_ERROR_NOT_FOUND;
-}
+// extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
+//     // std::cout << "Hook: cuGetProcAddress called" << std::endl;
+//     auto it = functionMap.find(symbol);
+//     if(it != functionMap.end()) {
+//         *pfn = (void *)it->second;
+//         return CUDA_SUCCESS;
+//     }
+//     return CUDA_ERROR_NOT_FOUND;
+// }
 
 // Function to parse a PTX string and fill functions into a dynamically
 // allocated array
@@ -1604,7 +1604,7 @@ extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
     }
     rpc_prepare_request(client, RPC___cudaRegisterFatBinary);
     rpc_write(client, binary, sizeof(__cudaFatCudaBinary2));
-    rpc_write(client, header, size);
+    rpc_write(client, header, size, true);
     printf("~~~~~~~~~~~~~~~~~~ %llu\n", size);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1730,8 +1730,8 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     rpc_prepare_request(client, RPC___cudaRegisterFunction);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_write(client, &hostFun, sizeof(hostFun));
-    rpc_write(client, deviceFun, strlen(deviceFun) + 1);
-    rpc_write(client, deviceName, strlen(deviceName) + 1);
+    rpc_write(client, deviceFun, strlen(deviceFun) + 1, true);
+    rpc_write(client, deviceName, strlen(deviceName) + 1, true);
     rpc_write(client, &thread_limit, sizeof(thread_limit));
     uint8_t mask = 0;
     if(tid != nullptr)
@@ -1770,7 +1770,7 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     for(auto &function : functions) {
         if(strcmp(function.name, deviceName) == 0) {
             function.host_func = hostFun;
-            // printf("register function %s %p\n", function.name, function.host_func);
+            printf("register function %s %p\n", function.name, function.host_func);
         }
     }
     rpc_free_client(client);

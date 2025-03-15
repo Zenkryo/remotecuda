@@ -178,6 +178,7 @@ static ssize_t writev_all(RpcClient *client, bool with_len = false) {
         iov2send = iov_with_len;
         for(int i = 0; i < client->iov_send2_count; i++) {
             lengths[i] = htonl((uint32_t)client->iov_send2[i].iov_len);
+            printf("lengths[%d]: %u\n", i, (uint32_t)client->iov_send2[i].iov_len);
             iov_with_len[2 * i].iov_base = &lengths[i];
             iov_with_len[2 * i].iov_len = sizeof(uint32_t);
             iov_with_len[2 * i + 1].iov_base = client->iov_send2[i].iov_base;
@@ -210,7 +211,6 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
                 errno = ENOBUFS; // 缓冲区不足
                 goto ERR;
             }
-            client->iov_read2[i].iov_len = length;
             // iov_len为0表示需要动态分配缓冲区
             if(client->iov_read2[i].iov_len == 0) {
                 void **buffer = (void **)client->iov_read2[i].iov_base;
@@ -221,8 +221,11 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
                 }
                 buffers.insert(*buffer);
                 client->iov_read2[i].iov_base = *buffer; // 更新iov[i].iov_base
-                client->iov_read2[i].iov_len = length;
+            } else if(client->iov_read2[i].iov_len < length) {
+                errno = ENOBUFS; // 缓冲区不足
+                goto ERR;
             }
+            client->iov_read2[i].iov_len = length;
             bytes_read = read_full_iovec(client->sockfd, client->iov_read2 + i, 1);
             if(bytes_read < 0) {
                 goto ERR;
@@ -329,8 +332,9 @@ void rpc_prepare_request(RpcClient *client, uint32_t funcId) {
 // 准备要发送的数据
 void rpc_write(RpcClient *client, const void *data, size_t len, bool with_len) {
     if(with_len) {
-        client->iov_send2[client->iov_send_count].iov_base = (void *)data;
-        client->iov_send2[client->iov_send_count].iov_len = len;
+        client->iov_send2[client->iov_send2_count].iov_base = (void *)data;
+        client->iov_send2[client->iov_send2_count].iov_len = len;
+        printf("client->iov_send2[%d].iov_len: %lu\n", client->iov_send2_count, len);
         client->iov_send2_count++;
     } else {
         client->iov_send[client->iov_send_count].iov_base = (void *)data;
@@ -342,12 +346,7 @@ void rpc_write(RpcClient *client, const void *data, size_t len, bool with_len) {
 // 准备接收数据的缓冲区
 void rpc_read(RpcClient *client, void *buffer, size_t len, bool with_len) {
     if(with_len) {
-        if(len == 0) {
-            // 此时buffer一定是一个指向指针的指针，用于存储动态分配的缓冲区的地址, 这里保存buffer本身的地址
-            client->iov_read2[client->iov_read2_count].iov_base = &buffer;
-        } else {
-            client->iov_read2[client->iov_read2_count].iov_base = buffer;
-        }
+        client->iov_read2[client->iov_read2_count].iov_base = buffer;
         client->iov_read2[client->iov_read2_count].iov_len = len;
         client->iov_read2_count++;
     } else {
@@ -392,24 +391,26 @@ ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
     return total_read;
 }
 
-// 读取1个带长度的数据到以分配的缓冲区
-ssize_t read_one_now(RpcClient *client, void *buffer, int size) {
+// 读取1数据到以分配的缓冲区
+ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len = false) {
     ssize_t total_read = 0; // 已读取的总字节数
     ssize_t bytes_read;     // 每次读取的字节数
 
     struct iovec iov;
-    uint32_t length;
-    iov.iov_base = &length;
-    iov.iov_len = sizeof(length);
-    bytes_read = read_full_iovec(client->sockfd, &iov, 1);
-    if(bytes_read < 0) {
-        return -1;
-    }
-    total_read += bytes_read;
-    length = ntohl(length);
-    if(length > size) {
-        errno = ENOBUFS; // 缓冲区不足
-        return -1;
+    uint32_t length = size;
+    if(with_len) {
+        iov.iov_base = &length;
+        iov.iov_len = sizeof(length);
+        bytes_read = read_full_iovec(client->sockfd, &iov, 1);
+        if(bytes_read < 0) {
+            return -1;
+        }
+        total_read += bytes_read;
+        length = ntohl(length);
+        if(length > size) {
+            errno = ENOBUFS; // 缓冲区不足
+            return -1;
+        }
     }
     iov.iov_len = length;
     iov.iov_base = buffer;
@@ -424,7 +425,7 @@ ssize_t read_one_now(RpcClient *client, void *buffer, int size) {
 // 请求并等待响应
 int rpc_submit_request(RpcClient *client) {
     // 发送数据
-    if(writev_all(client) < 0 || writev_all(client, true) < 0) {
+    if(writev_all(client, false) < 0 || writev_all(client, true) < 0) {
         perror("Failed to send request");
         rpc_release_client(client);
         return -1;

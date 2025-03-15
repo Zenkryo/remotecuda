@@ -14,17 +14,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    # "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    # "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
-    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    # -------
+    # "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    # "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    # "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
@@ -80,7 +82,7 @@ MANUAL_FUNCTIONS = [
     "cudaMemcpy",
     "cudaMemset",
     "cuGetProcAddress",
-    "cudaLaunchKernel" ,
+    "cudaLaunchKernel",
     "cudaMemcpyToSymbol",
     "cudaMemcpyFromSymbol",
     "__cudaInitModule",
@@ -254,6 +256,7 @@ def getCharParamLength(function):
                 return "*" + param.name
     return "32"
 
+
 def getArrayLengthParam(function):
     """
     获取数组参数的长度参数名
@@ -264,14 +267,15 @@ def getArrayLengthParam(function):
                 return param.name
     return "0"
 
+
 # 处理值类型参数
 def handle_param_type(function, param, f, is_client=True, position=0):
     if is_client:
         # 客户端写入参数的值
-        if position== 0:
+        if position == 0:
             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
     else:
-        if position==0:
+        if position == 0:
             # 服务器端定义同名变量
             f.write(f"    {param.type.format()} {param.name};\n")
             # 读取参数的值到上面定义的变量
@@ -283,7 +287,7 @@ def handle_param_type(function, param, f, is_client=True, position=0):
 # 处理void *类型的参数
 def handle_param_pvoid(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             function_name = function.name.format()
             f.write(f"    void *_0{param.name} = getServerHostPtr({param.name});\n")
             if param.name == "dstHost":
@@ -300,7 +304,7 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
             else:
                 f.write(f"    // PARAM void * {param.name}\n")
     else:
-        if position==0:
+        if position == 0:
             f.write(f"    void *{param.name};\n")
             f.write(f"    // PARAM void * {param.name}\n")
             return param.name
@@ -309,7 +313,7 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
 # 处理const void *参数
 def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             f.write(f"    void *_0{param.name} = getServerHostPtr((void *){param.name});\n")
             if param.name == "srcHost":
                 f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
@@ -317,7 +321,7 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
             else:
                 f.write(f"    // PARAM const void * {param.name}\n")
     else:
-        if position==0:
+        if position == 0:
             f.write(f"    const void *{param.name};\n")
             f.write(f"    // PARAM const void * {param.name}\n")
             return param.name
@@ -326,27 +330,27 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
 # 处理char *参数
 def handle_param_pchar(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             # 现在都做输出参数处理，遇到例外再特殊处理
             len = getCharParamLength(function)
             f.write(f"    rpc_read(client, {param.name}, {len}, true);\n")
     else:
-        if position==0:
+        if position == 0:
             # 服务器端定义一个局部变量来临时保存字符串
             f.write(f"    char {param.name}[1024];\n")
             return param.name
-        elif position==1:
+        elif position == 1:
             f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
 
 
 # 处理const void *参数
 def handle_param_pconstchar(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             # const char * 类型的参数必然是输入参数
             f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
     else:
-        if position==0:
+        if position == 0:
             # 服务器端定义一个局部变量来临时保存字符串
             f.write(f"    char *{param.name} = nullptr;\n")
             f.write(f"    rpc_read(client, {param.name}, 0, true);\n")
@@ -356,12 +360,13 @@ def handle_param_pconstchar(function, param, f, is_client=True, position=0):
 # 处理type *参数
 def handle_param_phidden(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             # 对于指向隐藏类型的指针，将指针本身传递给服务器端
             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
     else:
-        if position==0:
+        if position == 0:
             # 服务器端读取指针本身
+            f.write(f"    {param.type.ptr_to.format()} *{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             return param.name
 
@@ -369,10 +374,10 @@ def handle_param_phidden(function, param, f, is_client=True, position=0):
 # 处理const type *参数
 def handle_param_pconsttype(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
     else:
-        if position==0:
+        if position == 0:
             # 移除参数类型字符串中开头的 const
             param_type_name = param.type.ptr_to.format()
             param_type_name = param_type_name[6:]
@@ -384,10 +389,10 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
 # 处理输入类型的type *参数
 def handle_param_ptype_in(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
     else:
-        if position==0:
+        if position == 0:
             param_type_name = param.type.ptr_to.format()
             f.write(f"    {param_type_name} {param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
@@ -397,14 +402,14 @@ def handle_param_ptype_in(function, param, f, is_client=True, position=0):
 # 处理输出类型的
 def handle_param_ptype_out(function, param, f, is_client=True, position=0):
     if is_client:
-        if position==0:
+        if position == 0:
             f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
     else:
-        if position==0:
+        if position == 0:
             param_type_name = param.type.ptr_to.format()
             f.write(f"    {param_type_name} {param.name};\n")
             return "&" + param.name
-        elif position==1:
+        elif position == 1:
             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
 
 
@@ -414,7 +419,7 @@ def handle_param_ppvoid(function, param, f, is_client=True, position=0):
     if is_client:
         pass
     else:
-        if position==0:
+        if position == 0:
             f.write(f"    void *{param.name};\n")
             return "&" + param.name
 
@@ -424,13 +429,13 @@ def handle_param_ppconstvoid(function, param, f, is_client=True, position=0):
     f.write(f"    // PARAM const void **{param.name}\n")
     if is_client:
         function_name = function.name.format()
-        if position==0:
+        if position == 0:
             f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
     else:
-        if position==0:
+        if position == 0:
             f.write(f"    const void *{param.name};\n")
             return "&" + param.name
-        elif position==1:
+        elif position == 1:
             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
 
 
@@ -444,17 +449,17 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
     f.write(f"    // PARAM const char **{param.name}\n")
     if is_client:
         function_name = function.name.format()
-        if position==0:
+        if position == 0:
             # 定义一个静态变量来保存字符串
             f.write(f"    static char _{function_name}_{param.name}[1024];\n")
             f.write(f"    rpc_read(client, _{function_name}_{param.name}, 1024, true);\n")
-        elif position==1:
+        elif position == 1:
             f.write(f"    *{param.name} = _{function_name}_{param.name};\n")
     else:
-        if position==0:
+        if position == 0:
             f.write(f"    const char *{param.name};\n")
             return "&" + param.name
-        elif position==1:
+        elif position == 1:
             f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
 
 
@@ -465,17 +470,17 @@ def handle_param_ppconsttype(function, param, f, is_client=True, position=0):
     f.write(f"    // PARAM const {param_type_name} **{param.name}\n")
     if is_client:
         function_name = function.name.format()
-        if position==0:
+        if position == 0:
             # 定义一个静态变量
             f.write(f"    static {param_type_name} _{function_name}_{param.name};\n")
             f.write(f"    rpc_read(client, &_{function_name}_{param.name}, sizeof({param_type_name}));\n")
-        elif position==1:
+        elif position == 1:
             f.write(f"    *{param.name} = &_{function_name}_{param.name};\n")
     else:
-        if position==0:
+        if position == 0:
             f.write(f"    const {param_type_name} *{param.name};\n")
             return "&" + param.name
-        elif position==1:
+        elif position == 1:
             f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name}));\n")
 
 
@@ -487,7 +492,7 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
     len = getArrayLengthParam(function)
     if is_client:
         function_name = function.name.format()
-        if position==0:
+        if position == 0:
             f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *)*{len}, true);\n")
     else:
         if position == 0:
@@ -497,13 +502,12 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
         # elif position==1:
         #     f.write(f"    free({param.name});\n")
         # elif position==2:
-            # f.write(f"    {param_type_name} **{param.name} = ({param_type_name} **)malloc(sizeof({param_type_name} *) * {len});\n")
-            # f.write(f"    if({param.name} == nullptr) {{\n")
-            # f.write(f'        std::cerr << "Failed to malloc memory" << std::endl;\n')
-            # f.write(f"        return 1;\n")
-            # f.write(f"    }}\n")
-            # f.write(f"    rpc_read(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
-
+        # f.write(f"    {param_type_name} **{param.name} = ({param_type_name} **)malloc(sizeof({param_type_name} *) * {len});\n")
+        # f.write(f"    if({param.name} == nullptr) {{\n")
+        # f.write(f'        std::cerr << "Failed to malloc memory" << std::endl;\n')
+        # f.write(f"        return 1;\n")
+        # f.write(f"    }}\n")
+        # f.write(f"    rpc_read(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
 
 
 def handle_param(function, param, f, is_client=True, position=0):
@@ -538,7 +542,7 @@ def handle_param(function, param, f, is_client=True, position=0):
             elif param_type.ptr_to.const:  # 指向const类型的指针
                 return handle_param_pconsttype(function, param, f, is_client, position)
             elif param_type_name == "struct cudaGraphNodeParams":
-                return handle_param_ptype_in(function, param, f, is_client, position)
+                return handle_param_phidden(function, param, f, is_client, position)
             else:
                 return handle_param_ptype_out(function, param, f, is_client, position)
         elif isinstance(param_type.ptr_to, Pointer):  # 指针的指针

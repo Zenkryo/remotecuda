@@ -11,7 +11,7 @@
 #include <pthread.h> // for mutex
 
 #define MAX_IOCV_COUNT 32
-#define MAX_CONNECTIONS 5
+#define MAX_CONNECTIONS 1
 
 // RPC客户端结构
 typedef struct _RpcClient {
@@ -40,5 +40,5 @@ int rpc_submit_request(RpcClient *client);
 int rpc_prepare_response(RpcClient *client);
 int rpc_submit_response(RpcClient *client);
 ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count);
-ssize_t read_one_now(RpcClient *client, void *buffer, int size);
+ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len);
 void hexdump(const char *desc, void *buf, size_t len);
