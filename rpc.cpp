@@ -10,7 +10,7 @@ pthread_t rpc_thread_id;
 static int rpc_connect(const char *server, uint16_t port) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) {
-        perror("socket");
+        perror("socket creation failed");
         return -1;
     }
 
@@ -20,7 +20,7 @@ static int rpc_connect(const char *server, uint16_t port) {
     inet_pton(AF_INET, server, &server_addr.sin_addr);
 
     if(connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("connect");
+        perror("connect failed");
         close(sockfd);
         return -1;
     }
@@ -55,6 +55,7 @@ static void *rpc_thread(void *arg) {
 static void rpc_close(RpcClient *client) {
     pthread_mutex_lock(&pool_lock); // 加锁
     if(client->sockfd >= 0) {
+        shutdown(client->sockfd, SHUT_RDWR);
         close(client->sockfd);
         client->sockfd = -1;
     }
@@ -63,11 +64,10 @@ static void rpc_close(RpcClient *client) {
 
 static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
     ssize_t total_bytes = 0; // 总共写入的字节数
-    ssize_t bytes_written;   // 单次写入的字节数
 
     while(iovcnt > 0) {
         // 使用 writev 将数据写入 socket
-        bytes_written = writev(sockfd, iov, iovcnt);
+        ssize_t bytes_written = writev(sockfd, iov, iovcnt);
 
         if(bytes_written < 0) {
             // 写入错误
@@ -85,7 +85,7 @@ static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
 
         // 更新总字节数
         total_bytes += bytes_written;
-
+#ifdef DEBUG
         // 调试输出（可选，仿照 read_full_iovec）
         ssize_t bytes_remaining = bytes_written;
         for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
@@ -93,7 +93,7 @@ static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
             hexdump("<== ", iov[i].iov_base, len);
             bytes_remaining -= len;
         }
-
+#endif
         // 调整 iovec 数组以处理部分写入的情况
         while(bytes_written > 0 && iovcnt > 0) {
             if(bytes_written >= iov->iov_len) {
@@ -115,11 +115,10 @@ static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
 
 static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
     ssize_t total_bytes = 0; // 总共读取的字节数
-    ssize_t bytes_read;      // 单次读取的字节数
 
     while(iovcnt > 0) {
         // 使用 readv 从 socket 读取数据
-        bytes_read = readv(sockfd, iov, iovcnt);
+        ssize_t bytes_read = readv(sockfd, iov, iovcnt);
 
         if(bytes_read < 0) {
             // 读取错误
@@ -138,6 +137,7 @@ static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
         // 更新总字节数
         total_bytes += bytes_read;
 
+#ifdef DEBUG
         ssize_t bytes_remaining = bytes_read;
 
         for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
@@ -145,7 +145,7 @@ static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
             hexdump("==> ", iov[i].iov_base, len);
             bytes_remaining -= len;
         }
-
+#endif
         // 调整 iovec 数组以处理部分读取的情况
         while(bytes_read > 0 && iovcnt > 0) {
             if(bytes_read >= iov->iov_len) {
@@ -423,27 +423,14 @@ ssize_t read_one_now(RpcClient *client, void *buffer, int size) {
 
 // 请求并等待响应
 int rpc_submit_request(RpcClient *client) {
-    // 发送不带长度信息的数据
-    if(writev_all(client) < 0) {
+    // 发送数据
+    if(writev_all(client) < 0 || writev_all(client, true) < 0) {
         perror("Failed to send request");
         rpc_release_client(client);
         return -1;
     }
-    // 发送带长度信息的数据
-    if(writev_all(client, true) < 0) {
-        perror("Failed to send request");
-        rpc_release_client(client);
-        return -1;
-    }
-
-    // 读取不带长度信息的数据
-    if(readv_all(client) < 0) {
-        perror("Failed to read response");
-        rpc_release_client(client);
-        return -1;
-    }
-    // 读取带长度信息的数据
-    if(readv_all(client, true) < 0) {
+    // 读取数据
+    if(readv_all(client) < 0 || readv_all(client, true) < 0) {
         perror("Failed to read response");
         rpc_release_client(client);
         return -1;
@@ -453,11 +440,7 @@ int rpc_submit_request(RpcClient *client) {
 
 // 读取所有的RPC请求参数
 int rpc_prepare_response(RpcClient *client) {
-    if(readv_all(client) < 0) {
-        perror("Failed to read request");
-        return -1;
-    }
-    if(readv_all(client, true) < 0) {
+    if(readv_all(client) < 0 || readv_all(client, true) < 0) {
         perror("Failed to read request");
         return -1;
     }
@@ -466,11 +449,7 @@ int rpc_prepare_response(RpcClient *client) {
 
 // 提交RPC响应
 int rpc_submit_response(RpcClient *client) {
-    if(writev_all(client) < 0) {
-        perror("Failed to send response");
-        return -1;
-    }
-    if(writev_all(client, true) < 0) {
+    if(writev_all(client) < 0 || writev_all(client, true) < 0) {
         perror("Failed to send response");
         return -1;
     }
