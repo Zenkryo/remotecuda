@@ -439,11 +439,12 @@ int handle_cudaMemset(void *args0) {
 
     return 0;
 }
-
+#if CUDA_VERSION <= 11040
 int handle_cuGetProcAddress(void *args0) {
     std::cout << "Handle function cuGetProcAddress called" << std::endl;
     return 0;
 }
+#endif
 
 int handle_cudaLaunchKernel(void *args0) {
     std::cout << "Handle function cudaLaunchKernel called" << std::endl;

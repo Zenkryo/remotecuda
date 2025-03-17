@@ -14,18 +14,18 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    ## "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    ## "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    ## "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    ## "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    # "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    # "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    # "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
@@ -319,17 +319,31 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
 def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
     if is_client:
         if position == 0:
-            f.write(f"    void *_0{param.name} = getServerHostPtr((void *){param.name});\n")
             if param.name == "srcHost":
+                f.write(f"    void *_0{param.name} = getServerHostPtr((void *){param.name});\n")
                 f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
                 f.write(f"    rpc_write(client, {param.name}, ByteCount, true);\n")
             else:
-                f.write(f"    // PARAM const void * {param.name}\n")
+                f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}), false);\n")
     else:
         if position == 0:
-            f.write(f"    const void *{param.name};\n")
-            f.write(f"    // PARAM const void * {param.name}\n")
-            return param.name
+            if param.name == "srcHost":
+                f.write(f"    void *{param.name};\n")
+                f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}), false);\n")
+                return param.name
+            else:
+                f.write(f"    void *{param.name};\n")
+                f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}), false);\n")
+                return param.name
+        elif position == 1:
+            if param.name == "srcHost":
+                f.write(f"    if({param.name} == nullptr) {{\n")
+                f.write(f"        read_one_now(client, &{param.name}, 0, true);\n")
+                f.write(f"        buffers.insert({param.name});\n")
+                f.write(f"    }}\n")
+                f.write(f"    else {{\n")
+                f.write(f"        read_one_now(client, {param.name}, ByteCount, true);\n")
+                f.write(f"    }}\n")
 
 
 # 处理char *参数
@@ -344,7 +358,7 @@ def handle_param_pchar(function, param, f, is_client=True, position=0):
             # 服务器端定义一个局部变量来临时保存字符串
             f.write(f"    char {param.name}[1024];\n")
             return param.name
-        elif position == 1:
+        elif position == 2:
             f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
 
 
@@ -360,10 +374,8 @@ def handle_param_pconstchar(function, param, f, is_client=True, position=0):
             f.write(f"    char *{param.name} = nullptr;\n")
             f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
             return param.name
-        elif position == 2:
-            f.write(f"    if({param.name} != nullptr) {{\n")
-            f.write(f"        free({param.name});\n")
-            f.write(f"    }}\n")
+        elif position == 1:
+            f.write(f"    buffers.insert({param.name});\n")
 
 
 # 处理type *参数
@@ -418,7 +430,7 @@ def handle_param_ptype_out(function, param, f, is_client=True, position=0):
             param_type_name = param.type.ptr_to.format()
             f.write(f"    {param_type_name} {param.name};\n")
             return "&" + param.name
-        elif position == 1:
+        elif position == 2:
             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
 
 
@@ -444,7 +456,7 @@ def handle_param_ppconstvoid(function, param, f, is_client=True, position=0):
         if position == 0:
             f.write(f"    const void *{param.name};\n")
             return "&" + param.name
-        elif position == 1:
+        elif position == 2:
             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
 
 
@@ -467,7 +479,7 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
         if position == 0:
             f.write(f"    const char *{param.name};\n")
             return "&" + param.name
-        elif position == 1:
+        elif position == 2:
             f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
 
 
@@ -488,7 +500,7 @@ def handle_param_ppconsttype(function, param, f, is_client=True, position=0):
         if position == 0:
             f.write(f"    const {param_type_name} *{param.name};\n")
             return "&" + param.name
-        elif position == 1:
+        elif position == 2:
             f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name}));\n")
 
 
@@ -506,16 +518,7 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
             f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
-            return param.name # TODO
-        # elif position==1:
-        #     f.write(f"    free({param.name});\n")
-        # elif position==2:
-        # f.write(f"    {param_type_name} **{param.name} = ({param_type_name} **)malloc(sizeof({param_type_name} *) * {len});\n")
-        # f.write(f"    if({param.name} == nullptr) {{\n")
-        # f.write(f'        std::cerr << "Failed to malloc memory" << std::endl;\n')
-        # f.write(f"        return 1;\n")
-        # f.write(f"    }}\n")
-        # f.write(f"    rpc_read(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
+            return param.name  # TODO
 
 
 def handle_param(function, param, f, is_client=True, position=0):
@@ -699,8 +702,9 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 f.write(f"int handle_{function_name}(void *args0) {{\n")
                 f.write(f'    std::cout << "Handle function {function_name} called" << std::endl;\n')
                 f.write(f"    int rtn = 0;\n")
+                f.write(f"    std::set<void *> buffers;\n")
                 f.write(f"    RpcClient *client = (RpcClient *)args0;\n")
-                for param in function.parameters: # 服务器端读取参数
+                for param in function.parameters:  # 服务器端读取参数
                     if param_names == "":
                         p = handle_param(function, param, f, False, 0)
                         if p:
@@ -718,6 +722,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 f.write("        rtn = 1;\n")
                 f.write("        goto _RTN_;\n")
                 f.write("    }\n")
+                for param in function.parameters:  # 服务器端继续读取参数
+                    handle_param(function, param, f, False, 1)
                 if return_type.endswith("*"):
                     f.write(f"    _result = {function_name}({param_names});\n")
                 elif return_type == "void":
@@ -725,7 +731,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 else:
                     f.write(f"    _result = {function_name}({param_names});\n")
                 for param in function.parameters:  # 服务器端写入返回参数
-                    handle_param(function, param, f, False, 1)
+                    handle_param(function, param, f, False, 2)
                 if return_type == "const char *":
                     f.write(f"    rpc_write(client, _result, strlen(_result) + 1, true);\n")
                 elif return_type != "void":
@@ -737,8 +743,11 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 f.write("    }\n\n")
 
                 f.write("_RTN_:\n")
+                f.write(f"    for(auto it = buffers.begin(); it != buffers.end(); it++) {{\n")
+                f.write(f"        ::free(*it);\n")
+                f.write(f"    }}\n")
                 for param in function.parameters:
-                    handle_param(function, param, f, False, 2) # 释放内存
+                    handle_param(function, param, f, False, 3)  # 释放内存
                 f.write("    return rtn;\n")
                 f.write("}\n\n")
 

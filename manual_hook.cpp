@@ -1232,6 +1232,7 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
     return _result;
 }
 
+#if CUDA_VERSION <= 11040
 extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
     std::cout << "Hook: cuGetProcAddress called" << std::endl;
     auto it = functionMap.find(symbol);
@@ -1241,6 +1242,7 @@ extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVer
     }
     return CUDA_ERROR_NOT_FOUND;
 }
+#endif
 
 // Function to parse a PTX string and fill functions into a dynamically
 // allocated array
