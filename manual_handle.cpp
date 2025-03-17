@@ -6,6 +6,7 @@
 #include "cuda.h"
 #include "cuda_runtime_api.h"
 #include "hidden_api.h"
+#include "nvml.h"
 
 int handle_cuMemAllocHost_v2(void *args) {
     std::cout << "Handle function handle_cuMemAllocHost_v2 called" << std::endl;
@@ -316,7 +317,7 @@ int handle_cudaMemcpy(void *args0) {
             toFree = src;
         }
         printf("---- read src %p\n", src);
-        if(read_one_now(client, src, count, false) != 0) {
+        if(read_one_now(client, src, count, true) < 0) {
             std::cerr << "Failed to read src" << std::endl;
             return cudaErrorUnknown;
         }
@@ -347,7 +348,7 @@ int handle_cudaMemcpy(void *args0) {
         if(_result != cudaSuccess) {
             count = 0;
         }
-        rpc_write(client, dst, count, false);
+        rpc_write(client, dst, count, true);
         rpc_write(client, &_result, sizeof(_result));
         if(rpc_submit_response(client) != 0) {
             std::cerr << "Failed to submit response" << std::endl;
@@ -366,7 +367,7 @@ int handle_cudaMemcpy(void *args0) {
             bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
             bool src_is_union = checkPointer(src) == cudaMemoryTypeManaged;
             if(src_is_union) {
-                read_one_now(client, src, count, false);
+                read_one_now(client, src, count, true);
             }
             if(src_is_union && dst_is_union) {
             }
@@ -376,7 +377,7 @@ int handle_cudaMemcpy(void *args0) {
                 count = 0;
             }
             if(dst_is_union && !src_is_union) {
-                rpc_write(client, dst, count, false);
+                rpc_write(client, dst, count, true);
             }
             rpc_write(client, &_result, sizeof(_result));
             if(rpc_submit_response(client) != 0) {
@@ -395,7 +396,7 @@ int handle_cudaMemcpy(void *args0) {
             }
             toFree = src;
         }
-        if(read_one_now(client, src, count, false) != 0) {
+        if(read_one_now(client, src, count, true) < 0) {
             std::cerr << "Failed to read src" << std::endl;
             return cudaErrorUnknown;
         }
@@ -439,10 +440,10 @@ int handle_cudaMemset(void *args0) {
     return 0;
 }
 
-// int handle_cuGetProcAddress(void *args0) {
-//     std::cout << "Handle function cuGetProcAddress called" << std::endl;
-//     return 0;
-// }
+int handle_cuGetProcAddress(void *args0) {
+    std::cout << "Handle function cuGetProcAddress called" << std::endl;
+    return 0;
+}
 
 int handle_cudaLaunchKernel(void *args0) {
     std::cout << "Handle function cudaLaunchKernel called" << std::endl;
@@ -601,15 +602,16 @@ int handle___cudaUnregisterFatBinary(void *args0) {
 
 int handle___cudaRegisterVar(void *args0) {
     std::cout << "Handle function __cudaRegisterVar called" << std::endl;
+    int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
     char *hostVar;
-    char *deviceAddress = (char *)malloc(1024);
-    char *deviceName = (char *)malloc(1024);
+    char *deviceAddress = nullptr;
+    char *deviceName = nullptr;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_read(client, &hostVar, sizeof(hostVar));
-    rpc_read(client, deviceAddress, 1024);
-    rpc_read(client, deviceName, 1024);
+    rpc_read(client, &deviceAddress, 0, true);
+    rpc_read(client, &deviceName, 0, true);
     int ext;
     rpc_read(client, &ext, sizeof(ext));
     size_t size;
@@ -620,28 +622,37 @@ int handle___cudaRegisterVar(void *args0) {
     rpc_read(client, &global, sizeof(global));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
+        rtn = 1;
+        goto _RTN_;
     }
     __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext, size, constant, global);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        return 1;
+        rtn = 1;
+        goto _RTN_;
     }
-
-    return 0;
+_RTN_:
+    if(deviceAddress != nullptr) {
+        free(deviceAddress);
+    }
+    if(deviceName != nullptr) {
+        free(deviceName);
+    }
+    return rtn;
 }
 
 int handle___cudaRegisterManagedVar(void *args0) {
     std::cout << "Handle function __cudaRegisterManagedVar called" << std::endl;
+    int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
     void **hostVarPtrAddress;
-    char deviceAddress[1024];
-    char deviceName[1024];
+    char *deviceAddress = nullptr;
+    char *deviceName = nullptr;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_read(client, &hostVarPtrAddress, sizeof(hostVarPtrAddress));
-    rpc_read(client, deviceAddress, 1024);
-    rpc_read(client, deviceName, 1024);
+    rpc_read(client, &deviceAddress, 0, true);
+    rpc_read(client, &deviceName, 0, true);
     int ext;
     rpc_read(client, &ext, sizeof(ext));
     size_t size;
@@ -652,29 +663,34 @@ int handle___cudaRegisterManagedVar(void *args0) {
     rpc_read(client, &global, sizeof(global));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
+        rtn = 1;
+        goto _RTN_;
     }
     __cudaRegisterManagedVar(fatCubinHandle, hostVarPtrAddress, deviceAddress, deviceName, ext, size, constant, global);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        return 1;
+        rtn = 1;
+        goto _RTN_;
     }
-
-    return 0;
+_RTN_:
+    if(deviceAddress != nullptr) {
+        free(deviceAddress);
+    }
+    if(deviceName != nullptr) {
+        free(deviceName);
+    }
+    return rtn;
 }
 
 int handle___cudaInitModule(void *args0) {
     std::cout << "Handle function __cudaInitModule called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
     void *fatCubinHandle;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    // PARAM void **fatCubinHandle
     char _result = __cudaInitModule(&fatCubinHandle);
-    // PARAM void **fatCubinHandle
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -686,8 +702,8 @@ int handle___cudaInitModule(void *args0) {
 
 int handle___cudaRegisterFunction(void *args0) {
     std::cout << "Handle function __cudaRegisterFunction called" << std::endl;
+    int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fatCubinHandle
     void **fatCubinHandle;
     char *hostFun;
     char *deviceFun = nullptr;
@@ -708,10 +724,9 @@ int handle___cudaRegisterFunction(void *args0) {
 
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
+        rtn = 1;
+        goto _RTN_;
     }
-    printf("----- deviceFun: %s\n", deviceFun);
-    printf("----- deviceName: %s\n", deviceName);
     if(mask & 1 << 0) {
         read_one_now(client, &tid, sizeof(uint3), false);
     }
@@ -731,7 +746,8 @@ int handle___cudaRegisterFunction(void *args0) {
     __cudaRegisterFunction(fatCubinHandle, hostFun, deviceFun, deviceName, thread_limit, mask & 1 << 0 ? &tid : nullptr, mask & 1 << 1 ? &bid : nullptr, mask & 1 << 2 ? &bDim : nullptr, mask & 1 << 3 ? &gDim : nullptr, mask & 1 << 4 ? &wSize : nullptr);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        return 1;
+        rtn = 1;
+        goto _RTN_;
     }
     if(mask & 1 << 0) {
         printf("tid: %u %u %u\n", tid.x, tid.y, tid.z);
@@ -748,9 +764,14 @@ int handle___cudaRegisterFunction(void *args0) {
     if(mask & 1 << 4) {
         printf("wSize: %d\n", wSize);
     }
-    // free(deviceFun);
-    // free(deviceName);
-    return 0;
+_RTN_:
+    // if(deviceFun != nullptr) {
+    //     free(deviceFun);
+    // }
+    // if(deviceName != nullptr) {
+    //     free(deviceName);
+    // }
+    return rtn;
 }
 
 int handle_cudaMemcpyToSymbol(void *args0) {
@@ -773,7 +794,7 @@ int handle_cudaMemcpyToSymbol(void *args0) {
     bool is_malloc = false;
     if(src == nullptr) {
         src = malloc(count);
-        read_one_now(client, (uint8_t *)src, count, false);
+        read_one_now(client, (uint8_t *)src, count, true);
     }
     cudaError_t _result = cudaMemcpyToSymbol(symbol, src, count, offset, kind);
     if(is_malloc) {
@@ -817,7 +838,7 @@ int handle_cudaMemcpyFromSymbol(void *args0) {
     cudaError_t _result = cudaMemcpyFromSymbol(dst, symbol, count, offset, kind);
     bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
     if(dst_is_union || is_malloc) {
-        rpc_write(client, dst, count);
+        rpc_write(client, dst, count, true);
     }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -829,6 +850,103 @@ int handle_cudaMemcpyFromSymbol(void *args0) {
     }
     if(is_malloc) {
         free(dst);
+    }
+
+    return 0;
+}
+
+int handle_nvmlErrorString(void *args0) {
+    std::cout << "Handle function nvmlErrorString called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    nvmlReturn_t result;
+    rpc_read(client, &result, sizeof(result));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    const char *_result = nvmlErrorString(result);
+    rpc_write(client, _result, strlen(_result) + 1, true);
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+int handle_cuGetErrorString(void *args0) {
+    std::cout << "Handle function cuGetErrorString called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    CUresult error;
+    rpc_read(client, &error, sizeof(error));
+    const char *pStr;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuGetErrorString(error, &pStr);
+    rpc_write(client, pStr, strlen(pStr) + 1, true);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
+int handle_cuGetErrorName(void *args0) {
+    std::cout << "Handle function cuGetErrorName called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    CUresult error;
+    rpc_read(client, &error, sizeof(error));
+    const char *pStr;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuGetErrorName(error, &pStr);
+    rpc_write(client, pStr, strlen(pStr) + 1, true);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
+int handle_cudaGetErrorName(void *args0) {
+    std::cout << "Handle function cudaGetErrorName called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    cudaError_t error;
+    rpc_read(client, &error, sizeof(error));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    const char *_result = cudaGetErrorName(error);
+    rpc_write(client, _result, strlen(_result) + 1, true);
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+int handle_cudaGetErrorString(void *args0) {
+    std::cout << "Handle function cudaGetErrorString called" << std::endl;
+    RpcClient *client = (RpcClient *)args0;
+    cudaError_t error;
+    rpc_read(client, &error, sizeof(error));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    const char *_result = cudaGetErrorString(error);
+    rpc_write(client, _result, strlen(_result) + 1, true);
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
     }
 
     return 0;

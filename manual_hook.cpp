@@ -7,6 +7,7 @@
 #include "cuda_runtime.h"
 #include <sys/mman.h>
 #include "cuda.h"
+#include "nvml.h"
 #include "gen/hook_api.h"
 #include "rpc.h"
 #include "hidden_api.h"
@@ -857,7 +858,7 @@ extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, siz
             new_dsts[i] = (CUdeviceptr)mem.first;
             rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
             // 如果是拷贝到统一内存,还需要将数据读回到客户端, 服务器端需要调用cudaPointerGetAttributes来判断指针是否是统一内存
-            rpc_read(client, (void *)dsts[i], sizes[i]);
+            rpc_read(client, (void *)dsts[i], sizes[i], true);
         } else if(cs_dev_mems.find(dsts[i]) != cs_dev_mems.end()) {
             new_dsts[i] = (CUdeviceptr)cs_dev_mems[dsts[i]];
             rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
@@ -871,7 +872,7 @@ extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, siz
             new_srcs[i] = (CUdeviceptr)mem.first;
             rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
             // 如果是从统一内存拷贝,还需要将数据写入到服务器端
-            rpc_write(client, (void *)srcs[i], sizes[i]);
+            rpc_write(client, (void *)srcs[i], sizes[i], true);
         } else if(cs_dev_mems.find(srcs[i]) != cs_dev_mems.end()) {
             new_srcs[i] = (CUdeviceptr)cs_dev_mems[srcs[i]];
             rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
@@ -908,7 +909,7 @@ extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibr
     rpc_read(client, dptr, sizeof(*dptr));
     rpc_read(client, bytes, sizeof(*bytes));
     rpc_write(client, &library, sizeof(library));
-    rpc_write(client, name, strlen(name) + 1);
+    rpc_write(client, name, strlen(name) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -939,7 +940,7 @@ extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibra
     rpc_read(client, dptr, sizeof(*dptr));
     rpc_read(client, bytes, sizeof(*bytes));
     rpc_write(client, &library, sizeof(library));
-    rpc_write(client, name, strlen(name) + 1);
+    rpc_write(client, name, strlen(name) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1022,7 +1023,7 @@ extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmod
     rpc_read(client, dptr, sizeof(*dptr));
     rpc_read(client, bytes, sizeof(*bytes));
     rpc_write(client, &hmod, sizeof(hmod));
-    rpc_write(client, name, strlen(name) + 1);
+    rpc_write(client, name, strlen(name) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1107,7 +1108,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count, false);
+        rpc_write(client, src, count, true);
         break;
     case cudaMemcpyDeviceToHost:
         serverSrc = getUnionPtr((void *)src);
@@ -1126,7 +1127,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_read(client, dst, count, false);
+        rpc_read(client, dst, count, true);
         break;
     case cudaMemcpyDeviceToDevice:
         serverSrc = getUnionPtr((void *)src);
@@ -1156,12 +1157,12 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
         if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
-            rpc_write(client, src, count);
+            rpc_write(client, src, count, true);
         }
         if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
             memcpy(dst, src, count);
         } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
-            rpc_read(client, dst, count, false);
+            rpc_read(client, dst, count, true);
         }
         break;
     case cudaMemcpyHostToHost:
@@ -1182,7 +1183,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         rpc_write(client, &serverSrc, sizeof(serverSrc));
         rpc_write(client, &count, sizeof(count));
         rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count, false);
+        rpc_write(client, src, count, true);
         break;
     }
     rpc_read(client, &_result, sizeof(_result));
@@ -1231,15 +1232,15 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
     return _result;
 }
 
-// extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
-//     // std::cout << "Hook: cuGetProcAddress called" << std::endl;
-//     auto it = functionMap.find(symbol);
-//     if(it != functionMap.end()) {
-//         *pfn = (void *)it->second;
-//         return CUDA_SUCCESS;
-//     }
-//     return CUDA_ERROR_NOT_FOUND;
-// }
+extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
+    std::cout << "Hook: cuGetProcAddress called" << std::endl;
+    auto it = functionMap.find(symbol);
+    if(it != functionMap.end()) {
+        *pfn = (void *)it->second;
+        return CUDA_SUCCESS;
+    }
+    return CUDA_ERROR_NOT_FOUND;
+}
 
 // Function to parse a PTX string and fill functions into a dynamically
 // allocated array
@@ -1522,7 +1523,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_write(client, &f->arg_count, sizeof(f->arg_count));
 
     for(int i = 0; i < f->arg_count; i++) {
-        rpc_write(client, args[i], f->arg_sizes[i]);
+        rpc_write(client, args[i], f->arg_sizes[i], true);
     }
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1605,7 +1606,6 @@ extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
     rpc_prepare_request(client, RPC___cudaRegisterFatBinary);
     rpc_write(client, binary, sizeof(__cudaFatCudaBinary2));
     rpc_write(client, header, size, true);
-    printf("~~~~~~~~~~~~~~~~~~ %llu\n", size);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1660,8 +1660,8 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
     rpc_prepare_request(client, RPC___cudaRegisterVar);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_write(client, &hostVar, sizeof(hostVar));
-    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1);
-    rpc_write(client, deviceName, strlen(deviceName) + 1);
+    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1, true);
+    rpc_write(client, deviceName, strlen(deviceName) + 1, true);
     rpc_write(client, &ext, sizeof(ext));
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &constant, sizeof(constant));
@@ -1684,8 +1684,8 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
     rpc_prepare_request(client, RPC___cudaRegisterManagedVar);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_write(client, &hostVarPtrAddress, sizeof(hostVarPtrAddress));
-    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1);
-    rpc_write(client, deviceName, strlen(deviceName) + 1);
+    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1, true);
+    rpc_write(client, deviceName, strlen(deviceName) + 1, true);
     rpc_write(client, &ext, sizeof(ext));
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &constant, sizeof(constant));
@@ -1797,7 +1797,7 @@ extern "C" cudaError_t cudaMemcpyToSymbol(const void *symbol, const void *src, s
     }
     rpc_write(client, &serverSrc, sizeof(serverSrc));
     if(serverSrc == nullptr) {
-        rpc_write(client, (uint8_t *)src, count);
+        rpc_write(client, (uint8_t *)src, count, true);
     }
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1830,7 +1830,7 @@ extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_
     rpc_write(client, &offset, sizeof(offset));
     rpc_write(client, &kind, sizeof(kind));
     if(is_managed || serverDst == nullptr) {
-        rpc_read(client, dst, count);
+        rpc_read(client, dst, count, true);
     }
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1840,4 +1840,110 @@ extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_
     }
     rpc_free_client(client);
     return _result;
+}
+
+extern "C" const char *nvmlErrorString(nvmlReturn_t result) {
+    std::cout << "Hook: nvmlErrorString called" << std::endl;
+    static char _nvmlErrorString_result[1024];
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlErrorString);
+    rpc_write(client, &result, sizeof(result));
+    rpc_read(client, _nvmlErrorString_result, 1024, true);
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _nvmlErrorString_result;
+}
+
+extern "C" CUresult cuGetErrorString(CUresult error, const char **pStr) {
+    std::cout << "Hook: cuGetErrorString called" << std::endl;
+    CUresult _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cuGetErrorString);
+    rpc_write(client, &error, sizeof(error));
+    static char _cuGetErrorString_pStr[1024];
+    rpc_read(client, _cuGetErrorString_pStr, 1024, true);
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    *pStr = _cuGetErrorString_pStr;
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" CUresult cuGetErrorName(CUresult error, const char **pStr) {
+    std::cout << "Hook: cuGetErrorName called" << std::endl;
+    CUresult _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cuGetErrorName);
+    rpc_write(client, &error, sizeof(error));
+    static char _cuGetErrorName_pStr[1024];
+    rpc_read(client, _cuGetErrorName_pStr, 1024, true);
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    *pStr = _cuGetErrorName_pStr;
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" const char *cudaGetErrorName(cudaError_t error) {
+    std::cout << "Hook: cudaGetErrorName called" << std::endl;
+    static char _cudaGetErrorName_result[1024];
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaGetErrorName);
+    rpc_write(client, &error, sizeof(error));
+    rpc_read(client, _cudaGetErrorName_result, 1024, true);
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _cudaGetErrorName_result;
+}
+
+extern "C" const char *cudaGetErrorString(cudaError_t error) {
+    std::cout << "Hook: cudaGetErrorString called" << std::endl;
+    static char _cudaGetErrorString_result[1024];
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaGetErrorString);
+    rpc_write(client, &error, sizeof(error));
+    rpc_read(client, _cudaGetErrorString_result, 1024, true);
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _cudaGetErrorString_result;
 }

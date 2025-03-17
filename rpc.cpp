@@ -119,7 +119,6 @@ static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
     while(iovcnt > 0) {
         // 使用 readv 从 socket 读取数据
         ssize_t bytes_read = readv(sockfd, iov, iovcnt);
-
         if(bytes_read < 0) {
             // 读取错误
             if(errno == EINTR) {
@@ -161,7 +160,6 @@ static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
             }
         }
     }
-
     return total_bytes;
 }
 
@@ -178,7 +176,6 @@ static ssize_t writev_all(RpcClient *client, bool with_len = false) {
         iov2send = iov_with_len;
         for(int i = 0; i < client->iov_send2_count; i++) {
             lengths[i] = htonl((uint32_t)client->iov_send2[i].iov_len);
-            printf("lengths[%d]: %u\n", i, (uint32_t)client->iov_send2[i].iov_len);
             iov_with_len[2 * i].iov_base = &lengths[i];
             iov_with_len[2 * i].iov_len = sizeof(uint32_t);
             iov_with_len[2 * i + 1].iov_base = client->iov_send2[i].iov_base;
@@ -215,6 +212,7 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
             if(client->iov_read2[i].iov_len == 0) {
                 void **buffer = (void **)client->iov_read2[i].iov_base;
                 *buffer = malloc(length);
+                printf("------------- %p\n", *buffer);
                 if(*buffer == nullptr) {
                     errno = ENOBUFS; // 缓冲区不足
                     goto ERR;
@@ -334,7 +332,6 @@ void rpc_write(RpcClient *client, const void *data, size_t len, bool with_len) {
     if(with_len) {
         client->iov_send2[client->iov_send2_count].iov_base = (void *)data;
         client->iov_send2[client->iov_send2_count].iov_len = len;
-        printf("client->iov_send2[%d].iov_len: %lu\n", client->iov_send2_count, len);
         client->iov_send2_count++;
     } else {
         client->iov_send[client->iov_send_count].iov_base = (void *)data;
@@ -372,7 +369,6 @@ ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
         }
         total_read += bytes_read;
         length = ntohl(length);
-        printf("================ length = %lu\n", length);
         iov.iov_len = length;
         iov.iov_base = malloc(length);
         if(iov.iov_base == NULL) {
@@ -385,7 +381,9 @@ ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
             return -1;
         }
         buffer[i] = iov.iov_base;
-        size[i] = length;
+        if(size != NULL) {
+            size[i] = length;
+        }
         total_read += bytes_read;
     }
     return total_read;
