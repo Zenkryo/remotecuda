@@ -42,3 +42,4 @@ int rpc_submit_response(RpcClient *client);
 ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count);
 ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len);
 void hexdump(const char *desc, void *buf, size_t len);
+int sum_group(int *group_size, int group_count);

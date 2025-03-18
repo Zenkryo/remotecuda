@@ -453,3 +453,11 @@ int rpc_submit_response(RpcClient *client) {
     }
     return 0;
 }
+
+int sum_group(int *group_size, int group_count) {
+    int sum = 0;
+    for(int i = 0; i < group_count; i++) {
+        sum += group_size[i];
+    }
+    return sum;
+}

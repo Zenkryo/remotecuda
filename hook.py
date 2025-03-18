@@ -14,19 +14,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    # "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    # "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    # "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
+    "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    #  "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    #  "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    #  "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    #  "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    #  "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
@@ -228,7 +228,7 @@ def generate_client_cpp(output_dir, function_map, so_files):
         f.write("    auto it = functionMap.find(symbol);\n")
         f.write("    if(it == functionMap.end()) {\n")
         f.write("        return nullptr;\n")
-        f.write("    } else {\n");
+        f.write("    } else {\n")
         f.write("        return it->second;\n")
         f.write("    }\n")
         f.write("};\n\n")
@@ -270,14 +270,19 @@ def getCharParamLength(function):
     return "32"
 
 
-def getArrayLengthParam(function):
+def getArrayLengthParam(function, param):
     """
     获取数组参数的长度参数名
     """
-    for param in function.parameters:
-        if isinstance(param.type, Type):
-            if param.name in ["batchCount", "batchSize"]:
-                return param.name
+    if "Group" in function.name.format():
+        if isinstance(param.type.array_of, Pointer):
+            return "sum_group((int *)group_size, group_count)"
+        else:
+            return "group_count"
+    for _param in function.parameters:
+        if isinstance(_param.type, Type):
+            if _param.name in ["batchCount", "batchSize"]:
+                return _param.name
     return "0"
 
 
@@ -517,7 +522,7 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
     param_type_name = param.type.array_of.ptr_to.format()
     if param_type_name.startswith("const "):
         param_type_name = param_type_name[6:]
-    len = getArrayLengthParam(function)
+    len = getArrayLengthParam(function, param)
     if is_client:
         function_name = function.name.format()
         if position == 0:
@@ -534,6 +539,22 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
                 return f"(const {param_type_name} **){param.name}"
             else:
                 return param.name  # TODO
+
+
+def handle_param_arraytype(function, param, f, is_client=True, position=0):
+    param_type_name = param.type.array_of.format()
+    if param_type_name.startswith("const "):
+        param_type_name = param_type_name[6:]
+    len = getArrayLengthParam(function, param)
+    if is_client:
+        function_name = function.name.format()
+        if position == 0:
+            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *)*{len}, true);\n")
+    else:
+        if position == 0:
+            f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
+            f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
+            return param.name
 
 
 def handle_param(function, param, f, is_client=True, position=0):
@@ -595,8 +616,9 @@ def handle_param(function, param, f, is_client=True, position=0):
     elif isinstance(param_type, Array):
         if isinstance(param_type.array_of, Pointer):
             if isinstance(param_type.array_of.ptr_to, Type):
-                if not param_type.array_of.ptr_to.format().endswith("void"):
-                    return handle_param_arrayptype(function, param, f, is_client, position)
+                return handle_param_arrayptype(function, param, f, is_client, position)
+        else:
+            return handle_param_arraytype(function, param, f, is_client, position)
 
         f.write(f'    std::cerr << "PARAM Not supported" << std::endl; // {param.name} \n')
         f.write(f"    exit(1);\n")
