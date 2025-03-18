@@ -212,7 +212,6 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
             if(client->iov_read2[i].iov_len == 0) {
                 void **buffer = (void **)client->iov_read2[i].iov_base;
                 *buffer = malloc(length);
-                printf("------------- %p\n", *buffer);
                 if(*buffer == nullptr) {
                     errno = ENOBUFS; // 缓冲区不足
                     goto ERR;

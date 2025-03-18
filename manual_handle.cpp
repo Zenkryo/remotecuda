@@ -607,11 +607,9 @@ int handle___cudaRegisterVar(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
     char *hostVar;
-    char *deviceAddress = nullptr;
     char *deviceName = nullptr;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_read(client, &hostVar, sizeof(hostVar));
-    rpc_read(client, &deviceAddress, 0, true);
     rpc_read(client, &deviceName, 0, true);
     int ext;
     rpc_read(client, &ext, sizeof(ext));
@@ -626,19 +624,13 @@ int handle___cudaRegisterVar(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext, size, constant, global);
+    __cudaRegisterVar(fatCubinHandle, hostVar, deviceName, deviceName, ext, size, constant, global);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
 _RTN_:
-    // if(deviceAddress != nullptr) {
-    //     free(deviceAddress);
-    // }
-    // if(deviceName != nullptr) {
-    //     free(deviceName);
-    // }
     return rtn;
 }
 
@@ -647,12 +639,9 @@ int handle___cudaRegisterManagedVar(void *args0) {
     int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
-    void **hostVarPtrAddress;
-    char *deviceAddress = nullptr;
+    void *hostVarPtrAddress = nullptr;
     char *deviceName = nullptr;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
-    rpc_read(client, &hostVarPtrAddress, sizeof(hostVarPtrAddress));
-    rpc_read(client, &deviceAddress, 0, true);
     rpc_read(client, &deviceName, 0, true);
     int ext;
     rpc_read(client, &ext, sizeof(ext));
@@ -667,19 +656,13 @@ int handle___cudaRegisterManagedVar(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    __cudaRegisterManagedVar(fatCubinHandle, hostVarPtrAddress, deviceAddress, deviceName, ext, size, constant, global);
+    __cudaRegisterManagedVar(fatCubinHandle, &hostVarPtrAddress, deviceName, deviceName, ext, size, constant, global);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
 _RTN_:
-    if(deviceAddress != nullptr) {
-        free(deviceAddress);
-    }
-    if(deviceName != nullptr) {
-        free(deviceName);
-    }
     return rtn;
 }
 
@@ -707,7 +690,6 @@ int handle___cudaRegisterFunction(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
     char *hostFun;
-    char *deviceFun = nullptr;
     char *deviceName = nullptr;
     int thread_limit;
     uint3 tid;
@@ -718,7 +700,6 @@ int handle___cudaRegisterFunction(void *args0) {
     uint8_t mask;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_read(client, &hostFun, sizeof(hostFun));
-    rpc_read(client, &deviceFun, 0, true);
     rpc_read(client, &deviceName, 0, true);
     rpc_read(client, &thread_limit, sizeof(thread_limit));
     rpc_read(client, &mask, sizeof(mask));
@@ -744,7 +725,7 @@ int handle___cudaRegisterFunction(void *args0) {
         read_one_now(client, &wSize, sizeof(wSize), false);
     }
 
-    __cudaRegisterFunction(fatCubinHandle, hostFun, deviceFun, deviceName, thread_limit, mask & 1 << 0 ? &tid : nullptr, mask & 1 << 1 ? &bid : nullptr, mask & 1 << 2 ? &bDim : nullptr, mask & 1 << 3 ? &gDim : nullptr, mask & 1 << 4 ? &wSize : nullptr);
+    __cudaRegisterFunction(fatCubinHandle, hostFun, deviceName, deviceName, thread_limit, mask & 1 << 0 ? &tid : nullptr, mask & 1 << 1 ? &bid : nullptr, mask & 1 << 2 ? &bDim : nullptr, mask & 1 << 3 ? &gDim : nullptr, mask & 1 << 4 ? &wSize : nullptr);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         rtn = 1;
@@ -766,12 +747,6 @@ int handle___cudaRegisterFunction(void *args0) {
         printf("wSize: %d\n", wSize);
     }
 _RTN_:
-    // if(deviceFun != nullptr) {
-    //     free(deviceFun);
-    // }
-    // if(deviceName != nullptr) {
-    //     free(deviceName);
-    // }
     return rtn;
 }
 

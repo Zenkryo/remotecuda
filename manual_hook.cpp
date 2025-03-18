@@ -1661,7 +1661,6 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
     rpc_prepare_request(client, RPC___cudaRegisterVar);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_write(client, &hostVar, sizeof(hostVar));
-    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1, true);
     rpc_write(client, deviceName, strlen(deviceName) + 1, true);
     rpc_write(client, &ext, sizeof(ext));
     rpc_write(client, &size, sizeof(size));
@@ -1684,8 +1683,6 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
     }
     rpc_prepare_request(client, RPC___cudaRegisterManagedVar);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
-    rpc_write(client, &hostVarPtrAddress, sizeof(hostVarPtrAddress));
-    rpc_write(client, deviceAddress, strlen(deviceAddress) + 1, true);
     rpc_write(client, deviceName, strlen(deviceName) + 1, true);
     rpc_write(client, &ext, sizeof(ext));
     rpc_write(client, &size, sizeof(size));
@@ -1731,7 +1728,6 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     rpc_prepare_request(client, RPC___cudaRegisterFunction);
     rpc_write(client, &fatCubinHandle, sizeof(fatCubinHandle));
     rpc_write(client, &hostFun, sizeof(hostFun));
-    rpc_write(client, deviceFun, strlen(deviceFun) + 1, true);
     rpc_write(client, deviceName, strlen(deviceName) + 1, true);
     rpc_write(client, &thread_limit, sizeof(thread_limit));
     uint8_t mask = 0;
