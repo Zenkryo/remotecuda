@@ -9,49 +9,63 @@
 #include "nvml.h"
 
 int handle_cuMemAllocHost_v2(void *args) {
-    std::cout << "Handle function handle_cuMemAllocHost_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAllocHost_v2 called" << std::endl;
+    // RpcClient *client = (RpcClient *)args;
+    // void *pp;
+    // size_t bytesize;
+    // rpc_read(client, &bytesize, sizeof(bytesize));
+    // if(rpc_prepare_response(client) != 0) {
+    //     std::cerr << "Failed to prepare response" << std::endl;
+    //     return cudaErrorUnknown;
+    // }
+    // cudaError_t _result = cuMemAllocHost_v2(&pp, bytesize);
+    // rpc_write(client, &pp, sizeof(pp));
+    // rpc_write(client, &_result, sizeof(_result));
+    // if(_result == cudaSuccess) {
+    //     cs_host_mems[pp] = std::make_pair(pp, bytesize);
+    // }
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cuMemFreeHost(void *args) {
-    std::cout << "Handle function handle_cuMemFreeHost called" << std::endl;
+    // std::cout << "Handle function handle_cuMemFreeHost called" << std::endl;
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cuMemHostAlloc(void *args) {
-    std::cout << "Handle function handle_cuMemHostAlloc called" << std::endl;
+    // std::cout << "Handle function handle_cuMemHostAlloc called" << std::endl;
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cuMemAddressReserve(void *args) {
-    std::cout << "Handle function handle_cuMemAddressReserve called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAddressReserve called" << std::endl;
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cuMemCreate(void *args) {
-    std::cout << "Handle function handle_cuMemCreate called" << std::endl;
+    // std::cout << "Handle function handle_cuMemCreate called" << std::endl;
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cuMemRelease(void *args) {
-    std::cout << "Handle function handle_cuMemRelease called" << std::endl;
+    // std::cout << "Handle function handle_cuMemRelease called" << std::endl;
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cuMemMap(void *args) {
-    std::cout << "Handle function handle_cuMemMap called" << std::endl;
+    // std::cout << "Handle function handle_cuMemMap called" << std::endl;
     // TODO: Implement the function logic
     return 0;
 }
 
 int handle_cudaMallocManaged(void *args) {
-    std::cout << "Handle function handle_cudaMallocManaged called" << std::endl;
+    // std::cout << "Handle function handle_cudaMallocManaged called" << std::endl;
     RpcClient *client = (RpcClient *)args;
     void *devPtr;
     size_t size;
@@ -73,7 +87,7 @@ int handle_cudaMallocManaged(void *args) {
 }
 
 int handle_cudaMallocHost(void *args) {
-    std::cout << "Handle function handle_cudaMallocHost called" << std::endl;
+    // std::cout << "Handle function handle_cudaMallocHost called" << std::endl;
     RpcClient *client = (RpcClient *)args;
     void *ptr;
     size_t size;
@@ -93,7 +107,7 @@ int handle_cudaMallocHost(void *args) {
 }
 
 int handle_cudaFree(void *args) {
-    std::cout << "Handle function handle_cudaFree called" << std::endl;
+    // std::cout << "Handle function handle_cudaFree called" << std::endl;
     RpcClient *client = (RpcClient *)args;
     void *devPtr;
     rpc_read(client, &devPtr, sizeof(devPtr));
@@ -111,7 +125,7 @@ int handle_cudaFree(void *args) {
 }
 
 int handle_cudaFreeHost(void *args) {
-    std::cout << "Handle function handle_cudaFreeHost called" << std::endl;
+    // std::cout << "Handle function handle_cudaFreeHost called" << std::endl;
     RpcClient *client = (RpcClient *)args;
     void *ptr;
     rpc_read(client, &ptr, sizeof(ptr));
@@ -129,7 +143,7 @@ int handle_cudaFreeHost(void *args) {
 }
 
 int handle_cudaHostAlloc(void *args) {
-    std::cout << "Handle function handle_cudaHostAlloc called" << std::endl;
+    // std::cout << "Handle function handle_cudaHostAlloc called" << std::endl;
     RpcClient *client = (RpcClient *)args;
     void *pHost;
     size_t size;
@@ -151,82 +165,97 @@ int handle_cudaHostAlloc(void *args) {
 }
 
 int handle_cuModuleGetGlobal_v2(void *args) {
-    std::cout << "Handle function handle_cuModuleGetGlobal_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuModuleGetGlobal_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cuMemAlloc_v2(void *args) {
-    std::cout << "Handle function handle_cuMemAlloc_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAlloc_v2 called" << std::endl;
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr dptr;
+    size_t bytesize;
+    rpc_read(client, &bytesize, sizeof(bytesize));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemAlloc_v2(&dptr, bytesize);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
 int handle_cuMemAllocPitch_v2(void *args) {
-    std::cout << "Handle function handle_cuMemAllocPitch_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAllocPitch_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cuMemGetAddressRange_v2(void *args) {
-    std::cout << "Handle function handle_cuMemGetAddressRange_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuMemGetAddressRange_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cuMemHostGetDevicePointer_v2(void *args) {
-    std::cout << "Handle function handle_cuMemHostGetDevicePointer_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuMemHostGetDevicePointer_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cuMemAllocManaged(void *args) {
-    std::cout << "Handle function handle_cuMemAllocManaged called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAllocManaged called" << std::endl;
     return 0;
 }
 
 int handle_cuIpcOpenMemHandle_v2(void *args) {
-    std::cout << "Handle function handle_cuIpcOpenMemHandle_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuIpcOpenMemHandle_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cuMemAllocAsync(void *args) {
-    std::cout << "Handle function handle_cuMemAllocAsync called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAllocAsync called" << std::endl;
     return 0;
 }
 
 int handle_cuMemAllocFromPoolAsync(void *args) {
-    std::cout << "Handle function handle_cuMemAllocFromPoolAsync called" << std::endl;
+    // std::cout << "Handle function handle_cuMemAllocFromPoolAsync called" << std::endl;
     return 0;
 }
 
 int handle_cuMemPoolImportPointer(void *args) {
-    std::cout << "Handle function handle_cuMemPoolImportPointer called" << std::endl;
+    // std::cout << "Handle function handle_cuMemPoolImportPointer called" << std::endl;
     return 0;
 }
 
 int handle_cuImportExternalMemory(void *args) {
-    std::cout << "Handle function handle_cuImportExternalMemory called" << std::endl;
+    // std::cout << "Handle function handle_cuImportExternalMemory called" << std::endl;
     return 0;
 }
 
 int handle_cuExternalMemoryGetMappedBuffer(void *args) {
-    std::cout << "Handle function handle_cuExternalMemoryGetMappedBuffer called" << std::endl;
+    // std::cout << "Handle function handle_cuExternalMemoryGetMappedBuffer called" << std::endl;
     return 0;
 }
 
 int handle_cuGraphMemFreeNodeGetParams(void *args) {
-    std::cout << "Handle function handle_cuGraphMemFreeNodeGetParams called" << std::endl;
+    // std::cout << "Handle function handle_cuGraphMemFreeNodeGetParams called" << std::endl;
     return 0;
 }
 
 int handle_cuTexRefGetAddress_v2(void *args) {
-    std::cout << "Handle function handle_cuTexRefGetAddress_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuTexRefGetAddress_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cuGraphicsResourceGetMappedPointer_v2(void *args) {
-    std::cout << "Handle function handle_cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
+    // std::cout << "Handle function handle_cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
     return 0;
 }
 
 int handle_cudaMalloc(void *args) {
-    std::cout << "Handle function handle_cudaMalloc called" << std::endl;
+    // std::cout << "Handle function handle_cudaMalloc called" << std::endl;
     RpcClient *client = (RpcClient *)args;
     size_t size;
     rpc_read(client, &size, sizeof(size));
@@ -246,32 +275,81 @@ int handle_cudaMalloc(void *args) {
 }
 
 int handle_cudaMallocPitch(void *args) {
-    std::cout << "Handle function handle_cudaMallocPitch called" << std::endl;
+    // std::cout << "Handle function handle_cudaMallocPitch called" << std::endl;
+    RpcClient *client = (RpcClient *)args;
+    void *devPtr;
+    size_t pitch;
+    size_t width;
+    size_t height;
+    rpc_read(client, &width, sizeof(width));
+    rpc_read(client, &height, sizeof(height));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    cudaError_t _result = cudaMallocPitch(&devPtr, &pitch, width, height);
+    rpc_write(client, &devPtr, sizeof(devPtr));
+    rpc_write(client, &pitch, sizeof(pitch));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
 int handle_cudaMalloc3D(void *args) {
-    std::cout << "Handle function handle_cudaMalloc3D called" << std::endl;
+    // std::cout << "Handle function handle_cudaMalloc3D called" << std::endl;
+    RpcClient *client = (RpcClient *)args;
+    struct cudaPitchedPtr pitchedDevPtr;
+    struct cudaExtent extent;
+    rpc_read(client, &extent, sizeof(extent));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    cudaError_t _result = cudaMalloc3D(&pitchedDevPtr, extent);
+    rpc_write(client, &pitchedDevPtr, sizeof(pitchedDevPtr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
 int handle_cudaGetSymbolAddress(void *args) {
-    std::cout << "Handle function handle_cudaGetSymbolAddress called" << std::endl;
+    // std::cout << "Handle function handle_cudaGetSymbolAddress called" << std::endl;
+    RpcClient *client = (RpcClient *)args;
+    void *devPtr;
+    void *symbol;
+    rpc_read(client, &symbol, sizeof(symbol));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return cudaErrorUnknown;
+    }
+    cudaError_t _result = cudaGetSymbolAddress(&devPtr, symbol);
+    rpc_write(client, &devPtr, sizeof(devPtr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return cudaErrorUnknown;
+    }
     return 0;
 }
 
 int handle_cuLibraryGetGlobal(void *args) {
-    std::cout << "Handle function handle_cuLibraryGetGlobal called" << std::endl;
+    // std::cout << "Handle function handle_cuLibraryGetGlobal called" << std::endl;
     return 0;
 }
 
 int handle_cuLibraryGetManaged(void *args) {
-    std::cout << "Handle function handle_cuLibraryGetManaged called" << std::endl;
+    // std::cout << "Handle function handle_cuLibraryGetManaged called" << std::endl;
     return 0;
 }
 
 int handle_cuMemcpyBatchAsync(void *args) {
-    std::cout << "Handle function handle_cuMemcpyBatchAsync called" << std::endl;
+    // std::cout << "Handle function handle_cuMemcpyBatchAsync called" << std::endl;
     return 0;
 }
 
@@ -288,7 +366,7 @@ cudaMemoryType checkPointer(void *ptr) {
 }
 
 int handle_cudaMemcpy(void *args0) {
-    std::cout << "Handle function cudaMemcpy called" << std::endl;
+    // std::cout << "Handle function cudaMemcpy called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void *dst;
     void *src;
@@ -304,7 +382,6 @@ int handle_cudaMemcpy(void *args0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return cudaErrorUnknown;
     }
-    printf("dst: %p, src: %p, count: %ld, kind: %d\n", dst, src, count, kind);
     switch(kind) {
     case cudaMemcpyHostToDevice:
         toFree = nullptr;
@@ -316,7 +393,6 @@ int handle_cudaMemcpy(void *args0) {
             }
             toFree = src;
         }
-        printf("---- read src %p\n", src);
         if(read_one_now(client, src, count, true) < 0) {
             std::cerr << "Failed to read src" << std::endl;
             return cudaErrorUnknown;
@@ -418,7 +494,7 @@ int handle_cudaMemcpy(void *args0) {
 }
 
 int handle_cudaMemset(void *args0) {
-    std::cout << "Handle function cudaMemset called" << std::endl;
+    // std::cout << "Handle function cudaMemset called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void *devPtr;
     int value;
@@ -441,13 +517,13 @@ int handle_cudaMemset(void *args0) {
 }
 #if CUDA_VERSION <= 11040
 int handle_cuGetProcAddress(void *args0) {
-    std::cout << "Handle function cuGetProcAddress called" << std::endl;
+    // std::cout << "Handle function cuGetProcAddress called" << std::endl;
     return 0;
 }
 #endif
 
 int handle_cudaLaunchKernel(void *args0) {
-    std::cout << "Handle function cudaLaunchKernel called" << std::endl;
+    // std::cout << "Handle function cudaLaunchKernel called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     const void *func;
     dim3 gridDim;
@@ -492,7 +568,7 @@ int handle_cudaLaunchKernel(void *args0) {
 }
 
 int handle___cudaPushCallConfiguration(void *args0) {
-    std::cout << "Handle function __cudaPushCallConfiguration called" << std::endl;
+    // std::cout << "Handle function __cudaPushCallConfiguration called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     dim3 gridDim;
     rpc_read(client, &gridDim, sizeof(gridDim));
@@ -517,7 +593,7 @@ int handle___cudaPushCallConfiguration(void *args0) {
 }
 
 int handle___cudaPopCallConfiguration(void *args0) {
-    std::cout << "Handle function __cudaPopCallConfiguration called" << std::endl;
+    // std::cout << "Handle function __cudaPopCallConfiguration called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     dim3 gridDim;
     dim3 blockDim;
@@ -542,7 +618,7 @@ int handle___cudaPopCallConfiguration(void *args0) {
 }
 
 int handle___cudaRegisterFatBinary(void *args0) {
-    std::cout << "Handle function __cudaRegisterFatBinary called" << std::endl;
+    // std::cout << "Handle function __cudaRegisterFatBinary called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     __cudaFatCudaBinary2 *fatCubin = (__cudaFatCudaBinary2 *)malloc(sizeof(__cudaFatCudaBinary2));
     if(fatCubin == nullptr) {
@@ -568,7 +644,7 @@ int handle___cudaRegisterFatBinary(void *args0) {
 }
 
 int handle___cudaRegisterFatBinaryEnd(void *args0) {
-    std::cout << "Handle function __cudaRegisterFatBinaryEnd called" << std::endl;
+    // std::cout << "Handle function __cudaRegisterFatBinaryEnd called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
@@ -585,7 +661,7 @@ int handle___cudaRegisterFatBinaryEnd(void *args0) {
 }
 
 int handle___cudaUnregisterFatBinary(void *args0) {
-    std::cout << "Handle function __cudaUnregisterFatBinary called" << std::endl;
+    // std::cout << "Handle function __cudaUnregisterFatBinary called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
     rpc_read(client, &fatCubinHandle, sizeof(fatCubinHandle));
@@ -602,7 +678,7 @@ int handle___cudaUnregisterFatBinary(void *args0) {
 }
 
 int handle___cudaRegisterVar(void *args0) {
-    std::cout << "Handle function __cudaRegisterVar called" << std::endl;
+    // std::cout << "Handle function __cudaRegisterVar called" << std::endl;
     int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
@@ -635,7 +711,7 @@ _RTN_:
 }
 
 int handle___cudaRegisterManagedVar(void *args0) {
-    std::cout << "Handle function __cudaRegisterManagedVar called" << std::endl;
+    // std::cout << "Handle function __cudaRegisterManagedVar called" << std::endl;
     int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
@@ -667,7 +743,7 @@ _RTN_:
 }
 
 int handle___cudaInitModule(void *args0) {
-    std::cout << "Handle function __cudaInitModule called" << std::endl;
+    // std::cout << "Handle function __cudaInitModule called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void *fatCubinHandle;
     if(rpc_prepare_response(client) != 0) {
@@ -685,7 +761,7 @@ int handle___cudaInitModule(void *args0) {
 }
 
 int handle___cudaRegisterFunction(void *args0) {
-    std::cout << "Handle function __cudaRegisterFunction called" << std::endl;
+    // std::cout << "Handle function __cudaRegisterFunction called" << std::endl;
     int rtn = 0;
     RpcClient *client = (RpcClient *)args0;
     void **fatCubinHandle;
@@ -751,7 +827,7 @@ _RTN_:
 }
 
 int handle_cudaMemcpyToSymbol(void *args0) {
-    std::cout << "Handle function cudaMemcpyToSymbol called" << std::endl;
+    // std::cout << "Handle function cudaMemcpyToSymbol called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void *symbol;
     void *src;
@@ -786,7 +862,7 @@ int handle_cudaMemcpyToSymbol(void *args0) {
 }
 
 int handle_cudaMemcpyFromSymbol(void *args0) {
-    std::cout << "Handle function cudaMemcpyFromSymbol called" << std::endl;
+    // std::cout << "Handle function cudaMemcpyFromSymbol called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     void *dst;
     void *symbol;
@@ -832,7 +908,7 @@ int handle_cudaMemcpyFromSymbol(void *args0) {
 }
 
 int handle_nvmlErrorString(void *args0) {
-    std::cout << "Handle function nvmlErrorString called" << std::endl;
+    // std::cout << "Handle function nvmlErrorString called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     nvmlReturn_t result;
     rpc_read(client, &result, sizeof(result));
@@ -851,7 +927,7 @@ int handle_nvmlErrorString(void *args0) {
 }
 
 int handle_cuGetErrorString(void *args0) {
-    std::cout << "Handle function cuGetErrorString called" << std::endl;
+    // std::cout << "Handle function cuGetErrorString called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     CUresult error;
     rpc_read(client, &error, sizeof(error));
@@ -871,7 +947,7 @@ int handle_cuGetErrorString(void *args0) {
 }
 
 int handle_cuGetErrorName(void *args0) {
-    std::cout << "Handle function cuGetErrorName called" << std::endl;
+    // std::cout << "Handle function cuGetErrorName called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     CUresult error;
     rpc_read(client, &error, sizeof(error));
@@ -891,7 +967,7 @@ int handle_cuGetErrorName(void *args0) {
 }
 
 int handle_cudaGetErrorName(void *args0) {
-    std::cout << "Handle function cudaGetErrorName called" << std::endl;
+    // std::cout << "Handle function cudaGetErrorName called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     cudaError_t error;
     rpc_read(client, &error, sizeof(error));
@@ -910,7 +986,7 @@ int handle_cudaGetErrorName(void *args0) {
 }
 
 int handle_cudaGetErrorString(void *args0) {
-    std::cout << "Handle function cudaGetErrorString called" << std::endl;
+    // std::cout << "Handle function cudaGetErrorString called" << std::endl;
     RpcClient *client = (RpcClient *)args0;
     cudaError_t error;
     rpc_read(client, &error, sizeof(error));

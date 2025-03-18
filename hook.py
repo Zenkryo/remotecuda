@@ -647,7 +647,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                         f.write(f'extern "C" {return_type}{function_name}({params}) {{\n')
                     else:
                         f.write(f'extern "C" {return_type} {function_name}({params}) {{\n')
-                    f.write(f'    std::cout << "Hook: {function_name} called" << std::endl;\n')
+                    f.write(f'    // std::cout << "Hook: {function_name} called" << std::endl;\n')
                     # 如果函数的范围类型不是void，则需要定义一个变量来保存函数的返回值
                     if return_type == "const char *":
                         f.write(f"    char *_{function_name}_result = nullptr;\n")
@@ -715,7 +715,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 param_names = ""
 
                 f.write(f"int handle_{function_name}(void *args0) {{\n")
-                f.write(f'    std::cout << "Handle function {function_name} called" << std::endl;\n')
+                f.write(f'    // std::cout << "Handle function {function_name} called" << std::endl;\n')
                 f.write(f"    int rtn = 0;\n")
                 f.write(f"    std::set<void *> buffers;\n")
                 f.write(f"    RpcClient *client = (RpcClient *)args0;\n")

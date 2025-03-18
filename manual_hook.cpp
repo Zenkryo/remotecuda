@@ -39,7 +39,7 @@ void freeDevPtr(void *ptr);
 
 // 是不是只在客户端这边做客户端主机内存和服务器主机内存的映射就够了？
 extern "C" cudaError_t cudaMallocHost(void **ptr, size_t size) {
-    std::cout << "Hook: cudaMallocHost called" << std::endl;
+    // std::cout << "Hook: cudaMallocHost called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -71,7 +71,7 @@ extern "C" cudaError_t cudaMallocHost(void **ptr, size_t size) {
 }
 
 extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int flags) {
-    std::cout << "Hook: cudaHostAlloc called" << std::endl;
+    // std::cout << "Hook: cudaHostAlloc called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -104,7 +104,7 @@ extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int fla
 }
 
 extern "C" CUresult cuMemAllocHost_v2(void **pp, size_t bytesize) {
-    std::cout << "Hook: cuMemAllocHost_v2 called" << std::endl;
+    // std::cout << "Hook: cuMemAllocHost_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -136,7 +136,7 @@ extern "C" CUresult cuMemAllocHost_v2(void **pp, size_t bytesize) {
 }
 
 extern "C" CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flags) {
-    std::cout << "Hook: cuMemHostAlloc called" << std::endl;
+    // std::cout << "Hook: cuMemHostAlloc called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -169,7 +169,7 @@ extern "C" CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flag
 }
 
 extern "C" CUresult cuMemCreate(CUmemGenericAllocationHandle *handle, size_t size, const CUmemAllocationProp *prop, unsigned long long flags) {
-    std::cout << "Hook: cuMemCreate called" << std::endl;
+    // std::cout << "Hook: cuMemCreate called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -200,7 +200,7 @@ extern "C" CUresult cuMemCreate(CUmemGenericAllocationHandle *handle, size_t siz
 }
 
 extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) {
-    std::cout << "Hook: cuMemAddressReserve called" << std::endl;
+    // std::cout << "Hook: cuMemAddressReserve called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -236,7 +236,7 @@ extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t al
 }
 
 extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) {
-    std::cout << "Hook: cuMemMap called" << std::endl;
+    // std::cout << "Hook: cuMemMap called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -288,7 +288,7 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
 }
 
 extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned int flags) {
-    std::cout << "Hook: cudaMallocManaged called" << std::endl;
+    // std::cout << "Hook: cudaMallocManaged called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -321,7 +321,7 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
 }
 
 extern "C" cudaError_t cudaFreeHost(void *ptr) {
-    std::cout << "Hook: cudaFreeHost called" << std::endl;
+    // std::cout << "Hook: cudaFreeHost called" << std::endl;
     cudaError_t _result;
     void *serverPtr;
     serverPtr = getServerHostPtr((void *)ptr);
@@ -350,7 +350,7 @@ extern "C" cudaError_t cudaFreeHost(void *ptr) {
 }
 
 extern "C" CUresult cuMemFreeHost(void *p) {
-    std::cout << "Hook: cuMemFreeHost called" << std::endl;
+    // std::cout << "Hook: cuMemFreeHost called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -379,7 +379,7 @@ extern "C" CUresult cuMemFreeHost(void *p) {
 }
 
 extern "C" cudaError_t cudaFree(void *devPtr) {
-    std::cout << "Hook: cudaFree called" << std::endl;
+    // std::cout << "Hook: cudaFree called" << std::endl;
     cudaError_t _result;
     void *serverPtr = getUnionPtr(devPtr);
     if(serverPtr == nullptr) {
@@ -409,7 +409,7 @@ extern "C" cudaError_t cudaFree(void *devPtr) {
 }
 
 extern "C" CUresult cuMemRelease(CUmemGenericAllocationHandle handle) {
-    std::cout << "Hook: cuMemRelease called" << std::endl;
+    // std::cout << "Hook: cuMemRelease called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -431,7 +431,7 @@ extern "C" CUresult cuMemRelease(CUmemGenericAllocationHandle handle) {
 }
 
 extern "C" cudaError_t cudaMalloc(void **devPtr, size_t size) {
-    std::cout << "Hook: cudaMalloc called" << std::endl;
+    // std::cout << "Hook: cudaMalloc called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -455,7 +455,7 @@ extern "C" cudaError_t cudaMalloc(void **devPtr, size_t size) {
 }
 
 extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t width, size_t height) {
-    std::cout << "Hook: cudaMallocPitch called" << std::endl;
+    // std::cout << "Hook: cudaMallocPitch called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -481,7 +481,7 @@ extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t widt
 }
 
 extern "C" cudaError_t cudaMalloc3D(struct cudaPitchedPtr *pitchedDevPtr, struct cudaExtent extent) {
-    std::cout << "Hook: cudaMalloc3D called" << std::endl;
+    // std::cout << "Hook: cudaMalloc3D called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -505,7 +505,7 @@ extern "C" cudaError_t cudaMalloc3D(struct cudaPitchedPtr *pitchedDevPtr, struct
 }
 
 extern "C" cudaError_t cudaGetSymbolAddress(void **devPtr, const void *symbol) {
-    std::cout << "Hook: cudaGetSymbolAddress called" << std::endl;
+    // std::cout << "Hook: cudaGetSymbolAddress called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -529,7 +529,7 @@ extern "C" cudaError_t cudaGetSymbolAddress(void **devPtr, const void *symbol) {
 }
 
 extern "C" CUresult cuMemAlloc_v2(CUdeviceptr *dptr, size_t bytesize) {
-    std::cout << "Hook: cuMemAlloc_v2 called" << std::endl;
+    // std::cout << "Hook: cuMemAlloc_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -553,7 +553,7 @@ extern "C" CUresult cuMemAlloc_v2(CUdeviceptr *dptr, size_t bytesize) {
 }
 
 extern "C" CUresult cuMemAllocPitch_v2(CUdeviceptr *dptr, size_t *pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) {
-    std::cout << "Hook: cuMemAllocPitch_v2 called" << std::endl;
+    // std::cout << "Hook: cuMemAllocPitch_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -580,7 +580,7 @@ extern "C" CUresult cuMemAllocPitch_v2(CUdeviceptr *dptr, size_t *pPitch, size_t
 }
 
 extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream hStream) {
-    std::cout << "Hook: cuMemAllocAsync called" << std::endl;
+    // std::cout << "Hook: cuMemAllocAsync called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -605,7 +605,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
 }
 
 extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) {
-    std::cout << "Hook: cuMemAllocFromPoolAsync called" << std::endl;
+    // std::cout << "Hook: cuMemAllocFromPoolAsync called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -631,7 +631,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
 }
 
 extern "C" CUresult cuMemAllocManaged(CUdeviceptr *dptr, size_t bytesize, unsigned int flags) {
-    std::cout << "Hook: cuMemAllocManaged called" << std::endl;
+    // std::cout << "Hook: cuMemAllocManaged called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -661,7 +661,7 @@ extern "C" CUresult cuMemAllocManaged(CUdeviceptr *dptr, size_t bytesize, unsign
 }
 
 extern "C" CUresult cuMemGetAddressRange_v2(CUdeviceptr *pbase, size_t *psize, CUdeviceptr dptr) {
-    std::cout << "Hook: cuMemGetAddressRange_v2 called" << std::endl;
+    // std::cout << "Hook: cuMemGetAddressRange_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -686,7 +686,7 @@ extern "C" CUresult cuMemGetAddressRange_v2(CUdeviceptr *pbase, size_t *psize, C
 }
 
 extern "C" CUresult cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr *pDevPtr, size_t *pSize, CUgraphicsResource resource) {
-    std::cout << "Hook: cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
+    // std::cout << "Hook: cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -711,7 +711,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr *pDevPtr, 
 }
 
 extern "C" CUresult cuTexRefGetAddress_v2(CUdeviceptr *pdptr, CUtexref hTexRef) {
-    std::cout << "Hook: cuTexRefGetAddress_v2 called" << std::endl;
+    // std::cout << "Hook: cuTexRefGetAddress_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -735,7 +735,7 @@ extern "C" CUresult cuTexRefGetAddress_v2(CUdeviceptr *pdptr, CUtexref hTexRef) 
 }
 
 extern "C" CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr *dptr_out) {
-    std::cout << "Hook: cuGraphMemFreeNodeGetParams called" << std::endl;
+    // std::cout << "Hook: cuGraphMemFreeNodeGetParams called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -761,7 +761,7 @@ extern "C" CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr *
 }
 
 extern "C" CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr *devPtr, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_BUFFER_DESC *bufferDesc) {
-    std::cout << "Hook: cuExternalMemoryGetMappedBuffer called" << std::endl;
+    // std::cout << "Hook: cuExternalMemoryGetMappedBuffer called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -786,7 +786,7 @@ extern "C" CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr *devPtr, CUexter
 }
 
 extern "C" CUresult cuImportExternalMemory(CUexternalMemory *extMem_out, const CUDA_EXTERNAL_MEMORY_HANDLE_DESC *memHandleDesc) {
-    std::cout << "Hook: cuImportExternalMemory called" << std::endl;
+    // std::cout << "Hook: cuImportExternalMemory called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -810,7 +810,7 @@ extern "C" CUresult cuImportExternalMemory(CUexternalMemory *extMem_out, const C
 }
 
 extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool pool, CUmemPoolPtrExportData *shareData) {
-    std::cout << "Hook: cuMemPoolImportPointer called" << std::endl;
+    // std::cout << "Hook: cuMemPoolImportPointer called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -839,7 +839,7 @@ extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool po
 // 用#ifdef来区分不同的cuda版本,如果没有CUDA_VERSION或其值大于11040定义下面的函数
 #if CUDA_VERSION > 11040
 extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) {
-    std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
+    // std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -898,7 +898,7 @@ extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, siz
 }
 
 extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibrary library, const char *name) {
-    std::cout << "Hook: cuLibraryGetManaged called" << std::endl;
+    // std::cout << "Hook: cuLibraryGetManaged called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -929,7 +929,7 @@ extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibr
 }
 
 extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibrary library, const char *name) {
-    std::cout << "Hook: cuLibraryGetGlobal called" << std::endl;
+    // std::cout << "Hook: cuLibraryGetGlobal called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -957,7 +957,7 @@ extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibra
 #endif
 
 extern "C" CUresult cuIpcOpenMemHandle_v2(CUdeviceptr *pdptr, CUipcMemHandle handle, unsigned int Flags) {
-    std::cout << "Hook: cuIpcOpenMemHandle_v2 called" << std::endl;
+    // std::cout << "Hook: cuIpcOpenMemHandle_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -982,7 +982,7 @@ extern "C" CUresult cuIpcOpenMemHandle_v2(CUdeviceptr *pdptr, CUipcMemHandle han
 }
 
 extern "C" CUresult cuMemHostGetDevicePointer_v2(CUdeviceptr *pdptr, void *p, unsigned int Flags) {
-    std::cout << "Hook: cuMemHostGetDevicePointer_v2 called" << std::endl;
+    // std::cout << "Hook: cuMemHostGetDevicePointer_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1012,7 +1012,7 @@ extern "C" CUresult cuMemHostGetDevicePointer_v2(CUdeviceptr *pdptr, void *p, un
 }
 
 extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, const char *name) {
-    std::cout << "Hook: cuModuleGetGlobal_v2 called" << std::endl;
+    // std::cout << "Hook: cuModuleGetGlobal_v2 called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1074,8 +1074,7 @@ void freeDevPtr(void *ptr) {
 }
 
 extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
-    std::cout << "Hook: cudaMemcpy called" << std::endl;
-    printf("dst: %p, src: %p, count: %ld, kind: %d\n", dst, src, count, kind);
+    // std::cout << "Hook: cudaMemcpy called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1197,7 +1196,7 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
 }
 
 extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
-    std::cout << "Hook: cudaMemset called" << std::endl;
+    // std::cout << "Hook: cudaMemset called" << std::endl;
     cudaError_t _result;
     bool isUnion = true;
     void *serverPtr;
@@ -1234,7 +1233,7 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
 
 #if CUDA_VERSION <= 11040
 extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
-    std::cout << "Hook: cuGetProcAddress called" << std::endl;
+    // std::cout << "Hook: cuGetProcAddress called" << std::endl;
     *pfn = getHookFunc(symbol);
     if(*pfn != nullptr) {
         return CUDA_SUCCESS;
@@ -1444,7 +1443,7 @@ static ssize_t decompress_single_section(const uint8_t *input, uint8_t **output,
     // @brodey - keeping this temporarily so that we can compare the compression
     // returns
     if(decompress_ret != th->uncompressedBinarySize) {
-        std::cout << "failed actual decompress..." << std::endl;
+        // std::cout << "failed actual decompress..." << std::endl;
         goto error;
     }
     input_read += th->binarySize;
@@ -1485,7 +1484,7 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
             uint8_t *text_data = NULL;
             size_t text_data_size = 0;
             if(decompress_single_section((const uint8_t *)entry + entry->binary, &text_data, &text_data_size, header, entry) < 0) {
-                std::cout << "decompressing failed..." << std::endl;
+                // std::cout << "decompressing failed..." << std::endl;
                 return;
             }
             parse_ptx_string(fatCubin, (char *)text_data, text_data_size);
@@ -1496,7 +1495,7 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
 }
 
 extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blockDim, void **args, size_t sharedMem, cudaStream_t stream) {
-    std::cout << "Hook: cudaLaunchKernel called" << std::endl;
+    // std::cout << "Hook: cudaLaunchKernel called" << std::endl;
     cudaError_t _result;
     Function *f = nullptr;
     for(auto &function : functions) {
@@ -1537,7 +1536,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
 }
 
 extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem, struct CUstream_st *stream) {
-    std::cout << "Hook: __cudaPushCallConfiguration called" << std::endl;
+    // std::cout << "Hook: __cudaPushCallConfiguration called" << std::endl;
     unsigned _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1560,7 +1559,7 @@ extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, siz
 }
 
 extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim, size_t *sharedMem, void *stream) {
-    std::cout << "Hook: __cudaPopCallConfiguration called" << std::endl;
+    // std::cout << "Hook: __cudaPopCallConfiguration called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1583,7 +1582,7 @@ extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim,
 }
 
 extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
-    std::cout << "Hook: __cudaRegisterFatBinary called" << std::endl;
+    // std::cout << "Hook: __cudaRegisterFatBinary called" << std::endl;
     void **_result = nullptr;
     __cudaFatCudaBinary2 *binary;
     __cudaFatCudaBinary2Header *header;
@@ -1618,7 +1617,7 @@ extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
 }
 
 extern "C" void __cudaRegisterFatBinaryEnd(void **fatCubinHandle) {
-    std::cout << "Hook: __cudaRegisterFatBinaryEnd called" << std::endl;
+    // std::cout << "Hook: __cudaRegisterFatBinaryEnd called" << std::endl;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
@@ -1635,7 +1634,7 @@ extern "C" void __cudaRegisterFatBinaryEnd(void **fatCubinHandle) {
 }
 
 extern "C" void __cudaUnregisterFatBinary(void **fatCubinHandle) {
-    std::cout << "Hook: __cudaUnregisterFatBinary called" << std::endl;
+    // std::cout << "Hook: __cudaUnregisterFatBinary called" << std::endl;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
@@ -1652,7 +1651,7 @@ extern "C" void __cudaUnregisterFatBinary(void **fatCubinHandle) {
 }
 
 extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *deviceAddress, const char *deviceName, int ext, size_t size, int constant, int global) {
-    std::cout << "Hook: __cudaRegisterVar called" << std::endl;
+    // std::cout << "Hook: __cudaRegisterVar called" << std::endl;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
@@ -1675,7 +1674,7 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
 }
 
 extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPtrAddress, char *deviceAddress, const char *deviceName, int ext, size_t size, int constant, int global) {
-    std::cout << "Hook: __cudaRegisterManagedVar called" << std::endl;
+    // std::cout << "Hook: __cudaRegisterManagedVar called" << std::endl;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
@@ -1698,7 +1697,7 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
 }
 
 extern "C" char __cudaInitModule(void **fatCubinHandle) {
-    std::cout << "Hook: __cudaInitModule called" << std::endl;
+    // std::cout << "Hook: __cudaInitModule called" << std::endl;
     char _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1719,7 +1718,7 @@ extern "C" char __cudaInitModule(void **fatCubinHandle) {
 }
 
 extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun, char *deviceFun, const char *deviceName, int thread_limit, uint3 *tid, uint3 *bid, dim3 *bDim, dim3 *gDim, int *wSize) {
-    std::cout << "Hook: __cudaRegisterFunction called" << std::endl;
+    // std::cout << "Hook: __cudaRegisterFunction called" << std::endl;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
@@ -1767,14 +1766,13 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     for(auto &function : functions) {
         if(strcmp(function.name, deviceName) == 0) {
             function.host_func = hostFun;
-            printf("register function %s %p\n", function.name, function.host_func);
         }
     }
     rpc_free_client(client);
 }
 
 extern "C" cudaError_t cudaMemcpyToSymbol(const void *symbol, const void *src, size_t count, size_t offset, enum cudaMemcpyKind kind) {
-    std::cout << "Hook: cudaMemcpyToSymbol called" << std::endl;
+    // std::cout << "Hook: cudaMemcpyToSymbol called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1807,7 +1805,7 @@ extern "C" cudaError_t cudaMemcpyToSymbol(const void *symbol, const void *src, s
 }
 
 extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset, enum cudaMemcpyKind kind) {
-    std::cout << "Hook: cudaMemcpyFromSymbol called" << std::endl;
+    // std::cout << "Hook: cudaMemcpyFromSymbol called" << std::endl;
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1840,7 +1838,7 @@ extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_
 }
 
 extern "C" const char *nvmlErrorString(nvmlReturn_t result) {
-    std::cout << "Hook: nvmlErrorString called" << std::endl;
+    // std::cout << "Hook: nvmlErrorString called" << std::endl;
     static char _nvmlErrorString_result[1024];
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1860,7 +1858,7 @@ extern "C" const char *nvmlErrorString(nvmlReturn_t result) {
 }
 
 extern "C" CUresult cuGetErrorString(CUresult error, const char **pStr) {
-    std::cout << "Hook: cuGetErrorString called" << std::endl;
+    // std::cout << "Hook: cuGetErrorString called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1883,7 +1881,7 @@ extern "C" CUresult cuGetErrorString(CUresult error, const char **pStr) {
 }
 
 extern "C" CUresult cuGetErrorName(CUresult error, const char **pStr) {
-    std::cout << "Hook: cuGetErrorName called" << std::endl;
+    // std::cout << "Hook: cuGetErrorName called" << std::endl;
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1906,7 +1904,7 @@ extern "C" CUresult cuGetErrorName(CUresult error, const char **pStr) {
 }
 
 extern "C" const char *cudaGetErrorName(cudaError_t error) {
-    std::cout << "Hook: cudaGetErrorName called" << std::endl;
+    // std::cout << "Hook: cudaGetErrorName called" << std::endl;
     static char _cudaGetErrorName_result[1024];
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1926,7 +1924,7 @@ extern "C" const char *cudaGetErrorName(cudaError_t error) {
 }
 
 extern "C" const char *cudaGetErrorString(cudaError_t error) {
-    std::cout << "Hook: cudaGetErrorString called" << std::endl;
+    // std::cout << "Hook: cudaGetErrorString called" << std::endl;
     static char _cudaGetErrorString_result[1024];
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
