@@ -633,12 +633,12 @@ int handle___cudaRegisterVar(void *args0) {
         goto _RTN_;
     }
 _RTN_:
-    if(deviceAddress != nullptr) {
-        free(deviceAddress);
-    }
-    if(deviceName != nullptr) {
-        free(deviceName);
-    }
+    // if(deviceAddress != nullptr) {
+    //     free(deviceAddress);
+    // }
+    // if(deviceName != nullptr) {
+    //     free(deviceName);
+    // }
     return rtn;
 }
 

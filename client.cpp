@@ -5,14 +5,14 @@
 #include <string>
 #include "rpc.h"
 
-extern std::unordered_map<std::string, void *> functionMap;
+void *getHookFunc(const char *symbol);
 // 保存系统的 dlsym 函数指针
 void *(*real_dlsym)(void *, const char *) = nullptr;
 
 void *(*real_dlopen)(const char *, int) = nullptr;
 
 extern "C" void *dlopen(const char *filename, int flag) {
-    // printf("dlopen: %s\n", filename);
+    printf("dlopen: %s\n", filename);
     // 初始化 real_dlopen
     if(real_dlopen == nullptr) {
         real_dlopen = reinterpret_cast<void *(*)(const char *, int)>(dlvsym(RTLD_NEXT, "dlopen", "GLIBC_2.2.5"));
@@ -27,7 +27,7 @@ extern "C" void *dlopen(const char *filename, int flag) {
 }
 
 extern "C" void *dlsym(void *handle, const char *symbol) {
-    // printf("dlsym: %s\n", symbol);
+    printf("dlsym: %s\n", symbol);
     // 初始化 real_dlsym
     if(real_dlsym == nullptr) {
         real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.2.5"));
@@ -36,13 +36,10 @@ extern "C" void *dlsym(void *handle, const char *symbol) {
             std::exit(1);
         }
     }
-
-    // 先在 map 中查找函数
-    auto it = functionMap.find(symbol);
-    if(it != functionMap.end()) {
-        return it->second;
+    void *fp = getHookFunc(symbol);
+    if(fp != nullptr) {
+        return fp;
     }
-
     // 如果 map 中找不到，调用系统的 dlsym
     return real_dlsym(handle, symbol);
 }

@@ -14,19 +14,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    # "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    # "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    # "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
     # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    # "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    # "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    # "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    # "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    # "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
@@ -209,7 +209,8 @@ def generate_client_cpp(output_dir, function_map, so_files):
 
         # 写入自定义的 dlsym 实现
         f.write("// 使用 std::unordered_map 保存函数名和函数指针的映射\n")
-        f.write("std::unordered_map<std::string, void *> functionMap = {\n")
+        f.write("void *getHookFunc(const char *symbol) {\n")
+        f.write("    std::unordered_map<std::string, void *> functionMap = {\n")
 
         # 遍历所有头文件和函数，生成 map 初始化代码
         for header_file, functions in function_map.items():
@@ -220,9 +221,16 @@ def generate_client_cpp(output_dir, function_map, so_files):
                     return_type = format_return_type_name(function.return_type)
                     # 函数参数列表
                     params = ", ".join([format_parameter(param) for param in function.parameters])
-                    f.write(f'    {{"{function_name}", reinterpret_cast<void *>(static_cast<{return_type} (*)({params})>({function_name}))}},\n')
+                    f.write(f'        {{"{function_name}", reinterpret_cast<void *>(static_cast<{return_type} (*)({params})>({function_name}))}},\n')
                 else:
-                    f.write(f'    {{"{function_name}", reinterpret_cast<void *>({function_name})}},\n')
+                    f.write(f'        {{"{function_name}", reinterpret_cast<void *>({function_name})}},\n')
+        f.write("    };\n\n")
+        f.write("    auto it = functionMap.find(symbol);\n")
+        f.write("    if(it == functionMap.end()) {\n")
+        f.write("        return nullptr;\n")
+        f.write("    } else {\n");
+        f.write("        return it->second;\n")
+        f.write("    }\n")
         f.write("};\n\n")
 
 
@@ -518,7 +526,14 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
             f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
-            return param.name  # TODO
+            if param.type.array_of.const and param.type.array_of.ptr_to.const:
+                return f"(const {param_type_name} * const *){param.name}"
+            elif param.type.array_of.const:
+                return f"({param_type_name} * const *){param.name}"
+            elif param.type.array_of.ptr_to.const:
+                return f"(const {param_type_name} **){param.name}"
+            else:
+                return param.name  # TODO
 
 
 def handle_param(function, param, f, is_client=True, position=0):

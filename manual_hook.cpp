@@ -12,7 +12,7 @@
 #include "rpc.h"
 #include "hidden_api.h"
 
-extern std::unordered_map<std::string, void *> functionMap;
+void *getHookFunc(const char *symbol);
 
 // 映射客户端主机内存地址到服务器主机内存地址
 std::map<void *, std::pair<void *, size_t>> cs_host_mems;
@@ -1235,9 +1235,8 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
 #if CUDA_VERSION <= 11040
 extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
     std::cout << "Hook: cuGetProcAddress called" << std::endl;
-    auto it = functionMap.find(symbol);
-    if(it != functionMap.end()) {
-        *pfn = (void *)it->second;
+    *pfn = getHookFunc(symbol);
+    if(*pfn != nullptr) {
         return CUDA_SUCCESS;
     }
     return CUDA_ERROR_NOT_FOUND;
