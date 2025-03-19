@@ -69,9 +69,11 @@ MANUAL_FUNCTIONS = [
     "cudaMallocManaged",
     "cudaMallocPitch",
     "cudaMemcpy",
+    "cudaMemcpyAsync",
     "cudaMemcpyFromSymbol",
     "cudaMemcpyToSymbol",
     "cudaMemset",
+    "cudaMemsetAsync",
     # CUDA Driver API
     "cuExternalMemoryGetMappedBuffer",
     "cuGetErrorName",
