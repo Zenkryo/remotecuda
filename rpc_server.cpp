@@ -112,9 +112,8 @@ void *rpc_handle_client(void *arg) {
             fprintf(stderr, "Invalid request header\n");
             break;
         }
-#ifdef DEBUG
+#ifdef DUMP
         hexdump("==> ", &header, sizeof(header));
-        printf("---- funcId = %x\n", header.funcId);
 #endif
         client.funcId = header.funcId;
         // 取得函数ID对应的处理函数

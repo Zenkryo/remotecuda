@@ -85,7 +85,7 @@ static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
 
         // 更新总字节数
         total_bytes += bytes_written;
-#ifdef DEBUG
+#ifdef DUMP
         // 调试输出（可选，仿照 read_full_iovec）
         ssize_t bytes_remaining = bytes_written;
         for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
@@ -136,7 +136,7 @@ static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
         // 更新总字节数
         total_bytes += bytes_read;
 
-#ifdef DEBUG
+#ifdef DUMP
         ssize_t bytes_remaining = bytes_read;
 
         for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
