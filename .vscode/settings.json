@@ -92,4 +92,8 @@
   "editor.formatOnSave": true,
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
+  "workbench.colorCustomizations": {
+    "regionmarker.background": "#ff3b9833",
+    "regionmarker.foreground": "#ff3b98ff"
+  },
 }

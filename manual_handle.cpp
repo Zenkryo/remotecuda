@@ -20,7 +20,7 @@ cudaMemoryType checkPointer(void *ptr) {
     return attributes.type;
 }
 
-// CUDA Runtime API (cuda*)
+// #region CUDA Runtime API (cuda*)
 
 int handle_cudaFree(void *args) {
 #ifdef DEBUG
@@ -1014,7 +1014,8 @@ int handle___cudaInitModule(void *args0) {
     return 0;
 }
 
-// CUDA Driver API (cu*)
+// #endregion
+// #region CUDA Driver API (cu*)
 
 int handle_cuExternalMemoryGetMappedBuffer(void *args) {
 #ifdef DEBUG
@@ -1312,7 +1313,8 @@ int handle_cuGraphMemFreeNodeGetParams(void *args) {
     return 0;
 }
 
-// NVML (nvml*)
+// #endregion
+// #region NVML (nvml*)
 
 int handle_nvmlErrorString(void *args0) {
 #ifdef DEBUG
@@ -1335,3 +1337,5 @@ int handle_nvmlErrorString(void *args0) {
 
     return 0;
 }
+
+// #endregion

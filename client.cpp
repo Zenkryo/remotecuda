@@ -12,7 +12,9 @@ void *(*real_dlsym)(void *, const char *) = nullptr;
 void *(*real_dlopen)(const char *, int) = nullptr;
 
 extern "C" void *dlopen(const char *filename, int flag) {
-    printf("dlopen: %s\n", filename);
+#ifdef DEBUG
+    std::cout << "dlopen " << filename << std::endl;
+#endif
     // 初始化 real_dlopen
     if(real_dlopen == nullptr) {
         real_dlopen = reinterpret_cast<void *(*)(const char *, int)>(dlvsym(RTLD_NEXT, "dlopen", "GLIBC_2.2.5"));
@@ -27,7 +29,9 @@ extern "C" void *dlopen(const char *filename, int flag) {
 }
 
 extern "C" void *dlsym(void *handle, const char *symbol) {
-    printf("dlsym: %s\n", symbol);
+#ifdef DEBUG
+    std::cout << "dlsym: " << symbol << std::endl;
+#endif
     // 初始化 real_dlsym
     if(real_dlsym == nullptr) {
         real_dlsym = reinterpret_cast<void *(*)(void *, const char *)>(dlvsym(RTLD_NEXT, "dlsym", "GLIBC_2.2.5"));
@@ -40,6 +44,9 @@ extern "C" void *dlsym(void *handle, const char *symbol) {
     if(fp != nullptr) {
         return fp;
     }
+#ifdef DEBUG
+    std::cout << "Not found in hook functions " << symbol << std::endl;
+#endif
     // 如果 map 中找不到，调用系统的 dlsym
     return real_dlsym(handle, symbol);
 }

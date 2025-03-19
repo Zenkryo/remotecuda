@@ -1447,6 +1447,7 @@ extern "C" CUresult cuGetErrorString(CUresult error, const char **pStr) {
     rpc_free_client(client);
     return _result;
 }
+
 #if CUDA_VERSION <= 11040
 extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags) {
 #ifdef DEBUG
@@ -1460,6 +1461,7 @@ extern "C" CUresult cuGetProcAddress(const char *symbol, void **pfn, int cudaVer
     return CUDA_ERROR_NOT_FOUND;
 }
 #endif
+
 extern "C" CUresult cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr *pDevPtr, size_t *pSize, CUgraphicsResource resource) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
