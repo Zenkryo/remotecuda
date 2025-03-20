@@ -56,7 +56,7 @@ int handle_mem2client(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     void *ptr;
     size_t memSize, size;
-
+    bool to_free = false;
     rpc_read(client, &ptr, sizeof(ptr));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -71,10 +71,17 @@ int handle_mem2client(void *args0) {
         ptr = client->buffers.front();
         client->buffers.pop();
         rpc_write(client, ptr, size, true);
+        to_free = true;
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
+        if(to_free) {
+            free(ptr);
+        }
         return 1;
+    }
+    if(to_free) {
+        free(ptr);
     }
     return 0;
 }
