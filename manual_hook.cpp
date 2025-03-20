@@ -11,6 +11,8 @@
 #include "gen/hook_api.h"
 #include "rpc.h"
 #include "hidden_api.h"
+#include <mutex>
+#include <memory>
 
 // Function to parse a PTX string and fill functions into a dynamically
 // allocated array
@@ -33,8 +35,12 @@ std::map<void *, std::pair<void *, size_t>> cs_host_mems;
 // 映射客户端统一内存地址到服务器统一内存地址
 std::map<void *, std::pair<void *, size_t>> cs_union_mems;
 
-// 映射客户端设备内存地址到服务器设备内存地址
-std::map<CUdeviceptr, CUdeviceptr> cs_dev_mems;
+// Add type aliases for better clarity
+using DevicePointer = CUdeviceptr;
+using HostPointer = void*;
+using MemorySize = size_t;
+
+std::map<DevicePointer, DevicePointer> cs_dev_mems;
 
 // 设备端内存指针（不包括上面的cs_dev_mems）
 std::map<void *, size_t> server_dev_mems;
@@ -44,6 +50,9 @@ std::map<CUdeviceptr, CUdeviceptr> cs_reserve_mems;
 
 // 服务器主机内存句柄
 std::set<CUmemGenericAllocationHandle> host_handles;
+
+// Add thread safety for shared maps
+std::mutex maps_mutex;
 
 void *getHookFunc(const char *symbol);
 
@@ -109,7 +118,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             std::cerr << "Failed to allocate memory" << std::endl;
             exit(1);
         }
-        int *arg_sizes = (int *)malloc(MAX_ARGS * sizeof(int));
+        std::unique_ptr<int[]> arg_sizes(new int[MAX_ARGS]);
         if(arg_sizes == nullptr) {
             std::cerr << "Failed to allocate memory" << std::endl;
             exit(1);
@@ -185,7 +194,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             .name = name,
             .fat_cubin = fatCubin,
             .host_func = nullptr,
-            .arg_sizes = arg_sizes,
+            .arg_sizes = arg_sizes.get(),
             .arg_count = arg_count,
         });
         // printf("function %s has %d arguments\n", name, arg_count);
@@ -324,6 +333,116 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
             parse_ptx_string(fatCubin, (char *)entry + entry->binary, entry->binarySize);
         }
     }
+}
+
+/**
+ * @brief Synchronizes client memory to server memory
+ * @param clientPtr Client memory pointer
+ * @param size Memory size (optional)
+ * @return Server memory pointer
+ */
+void* mem2server(void* clientPtr, size_t size = 0) {
+#ifdef DEBUG
+    std::cout << "Hook: mem2server called" << std::endl;
+#endif
+    auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
+    if(it1 != cs_dev_mems.end()) {
+        return (void *)it1->second;
+    }
+    auto it2 = server_dev_mems.find(clientPtr);
+    if(it2 != server_dev_mems.end()) {
+        return (void *)it2->first;
+    }
+
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+
+    rpc_prepare_request(client, RPC_mem2server);
+    void *serverPtr;
+    size_t memSize;
+    auto it = cs_host_mems.find(clientPtr);
+    if(it != cs_host_mems.end()) {
+        serverPtr = it->second.first;
+        memSize = it->second.second;
+        rpc_write(client, &serverPtr, sizeof(serverPtr));
+        rpc_write(client, &memSize, sizeof(memSize));
+        rpc_write(client, clientPtr, memSize, true);
+    } else {
+        auto it3 = cs_union_mems.find(clientPtr);
+        if(it3 != cs_union_mems.end()) {
+            serverPtr = it3->second.first;
+            memSize = it->second.second;
+            rpc_write(client, &serverPtr, sizeof(serverPtr));
+            rpc_write(client, &memSize, sizeof(memSize));
+            rpc_write(client, clientPtr, memSize, true);
+        } else { // 这个指针应该是客户端没有调用CUDA API分配的指针
+            serverPtr = nullptr;
+            rpc_write(client, &serverPtr, sizeof(serverPtr));
+            rpc_write(client, clientPtr, size, true);
+            rpc_read(client, &serverPtr, sizeof(serverPtr));
+        }
+    }
+
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return serverPtr;
+}
+
+// 同步服务器端内存到客户端内存
+void mem2client(void *clientPtr, size_t size = 0) {
+#ifdef DEBUG
+    std::cout << "Hook: mem2client called" << std::endl;
+#endif
+    auto it3 = cs_dev_mems.find((CUdeviceptr)clientPtr);
+    if(it3 != cs_dev_mems.end()) {
+        return;
+    }
+    auto it4 = server_dev_mems.find(clientPtr);
+    if(it4 != server_dev_mems.end()) {
+        return;
+    }
+
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+
+    rpc_prepare_request(client, RPC_mem2client);
+    void *serverPtr;
+    size_t memSize;
+    auto it = cs_host_mems.find(clientPtr);
+    if(it != cs_host_mems.end()) {
+        serverPtr = it->second.first;
+        memSize = it->second.second;
+        rpc_write(client, &serverPtr, sizeof(serverPtr));
+        rpc_read(client, clientPtr, memSize, true);
+    } else {
+        auto it2 = cs_union_mems.find(clientPtr);
+        if(it2 != cs_union_mems.end()) {
+            serverPtr = it2->second.first;
+            memSize = size;
+            rpc_write(client, &serverPtr, sizeof(serverPtr));
+            rpc_read(client, clientPtr, memSize, true);
+        } else { // 这个指针应该是客户端没有调用CUDA API分配的指针
+            serverPtr = nullptr;
+            rpc_write(client, &serverPtr, sizeof(serverPtr));
+            rpc_read(client, clientPtr, size, true);
+        }
+    }
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
 }
 
 // CUDA Runtime API (cuda*)
@@ -663,7 +782,7 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
         exit(1);
     }
     if(_result == cudaSuccess) {
-        cs_union_mems[*devPtr] = std::make_pair(serverPtr, size);
+        cs_union_mems[*devPtr] = std::make_pair((void *)serverPtr, size);
         rpc_release_client(client);
     } else {
         free(*devPtr);
@@ -672,7 +791,7 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
     return _result;
 }
 
-extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t width, size_t height) {
+extern "C" cudaError_t cudaMallocPitch_v2(CUdeviceptr *dptr, size_t *pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMallocPitch called" << std::endl;
 #endif
@@ -1609,6 +1728,7 @@ extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibr
 }
 #endif
 
+// 此函数用于保留一段连续的虚拟地址空间，供后续的内存映射操作使用
 extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemAddressReserve called" << std::endl;
@@ -1993,6 +2113,7 @@ extern "C" CUresult cuMemHostGetDevicePointer_v2(CUdeviceptr *pdptr, void *p, un
     return _result;
 }
 
+// 此函数将物理内存块映射到预先保留的虚拟地址空间，使该内存可被GPU或CPU访问
 extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemMap called" << std::endl;
@@ -2276,3 +2397,69 @@ extern "C" const char *nvmlErrorString(nvmlReturn_t result) {
     rpc_free_client(client);
     return _nvmlErrorString_result;
 }
+
+// Add a helper function for error handling
+void handleRpcError(RpcClient* client, const char* funcName) {
+    std::cerr << "Failed to submit request in " << funcName << std::endl;
+    rpc_release_client(client);
+    exit(1);
+}
+
+// Add RAII wrapper for RPC client
+class RpcClientGuard {
+    RpcClient* client;
+public:
+    RpcClientGuard() {
+        client = rpc_get_client();
+        if(client == nullptr) {
+            throw std::runtime_error("Failed to get rpc client");
+        }
+    }
+    ~RpcClientGuard() {
+        if(client) {
+            rpc_free_client(client);
+        }
+    }
+    RpcClient* get() { return client; }
+};
+
+// Add debug logging helper
+#ifdef DEBUG
+#define DEBUG_LOG(msg) std::cout << "Hook: " << msg << " called" << std::endl
+#else
+#define DEBUG_LOG(msg)
+#endif
+
+// Use it like:
+extern "C" cudaError_t cudaMalloc(void **devPtr, size_t size) {
+    DEBUG_LOG("cudaMalloc");
+    // ...
+}
+
+void addDeviceMemory(void* ptr, size_t size) {
+    std::lock_guard<std::mutex> lock(maps_mutex);
+    server_dev_mems[ptr] = size;
+}
+
+void removeDeviceMemory(void* ptr) {
+    std::lock_guard<std::mutex> lock(maps_mutex);
+    server_dev_mems.erase(ptr);
+}
+
+// Add error constants
+constexpr size_t MAX_ERROR_STRING = 1024;
+constexpr int MAX_FUNCTION_RETRIES = 3;
+
+// Add configuration structure
+struct HookConfig {
+    bool enableDebugLogging;
+    size_t maxRetries;
+    size_t maxFunctionNameLength;
+    // ... other config options
+};
+
+HookConfig g_config{
+    .enableDebugLogging = true,
+    .maxRetries = 3,
+    .maxFunctionNameLength = 128
+};

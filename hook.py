@@ -46,6 +46,9 @@ INLINE_FUNCTIONS = [
 
 # 手动实现的函数列表
 MANUAL_FUNCTIONS = [
+    # 客户端和服务器端内存同步
+    "mem2server",
+    "mem2client",
     # CUDA Runtime API
     "__cudaInitModule",
     "__cudaPopCallConfiguration",
@@ -313,24 +316,28 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
     if is_client:
         if position == 0:
             function_name = function.name.format()
-            f.write(f"    void *_0{param.name} = getServerHostPtr({param.name});\n")
-            if param.name == "dstHost":
-                f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
-                f.write(f"    rpc_read(client, {param.name}, ByteCount, true);\n")
-            elif param.name == "value" and function_name in [
-                "cuCoredumpGetAttribute",
-                "cuCoredumpGetAttributeGlobal",
-                "cuCoredumpSetAttribute",
-                "cuCoredumpSetAttributeGlobal",
-            ]:
-                f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
-                f.write(f"    rpc_read(client, {param.name}, *size, true);\n")
-            else:
-                f.write(f"    // PARAM void * {param.name}\n")
+            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, 0);\n")
+            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+        elif position == 1:
+            f.write(f"    mem2client((void *){param.name}, 0);\n")
+
+            # if param.name == "dstHost":
+            #     f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            #     f.write(f"    rpc_read(client, {param.name}, ByteCount, true);\n")
+            # elif param.name == "value" and function_name in [
+            #     "cuCoredumpGetAttribute",
+            #     "cuCoredumpGetAttributeGlobal",
+            #     "cuCoredumpSetAttribute",
+            #     "cuCoredumpSetAttributeGlobal",
+            # ]:
+            #     f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            #     f.write(f"    rpc_read(client, {param.name}, *size, true);\n")
+            # else:
+            #     f.write(f"    // PARAM void * {param.name}\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
-            f.write(f"    // PARAM void * {param.name}\n")
+            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             return param.name
 
 
@@ -338,31 +345,14 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
 def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
     if is_client:
         if position == 0:
-            if param.name == "srcHost":
-                f.write(f"    void *_0{param.name} = getServerHostPtr((void *){param.name});\n")
-                f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
-                f.write(f"    rpc_write(client, {param.name}, ByteCount, true);\n")
-            else:
-                f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}), false);\n")
+            function_name = function.name.format()
+            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, 0);\n")
+            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
     else:
         if position == 0:
-            if param.name == "srcHost":
-                f.write(f"    void *{param.name};\n")
-                f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}), false);\n")
-                return param.name
-            else:
-                f.write(f"    void *{param.name};\n")
-                f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}), false);\n")
-                return param.name
-        elif position == 1:
-            if param.name == "srcHost":
-                f.write(f"    if({param.name} == nullptr) {{\n")
-                f.write(f"        read_one_now(client, &{param.name}, 0, true);\n")
-                f.write(f"        buffers.insert({param.name});\n")
-                f.write(f"    }}\n")
-                f.write(f"    else {{\n")
-                f.write(f"        read_one_now(client, {param.name}, ByteCount, true);\n")
-                f.write(f"    }}\n")
+            f.write(f"    void *{param.name};\n")
+            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            return param.name
 
 
 # 处理char *参数
@@ -653,8 +643,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write("void *getServerHostPtr(void *ptr);\n\n")
-
+        f.write("void *mem2server(void *clientPtr, size_t size);\n");
+        f.write("void mem2client(void *clientPtr, size_t size);\n");
         f.write("void *get_so_handle(const std::string &so_file);\n")
         # 写入被 Hook 的函数实现
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):

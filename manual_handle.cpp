@@ -20,6 +20,62 @@ cudaMemoryType checkPointer(void *ptr) {
     return attributes.type;
 }
 
+int handle_mem2server(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function mem2server called" << std::endl;
+#endif
+    RpcClient *client = (RpcClient *)args0;
+    void *ptr;
+    size_t memSize;
+
+    rpc_read(client, &ptr, sizeof(ptr));
+
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    if(ptr != nullptr) {
+        read_one_now(client, &memSize, sizeof(memSize));
+        read_one_now(client, ptr, memSize, true);
+    } else {
+        read_one_now(client, &ptr, 0, true);
+        rpc_write(client, &ptr, sizeof(ptr)); // 返回服务器侧申请的内存地址
+        client.buffers.insert(ptr);
+    }
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
+int handle_mem2client(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function mem2client called" << std::endl;
+#endif
+    RpcClient *client = (RpcClient *)args0;
+    void *ptr;
+    size_t size;
+
+    rpc_read(client, &ptr, sizeof(ptr));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 // #region CUDA Runtime API (cuda*)
 
 int handle_cudaFree(void *args) {
