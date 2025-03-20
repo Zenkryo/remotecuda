@@ -3,7 +3,9 @@
     {
       "name": "linux-gcc-x64",
       "includePath": [
-        "${workspaceFolder}/**"
+        "/usr/local/cuda/include",
+        "/usr/local/cudnn/include",
+        "${workspaceFolder}/**",
       ],
       "compilerPath": "/usr/bin/gcc",
       "cStandard": "${default}",

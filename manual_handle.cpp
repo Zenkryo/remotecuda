@@ -35,12 +35,12 @@ int handle_mem2server(void *args0) {
         return 1;
     }
     if(ptr != nullptr) {
-        read_one_now(client, &memSize, sizeof(memSize));
+        read_one_now(client, &memSize, sizeof(memSize), false);
         read_one_now(client, ptr, memSize, true);
     } else {
         read_one_now(client, &ptr, 0, true);
         rpc_write(client, &ptr, sizeof(ptr)); // 返回服务器侧申请的内存地址
-        client.buffers.insert(ptr);
+        client->buffers.push(ptr);            // 保存临时内存地址
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -55,25 +55,28 @@ int handle_mem2client(void *args0) {
 #endif
     RpcClient *client = (RpcClient *)args0;
     void *ptr;
-    size_t size;
+    size_t memSize, size;
 
     rpc_read(client, &ptr, sizeof(ptr));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-
+    if(ptr != nullptr) {
+        read_one_now(client, &memSize, sizeof(memSize), false);
+        read_one_now(client, ptr, memSize, true);
+        rpc_write(client, ptr, memSize, true);
+    } else {
+        read_one_now(client, &size, sizeof(size), false);
+        ptr = client->buffers.front();
+        client->buffers.pop();
+        rpc_write(client, ptr, size, true);
+    }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
+        return 1;
     }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
+    return 0;
 }
 
 // #region CUDA Runtime API (cuda*)

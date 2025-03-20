@@ -6,11 +6,6 @@
     "**/server": true,
     "**/*.swp": true
   },
-  "C_Cpp.default.includePath": [
-    "/usr/local/cuda/include",
-    "/usr/local/cudnn/include",
-    "${workspaceFolder}"
-  ],
   "files.associations": {
     "cstdint": "cpp",
     "array": "cpp",

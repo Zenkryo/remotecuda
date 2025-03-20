@@ -1,5 +1,6 @@
 #pragma once
 #include <set>
+#include <queue>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +27,7 @@ typedef struct _RpcClient {
     int iov_read_count;                     // iov_read数组的长度
     int iov_read2_count;                    // iov_read2数组的长度
     int in_use;                             // 标记客户端是否正在使用
-    std::set<void *> buffers;               // 用于存储需要释放的缓冲区
+    std::queue<void *> buffers;             // 用于存储需要释放的缓冲区
 } RpcClient;
 
 void rpc_init();
