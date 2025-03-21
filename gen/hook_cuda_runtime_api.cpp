@@ -188,6 +188,50 @@ extern "C" cudaError_t cudaDeviceSetCacheConfig(enum cudaFuncCache cacheConfig) 
     return _result;
 }
 
+extern "C" cudaError_t cudaDeviceGetSharedMemConfig(enum cudaSharedMemConfig *pConfig) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaDeviceGetSharedMemConfig called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaDeviceGetSharedMemConfig);
+    rpc_read(client, pConfig, sizeof(*pConfig));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaDeviceSetSharedMemConfig(enum cudaSharedMemConfig config) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaDeviceSetSharedMemConfig called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaDeviceSetSharedMemConfig);
+    rpc_write(client, &config, sizeof(config));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" cudaError_t cudaDeviceGetByPCIBusId(int *device, const char *pciBusId) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetByPCIBusId called" << std::endl;
@@ -368,100 +412,6 @@ extern "C" cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(enum cudaFlushGPUDirec
     rpc_prepare_request(client, RPC_cudaDeviceFlushGPUDirectRDMAWrites);
     rpc_write(client, &target, sizeof(target));
     rpc_write(client, &scope, sizeof(scope));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void *userData, cudaAsyncCallbackHandle_t *callback) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceRegisterAsyncNotification called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaDeviceRegisterAsyncNotification);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &callbackFunc, sizeof(callbackFunc));
-    void *_0userData = mem2server((void *)userData, 0);
-    rpc_write(client, &_0userData, sizeof(_0userData));
-    rpc_read(client, callback, sizeof(*callback));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)userData, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceUnregisterAsyncNotification called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaDeviceUnregisterAsyncNotification);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &callback, sizeof(callback));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceGetSharedMemConfig(enum cudaSharedMemConfig *pConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceGetSharedMemConfig called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaDeviceGetSharedMemConfig);
-    rpc_read(client, pConfig, sizeof(*pConfig));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceSetSharedMemConfig(enum cudaSharedMemConfig config) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceSetSharedMemConfig called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaDeviceSetSharedMemConfig);
-    rpc_write(client, &config, sizeof(config));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -668,9 +618,9 @@ extern "C" cudaError_t cudaGetDeviceCount(int *count) {
     return _result;
 }
 
-extern "C" cudaError_t cudaGetDeviceProperties_v2(struct cudaDeviceProp *prop, int device) {
+extern "C" cudaError_t cudaGetDeviceProperties(struct cudaDeviceProp *prop, int device) {
 #ifdef DEBUG
-    std::cout << "Hook: cudaGetDeviceProperties_v2 called" << std::endl;
+    std::cout << "Hook: cudaGetDeviceProperties called" << std::endl;
 #endif
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
@@ -678,7 +628,7 @@ extern "C" cudaError_t cudaGetDeviceProperties_v2(struct cudaDeviceProp *prop, i
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_cudaGetDeviceProperties_v2);
+    rpc_prepare_request(client, RPC_cudaGetDeviceProperties);
     rpc_read(client, prop, sizeof(*prop));
     rpc_write(client, &device, sizeof(device));
     rpc_read(client, &_result, sizeof(_result));
@@ -848,30 +798,6 @@ extern "C" cudaError_t cudaChooseDevice(int *device, const struct cudaDeviceProp
     rpc_prepare_request(client, RPC_cudaChooseDevice);
     rpc_read(client, device, sizeof(*device));
     rpc_write(client, prop, sizeof(*prop));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaInitDevice called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaInitDevice);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &deviceFlags, sizeof(deviceFlags));
-    rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1108,52 +1034,6 @@ extern "C" cudaError_t cudaStreamGetFlags(cudaStream_t hStream, unsigned int *fl
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamGetId(cudaStream_t hStream, unsigned long long *streamId) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamGetId called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaStreamGetId);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_read(client, streamId, sizeof(*streamId));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaStreamGetDevice(cudaStream_t hStream, int *device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamGetDevice called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaStreamGetDevice);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_read(client, device, sizeof(*device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaCtxResetPersistingL2Cache() {
 #ifdef DEBUG
     std::cout << "Hook: cudaCtxResetPersistingL2Cache called" << std::endl;
@@ -1198,7 +1078,7 @@ extern "C" cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t s
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, cudaLaunchAttributeValue *value_out) {
+extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, enum cudaStreamAttrID attr, union cudaStreamAttrValue *value_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetAttribute called" << std::endl;
 #endif
@@ -1222,7 +1102,7 @@ extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAt
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue *value) {
+extern "C" cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, enum cudaStreamAttrID attr, const union cudaStreamAttrValue *value) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamSetAttribute called" << std::endl;
 #endif
@@ -1413,33 +1293,6 @@ extern "C" cudaError_t cudaStreamBeginCapture(cudaStream_t stream, enum cudaStre
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamBeginCaptureToGraph(cudaStream_t stream, cudaGraph_t graph, const cudaGraphNode_t *dependencies, const cudaGraphEdgeData *dependencyData, size_t numDependencies, enum cudaStreamCaptureMode mode) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamBeginCaptureToGraph called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaStreamBeginCaptureToGraph);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, dependencies, sizeof(*dependencies));
-    rpc_write(client, dependencyData, sizeof(*dependencyData));
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &mode, sizeof(mode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaThreadExchangeStreamCaptureMode(enum cudaStreamCaptureMode *mode) {
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadExchangeStreamCaptureMode called" << std::endl;
@@ -1508,6 +1361,30 @@ extern "C" cudaError_t cudaStreamIsCapturing(cudaStream_t stream, enum cudaStrea
     return _result;
 }
 
+extern "C" cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, enum cudaStreamCaptureStatus *pCaptureStatus, unsigned long long *pId) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaStreamGetCaptureInfo called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaStreamGetCaptureInfo);
+    rpc_write(client, &stream, sizeof(stream));
+    rpc_read(client, pCaptureStatus, sizeof(*pCaptureStatus));
+    rpc_read(client, pId, sizeof(*pId));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, enum cudaStreamCaptureStatus *captureStatus_out, unsigned long long *id_out, cudaGraph_t *graph_out, const cudaGraphNode_t **dependencies_out, size_t *numDependencies_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetCaptureInfo_v2 called" << std::endl;
@@ -1539,42 +1416,6 @@ extern "C" cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, enum cud
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamGetCaptureInfo_v3(cudaStream_t stream, enum cudaStreamCaptureStatus *captureStatus_out, unsigned long long *id_out, cudaGraph_t *graph_out, const cudaGraphNode_t **dependencies_out, const cudaGraphEdgeData **edgeData_out, size_t *numDependencies_out) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamGetCaptureInfo_v3 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaStreamGetCaptureInfo_v3);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, captureStatus_out, sizeof(*captureStatus_out));
-    rpc_read(client, id_out, sizeof(*id_out));
-    rpc_read(client, graph_out, sizeof(*graph_out));
-    // PARAM const cudaGraphNode_t **dependencies_out
-    static cudaGraphNode_t _cudaStreamGetCaptureInfo_v3_dependencies_out;
-    rpc_read(client, &_cudaStreamGetCaptureInfo_v3_dependencies_out, sizeof(cudaGraphNode_t));
-    // PARAM const cudaGraphEdgeData **edgeData_out
-    static cudaGraphEdgeData _cudaStreamGetCaptureInfo_v3_edgeData_out;
-    rpc_read(client, &_cudaStreamGetCaptureInfo_v3_edgeData_out, sizeof(cudaGraphEdgeData));
-    rpc_read(client, numDependencies_out, sizeof(*numDependencies_out));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM const cudaGraphNode_t **dependencies_out
-    *dependencies_out = &_cudaStreamGetCaptureInfo_v3_dependencies_out;
-    // PARAM const cudaGraphEdgeData **edgeData_out
-    *edgeData_out = &_cudaStreamGetCaptureInfo_v3_edgeData_out;
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t *dependencies, size_t numDependencies, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamUpdateCaptureDependencies called" << std::endl;
@@ -1588,32 +1429,6 @@ extern "C" cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, 
     rpc_prepare_request(client, RPC_cudaStreamUpdateCaptureDependencies);
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, dependencies, sizeof(*dependencies));
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t *dependencies, const cudaGraphEdgeData *dependencyData, size_t numDependencies, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamUpdateCaptureDependencies_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaStreamUpdateCaptureDependencies_v2);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, dependencies, sizeof(*dependencies));
-    rpc_write(client, dependencyData, sizeof(*dependencyData));
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -1795,30 +1610,6 @@ extern "C" cudaError_t cudaEventElapsedTime(float *ms, cudaEvent_t start, cudaEv
         exit(1);
     }
     rpc_prepare_request(client, RPC_cudaEventElapsedTime);
-    rpc_read(client, ms, sizeof(*ms));
-    rpc_write(client, &start, sizeof(start));
-    rpc_write(client, &end, sizeof(end));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaEventElapsedTime_v2(float *ms, cudaEvent_t start, cudaEvent_t end) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaEventElapsedTime_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaEventElapsedTime_v2);
     rpc_read(client, ms, sizeof(*ms));
     rpc_write(client, &start, sizeof(start));
     rpc_write(client, &end, sizeof(end));
@@ -2021,33 +1812,6 @@ extern "C" cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extS
     return _result;
 }
 
-extern "C" cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t *config, const void *func, void **args) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLaunchKernelExC called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLaunchKernelExC);
-    rpc_write(client, config, sizeof(*config));
-    void *_0func = mem2server((void *)func, 0);
-    rpc_write(client, &_0func, sizeof(_0func));
-    // PARAM void **args
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)func, 0);
-    // PARAM void **args
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDim, dim3 blockDim, void **args, size_t sharedMem, cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaLaunchCooperativeKernel called" << std::endl;
@@ -2127,6 +1891,31 @@ extern "C" cudaError_t cudaFuncSetCacheConfig(const void *func, enum cudaFuncCac
     return _result;
 }
 
+extern "C" cudaError_t cudaFuncSetSharedMemConfig(const void *func, enum cudaSharedMemConfig config) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaFuncSetSharedMemConfig called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaFuncSetSharedMemConfig);
+    void *_0func = mem2server((void *)func, 0);
+    rpc_write(client, &_0func, sizeof(_0func));
+    rpc_write(client, &config, sizeof(config));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    mem2client((void *)func, 0);
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" cudaError_t cudaFuncGetAttributes(struct cudaFuncAttributes *attr, const void *func) {
 #ifdef DEBUG
     std::cout << "Hook: cudaFuncGetAttributes called" << std::endl;
@@ -2167,62 +1956,6 @@ extern "C" cudaError_t cudaFuncSetAttribute(const void *func, enum cudaFuncAttri
     rpc_write(client, &_0func, sizeof(_0func));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &value, sizeof(value));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)func, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaFuncGetName(const char **name, const void *func) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaFuncGetName called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaFuncGetName);
-    // PARAM const char **name
-    static char _cudaFuncGetName_name[1024];
-    rpc_read(client, _cudaFuncGetName_name, 1024, true);
-    void *_0func = mem2server((void *)func, 0);
-    rpc_write(client, &_0func, sizeof(_0func));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM const char **name
-    *name = _cudaFuncGetName_name;
-    mem2client((void *)func, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaFuncGetParamInfo(const void *func, size_t paramIndex, size_t *paramOffset, size_t *paramSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaFuncGetParamInfo called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaFuncGetParamInfo);
-    void *_0func = mem2server((void *)func, 0);
-    rpc_write(client, &_0func, sizeof(_0func));
-    rpc_write(client, &paramIndex, sizeof(paramIndex));
-    rpc_read(client, paramOffset, sizeof(*paramOffset));
-    rpc_read(client, paramSize, sizeof(*paramSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2304,31 +2037,6 @@ extern "C" cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, 
     return _result;
 }
 
-extern "C" cudaError_t cudaFuncSetSharedMemConfig(const void *func, enum cudaSharedMemConfig config) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaFuncSetSharedMemConfig called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaFuncSetSharedMemConfig);
-    void *_0func = mem2server((void *)func, 0);
-    rpc_write(client, &_0func, sizeof(_0func));
-    rpc_write(client, &config, sizeof(config));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)func, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, const void *func, int blockSize, size_t dynamicSMemSize) {
 #ifdef DEBUG
     std::cout << "Hook: cudaOccupancyMaxActiveBlocksPerMultiprocessor called" << std::endl;
@@ -2400,58 +2108,6 @@ extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(in
     rpc_write(client, &blockSize, sizeof(blockSize));
     rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
     rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)func, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaOccupancyMaxPotentialClusterSize(int *clusterSize, const void *func, const cudaLaunchConfig_t *launchConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaOccupancyMaxPotentialClusterSize called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaOccupancyMaxPotentialClusterSize);
-    rpc_read(client, clusterSize, sizeof(*clusterSize));
-    void *_0func = mem2server((void *)func, 0);
-    rpc_write(client, &_0func, sizeof(_0func));
-    rpc_write(client, launchConfig, sizeof(*launchConfig));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)func, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaOccupancyMaxActiveClusters(int *numClusters, const void *func, const cudaLaunchConfig_t *launchConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaOccupancyMaxActiveClusters called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaOccupancyMaxActiveClusters);
-    rpc_read(client, numClusters, sizeof(*numClusters));
-    void *_0func = mem2server((void *)func, 0);
-    rpc_write(client, &_0func, sizeof(_0func));
-    rpc_write(client, launchConfig, sizeof(*launchConfig));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2872,54 +2528,6 @@ extern "C" cudaError_t cudaArrayGetPlane(cudaArray_t *pPlaneArray, cudaArray_t h
     return _result;
 }
 
-extern "C" cudaError_t cudaArrayGetMemoryRequirements(struct cudaArrayMemoryRequirements *memoryRequirements, cudaArray_t array, int device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaArrayGetMemoryRequirements called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaArrayGetMemoryRequirements);
-    rpc_read(client, memoryRequirements, sizeof(*memoryRequirements));
-    rpc_write(client, &array, sizeof(array));
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMipmappedArrayGetMemoryRequirements(struct cudaArrayMemoryRequirements *memoryRequirements, cudaMipmappedArray_t mipmap, int device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMipmappedArrayGetMemoryRequirements called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMipmappedArrayGetMemoryRequirements);
-    rpc_read(client, memoryRequirements, sizeof(*memoryRequirements));
-    rpc_write(client, &mipmap, sizeof(mipmap));
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaArrayGetSparseProperties(struct cudaArraySparseProperties *sparseProperties, cudaArray_t array) {
 #ifdef DEBUG
     std::cout << "Hook: cudaArrayGetSparseProperties called" << std::endl;
@@ -3147,64 +2755,6 @@ extern "C" cudaError_t cudaMemcpyPeerAsync(void *dst, int dstDevice, const void 
     }
     mem2client((void *)dst, 0);
     mem2client((void *)src, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMemcpyBatchAsync(void **dsts, void **srcs, size_t *sizes, size_t count, struct cudaMemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemcpyBatchAsync called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMemcpyBatchAsync);
-    // PARAM void **dsts
-    // PARAM void **srcs
-    rpc_read(client, sizes, sizeof(*sizes));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, attrs, sizeof(*attrs));
-    rpc_read(client, attrsIdxs, sizeof(*attrsIdxs));
-    rpc_write(client, &numAttrs, sizeof(numAttrs));
-    rpc_read(client, failIdx, sizeof(*failIdx));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **dsts
-    // PARAM void **srcs
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, struct cudaMemcpy3DBatchOp *opList, size_t *failIdx, unsigned long long flags, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemcpy3DBatchAsync called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMemcpy3DBatchAsync);
-    rpc_write(client, &numOps, sizeof(numOps));
-    rpc_read(client, opList, sizeof(*opList));
-    rpc_read(client, failIdx, sizeof(*failIdx));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
     rpc_free_client(client);
     return _result;
 }
@@ -3526,34 +3076,6 @@ extern "C" cudaError_t cudaMemPrefetchAsync(const void *devPtr, size_t count, in
     return _result;
 }
 
-extern "C" cudaError_t cudaMemPrefetchAsync_v2(const void *devPtr, size_t count, struct cudaMemLocation location, unsigned int flags, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemPrefetchAsync_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMemPrefetchAsync_v2);
-    void *_0devPtr = mem2server((void *)devPtr, 0);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &location, sizeof(location));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)devPtr, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cudaMemoryAdvise advice, int device) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemAdvise called" << std::endl;
@@ -3570,33 +3092,6 @@ extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cuda
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &advice, sizeof(advice));
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)devPtr, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMemAdvise_v2(const void *devPtr, size_t count, enum cudaMemoryAdvise advice, struct cudaMemLocation location) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemAdvise_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMemAdvise_v2);
-    void *_0devPtr = mem2server((void *)devPtr, 0);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &advice, sizeof(advice));
-    rpc_write(client, &location, sizeof(location));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4423,6 +3918,239 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedMipmappedArray(cudaMipmapped
     return _result;
 }
 
+extern "C" cudaError_t cudaBindTexture(size_t *offset, const struct textureReference *texref, const void *devPtr, const struct cudaChannelFormatDesc *desc, size_t size) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTexture called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaBindTexture);
+    rpc_read(client, offset, sizeof(*offset));
+    rpc_write(client, texref, sizeof(*texref));
+    void *_0devPtr = mem2server((void *)devPtr, 0);
+    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    rpc_write(client, desc, sizeof(*desc));
+    rpc_write(client, &size, sizeof(size));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    mem2client((void *)devPtr, 0);
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindTexture2D(size_t *offset, const struct textureReference *texref, const void *devPtr, const struct cudaChannelFormatDesc *desc, size_t width, size_t height, size_t pitch) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTexture2D called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaBindTexture2D);
+    rpc_read(client, offset, sizeof(*offset));
+    rpc_write(client, texref, sizeof(*texref));
+    void *_0devPtr = mem2server((void *)devPtr, 0);
+    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    rpc_write(client, desc, sizeof(*desc));
+    rpc_write(client, &width, sizeof(width));
+    rpc_write(client, &height, sizeof(height));
+    rpc_write(client, &pitch, sizeof(pitch));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    mem2client((void *)devPtr, 0);
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindTextureToArray(const struct textureReference *texref, cudaArray_const_t array, const struct cudaChannelFormatDesc *desc) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTextureToArray called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaBindTextureToArray);
+    rpc_write(client, texref, sizeof(*texref));
+    rpc_write(client, &array, sizeof(array));
+    rpc_write(client, desc, sizeof(*desc));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindTextureToMipmappedArray(const struct textureReference *texref, cudaMipmappedArray_const_t mipmappedArray, const struct cudaChannelFormatDesc *desc) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTextureToMipmappedArray called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaBindTextureToMipmappedArray);
+    rpc_write(client, texref, sizeof(*texref));
+    rpc_write(client, &mipmappedArray, sizeof(mipmappedArray));
+    rpc_write(client, desc, sizeof(*desc));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaUnbindTexture(const struct textureReference *texref) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaUnbindTexture called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaUnbindTexture);
+    rpc_write(client, texref, sizeof(*texref));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGetTextureAlignmentOffset(size_t *offset, const struct textureReference *texref) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGetTextureAlignmentOffset called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaGetTextureAlignmentOffset);
+    rpc_read(client, offset, sizeof(*offset));
+    rpc_write(client, texref, sizeof(*texref));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGetTextureReference(const struct textureReference **texref, const void *symbol) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGetTextureReference called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaGetTextureReference);
+    // PARAM const struct textureReference **texref
+    static struct textureReference _cudaGetTextureReference_texref;
+    rpc_read(client, &_cudaGetTextureReference_texref, sizeof(struct textureReference));
+    void *_0symbol = mem2server((void *)symbol, 0);
+    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    // PARAM const struct textureReference **texref
+    *texref = &_cudaGetTextureReference_texref;
+    mem2client((void *)symbol, 0);
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindSurfaceToArray(const struct surfaceReference *surfref, cudaArray_const_t array, const struct cudaChannelFormatDesc *desc) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindSurfaceToArray called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaBindSurfaceToArray);
+    rpc_write(client, surfref, sizeof(*surfref));
+    rpc_write(client, &array, sizeof(array));
+    rpc_write(client, desc, sizeof(*desc));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGetSurfaceReference(const struct surfaceReference **surfref, const void *symbol) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGetSurfaceReference called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaGetSurfaceReference);
+    // PARAM const struct surfaceReference **surfref
+    static struct surfaceReference _cudaGetSurfaceReference_surfref;
+    rpc_read(client, &_cudaGetSurfaceReference_surfref, sizeof(struct surfaceReference));
+    void *_0symbol = mem2server((void *)symbol, 0);
+    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    // PARAM const struct surfaceReference **surfref
+    *surfref = &_cudaGetSurfaceReference_surfref;
+    mem2client((void *)symbol, 0);
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" cudaError_t cudaGetChannelDesc(struct cudaChannelFormatDesc *desc, cudaArray_const_t array) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetChannelDesc called" << std::endl;
@@ -4818,7 +4546,7 @@ extern "C" cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hSrc, c
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, cudaLaunchAttributeValue *value_out) {
+extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, enum cudaKernelNodeAttrID attr, union cudaKernelNodeAttrValue *value_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeGetAttribute called" << std::endl;
 #endif
@@ -4842,7 +4570,7 @@ extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cu
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue *value) {
+extern "C" cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, enum cudaKernelNodeAttrID attr, const union cudaKernelNodeAttrValue *value) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeSetAttribute called" << std::endl;
 #endif
@@ -5956,32 +5684,6 @@ extern "C" cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t *fro
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t *from, cudaGraphNode_t *to, cudaGraphEdgeData *edgeData, size_t *numEdges) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphGetEdges_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphGetEdges_v2);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_read(client, from, sizeof(*from));
-    rpc_read(client, to, sizeof(*to));
-    rpc_read(client, edgeData, sizeof(*edgeData));
-    rpc_read(client, numEdges, sizeof(*numEdges));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t *pDependencies, size_t *pNumDependencies) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetDependencies called" << std::endl;
@@ -6006,31 +5708,6 @@ extern "C" cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGr
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t *pDependencies, cudaGraphEdgeData *edgeData, size_t *pNumDependencies) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeGetDependencies_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphNodeGetDependencies_v2);
-    rpc_write(client, &node, sizeof(node));
-    rpc_read(client, pDependencies, sizeof(*pDependencies));
-    rpc_read(client, edgeData, sizeof(*edgeData));
-    rpc_read(client, pNumDependencies, sizeof(*pNumDependencies));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t *pDependentNodes, size_t *pNumDependentNodes) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetDependentNodes called" << std::endl;
@@ -6044,31 +5721,6 @@ extern "C" cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cuda
     rpc_prepare_request(client, RPC_cudaGraphNodeGetDependentNodes);
     rpc_write(client, &node, sizeof(node));
     rpc_read(client, pDependentNodes, sizeof(*pDependentNodes));
-    rpc_read(client, pNumDependentNodes, sizeof(*pNumDependentNodes));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t *pDependentNodes, cudaGraphEdgeData *edgeData, size_t *pNumDependentNodes) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeGetDependentNodes_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphNodeGetDependentNodes_v2);
-    rpc_write(client, &node, sizeof(node));
-    rpc_read(client, pDependentNodes, sizeof(*pDependentNodes));
-    rpc_read(client, edgeData, sizeof(*edgeData));
     rpc_read(client, pNumDependentNodes, sizeof(*pNumDependentNodes));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6105,32 +5757,6 @@ extern "C" cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGra
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t *from, const cudaGraphNode_t *to, const cudaGraphEdgeData *edgeData, size_t numDependencies) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphAddDependencies_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphAddDependencies_v2);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, from, sizeof(*from));
-    rpc_write(client, to, sizeof(*to));
-    rpc_write(client, edgeData, sizeof(*edgeData));
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t *from, const cudaGraphNode_t *to, size_t numDependencies) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphRemoveDependencies called" << std::endl;
@@ -6145,32 +5771,6 @@ extern "C" cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cuda
     rpc_write(client, &graph, sizeof(graph));
     rpc_write(client, from, sizeof(*from));
     rpc_write(client, to, sizeof(*to));
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t *from, const cudaGraphNode_t *to, const cudaGraphEdgeData *edgeData, size_t numDependencies) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphRemoveDependencies_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphRemoveDependencies_v2);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, from, sizeof(*from));
-    rpc_write(client, to, sizeof(*to));
-    rpc_write(client, edgeData, sizeof(*edgeData));
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6204,7 +5804,7 @@ extern "C" cudaError_t cudaGraphDestroyNode(cudaGraphNode_t node) {
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGraph_t graph, unsigned long long flags) {
+extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGraph_t graph, cudaGraphNode_t *pErrorNode, char *pLogBuffer, size_t bufferSize) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphInstantiate called" << std::endl;
 #endif
@@ -6217,7 +5817,9 @@ extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGra
     rpc_prepare_request(client, RPC_cudaGraphInstantiate);
     rpc_read(client, pGraphExec, sizeof(*pGraphExec));
     rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &flags, sizeof(flags));
+    rpc_read(client, pErrorNode, sizeof(*pErrorNode));
+    rpc_read(client, pLogBuffer, bufferSize, true);
+    rpc_write(client, &bufferSize, sizeof(bufferSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6242,53 +5844,6 @@ extern "C" cudaError_t cudaGraphInstantiateWithFlags(cudaGraphExec_t *pGraphExec
     rpc_read(client, pGraphExec, sizeof(*pGraphExec));
     rpc_write(client, &graph, sizeof(graph));
     rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphInstantiateWithParams(cudaGraphExec_t *pGraphExec, cudaGraph_t graph, cudaGraphInstantiateParams *instantiateParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphInstantiateWithParams called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphInstantiateWithParams);
-    rpc_read(client, pGraphExec, sizeof(*pGraphExec));
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_read(client, instantiateParams, sizeof(*instantiateParams));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphExecGetFlags(cudaGraphExec_t graphExec, unsigned long long *flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphExecGetFlags called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphExecGetFlags);
-    rpc_write(client, &graphExec, sizeof(graphExec));
-    rpc_read(client, flags, sizeof(*flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6610,55 +6165,7 @@ extern "C" cudaError_t cudaGraphExecExternalSemaphoresWaitNodeSetParams(cudaGrap
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphNodeSetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int isEnabled) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeSetEnabled called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphNodeSetEnabled);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &isEnabled, sizeof(isEnabled));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphNodeGetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int *isEnabled) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeGetEnabled called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphNodeGetEnabled);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_read(client, isEnabled, sizeof(*isEnabled));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphExecUpdateResultInfo *resultInfo) {
+extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphNode_t *hErrorNode_out, enum cudaGraphExecUpdateResult *updateResult_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecUpdate called" << std::endl;
 #endif
@@ -6671,7 +6178,8 @@ extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph
     rpc_prepare_request(client, RPC_cudaGraphExecUpdate);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hGraph, sizeof(hGraph));
-    rpc_read(client, resultInfo, sizeof(*resultInfo));
+    rpc_read(client, hErrorNode_out, sizeof(*hErrorNode_out));
+    rpc_read(client, updateResult_out, sizeof(*updateResult_out));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6919,132 +6427,7 @@ extern "C" cudaError_t cudaGraphReleaseUserObject(cudaGraph_t graph, cudaUserObj
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphAddNode(cudaGraphNode_t *pGraphNode, cudaGraph_t graph, const cudaGraphNode_t *pDependencies, size_t numDependencies, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphAddNode called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphAddNode);
-    rpc_read(client, pGraphNode, sizeof(*pGraphNode));
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, pDependencies, sizeof(*pDependencies));
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &nodeParams, sizeof(nodeParams));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphAddNode_v2(cudaGraphNode_t *pGraphNode, cudaGraph_t graph, const cudaGraphNode_t *pDependencies, const cudaGraphEdgeData *dependencyData, size_t numDependencies, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphAddNode_v2 called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphAddNode_v2);
-    rpc_read(client, pGraphNode, sizeof(*pGraphNode));
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, pDependencies, sizeof(*pDependencies));
-    rpc_write(client, dependencyData, sizeof(*dependencyData));
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &nodeParams, sizeof(nodeParams));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeSetParams called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphNodeSetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &nodeParams, sizeof(nodeParams));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGraphNode_t node, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphExecNodeSetParams called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphExecNodeSetParams);
-    rpc_write(client, &graphExec, sizeof(graphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &nodeParams, sizeof(nodeParams));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle *pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphConditionalHandleCreate called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGraphConditionalHandleCreate);
-    rpc_read(client, pHandle_out, sizeof(*pHandle_out));
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &defaultLaunchValue, sizeof(defaultLaunchValue));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPtr, unsigned long long flags, enum cudaDriverEntryPointQueryResult *driverStatus) {
+extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPtr, unsigned long long flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDriverEntryPoint called" << std::endl;
 #endif
@@ -7058,7 +6441,6 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
     rpc_write(client, symbol, strlen(symbol) + 1, true);
     // PARAM void **funcPtr
     rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, driverStatus, sizeof(*driverStatus));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7066,292 +6448,6 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
         exit(1);
     }
     // PARAM void **funcPtr
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGetDriverEntryPointByVersion(const char *symbol, void **funcPtr, unsigned int cudaVersion, unsigned long long flags, enum cudaDriverEntryPointQueryResult *driverStatus) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGetDriverEntryPointByVersion called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGetDriverEntryPointByVersion);
-    rpc_write(client, symbol, strlen(symbol) + 1, true);
-    // PARAM void **funcPtr
-    rpc_write(client, &cudaVersion, sizeof(cudaVersion));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, driverStatus, sizeof(*driverStatus));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **funcPtr
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryLoadData(cudaLibrary_t *library, const void *code, enum cudaJitOption *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, enum cudaLibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryLoadData called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryLoadData);
-    rpc_read(client, library, sizeof(*library));
-    void *_0code = mem2server((void *)code, 0);
-    rpc_write(client, &_0code, sizeof(_0code));
-    rpc_read(client, jitOptions, sizeof(*jitOptions));
-    // PARAM void **jitOptionsValues
-    rpc_write(client, &numJitOptions, sizeof(numJitOptions));
-    rpc_read(client, libraryOptions, sizeof(*libraryOptions));
-    // PARAM void **libraryOptionValues
-    rpc_write(client, &numLibraryOptions, sizeof(numLibraryOptions));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)code, 0);
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryLoadFromFile(cudaLibrary_t *library, const char *fileName, enum cudaJitOption *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, enum cudaLibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryLoadFromFile called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryLoadFromFile);
-    rpc_read(client, library, sizeof(*library));
-    rpc_write(client, fileName, strlen(fileName) + 1, true);
-    rpc_read(client, jitOptions, sizeof(*jitOptions));
-    // PARAM void **jitOptionsValues
-    rpc_write(client, &numJitOptions, sizeof(numJitOptions));
-    rpc_read(client, libraryOptions, sizeof(*libraryOptions));
-    // PARAM void **libraryOptionValues
-    rpc_write(client, &numLibraryOptions, sizeof(numLibraryOptions));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryUnload(cudaLibrary_t library) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryUnload called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryUnload);
-    rpc_write(client, &library, sizeof(library));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetKernel(cudaKernel_t *pKernel, cudaLibrary_t library, const char *name) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetKernel called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryGetKernel);
-    rpc_read(client, pKernel, sizeof(*pKernel));
-    rpc_write(client, &library, sizeof(library));
-    rpc_write(client, name, strlen(name) + 1, true);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetGlobal(void **dptr, size_t *bytes, cudaLibrary_t library, const char *name) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetGlobal called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryGetGlobal);
-    // PARAM void **dptr
-    rpc_read(client, bytes, sizeof(*bytes));
-    rpc_write(client, &library, sizeof(library));
-    rpc_write(client, name, strlen(name) + 1, true);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **dptr
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetManaged(void **dptr, size_t *bytes, cudaLibrary_t library, const char *name) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetManaged called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryGetManaged);
-    // PARAM void **dptr
-    rpc_read(client, bytes, sizeof(*bytes));
-    rpc_write(client, &library, sizeof(library));
-    rpc_write(client, name, strlen(name) + 1, true);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **dptr
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetUnifiedFunction(void **fptr, cudaLibrary_t library, const char *symbol) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetUnifiedFunction called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryGetUnifiedFunction);
-    // PARAM void **fptr
-    rpc_write(client, &library, sizeof(library));
-    rpc_write(client, symbol, strlen(symbol) + 1, true);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **fptr
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetKernelCount(unsigned int *count, cudaLibrary_t lib) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetKernelCount called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryGetKernelCount);
-    rpc_read(client, count, sizeof(*count));
-    rpc_write(client, &lib, sizeof(lib));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t *kernels, unsigned int numKernels, cudaLibrary_t lib) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryEnumerateKernels called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaLibraryEnumerateKernels);
-    rpc_read(client, kernels, sizeof(*kernels));
-    rpc_write(client, &numKernels, sizeof(numKernels));
-    rpc_write(client, &lib, sizeof(lib));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, enum cudaFuncAttribute attr, int value, int device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaKernelSetAttributeForDevice called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaKernelSetAttributeForDevice);
-    rpc_write(client, &kernel, sizeof(kernel));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
     rpc_free_client(client);
     return _result;
 }
@@ -7402,31 +6498,6 @@ extern "C" cudaError_t cudaGetFuncBySymbol(cudaFunction_t *functionPtr, const vo
         exit(1);
     }
     mem2client((void *)symbolPtr, 0);
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGetKernel(cudaKernel_t *kernelPtr, const void *entryFuncAddr) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGetKernel called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaGetKernel);
-    rpc_read(client, kernelPtr, sizeof(*kernelPtr));
-    void *_0entryFuncAddr = mem2server((void *)entryFuncAddr, 0);
-    rpc_write(client, &_0entryFuncAddr, sizeof(_0entryFuncAddr));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    mem2client((void *)entryFuncAddr, 0);
     rpc_free_client(client);
     return _result;
 }

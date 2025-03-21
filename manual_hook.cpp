@@ -118,7 +118,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             std::cerr << "Failed to allocate memory" << std::endl;
             exit(1);
         }
-        std::unique_ptr<int[]> arg_sizes(new int[MAX_ARGS]);
+        int *arg_sizes = (int *)malloc(MAX_ARGS * sizeof(int));
         if(arg_sizes == nullptr) {
             std::cerr << "Failed to allocate memory" << std::endl;
             exit(1);
@@ -194,7 +194,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             .name = name,
             .fat_cubin = fatCubin,
             .host_func = nullptr,
-            .arg_sizes = arg_sizes.get(),
+            .arg_sizes = arg_sizes,
             .arg_count = arg_count,
         });
         // printf("function %s has %d arguments\n", name, arg_count);
