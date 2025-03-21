@@ -38,9 +38,13 @@ int handle_mem2server(void *args0) {
         read_one_now(client, &memSize, sizeof(memSize), false);
         read_one_now(client, ptr, memSize, true);
     } else {
-        read_one_now(client, &ptr, 0, true);
+        int rtn = read_one_now(client, &ptr, 0, true);
+        if(rtn == -1){
+            std::cerr << "Failed to read ptr" << std::endl;
+            return 1;
+        }
         rpc_write(client, &ptr, sizeof(ptr)); // 返回服务器侧申请的内存地址
-        client->buffers.push(ptr);            // 保存临时内存地址
+        client->buffers->push(ptr);            // 保存临时内存地址
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -64,12 +68,13 @@ int handle_mem2client(void *args0) {
     }
     if(ptr != nullptr) {
         read_one_now(client, &memSize, sizeof(memSize), false);
-        read_one_now(client, ptr, memSize, true);
         rpc_write(client, ptr, memSize, true);
     } else {
         read_one_now(client, &size, sizeof(size), false);
-        ptr = client->buffers.front();
-        client->buffers.pop();
+
+        // 获取第一个元素
+        ptr = client->buffers->front();
+        client->buffers->pop();
         rpc_write(client, ptr, size, true);
         to_free = true;
     }
@@ -391,136 +396,274 @@ int handle_cudaMallocPitch(void *args) {
     return 0;
 }
 
-int handle_cudaMemcpy(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemcpy called" << std::endl;
-#endif
+// int handle_cudaMemcpy(void *args0) {
+// #ifdef DEBUG
+//     std::cout << "Handle function cudaMemcpy called" << std::endl;
+// #endif
 
-    RpcClient *client = (RpcClient *)args0;
-    void *dst;
-    void *src;
-    void *toFree;
-    size_t count;
-    cudaError_t _result;
-    enum cudaMemcpyKind kind;
-    rpc_read(client, &dst, sizeof(dst));
-    rpc_read(client, &src, sizeof(src));
-    rpc_read(client, &count, sizeof(count));
-    rpc_read(client, &kind, sizeof(kind));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return cudaErrorUnknown;
-    }
-    switch(kind) {
-    case cudaMemcpyHostToDevice:
-        toFree = nullptr;
-        if(src == nullptr) {
-            src = malloc(count);
-            if(src == nullptr) {
-                std::cerr << "Failed to allocate src" << std::endl;
-                return cudaErrorMemoryAllocation;
-            }
-            toFree = src;
-        }
-        if(read_one_now(client, src, count, true) < 0) {
-            std::cerr << "Failed to read src" << std::endl;
-            return cudaErrorUnknown;
-        }
-        _result = cudaMemcpy(dst, src, count, kind);
-        rpc_write(client, &_result, sizeof(_result));
-        if(rpc_submit_response(client) != 0) {
-            std::cerr << "Failed to submit response" << std::endl;
-            if(toFree != nullptr) {
-                free(toFree);
-            }
-            return cudaErrorUnknown;
-        }
-        if(toFree != nullptr) {
-            free(toFree);
-        }
-        break;
-    case cudaMemcpyDeviceToHost:
-        toFree = nullptr;
-        if(dst == nullptr) {
-            dst = malloc(count);
-            if(dst == nullptr) {
-                std::cerr << "Failed to allocate dst" << std::endl;
-                return cudaErrorMemoryAllocation;
-            }
-            toFree = dst;
-        }
-        _result = cudaMemcpy(dst, src, count, kind);
-        if(_result != cudaSuccess) {
-            count = 0;
-        }
-        rpc_write(client, dst, count, true);
-        rpc_write(client, &_result, sizeof(_result));
-        if(rpc_submit_response(client) != 0) {
-            std::cerr << "Failed to submit response" << std::endl;
-            if(toFree != nullptr) {
-                free(toFree);
-            }
-            return cudaErrorUnknown;
-        }
-        if(toFree != nullptr) {
-            free(toFree);
-        }
-        break;
-    case cudaMemcpyDeviceToDevice:
-        _result = cudaMemcpy(dst, src, count, kind);
-        {
-            bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
-            bool src_is_union = checkPointer(src) == cudaMemoryTypeManaged;
-            if(src_is_union) {
-                read_one_now(client, src, count, true);
-            }
-            if(src_is_union && dst_is_union) {
-            }
+//     RpcClient *client = (RpcClient *)args0;
+//     void *dst;
+//     void *src;
+//     void *toFree;
+//     size_t count;
+//     cudaError_t _result;
+//     enum cudaMemcpyKind kind;
+//     rpc_read(client, &dst, sizeof(dst));
+//     rpc_read(client, &src, sizeof(src));
+//     rpc_read(client, &count, sizeof(count));
+//     rpc_read(client, &kind, sizeof(kind));
+//     if(rpc_prepare_response(client) != 0) {
+//         std::cerr << "Failed to prepare response" << std::endl;
+//         return cudaErrorUnknown;
+//     }
+//     printf("=======================cudaMemcpy dst: %p, src: %p, count: %zu, kind: %d\n", dst, src, count, kind);
+//     switch(kind) {
+//     case cudaMemcpyHostToDevice:
+//         toFree = nullptr;
+//         if(src == nullptr) {
+//             src = malloc(count);
+//             if(src == nullptr) {
+//                 std::cerr << "Failed to allocate src" << std::endl;
+//                 return cudaErrorMemoryAllocation;
+//             }
+//             toFree = src;
+//         }
+//         if(read_one_now(client, src, count, true) < 0) {
+//             std::cerr << "Failed to read src" << std::endl;
+//             return cudaErrorUnknown;
+//         }
+//         _result = cudaMemcpy(dst, src, count, kind);
+//         rpc_write(client, &_result, sizeof(_result));
+//         if(rpc_submit_response(client) != 0) {
+//             std::cerr << "Failed to submit response" << std::endl;
+//             if(toFree != nullptr) {
+//                 free(toFree);
+//             }
+//             return cudaErrorUnknown;
+//         }
+//         if(toFree != nullptr) {
+//             free(toFree);
+//         }
+//         break;
+//     case cudaMemcpyDeviceToHost:
+//         toFree = nullptr;
+//         if(dst == nullptr) {
+//             dst = malloc(count);
+//             printf("=======================cudaMemcpy dst: %p, count: %zu\n", dst, count);
+//             if(dst == nullptr) {
+//                 std::cerr << "Failed to allocate dst" << std::endl;
+//                 return cudaErrorMemoryAllocation;
+//             }
+//             toFree = dst;
+//         }
+//         _result = cudaMemcpy(dst, src, count, kind);
+//         printf("=======================cudaMemcpy dst: %p, src: %p, count: %zu, kind: %d, _result: %d\n", dst, src, count, kind, _result);
+//         if(_result != cudaSuccess) {
+//             count = 0;
+//         }
+//         printf("=======================cudaMemcpy dst: %p, count: %zu\n", dst, count);
+//         rpc_write(client, dst, count, true);
+//         rpc_write(client, &_result, sizeof(_result));
+//         if(rpc_submit_response(client) != 0) {
+//             std::cerr << "Failed to submit response" << std::endl;
+//             if(toFree != nullptr) {
+//                 free(toFree);
+//             }
+//             return cudaErrorUnknown;
+//         }
+//         if(toFree != nullptr) {
+//             free(toFree);
+//         }
+//         break;
+//     case cudaMemcpyDeviceToDevice:
+//         _result = cudaMemcpy(dst, src, count, kind);
+//         {
+//             bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
+//             bool src_is_union = checkPointer(src) == cudaMemoryTypeManaged;
+//             if(src_is_union) {
+//                 read_one_now(client, src, count, true);
+//             }
+//             if(src_is_union && dst_is_union) {
+//             }
 
-            _result = cudaMemcpy(dst, src, count, kind);
-            if(_result != cudaSuccess) {
-                count = 0;
-            }
-            if(dst_is_union && !src_is_union) {
-                rpc_write(client, dst, count, true);
-            }
-            rpc_write(client, &_result, sizeof(_result));
-            if(rpc_submit_response(client) != 0) {
-                std::cerr << "Failed to submit response" << std::endl;
-                return cudaErrorUnknown;
-            }
-        }
-        break;
-    case cudaMemcpyHostToHost:
-        toFree = nullptr;
-        if(src == nullptr) {
-            src = malloc(count);
-            if(src == nullptr) {
-                std::cerr << "Failed to allocate src" << std::endl;
-                return cudaErrorMemoryAllocation;
-            }
-            toFree = src;
-        }
-        if(read_one_now(client, src, count, true) < 0) {
-            std::cerr << "Failed to read src" << std::endl;
-            return cudaErrorUnknown;
-        }
-        _result = cudaMemcpy(dst, src, count, kind);
-        rpc_write(client, &_result, sizeof(_result));
-        if(rpc_submit_response(client) != 0) {
-            std::cerr << "Failed to submit response" << std::endl;
-            if(toFree != nullptr) {
-                free(toFree);
-            }
-            return cudaErrorUnknown;
-        }
-        if(toFree != nullptr) {
-            free(toFree);
-        }
-        break;
-    }
-    return cudaSuccess;
-}
+//             _result = cudaMemcpy(dst, src, count, kind);
+//             if(_result != cudaSuccess) {
+//                 count = 0;
+//             }
+//             if(dst_is_union && !src_is_union) {
+//                 rpc_write(client, dst, count, true);
+//             }
+//             rpc_write(client, &_result, sizeof(_result));
+//             if(rpc_submit_response(client) != 0) {
+//                 std::cerr << "Failed to submit response" << std::endl;
+//                 return cudaErrorUnknown;
+//             }
+//         }
+//         break;
+//     case cudaMemcpyHostToHost:
+//         toFree = nullptr;
+//         if(src == nullptr) {
+//             src = malloc(count);
+//             if(src == nullptr) {
+//                 std::cerr << "Failed to allocate src" << std::endl;
+//                 return cudaErrorMemoryAllocation;
+//             }
+//             toFree = src;
+//         }
+//         if(read_one_now(client, src, count, true) < 0) {
+//             std::cerr << "Failed to read src" << std::endl;
+//             return cudaErrorUnknown;
+//         }
+//         _result = cudaMemcpy(dst, src, count, kind);
+//         rpc_write(client, &_result, sizeof(_result));
+//         if(rpc_submit_response(client) != 0) {
+//             std::cerr << "Failed to submit response" << std::endl;
+//             if(toFree != nullptr) {
+//                 free(toFree);
+//             }
+//             return cudaErrorUnknown;
+//         }
+//         if(toFree != nullptr) {
+//             free(toFree);
+//         }
+//         break;
+//     }
+//     return cudaSuccess;
+// }
+
+
+
+// int handle_cudaMemcpyAsync(void *args0) {
+// #ifdef DEBUG
+//     std::cout << "Handle function cudaMemcpyAsync called" << std::endl;
+// #endif
+//     RpcClient *client = (RpcClient *)args0;
+//     void *dst;
+//     void *src;
+//     void *toFree;
+//     size_t count;
+//     cudaStream_t stream;
+//     cudaError_t _result;
+//     enum cudaMemcpyKind kind;
+//     rpc_read(client, &dst, sizeof(dst));
+//     rpc_read(client, &src, sizeof(src));
+//     rpc_read(client, &count, sizeof(count));
+//     rpc_read(client, &kind, sizeof(kind));
+//     rpc_read(client, &stream, sizeof(stream));
+//     if(rpc_prepare_response(client) != 0) {
+//         std::cerr << "Failed to prepare response" << std::endl;
+//         return cudaErrorUnknown;
+//     }
+//     switch(kind) {
+//     case cudaMemcpyHostToDevice:
+//         toFree = nullptr;
+//         if(src == nullptr) {
+//             src = malloc(count);
+//             if(src == nullptr) {
+//                 std::cerr << "Failed to allocate src" << std::endl;
+//                 return cudaErrorMemoryAllocation;
+//             }
+//             toFree = src;
+//         }
+//         if(read_one_now(client, src, count, true) < 0) {
+//             std::cerr << "Failed to read src" << std::endl;
+//             return cudaErrorUnknown;
+//         }
+//         _result = cudaMemcpyAsync(dst, src, count, kind, stream);
+//         rpc_write(client, &_result, sizeof(_result));
+//         if(rpc_submit_response(client) != 0) {
+//             std::cerr << "Failed to submit response" << std::endl;
+//             if(toFree != nullptr) {
+//                 free(toFree);
+//             }
+//             return cudaErrorUnknown;
+//         }
+//         if(toFree != nullptr) {
+//             free(toFree);
+//         }
+//         break;
+//     case cudaMemcpyDeviceToHost:
+//         toFree = nullptr;
+//         if(dst == nullptr) {
+//             dst = malloc(count);
+//             if(dst == nullptr) {
+//                 std::cerr << "Failed to allocate dst" << std::endl;
+//                 return cudaErrorMemoryAllocation;
+//             }
+//             toFree = dst;
+//         }
+//         _result = cudaMemcpyAsync(dst, src, count, kind, stream);
+//         if(_result != cudaSuccess) {
+//             count = 0;
+//         }
+//         rpc_write(client, dst, count, true);
+//         rpc_write(client, &_result, sizeof(_result));
+//         if(rpc_submit_response(client) != 0) {
+//             std::cerr << "Failed to submit response" << std::endl;
+//             if(toFree != nullptr) {
+//                 free(toFree);
+//             }
+//             return cudaErrorUnknown;
+//         }
+//         if(toFree != nullptr) {
+//             free(toFree);
+//         }
+//         break;
+//     case cudaMemcpyDeviceToDevice:
+//         _result = cudaMemcpyAsync(dst, src, count, kind, stream);
+//         {
+//             bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
+//             bool src_is_union = checkPointer(src) == cudaMemoryTypeManaged;
+//             if(src_is_union) {
+//                 read_one_now(client, src, count, true);
+//             }
+//             if(src_is_union && dst_is_union) {
+//             }
+
+//             _result = cudaMemcpyAsync(dst, src, count, kind, stream);
+//             if(_result != cudaSuccess) {
+//                 count = 0;
+//             }
+//             if(dst_is_union && !src_is_union) {
+//                 rpc_write(client, dst, count, true);
+//             }
+//             rpc_write(client, &_result, sizeof(_result));
+//             if(rpc_submit_response(client) != 0) {
+//                 std::cerr << "Failed to submit response" << std::endl;
+//                 return cudaErrorUnknown;
+//             }
+//         }
+//         break;
+//     case cudaMemcpyHostToHost:
+//         toFree = nullptr;
+//         if(src == nullptr) {
+//             src = malloc(count);
+//             if(src == nullptr) {
+//                 std::cerr << "Failed to allocate src" << std::endl;
+//                 return cudaErrorMemoryAllocation;
+//             }
+//             toFree = src;
+//         }
+//         if(read_one_now(client, src, count, true) < 0) {
+//             std::cerr << "Failed to read src" << std::endl;
+//             return cudaErrorUnknown;
+//         }
+//         _result = cudaMemcpyAsync(dst, src, count, kind, stream);
+//         rpc_write(client, &_result, sizeof(_result));
+//         if(rpc_submit_response(client) != 0) {
+//             std::cerr << "Failed to submit response" << std::endl;
+//             if(toFree != nullptr) {
+//                 free(toFree);
+//             }
+//             return cudaErrorUnknown;
+//         }
+//         if(toFree != nullptr) {
+//             free(toFree);
+//         }
+//         break;
+//     }
+//     return cudaSuccess;
+// }
 
 int handle_cudaMemcpyFromSymbol(void *args0) {
 #ifdef DEBUG
@@ -569,138 +712,6 @@ int handle_cudaMemcpyFromSymbol(void *args0) {
     }
 
     return 0;
-}
-
-int handle_cudaMemcpyAsync(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemcpyAsync called" << std::endl;
-#endif
-    RpcClient *client = (RpcClient *)args0;
-    void *dst;
-    void *src;
-    void *toFree;
-    size_t count;
-    cudaStream_t stream;
-    cudaError_t _result;
-    enum cudaMemcpyKind kind;
-    rpc_read(client, &dst, sizeof(dst));
-    rpc_read(client, &src, sizeof(src));
-    rpc_read(client, &count, sizeof(count));
-    rpc_read(client, &kind, sizeof(kind));
-    rpc_read(client, &stream, sizeof(stream));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return cudaErrorUnknown;
-    }
-    switch(kind) {
-    case cudaMemcpyHostToDevice:
-        toFree = nullptr;
-        if(src == nullptr) {
-            src = malloc(count);
-            if(src == nullptr) {
-                std::cerr << "Failed to allocate src" << std::endl;
-                return cudaErrorMemoryAllocation;
-            }
-            toFree = src;
-        }
-        if(read_one_now(client, src, count, true) < 0) {
-            std::cerr << "Failed to read src" << std::endl;
-            return cudaErrorUnknown;
-        }
-        _result = cudaMemcpyAsync(dst, src, count, kind, stream);
-        rpc_write(client, &_result, sizeof(_result));
-        if(rpc_submit_response(client) != 0) {
-            std::cerr << "Failed to submit response" << std::endl;
-            if(toFree != nullptr) {
-                free(toFree);
-            }
-            return cudaErrorUnknown;
-        }
-        if(toFree != nullptr) {
-            free(toFree);
-        }
-        break;
-    case cudaMemcpyDeviceToHost:
-        toFree = nullptr;
-        if(dst == nullptr) {
-            dst = malloc(count);
-            if(dst == nullptr) {
-                std::cerr << "Failed to allocate dst" << std::endl;
-                return cudaErrorMemoryAllocation;
-            }
-            toFree = dst;
-        }
-        _result = cudaMemcpyAsync(dst, src, count, kind, stream);
-        if(_result != cudaSuccess) {
-            count = 0;
-        }
-        rpc_write(client, dst, count, true);
-        rpc_write(client, &_result, sizeof(_result));
-        if(rpc_submit_response(client) != 0) {
-            std::cerr << "Failed to submit response" << std::endl;
-            if(toFree != nullptr) {
-                free(toFree);
-            }
-            return cudaErrorUnknown;
-        }
-        if(toFree != nullptr) {
-            free(toFree);
-        }
-        break;
-    case cudaMemcpyDeviceToDevice:
-        _result = cudaMemcpyAsync(dst, src, count, kind, stream);
-        {
-            bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
-            bool src_is_union = checkPointer(src) == cudaMemoryTypeManaged;
-            if(src_is_union) {
-                read_one_now(client, src, count, true);
-            }
-            if(src_is_union && dst_is_union) {
-            }
-
-            _result = cudaMemcpyAsync(dst, src, count, kind, stream);
-            if(_result != cudaSuccess) {
-                count = 0;
-            }
-            if(dst_is_union && !src_is_union) {
-                rpc_write(client, dst, count, true);
-            }
-            rpc_write(client, &_result, sizeof(_result));
-            if(rpc_submit_response(client) != 0) {
-                std::cerr << "Failed to submit response" << std::endl;
-                return cudaErrorUnknown;
-            }
-        }
-        break;
-    case cudaMemcpyHostToHost:
-        toFree = nullptr;
-        if(src == nullptr) {
-            src = malloc(count);
-            if(src == nullptr) {
-                std::cerr << "Failed to allocate src" << std::endl;
-                return cudaErrorMemoryAllocation;
-            }
-            toFree = src;
-        }
-        if(read_one_now(client, src, count, true) < 0) {
-            std::cerr << "Failed to read src" << std::endl;
-            return cudaErrorUnknown;
-        }
-        _result = cudaMemcpyAsync(dst, src, count, kind, stream);
-        rpc_write(client, &_result, sizeof(_result));
-        if(rpc_submit_response(client) != 0) {
-            std::cerr << "Failed to submit response" << std::endl;
-            if(toFree != nullptr) {
-                free(toFree);
-            }
-            return cudaErrorUnknown;
-        }
-        if(toFree != nullptr) {
-            free(toFree);
-        }
-        break;
-    }
-    return cudaSuccess;
 }
 
 int handle_cudaMemcpyToSymbol(void *args0) {

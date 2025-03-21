@@ -71,8 +71,8 @@ MANUAL_FUNCTIONS = [
     "cudaMallocHost",
     "cudaMallocManaged",
     "cudaMallocPitch",
-    "cudaMemcpy",
-    "cudaMemcpyAsync",
+    # "cudaMemcpy",
+    # "cudaMemcpyAsync",
     "cudaMemcpyFromSymbol",
     "cudaMemcpyToSymbol",
     "cudaMemset",
@@ -348,8 +348,6 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
             function_name = function.name.format()
             f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, 0);\n")
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
-        elif position == 1:
-            f.write(f"    mem2client((void *){param.name}, 0);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -645,8 +643,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write("void *mem2server(void *clientPtr, size_t size);\n");
-        f.write("void mem2client(void *clientPtr, size_t size);\n");
+        f.write('extern "C" void *mem2server(void *clientPtr, size_t size);\n')
+        f.write('extern "C" void mem2client(void *clientPtr, size_t size);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         # 写入被 Hook 的函数实现
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):

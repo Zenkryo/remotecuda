@@ -11,7 +11,6 @@
 #include "rpc.h"
 #include "server.h"
 
-#define MAX_IOCV_COUNT 32
 #define THREAD_POOL_SIZE 10
 
 // RPC服务器端结构
@@ -96,7 +95,7 @@ void *rpc_handle_client(void *arg) {
     RpcClient client;
     memset(&client, 0, sizeof(RpcClient));
     client.sockfd = connfd;
-
+    client.buffers = new std::queue<void *>();
     while(1) {
         // 读取客户端请求, 先读取函数ID
         ReqHeader header;
@@ -128,7 +127,7 @@ void *rpc_handle_client(void *arg) {
         client.iov_send_count = 0;
         client.iov_send2_count = 0;
     }
-
+    delete client.buffers;
     close(connfd);
 
     // 线程完成任务，标记为未使用

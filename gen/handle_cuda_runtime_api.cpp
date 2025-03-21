@@ -3538,6 +3538,43 @@ _RTN_:
     return rtn;
 }
 
+int handle_cudaMemcpy(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaMemcpy called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    void *dst;
+    rpc_read(client, &dst, sizeof(dst));
+    void *src;
+    rpc_read(client, &src, sizeof(src));
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    enum cudaMemcpyKind kind;
+    rpc_read(client, &kind, sizeof(kind));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaMemcpy(dst, src, count, kind);
+    printf("================================== real cudaMemcpy dst: %p, src: %p, count: %zu, kind: %d, _result: %d\n", dst, src, count, kind, _result);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cudaMemcpyPeer(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaMemcpyPeer called" << std::endl;
@@ -3738,6 +3775,44 @@ int handle_cudaMemcpy2DArrayToArray(void *args0) {
         goto _RTN_;
     }
     _result = cudaMemcpy2DArrayToArray(dst, wOffsetDst, hOffsetDst, src, wOffsetSrc, hOffsetSrc, width, height, kind);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaMemcpyAsync(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaMemcpyAsync called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    void *dst;
+    rpc_read(client, &dst, sizeof(dst));
+    void *src;
+    rpc_read(client, &src, sizeof(src));
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    enum cudaMemcpyKind kind;
+    rpc_read(client, &kind, sizeof(kind));
+    cudaStream_t stream;
+    rpc_read(client, &stream, sizeof(stream));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaMemcpyAsync(dst, src, count, kind, stream);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

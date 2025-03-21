@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <pthread.h> // for mutex
 
-#define MAX_IOCV_COUNT 32
+#define MAX_IOCV_COUNT 64
 #define MAX_CONNECTIONS 1
 
 // RPC客户端结构
@@ -27,7 +27,7 @@ typedef struct _RpcClient {
     int iov_read_count;                     // iov_read数组的长度
     int iov_read2_count;                    // iov_read2数组的长度
     int in_use;                             // 标记客户端是否正在使用
-    std::queue<void *> buffers;             // 用于存储需要释放的缓冲区
+    std::queue<void *> *buffers;             // 用于存储需要释放的缓冲区
 } RpcClient;
 
 void rpc_init();

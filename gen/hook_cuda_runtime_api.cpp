@@ -6,8 +6,8 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-void *mem2server(void *clientPtr, size_t size);
-void mem2client(void *clientPtr, size_t size);
+extern "C" void *mem2server(void *clientPtr, size_t size);
+extern "C" void mem2client(void *clientPtr, size_t size);
 void *get_so_handle(const std::string &so_file);
 extern "C" cudaError_t cudaDeviceReset() {
 #ifdef DEBUG
@@ -2574,6 +2574,35 @@ extern "C" cudaError_t cudaMipmappedArrayGetSparseProperties(struct cudaArraySpa
     return _result;
 }
 
+extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
+    void *_0dst = mem2server((void *)dst, count);
+    void *_0src = mem2server((void *)src, count);
+#ifdef DEBUG
+    std::cout << "Hook: cudaMemcpy called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaMemcpy);
+    rpc_write(client, &_0dst, sizeof(_0dst));
+    rpc_write(client, &_0src, sizeof(_0src));
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, &kind, sizeof(kind));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    mem2client((void *)dst, count);
+    mem2client((void *)src, count);
+    return _result;
+}
+
 extern "C" cudaError_t cudaMemcpyPeer(void *dst, int dstDevice, const void *src, int srcDevice, size_t count) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyPeer called" << std::endl;
@@ -2724,6 +2753,36 @@ extern "C" cudaError_t cudaMemcpy2DArrayToArray(cudaArray_t dst, size_t wOffsetD
         rpc_release_client(client);
         exit(1);
     }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind, cudaStream_t stream) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaMemcpyAsync called" << std::endl;
+#endif
+    cudaError_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_cudaMemcpyAsync);
+    void *_0dst = mem2server((void *)dst, 0);
+    rpc_write(client, &_0dst, sizeof(_0dst));
+    void *_0src = mem2server((void *)src, 0);
+    rpc_write(client, &_0src, sizeof(_0src));
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, &kind, sizeof(kind));
+    rpc_write(client, &stream, sizeof(stream));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    mem2client((void *)dst, 0);
+    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }

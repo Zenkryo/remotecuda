@@ -341,7 +341,7 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
  * @param size Memory size (optional)
  * @return Server memory pointer
  */
-void *mem2server(void *clientPtr, size_t size = 0) {
+extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
 #ifdef DEBUG
     std::cout << "Hook: mem2server called" << std::endl;
 #endif
@@ -400,7 +400,7 @@ void *mem2server(void *clientPtr, size_t size = 0) {
  * @param size 内存大小
  * @return 客户端内存指针
  */
-void mem2client(void *clientPtr, size_t size = 0) {
+extern "C" void mem2client(void *clientPtr, size_t size = 0) {
 #ifdef DEBUG
     std::cout << "Hook: mem2client called" << std::endl;
 #endif
@@ -827,258 +827,258 @@ extern "C" cudaError_t cudaMallocPitch_v2(void **devPtr, size_t *pitch, size_t w
     return _result;
 }
 
-extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemcpy called" << std::endl;
-#endif
+// extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
+// #ifdef DEBUG
+//     std::cout << "Hook: cudaMemcpy called" << std::endl;
+// #endif
+//     printf("=======================cudaMemcpy dst: %p, src: %p, count: %zu, kind: %d\n", dst, src, count, kind);
+//     cudaError_t _result;
+//     RpcClient *client = rpc_get_client();
+//     if(client == nullptr) {
+//         std::cerr << "Failed to get rpc client" << std::endl;
+//         exit(1);
+//     }
+//     rpc_prepare_request(client, RPC_cudaMemcpy);
+//     void *serverSrc;
+//     void *serverDst;
+//     bool src_is_union;
+//     bool dst_is_union;
 
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMemcpy);
-    void *serverSrc;
-    void *serverDst;
-    bool src_is_union;
-    bool dst_is_union;
+//     switch(kind) {
+//     case cudaMemcpyHostToDevice:
+//         serverSrc = getServerHostPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             serverSrc = getUnionPtr((void *)src);
+//         }
+//         serverDst = getUnionPtr(dst);
+//         if(serverDst == nullptr) {
+//             serverDst = getServerDevPtr(dst);
+//             if(serverDst == nullptr) {
+//                 printf("device memory %p not in \n", dst);
+//                 serverDst = dst;
+//             }
+//         } else {
+//             memcpy(dst, src, count);
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_write(client, src, count, true);
+//         break;
+//     case cudaMemcpyDeviceToHost:
+//         serverSrc = getUnionPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             serverSrc = getServerDevPtr((void *)src);
+//             if(serverSrc == nullptr) {
+//                 printf("device memory %p not in \n", src);
+//                 serverSrc = (void *)src;
+//             }
+//         }
+//         serverDst = getUnionPtr(dst);
+//         if(serverDst == nullptr) {
+//             serverDst = getServerHostPtr(dst);
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_read(client, dst, count, true);
+//         break;
+//     case cudaMemcpyDeviceToDevice:
+//         serverSrc = getUnionPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             src_is_union = false;
+//             serverSrc = getServerDevPtr((void *)src);
+//             if(serverSrc == nullptr) {
+//                 printf("device memory %p not in \n", src);
+//                 serverSrc = (void *)src;
+//             }
+//         } else {
+//             src_is_union = true;
+//         }
+//         serverDst = getUnionPtr(dst);
+//         if(serverDst == nullptr) {
+//             dst_is_union = false;
+//             serverDst = getServerDevPtr(dst);
+//             if(serverDst == nullptr) {
+//                 printf("device memory %p not in \n", dst);
+//                 serverDst = dst;
+//             }
+//         } else {
+//             dst_is_union = true;
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
+//             rpc_write(client, src, count, true);
+//         }
+//         if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
+//             memcpy(dst, src, count);
+//         } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
+//             rpc_read(client, dst, count, true);
+//         }
+//         break;
+//     case cudaMemcpyHostToHost:
+//         memcpy(dst, src, count);
+//         serverSrc = getServerHostPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             serverSrc = getUnionPtr((void *)src);
+//         }
+//         serverDst = getServerHostPtr(dst);
+//         if(serverDst == nullptr) {
+//             serverDst = getUnionPtr(dst);
+//         }
+//         if(serverDst == nullptr) {
+//             rpc_free_client(client);
+//             return cudaSuccess; // 本地内存拷贝,不需要服务器端处理
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_write(client, src, count, true);
+//         break;
+//     }
+//     rpc_read(client, &_result, sizeof(_result));
+//     if(rpc_submit_request(client) != 0) {
+//         std::cerr << "Failed to submit request" << std::endl;
+//         rpc_release_client(client);
+//         exit(1);
+//     }
+//     rpc_free_client(client);
+//     return _result;
+// }
 
-    switch(kind) {
-    case cudaMemcpyHostToDevice:
-        serverSrc = getServerHostPtr((void *)src);
-        if(serverSrc == nullptr) {
-            serverSrc = getUnionPtr((void *)src);
-        }
-        serverDst = getUnionPtr(dst);
-        if(serverDst == nullptr) {
-            serverDst = getServerDevPtr(dst);
-            if(serverDst == nullptr) {
-                printf("device memory %p not in \n", dst);
-                serverDst = dst;
-            }
-        } else {
-            memcpy(dst, src, count);
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count, true);
-        break;
-    case cudaMemcpyDeviceToHost:
-        serverSrc = getUnionPtr((void *)src);
-        if(serverSrc == nullptr) {
-            serverSrc = getServerDevPtr((void *)src);
-            if(serverSrc == nullptr) {
-                printf("device memory %p not in \n", src);
-                serverSrc = (void *)src;
-            }
-        }
-        serverDst = getUnionPtr(dst);
-        if(serverDst == nullptr) {
-            serverDst = getServerHostPtr(dst);
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_read(client, dst, count, true);
-        break;
-    case cudaMemcpyDeviceToDevice:
-        serverSrc = getUnionPtr((void *)src);
-        if(serverSrc == nullptr) {
-            src_is_union = false;
-            serverSrc = getServerDevPtr((void *)src);
-            if(serverSrc == nullptr) {
-                printf("device memory %p not in \n", src);
-                serverSrc = (void *)src;
-            }
-        } else {
-            src_is_union = true;
-        }
-        serverDst = getUnionPtr(dst);
-        if(serverDst == nullptr) {
-            dst_is_union = false;
-            serverDst = getServerDevPtr(dst);
-            if(serverDst == nullptr) {
-                printf("device memory %p not in \n", dst);
-                serverDst = dst;
-            }
-        } else {
-            dst_is_union = true;
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
-            rpc_write(client, src, count, true);
-        }
-        if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
-            memcpy(dst, src, count);
-        } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
-            rpc_read(client, dst, count, true);
-        }
-        break;
-    case cudaMemcpyHostToHost:
-        memcpy(dst, src, count);
-        serverSrc = getServerHostPtr((void *)src);
-        if(serverSrc == nullptr) {
-            serverSrc = getUnionPtr((void *)src);
-        }
-        serverDst = getServerHostPtr(dst);
-        if(serverDst == nullptr) {
-            serverDst = getUnionPtr(dst);
-        }
-        if(serverDst == nullptr) {
-            rpc_free_client(client);
-            return cudaSuccess; // 本地内存拷贝,不需要服务器端处理
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, src, count, true);
-        break;
-    }
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
+// extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind, cudaStream_t stream) {
+// #ifdef DEBUG
+//     std::cout << "Hook: cudaMemcpyAsync called" << std::endl;
+// #endif
+//     cudaError_t _result;
+//     RpcClient *client = rpc_get_client();
+//     if(client == nullptr) {
+//         std::cerr << "Failed to get rpc client" << std::endl;
+//         exit(1);
+//     }
+//     rpc_prepare_request(client, RPC_cudaMemcpyAsync);
+//     void *serverSrc;
+//     void *serverDst;
+//     bool src_is_union;
+//     bool dst_is_union;
 
-extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemcpyAsync called" << std::endl;
-#endif
-    cudaError_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cudaMemcpyAsync);
-    void *serverSrc;
-    void *serverDst;
-    bool src_is_union;
-    bool dst_is_union;
-
-    switch(kind) {
-    case cudaMemcpyHostToDevice:
-        serverSrc = getServerHostPtr((void *)src);
-        if(serverSrc == nullptr) {
-            serverSrc = getUnionPtr((void *)src);
-        }
-        serverDst = getUnionPtr(dst);
-        if(serverDst == nullptr) {
-            serverDst = getServerDevPtr(dst);
-            if(serverDst == nullptr) {
-                printf("device memory %p not in \n", dst);
-                serverDst = dst;
-            }
-        } else {
-            memcpy(dst, src, count);
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, &stream, sizeof(stream));
-        rpc_write(client, src, count, true);
-        break;
-    case cudaMemcpyDeviceToHost:
-        serverSrc = getUnionPtr((void *)src);
-        if(serverSrc == nullptr) {
-            serverSrc = getServerDevPtr((void *)src);
-            if(serverSrc == nullptr) {
-                printf("device memory %p not in \n", src);
-                serverSrc = (void *)src;
-            }
-        }
-        serverDst = getUnionPtr(dst);
-        if(serverDst == nullptr) {
-            serverDst = getServerHostPtr(dst);
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, &stream, sizeof(stream));
-        rpc_read(client, dst, count, true);
-        break;
-    case cudaMemcpyDeviceToDevice:
-        serverSrc = getUnionPtr((void *)src);
-        if(serverSrc == nullptr) {
-            src_is_union = false;
-            serverSrc = getServerDevPtr((void *)src);
-            if(serverSrc == nullptr) {
-                printf("device memory %p not in \n", src);
-                serverSrc = (void *)src;
-            }
-        } else {
-            src_is_union = true;
-        }
-        serverDst = getUnionPtr(dst);
-        if(serverDst == nullptr) {
-            dst_is_union = false;
-            serverDst = getServerDevPtr(dst);
-            if(serverDst == nullptr) {
-                printf("device memory %p not in \n", dst);
-                serverDst = dst;
-            }
-        } else {
-            dst_is_union = true;
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, &stream, sizeof(stream));
-        if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
-            rpc_write(client, src, count, true);
-        }
-        if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
-            memcpy(dst, src, count);
-        } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
-            rpc_read(client, dst, count, true);
-        }
-        break;
-    case cudaMemcpyHostToHost:
-        memcpy(dst, src, count);
-        serverSrc = getServerHostPtr((void *)src);
-        if(serverSrc == nullptr) {
-            serverSrc = getUnionPtr((void *)src);
-        }
-        serverDst = getServerHostPtr(dst);
-        if(serverDst == nullptr) {
-            serverDst = getUnionPtr(dst);
-        }
-        if(serverDst == nullptr) {
-            rpc_free_client(client);
-            return cudaSuccess; // 本地内存拷贝,不需要服务器端处理
-        }
-        rpc_write(client, &serverDst, sizeof(serverDst));
-        rpc_write(client, &serverSrc, sizeof(serverSrc));
-        rpc_write(client, &count, sizeof(count));
-        rpc_write(client, &kind, sizeof(kind));
-        rpc_write(client, &stream, sizeof(stream));
-        rpc_write(client, src, count, true);
-        break;
-    }
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
+//     switch(kind) {
+//     case cudaMemcpyHostToDevice:
+//         serverSrc = getServerHostPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             serverSrc = getUnionPtr((void *)src);
+//         }
+//         serverDst = getUnionPtr(dst);
+//         if(serverDst == nullptr) {
+//             serverDst = getServerDevPtr(dst);
+//             if(serverDst == nullptr) {
+//                 printf("device memory %p not in \n", dst);
+//                 serverDst = dst;
+//             }
+//         } else {
+//             memcpy(dst, src, count);
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_write(client, &stream, sizeof(stream));
+//         rpc_write(client, src, count, true);
+//         break;
+//     case cudaMemcpyDeviceToHost:
+//         serverSrc = getUnionPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             serverSrc = getServerDevPtr((void *)src);
+//             if(serverSrc == nullptr) {
+//                 printf("device memory %p not in \n", src);
+//                 serverSrc = (void *)src;
+//             }
+//         }
+//         serverDst = getUnionPtr(dst);
+//         if(serverDst == nullptr) {
+//             serverDst = getServerHostPtr(dst);
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_write(client, &stream, sizeof(stream));
+//         rpc_read(client, dst, count, true);
+//         break;
+//     case cudaMemcpyDeviceToDevice:
+//         serverSrc = getUnionPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             src_is_union = false;
+//             serverSrc = getServerDevPtr((void *)src);
+//             if(serverSrc == nullptr) {
+//                 printf("device memory %p not in \n", src);
+//                 serverSrc = (void *)src;
+//             }
+//         } else {
+//             src_is_union = true;
+//         }
+//         serverDst = getUnionPtr(dst);
+//         if(serverDst == nullptr) {
+//             dst_is_union = false;
+//             serverDst = getServerDevPtr(dst);
+//             if(serverDst == nullptr) {
+//                 printf("device memory %p not in \n", dst);
+//                 serverDst = dst;
+//             }
+//         } else {
+//             dst_is_union = true;
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_write(client, &stream, sizeof(stream));
+//         if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
+//             rpc_write(client, src, count, true);
+//         }
+//         if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
+//             memcpy(dst, src, count);
+//         } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
+//             rpc_read(client, dst, count, true);
+//         }
+//         break;
+//     case cudaMemcpyHostToHost:
+//         memcpy(dst, src, count);
+//         serverSrc = getServerHostPtr((void *)src);
+//         if(serverSrc == nullptr) {
+//             serverSrc = getUnionPtr((void *)src);
+//         }
+//         serverDst = getServerHostPtr(dst);
+//         if(serverDst == nullptr) {
+//             serverDst = getUnionPtr(dst);
+//         }
+//         if(serverDst == nullptr) {
+//             rpc_free_client(client);
+//             return cudaSuccess; // 本地内存拷贝,不需要服务器端处理
+//         }
+//         rpc_write(client, &serverDst, sizeof(serverDst));
+//         rpc_write(client, &serverSrc, sizeof(serverSrc));
+//         rpc_write(client, &count, sizeof(count));
+//         rpc_write(client, &kind, sizeof(kind));
+//         rpc_write(client, &stream, sizeof(stream));
+//         rpc_write(client, src, count, true);
+//         break;
+//     }
+//     rpc_read(client, &_result, sizeof(_result));
+//     if(rpc_submit_request(client) != 0) {
+//         std::cerr << "Failed to submit request" << std::endl;
+//         rpc_release_client(client);
+//         exit(1);
+//     }
+//     rpc_free_client(client);
+//     return _result;
+// }
 
 extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset, enum cudaMemcpyKind kind) {
 #ifdef DEBUG

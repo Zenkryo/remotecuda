@@ -63,8 +63,10 @@ static void rpc_close(RpcClient *client) {
 }
 
 static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
+    if(iovcnt == 0) {
+        return 0;
+    }
     ssize_t total_bytes = 0; // 总共写入的字节数
-
     while(iovcnt > 0) {
         // 使用 writev 将数据写入 socket
         ssize_t bytes_written = writev(sockfd, iov, iovcnt);
@@ -109,7 +111,6 @@ static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
             }
         }
     }
-
     return total_bytes;
 }
 
@@ -395,6 +396,7 @@ ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len = 
 
     struct iovec iov;
     uint32_t length = size;
+    void *tmp_buffer = nullptr;
     if(with_len) {
         iov.iov_base = &length;
         iov.iov_len = sizeof(length);
@@ -404,15 +406,31 @@ ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len = 
         }
         total_read += bytes_read;
         length = ntohl(length);
-        if(length > size) {
+        if(size > 0 && length > size) {
             errno = ENOBUFS; // 缓冲区不足
             return -1;
         }
     }
+    if(length == 0){
+        return total_read;
+    }
+    if(size == 0){
+        tmp_buffer= (void *)malloc(length);
+        if(tmp_buffer == nullptr){
+            errno = ENOBUFS; // 缓冲区不足
+            return -1;
+        }
+        *(void **)buffer = tmp_buffer;
+    }else{
+        tmp_buffer = buffer;
+    }
     iov.iov_len = length;
-    iov.iov_base = buffer;
+    iov.iov_base = tmp_buffer;
     bytes_read = read_full_iovec(client->sockfd, &iov, 1);
     if(bytes_read < 0) {
+        if(size == 0){
+            free(tmp_buffer);
+        }
         return -1;
     }
     total_read += bytes_read;

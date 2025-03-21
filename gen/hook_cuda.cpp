@@ -6,8 +6,8 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-void *mem2server(void *clientPtr, size_t size);
-void mem2client(void *clientPtr, size_t size);
+extern "C" void *mem2server(void *clientPtr, size_t size);
+extern "C" void mem2client(void *clientPtr, size_t size);
 void *get_so_handle(const std::string &so_file);
 extern "C" CUresult cuInit(unsigned int Flags) {
 #ifdef DEBUG

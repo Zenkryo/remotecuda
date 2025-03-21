@@ -13,7 +13,8 @@ void *(*real_dlopen)(const char *, int) = nullptr;
 
 extern "C" void *dlopen(const char *filename, int flag) {
 #ifdef DEBUG
-    std::cout << "dlopen " << filename << std::endl;
+    // std::cout << "dlopen " << std::endl;
+    // std::cout << "dlopen " << filename << std::endl;
 #endif
     // 初始化 real_dlopen
     if(real_dlopen == nullptr) {
@@ -30,7 +31,7 @@ extern "C" void *dlopen(const char *filename, int flag) {
 
 extern "C" void *dlsym(void *handle, const char *symbol) {
 #ifdef DEBUG
-    std::cout << "dlsym: " << symbol << std::endl;
+    // std::cout << "dlsym: " << symbol << std::endl;
 #endif
     // 初始化 real_dlsym
     if(real_dlsym == nullptr) {

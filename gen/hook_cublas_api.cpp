@@ -6,8 +6,8 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-void *mem2server(void *clientPtr, size_t size);
-void mem2client(void *clientPtr, size_t size);
+extern "C" void *mem2server(void *clientPtr, size_t size);
+extern "C" void mem2client(void *clientPtr, size_t size);
 void *get_so_handle(const std::string &so_file);
 extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
 #ifdef DEBUG
@@ -4892,7 +4892,22 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const float *alpha, const float *A, int lda, const float *B, int ldb, const float *beta, float *C, int ldc) {
+extern "C" cublasStatus_t cublasSgemm_v2(
+        cublasHandle_t handle, // 1
+        cublasOperation_t transa, // 2
+        cublasOperation_t transb, // 3
+        int m, // 4
+        int n, // 5
+        int k, // 6
+        const float *alpha, // 7
+        const float *A, // 8
+        int lda, // 9
+        const float *B, // 10
+        int ldb, // 11
+        const float *beta, // 12
+        float *C, // 13
+        int ldc // 14
+ ) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgemm_v2 called" << std::endl;
 #endif
@@ -4903,20 +4918,20 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_cublasSgemm_v2);
-    rpc_write(client, &handle, sizeof(handle));
-    rpc_write(client, &transa, sizeof(transa));
-    rpc_write(client, &transb, sizeof(transb));
-    rpc_write(client, &m, sizeof(m));
-    rpc_write(client, &n, sizeof(n));
-    rpc_write(client, &k, sizeof(k));
-    rpc_write(client, alpha, sizeof(*alpha));
-    rpc_write(client, A, sizeof(*A));
-    rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, B, sizeof(*B));
-    rpc_write(client, &ldb, sizeof(ldb));
-    rpc_write(client, beta, sizeof(*beta));
-    rpc_read(client, C, sizeof(*C));
-    rpc_write(client, &ldc, sizeof(ldc));
+    rpc_write(client, &handle, sizeof(handle)); // 1
+    rpc_write(client, &transa, sizeof(transa)); // 2
+    rpc_write(client, &transb, sizeof(transb)); // 3
+    rpc_write(client, &m, sizeof(m)); // 4
+    rpc_write(client, &n, sizeof(n)); // 5
+    rpc_write(client, &k, sizeof(k)); // 6
+    rpc_write(client, alpha, sizeof(*alpha)); // 7
+    rpc_write(client, &A, sizeof(A)); // 8
+    rpc_write(client, &lda, sizeof(lda)); // 9
+    rpc_write(client, &B, sizeof(B)); // 10
+    rpc_write(client, &ldb, sizeof(ldb)); // 11
+    rpc_write(client, beta, sizeof(*beta)); // 12
+    rpc_write(client, &C, sizeof(&C)); // 13
+    rpc_write(client, &ldc, sizeof(ldc)); // 14
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;

@@ -7228,17 +7228,18 @@ int handle_cublasSgemm_v2(void *args0) {
     rpc_read(client, &k, sizeof(k));
     float alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    float A;
+    float *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float B;
+    float *B;
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
     float beta;
     rpc_read(client, &beta, sizeof(beta));
-    float C;
+    float *C;
+    rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
     cublasStatus_t _result;
@@ -7247,8 +7248,8 @@ int handle_cublasSgemm_v2(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgemm_v2(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
+    _result = cublasSgemm_v2(handle, transa, transb, m, n, k, &alpha, A, lda, B, ldb, &beta, C, ldc);
+    printf("cublasSgemm_v2 result: %d\n", _result);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
