@@ -39,12 +39,12 @@ int handle_mem2server(void *args0) {
         read_one_now(client, ptr, memSize, true);
     } else {
         int rtn = read_one_now(client, &ptr, 0, true);
-        if(rtn == -1){
+        if(rtn == -1) {
             std::cerr << "Failed to read ptr" << std::endl;
             return 1;
         }
         rpc_write(client, &ptr, sizeof(ptr)); // 返回服务器侧申请的内存地址
-        client->buffers->push(ptr);            // 保存临时内存地址
+        client->buffers->push(ptr);           // 保存临时内存地址
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -71,7 +71,7 @@ int handle_mem2client(void *args0) {
         rpc_write(client, ptr, memSize, true);
     } else {
         read_one_now(client, &size, sizeof(size), false);
-
+        // TODO 这里有个问题，当mem2server和mem2client调用次数不一致时，会导致问题
         // 获取第一个元素
         ptr = client->buffers->front();
         client->buffers->pop();
@@ -530,8 +530,6 @@ int handle_cudaMallocPitch(void *args) {
 //     }
 //     return cudaSuccess;
 // }
-
-
 
 // int handle_cudaMemcpyAsync(void *args0) {
 // #ifdef DEBUG

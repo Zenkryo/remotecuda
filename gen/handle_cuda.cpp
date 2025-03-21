@@ -491,6 +491,72 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuDeviceGetExecAffinitySupport(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuDeviceGetExecAffinitySupport called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pi;
+    CUexecAffinityType type;
+    rpc_read(client, &type, sizeof(type));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuDeviceGetExecAffinitySupport(&pi, type, dev);
+    rpc_write(client, &pi, sizeof(pi));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuFlushGPUDirectRDMAWrites(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuFlushGPUDirectRDMAWrites called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUflushGPUDirectRDMAWritesTarget target;
+    rpc_read(client, &target, sizeof(target));
+    CUflushGPUDirectRDMAWritesScope scope;
+    rpc_read(client, &scope, sizeof(scope));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuFlushGPUDirectRDMAWrites(target, scope);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuDeviceGetProperties(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuDeviceGetProperties called" << std::endl;
@@ -715,40 +781,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuDeviceGetExecAffinitySupport(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuDeviceGetExecAffinitySupport called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int pi;
-    CUexecAffinityType type;
-    rpc_read(client, &type, sizeof(type));
-    CUdevice dev;
-    rpc_read(client, &dev, sizeof(dev));
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cuDeviceGetExecAffinitySupport(&pi, type, dev);
-    rpc_write(client, &pi, sizeof(pi));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cuCtxCreate_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuCtxCreate_v2 called" << std::endl;
@@ -807,6 +839,42 @@ int handle_cuCtxCreate_v3(void *args0) {
     _result = cuCtxCreate_v3(&pctx, &paramsArray, numParams, flags, dev);
     rpc_write(client, &pctx, sizeof(pctx));
     rpc_write(client, &paramsArray, sizeof(paramsArray));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxCreate_v4(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxCreate_v4 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcontext pctx;
+    CUctxCreateParams ctxCreateParams;
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxCreate_v4(&pctx, &ctxCreateParams, flags, dev);
+    rpc_write(client, &pctx, sizeof(pctx));
+    rpc_write(client, &ctxCreateParams, sizeof(ctxCreateParams));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1031,6 +1099,68 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuCtxSetFlags(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxSetFlags called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxSetFlags(flags);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxGetId(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxGetId called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcontext ctx;
+    rpc_read(client, &ctx, sizeof(ctx));
+    unsigned long long ctxId;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxGetId(ctx, &ctxId);
+    rpc_write(client, &ctxId, sizeof(ctxId));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuCtxSynchronize(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuCtxSynchronize called" << std::endl;
@@ -1183,66 +1313,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuCtxGetSharedMemConfig(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuCtxGetSharedMemConfig called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    CUsharedconfig pConfig;
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cuCtxGetSharedMemConfig(&pConfig);
-    rpc_write(client, &pConfig, sizeof(pConfig));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cuCtxSetSharedMemConfig(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuCtxSetSharedMemConfig called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    CUsharedconfig config;
-    rpc_read(client, &config, sizeof(config));
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cuCtxSetSharedMemConfig(config);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cuCtxGetApiVersion(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuCtxGetApiVersion called" << std::endl;
@@ -1367,6 +1437,70 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuCtxRecordEvent(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxRecordEvent called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcontext hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUevent hEvent;
+    rpc_read(client, &hEvent, sizeof(hEvent));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxRecordEvent(hCtx, hEvent);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxWaitEvent(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxWaitEvent called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcontext hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUevent hEvent;
+    rpc_read(client, &hEvent, sizeof(hEvent));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxWaitEvent(hCtx, hEvent);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuCtxAttach(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuCtxAttach called" << std::endl;
@@ -1415,6 +1549,66 @@ int handle_cuCtxDetach(void *args0) {
         goto _RTN_;
     }
     _result = cuCtxDetach(ctx);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxGetSharedMemConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxGetSharedMemConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUsharedconfig pConfig;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxGetSharedMemConfig(&pConfig);
+    rpc_write(client, &pConfig, sizeof(pConfig));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxSetSharedMemConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxSetSharedMemConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUsharedconfig config;
+    rpc_read(client, &config, sizeof(config));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxSetSharedMemConfig(config);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1597,6 +1791,36 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuModuleGetLoadingMode(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuModuleGetLoadingMode called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmoduleLoadingMode mode;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuModuleGetLoadingMode(&mode);
+    rpc_write(client, &mode, sizeof(mode));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuModuleGetFunction(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuModuleGetFunction called" << std::endl;
@@ -1632,27 +1856,24 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuModuleGetTexRef(void *args0) {
+int handle_cuModuleGetFunctionCount(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuModuleGetTexRef called" << std::endl;
+    std::cout << "Handle function cuModuleGetFunctionCount called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUtexref pTexRef;
-    CUmodule hmod;
-    rpc_read(client, &hmod, sizeof(hmod));
-    char *name = nullptr;
-    rpc_read(client, &name, 0, true);
+    unsigned int count;
+    CUmodule mod;
+    rpc_read(client, &mod, sizeof(mod));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    buffers.insert(name);
-    _result = cuModuleGetTexRef(&pTexRef, hmod, name);
-    rpc_write(client, &pTexRef, sizeof(pTexRef));
+    _result = cuModuleGetFunctionCount(&count, mod);
+    rpc_write(client, &count, sizeof(count));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1667,27 +1888,26 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuModuleGetSurfRef(void *args0) {
+int handle_cuModuleEnumerateFunctions(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuModuleGetSurfRef called" << std::endl;
+    std::cout << "Handle function cuModuleEnumerateFunctions called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUsurfref pSurfRef;
-    CUmodule hmod;
-    rpc_read(client, &hmod, sizeof(hmod));
-    char *name = nullptr;
-    rpc_read(client, &name, 0, true);
+    CUfunction functions;
+    unsigned int numFunctions;
+    rpc_read(client, &numFunctions, sizeof(numFunctions));
+    CUmodule mod;
+    rpc_read(client, &mod, sizeof(mod));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    buffers.insert(name);
-    _result = cuModuleGetSurfRef(&pSurfRef, hmod, name);
-    rpc_write(client, &pSurfRef, sizeof(pSurfRef));
+    _result = cuModuleEnumerateFunctions(&functions, numFunctions, mod);
+    rpc_write(client, &functions, sizeof(functions));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1900,6 +2120,620 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuModuleGetTexRef(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuModuleGetTexRef called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUtexref pTexRef;
+    CUmodule hmod;
+    rpc_read(client, &hmod, sizeof(hmod));
+    char *name = nullptr;
+    rpc_read(client, &name, 0, true);
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    buffers.insert(name);
+    _result = cuModuleGetTexRef(&pTexRef, hmod, name);
+    rpc_write(client, &pTexRef, sizeof(pTexRef));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuModuleGetSurfRef(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuModuleGetSurfRef called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUsurfref pSurfRef;
+    CUmodule hmod;
+    rpc_read(client, &hmod, sizeof(hmod));
+    char *name = nullptr;
+    rpc_read(client, &name, 0, true);
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    buffers.insert(name);
+    _result = cuModuleGetSurfRef(&pSurfRef, hmod, name);
+    rpc_write(client, &pSurfRef, sizeof(pSurfRef));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuLibraryLoadData(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryLoadData called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUlibrary library;
+    void *code;
+    rpc_read(client, &code, sizeof(code));
+    CUjit_option jitOptions;
+    // PARAM void **jitOptionsValues
+    void *jitOptionsValues;
+    unsigned int numJitOptions;
+    rpc_read(client, &numJitOptions, sizeof(numJitOptions));
+    CUlibraryOption libraryOptions;
+    // PARAM void **libraryOptionValues
+    void *libraryOptionValues;
+    unsigned int numLibraryOptions;
+    rpc_read(client, &numLibraryOptions, sizeof(numLibraryOptions));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    _result = cuLibraryLoadData(&library, code, &jitOptions, &jitOptionsValues, numJitOptions, &libraryOptions, &libraryOptionValues, numLibraryOptions);
+    rpc_write(client, &library, sizeof(library));
+    rpc_write(client, &jitOptions, sizeof(jitOptions));
+    // PARAM void **jitOptionsValues
+    rpc_write(client, &libraryOptions, sizeof(libraryOptions));
+    // PARAM void **libraryOptionValues
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    return rtn;
+}
+
+int handle_cuLibraryLoadFromFile(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryLoadFromFile called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUlibrary library;
+    char *fileName = nullptr;
+    rpc_read(client, &fileName, 0, true);
+    CUjit_option jitOptions;
+    // PARAM void **jitOptionsValues
+    void *jitOptionsValues;
+    unsigned int numJitOptions;
+    rpc_read(client, &numJitOptions, sizeof(numJitOptions));
+    CUlibraryOption libraryOptions;
+    // PARAM void **libraryOptionValues
+    void *libraryOptionValues;
+    unsigned int numLibraryOptions;
+    rpc_read(client, &numLibraryOptions, sizeof(numLibraryOptions));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    buffers.insert(fileName);
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    _result = cuLibraryLoadFromFile(&library, fileName, &jitOptions, &jitOptionsValues, numJitOptions, &libraryOptions, &libraryOptionValues, numLibraryOptions);
+    rpc_write(client, &library, sizeof(library));
+    rpc_write(client, &jitOptions, sizeof(jitOptions));
+    // PARAM void **jitOptionsValues
+    rpc_write(client, &libraryOptions, sizeof(libraryOptions));
+    // PARAM void **libraryOptionValues
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    return rtn;
+}
+
+int handle_cuLibraryUnload(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryUnload called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUlibrary library;
+    rpc_read(client, &library, sizeof(library));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuLibraryUnload(library);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuLibraryGetKernel(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryGetKernel called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUkernel pKernel;
+    CUlibrary library;
+    rpc_read(client, &library, sizeof(library));
+    char *name = nullptr;
+    rpc_read(client, &name, 0, true);
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    buffers.insert(name);
+    _result = cuLibraryGetKernel(&pKernel, library, name);
+    rpc_write(client, &pKernel, sizeof(pKernel));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuLibraryGetKernelCount(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryGetKernelCount called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    unsigned int count;
+    CUlibrary lib;
+    rpc_read(client, &lib, sizeof(lib));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuLibraryGetKernelCount(&count, lib);
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuLibraryEnumerateKernels(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryEnumerateKernels called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUkernel kernels;
+    unsigned int numKernels;
+    rpc_read(client, &numKernels, sizeof(numKernels));
+    CUlibrary lib;
+    rpc_read(client, &lib, sizeof(lib));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuLibraryEnumerateKernels(&kernels, numKernels, lib);
+    rpc_write(client, &kernels, sizeof(kernels));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuLibraryGetModule(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryGetModule called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmodule pMod;
+    CUlibrary library;
+    rpc_read(client, &library, sizeof(library));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuLibraryGetModule(&pMod, library);
+    rpc_write(client, &pMod, sizeof(pMod));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuKernelGetFunction(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelGetFunction called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUfunction pFunc;
+    CUkernel kernel;
+    rpc_read(client, &kernel, sizeof(kernel));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuKernelGetFunction(&pFunc, kernel);
+    rpc_write(client, &pFunc, sizeof(pFunc));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuKernelGetLibrary(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelGetLibrary called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUlibrary pLib;
+    CUkernel kernel;
+    rpc_read(client, &kernel, sizeof(kernel));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuKernelGetLibrary(&pLib, kernel);
+    rpc_write(client, &pLib, sizeof(pLib));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuLibraryGetUnifiedFunction(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLibraryGetUnifiedFunction called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    // PARAM void **fptr
+    void *fptr;
+    CUlibrary library;
+    rpc_read(client, &library, sizeof(library));
+    char *symbol = nullptr;
+    rpc_read(client, &symbol, 0, true);
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM void **fptr
+    buffers.insert(symbol);
+    _result = cuLibraryGetUnifiedFunction(&fptr, library, symbol);
+    // PARAM void **fptr
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM void **fptr
+    return rtn;
+}
+
+int handle_cuKernelGetAttribute(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelGetAttribute called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pi;
+    CUfunction_attribute attrib;
+    rpc_read(client, &attrib, sizeof(attrib));
+    CUkernel kernel;
+    rpc_read(client, &kernel, sizeof(kernel));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuKernelGetAttribute(&pi, attrib, kernel, dev);
+    rpc_write(client, &pi, sizeof(pi));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuKernelSetAttribute(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelSetAttribute called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUfunction_attribute attrib;
+    rpc_read(client, &attrib, sizeof(attrib));
+    int val;
+    rpc_read(client, &val, sizeof(val));
+    CUkernel kernel;
+    rpc_read(client, &kernel, sizeof(kernel));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuKernelSetAttribute(attrib, val, kernel, dev);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuKernelSetCacheConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelSetCacheConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUkernel kernel;
+    rpc_read(client, &kernel, sizeof(kernel));
+    CUfunc_cache config;
+    rpc_read(client, &config, sizeof(config));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuKernelSetCacheConfig(kernel, config, dev);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuKernelGetName(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelGetName called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    // PARAM const char **name
+    const char *name;
+    CUkernel hfunc;
+    rpc_read(client, &hfunc, sizeof(hfunc));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM const char **name
+    _result = cuKernelGetName(&name, hfunc);
+    // PARAM const char **name
+    rpc_write(client, name, strlen(name) + 1, true);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM const char **name
+    return rtn;
+}
+
+int handle_cuKernelGetParamInfo(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuKernelGetParamInfo called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUkernel kernel;
+    rpc_read(client, &kernel, sizeof(kernel));
+    size_t paramIndex;
+    rpc_read(client, &paramIndex, sizeof(paramIndex));
+    size_t paramOffset;
+    size_t paramSize;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuKernelGetParamInfo(kernel, paramIndex, &paramOffset, &paramSize);
+    rpc_write(client, &paramOffset, sizeof(paramOffset));
+    rpc_write(client, &paramSize, sizeof(paramSize));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuMemGetInfo_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuMemGetInfo_v2 called" << std::endl;
@@ -1980,6 +2814,74 @@ int handle_cuMemHostGetFlags(void *args0) {
     }
     _result = cuMemHostGetFlags(&pFlags, p);
     rpc_write(client, &pFlags, sizeof(pFlags));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuDeviceRegisterAsyncNotification(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuDeviceRegisterAsyncNotification called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdevice device;
+    rpc_read(client, &device, sizeof(device));
+    CUasyncCallback callbackFunc;
+    rpc_read(client, &callbackFunc, sizeof(callbackFunc));
+    void *userData;
+    rpc_read(client, &userData, sizeof(userData));
+    CUasyncCallbackHandle callback;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuDeviceRegisterAsyncNotification(device, callbackFunc, userData, &callback);
+    rpc_write(client, &callback, sizeof(callback));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuDeviceUnregisterAsyncNotification(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuDeviceUnregisterAsyncNotification called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdevice device;
+    rpc_read(client, &device, sizeof(device));
+    CUasyncCallbackHandle callback;
+    rpc_read(client, &callback, sizeof(callback));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuDeviceUnregisterAsyncNotification(device, callback);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3083,6 +3985,44 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuMemcpy3DBatchAsync(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemcpy3DBatchAsync called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t numOps;
+    rpc_read(client, &numOps, sizeof(numOps));
+    CUDA_MEMCPY3D_BATCH_OP opList;
+    size_t failIdx;
+    unsigned long long flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemcpy3DBatchAsync(numOps, &opList, &failIdx, flags, hStream);
+    rpc_write(client, &opList, sizeof(opList));
+    rpc_write(client, &failIdx, sizeof(failIdx));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuMemsetD8_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuMemsetD8_v2 called" << std::endl;
@@ -3655,6 +4595,74 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuArrayGetMemoryRequirements(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuArrayGetMemoryRequirements called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUDA_ARRAY_MEMORY_REQUIREMENTS memoryRequirements;
+    CUarray array;
+    rpc_read(client, &array, sizeof(array));
+    CUdevice device;
+    rpc_read(client, &device, sizeof(device));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuArrayGetMemoryRequirements(&memoryRequirements, array, device);
+    rpc_write(client, &memoryRequirements, sizeof(memoryRequirements));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMipmappedArrayGetMemoryRequirements(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMipmappedArrayGetMemoryRequirements called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUDA_ARRAY_MEMORY_REQUIREMENTS memoryRequirements;
+    CUmipmappedArray mipmap;
+    rpc_read(client, &mipmap, sizeof(mipmap));
+    CUdevice device;
+    rpc_read(client, &device, sizeof(device));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMipmappedArrayGetMemoryRequirements(&memoryRequirements, mipmap, device);
+    rpc_write(client, &memoryRequirements, sizeof(memoryRequirements));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuArrayGetPlane(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuArrayGetPlane called" << std::endl;
@@ -3867,6 +4875,82 @@ int handle_cuMipmappedArrayDestroy(void *args0) {
         goto _RTN_;
     }
     _result = cuMipmappedArrayDestroy(hMipmappedArray);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMemGetHandleForAddressRange(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemGetHandleForAddressRange called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    void *handle;
+    rpc_read(client, &handle, sizeof(handle));
+    CUdeviceptr dptr;
+    rpc_read(client, &dptr, sizeof(dptr));
+    size_t size;
+    rpc_read(client, &size, sizeof(size));
+    CUmemRangeHandleType handleType;
+    rpc_read(client, &handleType, sizeof(handleType));
+    unsigned long long flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemGetHandleForAddressRange(handle, dptr, size, handleType, flags);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMemBatchDecompressAsync(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemBatchDecompressAsync called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmemDecompressParams paramsArray;
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    size_t errorIndex;
+    CUstream stream;
+    rpc_read(client, &stream, sizeof(stream));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemBatchDecompressAsync(&paramsArray, count, flags, &errorIndex, stream);
+    rpc_write(client, &paramsArray, sizeof(paramsArray));
+    rpc_write(client, &errorIndex, sizeof(errorIndex));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4583,6 +5667,218 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuMulticastCreate(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMulticastCreate called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmemGenericAllocationHandle mcHandle;
+    CUmulticastObjectProp prop;
+    rpc_read(client, &prop, sizeof(prop));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMulticastCreate(&mcHandle, &prop);
+    rpc_write(client, &mcHandle, sizeof(mcHandle));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMulticastAddDevice(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMulticastAddDevice called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmemGenericAllocationHandle mcHandle;
+    rpc_read(client, &mcHandle, sizeof(mcHandle));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMulticastAddDevice(mcHandle, dev);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMulticastBindMem(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMulticastBindMem called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmemGenericAllocationHandle mcHandle;
+    rpc_read(client, &mcHandle, sizeof(mcHandle));
+    size_t mcOffset;
+    rpc_read(client, &mcOffset, sizeof(mcOffset));
+    CUmemGenericAllocationHandle memHandle;
+    rpc_read(client, &memHandle, sizeof(memHandle));
+    size_t memOffset;
+    rpc_read(client, &memOffset, sizeof(memOffset));
+    size_t size;
+    rpc_read(client, &size, sizeof(size));
+    unsigned long long flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMulticastBindMem(mcHandle, mcOffset, memHandle, memOffset, size, flags);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMulticastBindAddr(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMulticastBindAddr called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmemGenericAllocationHandle mcHandle;
+    rpc_read(client, &mcHandle, sizeof(mcHandle));
+    size_t mcOffset;
+    rpc_read(client, &mcOffset, sizeof(mcOffset));
+    CUdeviceptr memptr;
+    rpc_read(client, &memptr, sizeof(memptr));
+    size_t size;
+    rpc_read(client, &size, sizeof(size));
+    unsigned long long flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMulticastBindAddr(mcHandle, mcOffset, memptr, size, flags);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMulticastUnbind(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMulticastUnbind called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUmemGenericAllocationHandle mcHandle;
+    rpc_read(client, &mcHandle, sizeof(mcHandle));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    size_t mcOffset;
+    rpc_read(client, &mcOffset, sizeof(mcOffset));
+    size_t size;
+    rpc_read(client, &size, sizeof(size));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMulticastUnbind(mcHandle, dev, mcOffset, size);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMulticastGetGranularity(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMulticastGetGranularity called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t granularity;
+    CUmulticastObjectProp prop;
+    rpc_read(client, &prop, sizeof(prop));
+    CUmulticastGranularity_flags option;
+    rpc_read(client, &option, sizeof(option));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMulticastGetGranularity(&granularity, &prop, option);
+    rpc_write(client, &granularity, sizeof(granularity));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuPointerGetAttribute(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuPointerGetAttribute called" << std::endl;
@@ -4653,6 +5949,44 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuMemPrefetchAsync_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemPrefetchAsync_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr devPtr;
+    rpc_read(client, &devPtr, sizeof(devPtr));
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    CUmemLocation location;
+    rpc_read(client, &location, sizeof(location));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemPrefetchAsync_v2(devPtr, count, location, flags, hStream);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuMemAdvise(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuMemAdvise called" << std::endl;
@@ -4675,6 +6009,42 @@ int handle_cuMemAdvise(void *args0) {
         goto _RTN_;
     }
     _result = cuMemAdvise(devPtr, count, advice, device);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMemAdvise_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemAdvise_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr devPtr;
+    rpc_read(client, &devPtr, sizeof(devPtr));
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    CUmem_advise advice;
+    rpc_read(client, &advice, sizeof(advice));
+    CUmemLocation location;
+    rpc_read(client, &location, sizeof(location));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemAdvise_v2(devPtr, count, advice, location);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4941,6 +6311,38 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuStreamGetDevice(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamGetDevice called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUdevice device;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuStreamGetDevice(hStream, &device);
+    rpc_write(client, &device, sizeof(device));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuStreamGetFlags(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuStreamGetFlags called" << std::endl;
@@ -4973,6 +6375,38 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuStreamGetId(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamGetId called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    unsigned long long streamId;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuStreamGetId(hStream, &streamId);
+    rpc_write(client, &streamId, sizeof(streamId));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuStreamGetCtx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuStreamGetCtx called" << std::endl;
@@ -4991,6 +6425,40 @@ int handle_cuStreamGetCtx(void *args0) {
     }
     _result = cuStreamGetCtx(hStream, &pctx);
     rpc_write(client, &pctx, sizeof(pctx));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuStreamGetCtx_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamGetCtx_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUcontext pCtx;
+    CUgreenCtx pGreenCtx;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuStreamGetCtx_v2(hStream, &pCtx, &pGreenCtx);
+    rpc_write(client, &pCtx, sizeof(pCtx));
+    rpc_write(client, &pGreenCtx, sizeof(pGreenCtx));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5107,6 +6575,46 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuStreamBeginCaptureToGraph(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamBeginCaptureToGraph called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode dependencies;
+    rpc_read(client, &dependencies, sizeof(dependencies));
+    CUgraphEdgeData dependencyData;
+    rpc_read(client, &dependencyData, sizeof(dependencyData));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    CUstreamCaptureMode mode;
+    rpc_read(client, &mode, sizeof(mode));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuStreamBeginCaptureToGraph(hStream, hGraph, &dependencies, &dependencyData, numDependencies, mode);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuThreadExchangeStreamCaptureMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuThreadExchangeStreamCaptureMode called" << std::endl;
@@ -5201,40 +6709,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuStreamGetCaptureInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuStreamGetCaptureInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    CUstream hStream;
-    rpc_read(client, &hStream, sizeof(hStream));
-    CUstreamCaptureStatus captureStatus_out;
-    cuuint64_t id_out;
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cuStreamGetCaptureInfo(hStream, &captureStatus_out, &id_out);
-    rpc_write(client, &captureStatus_out, sizeof(captureStatus_out));
-    rpc_write(client, &id_out, sizeof(id_out));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cuStreamGetCaptureInfo_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuStreamGetCaptureInfo_v2 called" << std::endl;
@@ -5279,6 +6753,56 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuStreamGetCaptureInfo_v3(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamGetCaptureInfo_v3 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUstreamCaptureStatus captureStatus_out;
+    cuuint64_t id_out;
+    CUgraph graph_out;
+    // PARAM const CUgraphNode **dependencies_out
+    const CUgraphNode *dependencies_out;
+    // PARAM const CUgraphEdgeData **edgeData_out
+    const CUgraphEdgeData *edgeData_out;
+    size_t numDependencies_out;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM const CUgraphNode **dependencies_out
+    // PARAM const CUgraphEdgeData **edgeData_out
+    _result = cuStreamGetCaptureInfo_v3(hStream, &captureStatus_out, &id_out, &graph_out, &dependencies_out, &edgeData_out, &numDependencies_out);
+    rpc_write(client, &captureStatus_out, sizeof(captureStatus_out));
+    rpc_write(client, &id_out, sizeof(id_out));
+    rpc_write(client, &graph_out, sizeof(graph_out));
+    // PARAM const CUgraphNode **dependencies_out
+    rpc_write(client, dependencies_out, sizeof(CUgraphNode));
+    // PARAM const CUgraphEdgeData **edgeData_out
+    rpc_write(client, edgeData_out, sizeof(CUgraphEdgeData));
+    rpc_write(client, &numDependencies_out, sizeof(numDependencies_out));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM const CUgraphNode **dependencies_out
+    // PARAM const CUgraphEdgeData **edgeData_out
+    return rtn;
+}
+
 int handle_cuStreamUpdateCaptureDependencies(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuStreamUpdateCaptureDependencies called" << std::endl;
@@ -5300,6 +6824,44 @@ int handle_cuStreamUpdateCaptureDependencies(void *args0) {
         goto _RTN_;
     }
     _result = cuStreamUpdateCaptureDependencies(hStream, &dependencies, numDependencies, flags);
+    rpc_write(client, &dependencies, sizeof(dependencies));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuStreamUpdateCaptureDependencies_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamUpdateCaptureDependencies_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUgraphNode dependencies;
+    CUgraphEdgeData dependencyData;
+    rpc_read(client, &dependencyData, sizeof(dependencyData));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuStreamUpdateCaptureDependencies_v2(hStream, &dependencies, &dependencyData, numDependencies, flags);
     rpc_write(client, &dependencies, sizeof(dependencies));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5763,6 +7325,40 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuEventElapsedTime_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuEventElapsedTime_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    float pMilliseconds;
+    CUevent hStart;
+    rpc_read(client, &hStart, sizeof(hStart));
+    CUevent hEnd;
+    rpc_read(client, &hEnd, sizeof(hEnd));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuEventElapsedTime_v2(&pMilliseconds, hStart, hEnd);
+    rpc_write(client, &pMilliseconds, sizeof(pMilliseconds));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuExternalMemoryGetMappedMipmappedArray(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuExternalMemoryGetMappedMipmappedArray called" << std::endl;
@@ -5961,9 +7557,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuStreamWaitValue32(void *args0) {
+int handle_cuStreamWaitValue32_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuStreamWaitValue32 called" << std::endl;
+    std::cout << "Handle function cuStreamWaitValue32_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -5982,7 +7578,7 @@ int handle_cuStreamWaitValue32(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuStreamWaitValue32(stream, addr, value, flags);
+    _result = cuStreamWaitValue32_v2(stream, addr, value, flags);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5997,9 +7593,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuStreamWaitValue64(void *args0) {
+int handle_cuStreamWaitValue64_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuStreamWaitValue64 called" << std::endl;
+    std::cout << "Handle function cuStreamWaitValue64_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6018,7 +7614,7 @@ int handle_cuStreamWaitValue64(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuStreamWaitValue64(stream, addr, value, flags);
+    _result = cuStreamWaitValue64_v2(stream, addr, value, flags);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6033,9 +7629,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuStreamWriteValue32(void *args0) {
+int handle_cuStreamWriteValue32_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuStreamWriteValue32 called" << std::endl;
+    std::cout << "Handle function cuStreamWriteValue32_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6054,7 +7650,7 @@ int handle_cuStreamWriteValue32(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuStreamWriteValue32(stream, addr, value, flags);
+    _result = cuStreamWriteValue32_v2(stream, addr, value, flags);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6069,9 +7665,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuStreamWriteValue64(void *args0) {
+int handle_cuStreamWriteValue64_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuStreamWriteValue64 called" << std::endl;
+    std::cout << "Handle function cuStreamWriteValue64_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6090,7 +7686,7 @@ int handle_cuStreamWriteValue64(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuStreamWriteValue64(stream, addr, value, flags);
+    _result = cuStreamWriteValue64_v2(stream, addr, value, flags);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6105,9 +7701,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuStreamBatchMemOp(void *args0) {
+int handle_cuStreamBatchMemOp_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuStreamBatchMemOp called" << std::endl;
+    std::cout << "Handle function cuStreamBatchMemOp_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6125,7 +7721,7 @@ int handle_cuStreamBatchMemOp(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuStreamBatchMemOp(stream, count, &paramArray, flags);
+    _result = cuStreamBatchMemOp_v2(stream, count, &paramArray, flags);
     rpc_write(client, &paramArray, sizeof(paramArray));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -6241,38 +7837,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuFuncSetSharedMemConfig(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuFuncSetSharedMemConfig called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    CUfunction hfunc;
-    rpc_read(client, &hfunc, sizeof(hfunc));
-    CUsharedconfig config;
-    rpc_read(client, &config, sizeof(config));
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cuFuncSetSharedMemConfig(hfunc, config);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cuFuncGetModule(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuFuncGetModule called" << std::endl;
@@ -6291,6 +7855,140 @@ int handle_cuFuncGetModule(void *args0) {
     }
     _result = cuFuncGetModule(&hmod, hfunc);
     rpc_write(client, &hmod, sizeof(hmod));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuFuncGetName(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuFuncGetName called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    // PARAM const char **name
+    const char *name;
+    CUfunction hfunc;
+    rpc_read(client, &hfunc, sizeof(hfunc));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM const char **name
+    _result = cuFuncGetName(&name, hfunc);
+    // PARAM const char **name
+    rpc_write(client, name, strlen(name) + 1, true);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM const char **name
+    return rtn;
+}
+
+int handle_cuFuncGetParamInfo(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuFuncGetParamInfo called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUfunction func;
+    rpc_read(client, &func, sizeof(func));
+    size_t paramIndex;
+    rpc_read(client, &paramIndex, sizeof(paramIndex));
+    size_t paramOffset;
+    size_t paramSize;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuFuncGetParamInfo(func, paramIndex, &paramOffset, &paramSize);
+    rpc_write(client, &paramOffset, sizeof(paramOffset));
+    rpc_write(client, &paramSize, sizeof(paramSize));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuFuncIsLoaded(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuFuncIsLoaded called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUfunctionLoadingState state;
+    CUfunction function;
+    rpc_read(client, &function, sizeof(function));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuFuncIsLoaded(&state, function);
+    rpc_write(client, &state, sizeof(state));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuFuncLoad(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuFuncLoad called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUfunction function;
+    rpc_read(client, &function, sizeof(function));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuFuncLoad(function);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6343,6 +8041,48 @@ int handle_cuLaunchKernel(void *args0) {
     // PARAM void **kernelParams
     // PARAM void **extra
     _result = cuLaunchKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, &kernelParams, &extra);
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    return rtn;
+}
+
+int handle_cuLaunchKernelEx(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLaunchKernelEx called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUlaunchConfig config;
+    rpc_read(client, &config, sizeof(config));
+    CUfunction f;
+    rpc_read(client, &f, sizeof(f));
+    // PARAM void **kernelParams
+    void *kernelParams;
+    // PARAM void **extra
+    void *extra;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    _result = cuLaunchKernelEx(&config, f, &kernelParams, &extra);
     // PARAM void **kernelParams
     // PARAM void **extra
     rpc_write(client, &_result, sizeof(_result));
@@ -6818,6 +8558,38 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuFuncSetSharedMemConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuFuncSetSharedMemConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUfunction hfunc;
+    rpc_read(client, &hfunc, sizeof(hfunc));
+    CUsharedconfig config;
+    rpc_read(client, &config, sizeof(config));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuFuncSetSharedMemConfig(hfunc, config);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphCreate(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphCreate called" << std::endl;
@@ -6850,9 +8622,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuGraphAddKernelNode(void *args0) {
+int handle_cuGraphAddKernelNode_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuGraphAddKernelNode called" << std::endl;
+    std::cout << "Handle function cuGraphAddKernelNode_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6872,7 +8644,7 @@ int handle_cuGraphAddKernelNode(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuGraphAddKernelNode(&phGraphNode, hGraph, &dependencies, numDependencies, &nodeParams);
+    _result = cuGraphAddKernelNode_v2(&phGraphNode, hGraph, &dependencies, numDependencies, &nodeParams);
     rpc_write(client, &phGraphNode, sizeof(phGraphNode));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -6888,9 +8660,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuGraphKernelNodeGetParams(void *args0) {
+int handle_cuGraphKernelNodeGetParams_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuGraphKernelNodeGetParams called" << std::endl;
+    std::cout << "Handle function cuGraphKernelNodeGetParams_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6904,7 +8676,7 @@ int handle_cuGraphKernelNodeGetParams(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuGraphKernelNodeGetParams(hNode, &nodeParams);
+    _result = cuGraphKernelNodeGetParams_v2(hNode, &nodeParams);
     rpc_write(client, &nodeParams, sizeof(nodeParams));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -6920,9 +8692,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuGraphKernelNodeSetParams(void *args0) {
+int handle_cuGraphKernelNodeSetParams_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuGraphKernelNodeSetParams called" << std::endl;
+    std::cout << "Handle function cuGraphKernelNodeSetParams_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -6937,7 +8709,7 @@ int handle_cuGraphKernelNodeSetParams(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuGraphKernelNodeSetParams(hNode, &nodeParams);
+    _result = cuGraphKernelNodeSetParams_v2(hNode, &nodeParams);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -7776,6 +9548,142 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphAddBatchMemOpNode(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphAddBatchMemOpNode called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode phGraphNode;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode dependencies;
+    rpc_read(client, &dependencies, sizeof(dependencies));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    CUDA_BATCH_MEM_OP_NODE_PARAMS nodeParams;
+    rpc_read(client, &nodeParams, sizeof(nodeParams));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphAddBatchMemOpNode(&phGraphNode, hGraph, &dependencies, numDependencies, &nodeParams);
+    rpc_write(client, &phGraphNode, sizeof(phGraphNode));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphBatchMemOpNodeGetParams(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphBatchMemOpNodeGetParams called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUDA_BATCH_MEM_OP_NODE_PARAMS nodeParams_out;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphBatchMemOpNodeGetParams(hNode, &nodeParams_out);
+    rpc_write(client, &nodeParams_out, sizeof(nodeParams_out));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphBatchMemOpNodeSetParams(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphBatchMemOpNodeSetParams called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUDA_BATCH_MEM_OP_NODE_PARAMS nodeParams;
+    rpc_read(client, &nodeParams, sizeof(nodeParams));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphBatchMemOpNodeSetParams(hNode, &nodeParams);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphExecBatchMemOpNodeSetParams(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphExecBatchMemOpNodeSetParams called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphExec hGraphExec;
+    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUDA_BATCH_MEM_OP_NODE_PARAMS nodeParams;
+    rpc_read(client, &nodeParams, sizeof(nodeParams));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphExecBatchMemOpNodeSetParams(hGraphExec, hNode, &nodeParams);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphAddMemAllocNode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphAddMemAllocNode called" << std::endl;
@@ -8184,6 +10092,44 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphGetEdges_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphGetEdges_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode from;
+    CUgraphNode to;
+    CUgraphEdgeData edgeData;
+    size_t numEdges;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphGetEdges_v2(hGraph, &from, &to, &edgeData, &numEdges);
+    rpc_write(client, &from, sizeof(from));
+    rpc_write(client, &to, sizeof(to));
+    rpc_write(client, &edgeData, sizeof(edgeData));
+    rpc_write(client, &numEdges, sizeof(numEdges));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphNodeGetDependencies(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphNodeGetDependencies called" << std::endl;
@@ -8218,6 +10164,42 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphNodeGetDependencies_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphNodeGetDependencies_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUgraphNode dependencies;
+    CUgraphEdgeData edgeData;
+    size_t numDependencies;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphNodeGetDependencies_v2(hNode, &dependencies, &edgeData, &numDependencies);
+    rpc_write(client, &dependencies, sizeof(dependencies));
+    rpc_write(client, &edgeData, sizeof(edgeData));
+    rpc_write(client, &numDependencies, sizeof(numDependencies));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphNodeGetDependentNodes(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphNodeGetDependentNodes called" << std::endl;
@@ -8237,6 +10219,42 @@ int handle_cuGraphNodeGetDependentNodes(void *args0) {
     }
     _result = cuGraphNodeGetDependentNodes(hNode, &dependentNodes, &numDependentNodes);
     rpc_write(client, &dependentNodes, sizeof(dependentNodes));
+    rpc_write(client, &numDependentNodes, sizeof(numDependentNodes));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphNodeGetDependentNodes_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphNodeGetDependentNodes_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUgraphNode dependentNodes;
+    CUgraphEdgeData edgeData;
+    size_t numDependentNodes;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphNodeGetDependentNodes_v2(hNode, &dependentNodes, &edgeData, &numDependentNodes);
+    rpc_write(client, &dependentNodes, sizeof(dependentNodes));
+    rpc_write(client, &edgeData, sizeof(edgeData));
     rpc_write(client, &numDependentNodes, sizeof(numDependentNodes));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8288,6 +10306,44 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphAddDependencies_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphAddDependencies_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode from;
+    rpc_read(client, &from, sizeof(from));
+    CUgraphNode to;
+    rpc_read(client, &to, sizeof(to));
+    CUgraphEdgeData edgeData;
+    rpc_read(client, &edgeData, sizeof(edgeData));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphAddDependencies_v2(hGraph, &from, &to, &edgeData, numDependencies);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphRemoveDependencies(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphRemoveDependencies called" << std::endl;
@@ -8324,6 +10380,44 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphRemoveDependencies_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphRemoveDependencies_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode from;
+    rpc_read(client, &from, sizeof(from));
+    CUgraphNode to;
+    rpc_read(client, &to, sizeof(to));
+    CUgraphEdgeData edgeData;
+    rpc_read(client, &edgeData, sizeof(edgeData));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphRemoveDependencies_v2(hGraph, &from, &to, &edgeData, numDependencies);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphDestroyNode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphDestroyNode called" << std::endl;
@@ -8340,44 +10434,6 @@ int handle_cuGraphDestroyNode(void *args0) {
         goto _RTN_;
     }
     _result = cuGraphDestroyNode(hNode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cuGraphInstantiate_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuGraphInstantiate_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    CUgraphExec phGraphExec;
-    CUgraph hGraph;
-    rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode phErrorNode;
-    char logBuffer[1024];
-    size_t bufferSize;
-    rpc_read(client, &bufferSize, sizeof(bufferSize));
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cuGraphInstantiate_v2(&phGraphExec, hGraph, &phErrorNode, logBuffer, bufferSize);
-    rpc_write(client, &phGraphExec, sizeof(phGraphExec));
-    rpc_write(client, &phErrorNode, sizeof(phErrorNode));
-    rpc_write(client, logBuffer, strlen(logBuffer) + 1, true);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8426,9 +10482,75 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuGraphExecKernelNodeSetParams(void *args0) {
+int handle_cuGraphInstantiateWithParams(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuGraphExecKernelNodeSetParams called" << std::endl;
+    std::cout << "Handle function cuGraphInstantiateWithParams called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphExec phGraphExec;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUDA_GRAPH_INSTANTIATE_PARAMS instantiateParams;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphInstantiateWithParams(&phGraphExec, hGraph, &instantiateParams);
+    rpc_write(client, &phGraphExec, sizeof(phGraphExec));
+    rpc_write(client, &instantiateParams, sizeof(instantiateParams));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphExecGetFlags(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphExecGetFlags called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphExec hGraphExec;
+    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
+    cuuint64_t flags;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphExecGetFlags(hGraphExec, &flags);
+    rpc_write(client, &flags, sizeof(flags));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphExecKernelNodeSetParams_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphExecKernelNodeSetParams_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -8445,7 +10567,7 @@ int handle_cuGraphExecKernelNodeSetParams(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuGraphExecKernelNodeSetParams(hGraphExec, hNode, &nodeParams);
+    _result = cuGraphExecKernelNodeSetParams_v2(hGraphExec, hNode, &nodeParams);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8736,6 +10858,74 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphNodeSetEnabled(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphNodeSetEnabled called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphExec hGraphExec;
+    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    unsigned int isEnabled;
+    rpc_read(client, &isEnabled, sizeof(isEnabled));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphNodeSetEnabled(hGraphExec, hNode, isEnabled);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphNodeGetEnabled(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphNodeGetEnabled called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphExec hGraphExec;
+    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    unsigned int isEnabled;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphNodeGetEnabled(hGraphExec, hNode, &isEnabled);
+    rpc_write(client, &isEnabled, sizeof(isEnabled));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGraphUpload(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGraphUpload called" << std::endl;
@@ -8860,9 +11050,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuGraphExecUpdate(void *args0) {
+int handle_cuGraphExecUpdate_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuGraphExecUpdate called" << std::endl;
+    std::cout << "Handle function cuGraphExecUpdate_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -8871,17 +11061,15 @@ int handle_cuGraphExecUpdate(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode hErrorNode_out;
-    CUgraphExecUpdateResult updateResult_out;
+    CUgraphExecUpdateResultInfo resultInfo;
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuGraphExecUpdate(hGraphExec, hGraph, &hErrorNode_out, &updateResult_out);
-    rpc_write(client, &hErrorNode_out, sizeof(hErrorNode_out));
-    rpc_write(client, &updateResult_out, sizeof(updateResult_out));
+    _result = cuGraphExecUpdate_v2(hGraphExec, hGraph, &resultInfo);
+    rpc_write(client, &resultInfo, sizeof(resultInfo));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9203,6 +11391,188 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGraphAddNode(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphAddNode called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode phGraphNode;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode dependencies;
+    rpc_read(client, &dependencies, sizeof(dependencies));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    CUgraphNodeParams nodeParams;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphAddNode(&phGraphNode, hGraph, &dependencies, numDependencies, &nodeParams);
+    rpc_write(client, &phGraphNode, sizeof(phGraphNode));
+    rpc_write(client, &nodeParams, sizeof(nodeParams));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphAddNode_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphAddNode_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode phGraphNode;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUgraphNode dependencies;
+    rpc_read(client, &dependencies, sizeof(dependencies));
+    CUgraphEdgeData dependencyData;
+    rpc_read(client, &dependencyData, sizeof(dependencyData));
+    size_t numDependencies;
+    rpc_read(client, &numDependencies, sizeof(numDependencies));
+    CUgraphNodeParams nodeParams;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphAddNode_v2(&phGraphNode, hGraph, &dependencies, &dependencyData, numDependencies, &nodeParams);
+    rpc_write(client, &phGraphNode, sizeof(phGraphNode));
+    rpc_write(client, &nodeParams, sizeof(nodeParams));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphNodeSetParams(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphNodeSetParams called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUgraphNodeParams nodeParams;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphNodeSetParams(hNode, &nodeParams);
+    rpc_write(client, &nodeParams, sizeof(nodeParams));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphExecNodeSetParams(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphExecNodeSetParams called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphExec hGraphExec;
+    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
+    CUgraphNode hNode;
+    rpc_read(client, &hNode, sizeof(hNode));
+    CUgraphNodeParams nodeParams;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphExecNodeSetParams(hGraphExec, hNode, &nodeParams);
+    rpc_write(client, &nodeParams, sizeof(nodeParams));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGraphConditionalHandleCreate(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGraphConditionalHandleCreate called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgraphConditionalHandle pHandle_out;
+    CUgraph hGraph;
+    rpc_read(client, &hGraph, sizeof(hGraph));
+    CUcontext ctx;
+    rpc_read(client, &ctx, sizeof(ctx));
+    unsigned int defaultLaunchValue;
+    rpc_read(client, &defaultLaunchValue, sizeof(defaultLaunchValue));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGraphConditionalHandleCreate(&pHandle_out, hGraph, ctx, defaultLaunchValue, flags);
+    rpc_write(client, &pHandle_out, sizeof(pHandle_out));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuOccupancyMaxActiveBlocksPerMultiprocessor(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuOccupancyMaxActiveBlocksPerMultiprocessor called" << std::endl;
@@ -9381,6 +11751,74 @@ int handle_cuOccupancyAvailableDynamicSMemPerBlock(void *args0) {
     }
     _result = cuOccupancyAvailableDynamicSMemPerBlock(&dynamicSmemSize, func, numBlocks, blockSize);
     rpc_write(client, &dynamicSmemSize, sizeof(dynamicSmemSize));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuOccupancyMaxPotentialClusterSize(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuOccupancyMaxPotentialClusterSize called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int clusterSize;
+    CUfunction func;
+    rpc_read(client, &func, sizeof(func));
+    CUlaunchConfig config;
+    rpc_read(client, &config, sizeof(config));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuOccupancyMaxPotentialClusterSize(&clusterSize, func, &config);
+    rpc_write(client, &clusterSize, sizeof(clusterSize));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuOccupancyMaxActiveClusters(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuOccupancyMaxActiveClusters called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int numClusters;
+    CUfunction func;
+    rpc_read(client, &func, sizeof(func));
+    CUlaunchConfig config;
+    rpc_read(client, &config, sizeof(config));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuOccupancyMaxActiveClusters(&numClusters, func, &config);
+    rpc_write(client, &numClusters, sizeof(numClusters));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10569,6 +13007,208 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuTensorMapEncodeTiled(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuTensorMapEncodeTiled called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUtensorMap tensorMap;
+    CUtensorMapDataType tensorDataType;
+    rpc_read(client, &tensorDataType, sizeof(tensorDataType));
+    cuuint32_t tensorRank;
+    rpc_read(client, &tensorRank, sizeof(tensorRank));
+    void *globalAddress;
+    rpc_read(client, &globalAddress, sizeof(globalAddress));
+    cuuint64_t globalDim;
+    rpc_read(client, &globalDim, sizeof(globalDim));
+    cuuint64_t globalStrides;
+    rpc_read(client, &globalStrides, sizeof(globalStrides));
+    cuuint32_t boxDim;
+    rpc_read(client, &boxDim, sizeof(boxDim));
+    cuuint32_t elementStrides;
+    rpc_read(client, &elementStrides, sizeof(elementStrides));
+    CUtensorMapInterleave interleave;
+    rpc_read(client, &interleave, sizeof(interleave));
+    CUtensorMapSwizzle swizzle;
+    rpc_read(client, &swizzle, sizeof(swizzle));
+    CUtensorMapL2promotion l2Promotion;
+    rpc_read(client, &l2Promotion, sizeof(l2Promotion));
+    CUtensorMapFloatOOBfill oobFill;
+    rpc_read(client, &oobFill, sizeof(oobFill));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuTensorMapEncodeTiled(&tensorMap, tensorDataType, tensorRank, globalAddress, &globalDim, &globalStrides, &boxDim, &elementStrides, interleave, swizzle, l2Promotion, oobFill);
+    rpc_write(client, &tensorMap, sizeof(tensorMap));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuTensorMapEncodeIm2col(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuTensorMapEncodeIm2col called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUtensorMap tensorMap;
+    CUtensorMapDataType tensorDataType;
+    rpc_read(client, &tensorDataType, sizeof(tensorDataType));
+    cuuint32_t tensorRank;
+    rpc_read(client, &tensorRank, sizeof(tensorRank));
+    void *globalAddress;
+    rpc_read(client, &globalAddress, sizeof(globalAddress));
+    cuuint64_t globalDim;
+    rpc_read(client, &globalDim, sizeof(globalDim));
+    cuuint64_t globalStrides;
+    rpc_read(client, &globalStrides, sizeof(globalStrides));
+    int pixelBoxLowerCorner;
+    rpc_read(client, &pixelBoxLowerCorner, sizeof(pixelBoxLowerCorner));
+    int pixelBoxUpperCorner;
+    rpc_read(client, &pixelBoxUpperCorner, sizeof(pixelBoxUpperCorner));
+    cuuint32_t channelsPerPixel;
+    rpc_read(client, &channelsPerPixel, sizeof(channelsPerPixel));
+    cuuint32_t pixelsPerColumn;
+    rpc_read(client, &pixelsPerColumn, sizeof(pixelsPerColumn));
+    cuuint32_t elementStrides;
+    rpc_read(client, &elementStrides, sizeof(elementStrides));
+    CUtensorMapInterleave interleave;
+    rpc_read(client, &interleave, sizeof(interleave));
+    CUtensorMapSwizzle swizzle;
+    rpc_read(client, &swizzle, sizeof(swizzle));
+    CUtensorMapL2promotion l2Promotion;
+    rpc_read(client, &l2Promotion, sizeof(l2Promotion));
+    CUtensorMapFloatOOBfill oobFill;
+    rpc_read(client, &oobFill, sizeof(oobFill));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuTensorMapEncodeIm2col(&tensorMap, tensorDataType, tensorRank, globalAddress, &globalDim, &globalStrides, &pixelBoxLowerCorner, &pixelBoxUpperCorner, channelsPerPixel, pixelsPerColumn, &elementStrides, interleave, swizzle, l2Promotion, oobFill);
+    rpc_write(client, &tensorMap, sizeof(tensorMap));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuTensorMapEncodeIm2colWide(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuTensorMapEncodeIm2colWide called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUtensorMap tensorMap;
+    CUtensorMapDataType tensorDataType;
+    rpc_read(client, &tensorDataType, sizeof(tensorDataType));
+    cuuint32_t tensorRank;
+    rpc_read(client, &tensorRank, sizeof(tensorRank));
+    void *globalAddress;
+    rpc_read(client, &globalAddress, sizeof(globalAddress));
+    cuuint64_t globalDim;
+    rpc_read(client, &globalDim, sizeof(globalDim));
+    cuuint64_t globalStrides;
+    rpc_read(client, &globalStrides, sizeof(globalStrides));
+    int pixelBoxLowerCornerWidth;
+    rpc_read(client, &pixelBoxLowerCornerWidth, sizeof(pixelBoxLowerCornerWidth));
+    int pixelBoxUpperCornerWidth;
+    rpc_read(client, &pixelBoxUpperCornerWidth, sizeof(pixelBoxUpperCornerWidth));
+    cuuint32_t channelsPerPixel;
+    rpc_read(client, &channelsPerPixel, sizeof(channelsPerPixel));
+    cuuint32_t pixelsPerColumn;
+    rpc_read(client, &pixelsPerColumn, sizeof(pixelsPerColumn));
+    cuuint32_t elementStrides;
+    rpc_read(client, &elementStrides, sizeof(elementStrides));
+    CUtensorMapInterleave interleave;
+    rpc_read(client, &interleave, sizeof(interleave));
+    CUtensorMapIm2ColWideMode mode;
+    rpc_read(client, &mode, sizeof(mode));
+    CUtensorMapSwizzle swizzle;
+    rpc_read(client, &swizzle, sizeof(swizzle));
+    CUtensorMapL2promotion l2Promotion;
+    rpc_read(client, &l2Promotion, sizeof(l2Promotion));
+    CUtensorMapFloatOOBfill oobFill;
+    rpc_read(client, &oobFill, sizeof(oobFill));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuTensorMapEncodeIm2colWide(&tensorMap, tensorDataType, tensorRank, globalAddress, &globalDim, &globalStrides, pixelBoxLowerCornerWidth, pixelBoxUpperCornerWidth, channelsPerPixel, pixelsPerColumn, &elementStrides, interleave, mode, swizzle, l2Promotion, oobFill);
+    rpc_write(client, &tensorMap, sizeof(tensorMap));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuTensorMapReplaceAddress(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuTensorMapReplaceAddress called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUtensorMap tensorMap;
+    void *globalAddress;
+    rpc_read(client, &globalAddress, sizeof(globalAddress));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuTensorMapReplaceAddress(&tensorMap, globalAddress);
+    rpc_write(client, &tensorMap, sizeof(tensorMap));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuDeviceCanAccessPeer(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuDeviceCanAccessPeer called" << std::endl;
@@ -10899,6 +13539,184 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuGetProcAddress_v2(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGetProcAddress_v2 called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    char *symbol = nullptr;
+    rpc_read(client, &symbol, 0, true);
+    // PARAM void **pfn
+    void *pfn;
+    int cudaVersion;
+    rpc_read(client, &cudaVersion, sizeof(cudaVersion));
+    cuuint64_t flags;
+    rpc_read(client, &flags, sizeof(flags));
+    CUdriverProcAddressQueryResult symbolStatus;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    buffers.insert(symbol);
+    // PARAM void **pfn
+    _result = cuGetProcAddress_v2(symbol, &pfn, cudaVersion, flags, &symbolStatus);
+    // PARAM void **pfn
+    rpc_write(client, &symbolStatus, sizeof(symbolStatus));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM void **pfn
+    return rtn;
+}
+
+int handle_cuCoredumpGetAttribute(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCoredumpGetAttribute called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcoredumpSettings attrib;
+    rpc_read(client, &attrib, sizeof(attrib));
+    void *value;
+    rpc_read(client, &value, sizeof(value));
+    size_t size;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCoredumpGetAttribute(attrib, value, &size);
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCoredumpGetAttributeGlobal(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCoredumpGetAttributeGlobal called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcoredumpSettings attrib;
+    rpc_read(client, &attrib, sizeof(attrib));
+    void *value;
+    rpc_read(client, &value, sizeof(value));
+    size_t size;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCoredumpGetAttributeGlobal(attrib, value, &size);
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCoredumpSetAttribute(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCoredumpSetAttribute called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcoredumpSettings attrib;
+    rpc_read(client, &attrib, sizeof(attrib));
+    void *value;
+    rpc_read(client, &value, sizeof(value));
+    size_t size;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCoredumpSetAttribute(attrib, value, &size);
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCoredumpSetAttributeGlobal(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCoredumpSetAttributeGlobal called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcoredumpSettings attrib;
+    rpc_read(client, &attrib, sizeof(attrib));
+    void *value;
+    rpc_read(client, &value, sizeof(value));
+    size_t size;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCoredumpSetAttributeGlobal(attrib, value, &size);
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuGetExportTable(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuGetExportTable called" << std::endl;
@@ -10935,24 +13753,590 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuFlushGPUDirectRDMAWrites(void *args0) {
+int handle_cuGreenCtxCreate(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cuFlushGPUDirectRDMAWrites called" << std::endl;
+    std::cout << "Handle function cuGreenCtxCreate called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUflushGPUDirectRDMAWritesTarget target;
-    rpc_read(client, &target, sizeof(target));
-    CUflushGPUDirectRDMAWritesScope scope;
-    rpc_read(client, &scope, sizeof(scope));
+    CUgreenCtx phCtx;
+    CUdevResourceDesc desc;
+    rpc_read(client, &desc, sizeof(desc));
+    CUdevice dev;
+    rpc_read(client, &dev, sizeof(dev));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = cuFlushGPUDirectRDMAWrites(target, scope);
+    _result = cuGreenCtxCreate(&phCtx, desc, dev, flags);
+    rpc_write(client, &phCtx, sizeof(phCtx));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGreenCtxDestroy(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGreenCtxDestroy called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgreenCtx hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGreenCtxDestroy(hCtx);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxFromGreenCtx(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxFromGreenCtx called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcontext pContext;
+    CUgreenCtx hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxFromGreenCtx(&pContext, hCtx);
+    rpc_write(client, &pContext, sizeof(pContext));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuDeviceGetDevResource(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuDeviceGetDevResource called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdevice device;
+    rpc_read(client, &device, sizeof(device));
+    CUdevResource resource;
+    CUdevResourceType type;
+    rpc_read(client, &type, sizeof(type));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuDeviceGetDevResource(device, &resource, type);
+    rpc_write(client, &resource, sizeof(resource));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCtxGetDevResource(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCtxGetDevResource called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUcontext hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUdevResource resource;
+    CUdevResourceType type;
+    rpc_read(client, &type, sizeof(type));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCtxGetDevResource(hCtx, &resource, type);
+    rpc_write(client, &resource, sizeof(resource));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGreenCtxGetDevResource(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGreenCtxGetDevResource called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgreenCtx hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUdevResource resource;
+    CUdevResourceType type;
+    rpc_read(client, &type, sizeof(type));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGreenCtxGetDevResource(hCtx, &resource, type);
+    rpc_write(client, &resource, sizeof(resource));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuDevSmResourceSplitByCount(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuDevSmResourceSplitByCount called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdevResource result;
+    unsigned int nbGroups;
+    CUdevResource input;
+    rpc_read(client, &input, sizeof(input));
+    CUdevResource remaining;
+    unsigned int useFlags;
+    rpc_read(client, &useFlags, sizeof(useFlags));
+    unsigned int minCount;
+    rpc_read(client, &minCount, sizeof(minCount));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuDevSmResourceSplitByCount(&result, &nbGroups, &input, &remaining, useFlags, minCount);
+    rpc_write(client, &result, sizeof(result));
+    rpc_write(client, &nbGroups, sizeof(nbGroups));
+    rpc_write(client, &remaining, sizeof(remaining));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuDevResourceGenerateDesc(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuDevResourceGenerateDesc called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdevResourceDesc phDesc;
+    CUdevResource resources;
+    unsigned int nbResources;
+    rpc_read(client, &nbResources, sizeof(nbResources));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuDevResourceGenerateDesc(&phDesc, &resources, nbResources);
+    rpc_write(client, &phDesc, sizeof(phDesc));
+    rpc_write(client, &resources, sizeof(resources));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGreenCtxRecordEvent(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGreenCtxRecordEvent called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgreenCtx hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUevent hEvent;
+    rpc_read(client, &hEvent, sizeof(hEvent));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGreenCtxRecordEvent(hCtx, hEvent);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGreenCtxWaitEvent(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGreenCtxWaitEvent called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUgreenCtx hCtx;
+    rpc_read(client, &hCtx, sizeof(hCtx));
+    CUevent hEvent;
+    rpc_read(client, &hEvent, sizeof(hEvent));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGreenCtxWaitEvent(hCtx, hEvent);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuStreamGetGreenCtx(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuStreamGetGreenCtx called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUgreenCtx phCtx;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuStreamGetGreenCtx(hStream, &phCtx);
+    rpc_write(client, &phCtx, sizeof(phCtx));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuGreenCtxStreamCreate(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuGreenCtxStreamCreate called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUstream phStream;
+    CUgreenCtx greenCtx;
+    rpc_read(client, &greenCtx, sizeof(greenCtx));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    int priority;
+    rpc_read(client, &priority, sizeof(priority));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuGreenCtxStreamCreate(&phStream, greenCtx, flags, priority);
+    rpc_write(client, &phStream, sizeof(phStream));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCheckpointProcessGetRestoreThreadId(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCheckpointProcessGetRestoreThreadId called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pid;
+    rpc_read(client, &pid, sizeof(pid));
+    int tid;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCheckpointProcessGetRestoreThreadId(pid, &tid);
+    rpc_write(client, &tid, sizeof(tid));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCheckpointProcessGetState(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCheckpointProcessGetState called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pid;
+    rpc_read(client, &pid, sizeof(pid));
+    CUprocessState state;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCheckpointProcessGetState(pid, &state);
+    rpc_write(client, &state, sizeof(state));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCheckpointProcessLock(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCheckpointProcessLock called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pid;
+    rpc_read(client, &pid, sizeof(pid));
+    CUcheckpointLockArgs args;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCheckpointProcessLock(pid, &args);
+    rpc_write(client, &args, sizeof(args));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCheckpointProcessCheckpoint(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCheckpointProcessCheckpoint called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pid;
+    rpc_read(client, &pid, sizeof(pid));
+    CUcheckpointCheckpointArgs args;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCheckpointProcessCheckpoint(pid, &args);
+    rpc_write(client, &args, sizeof(args));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCheckpointProcessRestore(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCheckpointProcessRestore called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pid;
+    rpc_read(client, &pid, sizeof(pid));
+    CUcheckpointRestoreArgs args;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCheckpointProcessRestore(pid, &args);
+    rpc_write(client, &args, sizeof(args));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuCheckpointProcessUnlock(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuCheckpointProcessUnlock called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    int pid;
+    rpc_read(client, &pid, sizeof(pid));
+    CUcheckpointUnlockArgs args;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuCheckpointProcessUnlock(pid, &args);
+    rpc_write(client, &args, sizeof(args));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
