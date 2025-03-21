@@ -3560,7 +3560,6 @@ int handle_cudaMemcpy(void *args0) {
         goto _RTN_;
     }
     _result = cudaMemcpy(dst, src, count, kind);
-    printf("================================== real cudaMemcpy dst: %p, src: %p, count: %zu, kind: %d, _result: %d\n", dst, src, count, kind, _result);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

@@ -1081,7 +1081,6 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)image, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -1109,7 +1108,6 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)image, 0);
     // PARAM void **optionValues
     rpc_free_client(client);
     return _result;
@@ -1135,7 +1133,6 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)fatCubin, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -1696,7 +1693,6 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)srcHost, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -1823,7 +1819,6 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)srcHost, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2043,7 +2038,6 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)srcHost, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2123,7 +2117,6 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)srcHost, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3450,7 +3443,6 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)value, 0);
     rpc_free_client(client);
     return _result;
 }

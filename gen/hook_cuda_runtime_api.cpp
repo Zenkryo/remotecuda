@@ -1836,7 +1836,6 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     // PARAM void **args
     rpc_free_client(client);
     return _result;
@@ -1886,7 +1885,6 @@ extern "C" cudaError_t cudaFuncSetCacheConfig(const void *func, enum cudaFuncCac
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -1911,7 +1909,6 @@ extern "C" cudaError_t cudaFuncSetSharedMemConfig(const void *func, enum cudaSha
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -1936,7 +1933,6 @@ extern "C" cudaError_t cudaFuncGetAttributes(struct cudaFuncAttributes *attr, co
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -1962,7 +1958,6 @@ extern "C" cudaError_t cudaFuncSetAttribute(const void *func, enum cudaFuncAttri
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2059,7 +2054,6 @@ extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlo
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2086,7 +2080,6 @@ extern "C" cudaError_t cudaOccupancyAvailableDynamicSMemPerBlock(size_t *dynamic
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2114,7 +2107,6 @@ extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(in
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)func, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2575,11 +2567,12 @@ extern "C" cudaError_t cudaMipmappedArrayGetSparseProperties(struct cudaArraySpa
 }
 
 extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
-    void *_0dst = mem2server((void *)dst, count);
-    void *_0src = mem2server((void *)src, count);
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy called" << std::endl;
 #endif
+    void *_0dst = mem2server((void *)dst, count);
+    void *_0src = mem2server((void *)src, count);
+    printf("========= cudaMemcpy: dst = %p -> %p, src = %p -> %p, count = %zu, kind = %d\n", dst, _0dst, src, _0src, count, kind);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2598,7 +2591,10 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
         exit(1);
     }
     rpc_free_client(client);
+    printf("------------- dst = %p, count = %d\n", dst, count);
     mem2client((void *)dst, count);
+    printf("------------- src = %p, count = %d\n", src, count);
+    // TODO 这个应该去掉，但是去掉结果就不对了
     mem2client((void *)src, count);
     return _result;
 }
@@ -2628,7 +2624,6 @@ extern "C" cudaError_t cudaMemcpyPeer(void *dst, int dstDevice, const void *src,
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2660,7 +2655,6 @@ extern "C" cudaError_t cudaMemcpy2D(void *dst, size_t dpitch, const void *src, s
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2691,7 +2685,6 @@ extern "C" cudaError_t cudaMemcpy2DToArray(cudaArray_t dst, size_t wOffset, size
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2782,7 +2775,6 @@ extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count,
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2813,7 +2805,6 @@ extern "C" cudaError_t cudaMemcpyPeerAsync(void *dst, int dstDevice, const void 
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2846,7 +2837,6 @@ extern "C" cudaError_t cudaMemcpy2DAsync(void *dst, size_t dpitch, const void *s
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2878,7 +2868,6 @@ extern "C" cudaError_t cudaMemcpy2DToArrayAsync(cudaArray_t dst, size_t wOffset,
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2940,8 +2929,6 @@ extern "C" cudaError_t cudaMemcpyToSymbolAsync(const void *symbol, const void *s
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)symbol, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -2972,7 +2959,6 @@ extern "C" cudaError_t cudaMemcpyFromSymbolAsync(void *dst, const void *symbol, 
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3103,7 +3089,6 @@ extern "C" cudaError_t cudaGetSymbolSize(size_t *size, const void *symbol) {
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3130,7 +3115,6 @@ extern "C" cudaError_t cudaMemPrefetchAsync(const void *devPtr, size_t count, in
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)devPtr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3157,7 +3141,6 @@ extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cuda
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)devPtr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3187,7 +3170,6 @@ extern "C" cudaError_t cudaMemRangeGetAttribute(void *data, size_t dataSize, enu
         exit(1);
     }
     mem2client((void *)data, 0);
-    mem2client((void *)devPtr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3217,7 +3199,6 @@ extern "C" cudaError_t cudaMemRangeGetAttributes(void **data, size_t *dataSizes,
         exit(1);
     }
     // PARAM void **data
-    mem2client((void *)devPtr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3246,7 +3227,6 @@ extern "C" cudaError_t cudaMemcpyToArray(cudaArray_t dst, size_t wOffset, size_t
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3334,7 +3314,6 @@ extern "C" cudaError_t cudaMemcpyToArrayAsync(cudaArray_t dst, size_t wOffset, s
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -3737,7 +3716,6 @@ extern "C" cudaError_t cudaPointerGetAttributes(struct cudaPointerAttributes *at
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)ptr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4000,7 +3978,6 @@ extern "C" cudaError_t cudaBindTexture(size_t *offset, const struct textureRefer
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)devPtr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4030,7 +4007,6 @@ extern "C" cudaError_t cudaBindTexture2D(size_t *offset, const struct textureRef
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)devPtr, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4152,7 +4128,6 @@ extern "C" cudaError_t cudaGetTextureReference(const struct textureReference **t
     }
     // PARAM const struct textureReference **texref
     *texref = &_cudaGetTextureReference_texref;
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4205,7 +4180,6 @@ extern "C" cudaError_t cudaGetSurfaceReference(const struct surfaceReference **s
     }
     // PARAM const struct surfaceReference **surfref
     *surfref = &_cudaGetSurfaceReference_surfref;
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4707,8 +4681,6 @@ extern "C" cudaError_t cudaGraphAddMemcpyNodeToSymbol(cudaGraphNode_t *pGraphNod
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)symbol, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4742,7 +4714,6 @@ extern "C" cudaError_t cudaGraphAddMemcpyNodeFromSymbol(cudaGraphNode_t *pGraphN
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4775,7 +4746,6 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode1D(cudaGraphNode_t *pGraphNode, cud
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4851,8 +4821,6 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParamsToSymbol(cudaGraphNode_t node
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)symbol, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4883,7 +4851,6 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParamsFromSymbol(cudaGraphNode_t no
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -4913,7 +4880,6 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParams1D(cudaGraphNode_t node, void
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -5987,8 +5953,6 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParamsToSymbol(cudaGraphExec_t 
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)symbol, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -6020,7 +5984,6 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParamsFromSymbol(cudaGraphExec_
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)symbol, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -6051,7 +6014,6 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParams1D(cudaGraphExec_t hGraph
         exit(1);
     }
     mem2client((void *)dst, 0);
-    mem2client((void *)src, 0);
     rpc_free_client(client);
     return _result;
 }
@@ -6556,7 +6518,6 @@ extern "C" cudaError_t cudaGetFuncBySymbol(cudaFunction_t *functionPtr, const vo
         rpc_release_client(client);
         exit(1);
     }
-    mem2client((void *)symbolPtr, 0);
     rpc_free_client(client);
     return _result;
 }
