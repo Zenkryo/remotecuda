@@ -3,9 +3,7 @@
 
 #include <cstdint>
 
-typedef int (*RequestHandler)(void *);
-
-RequestHandler get_handler(const uint32_t funcId);
+#include "../server.h"
 
 int handle___cudaInitModule(void *args);
 int handle___cudaPushCallConfiguration(void *args);

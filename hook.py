@@ -144,8 +144,7 @@ def generate_handle_server_h(output_dir, function_map):
         f.write("#ifndef HOOK_SERVER_H\n")
         f.write("#define HOOK_SERVER_H\n\n")
         f.write("#include <cstdint>\n\n")
-        f.write("typedef int (*RequestHandler)(void *);\n\n")
-        f.write("RequestHandler get_handler(const uint32_t funcId);\n\n")
+        f.write('#include "../server.h"\n\n')
         # 生成每个被 Hook 函数的 handle 函数
         for header_file, functions in function_map.items():
             for function in functions:
@@ -813,11 +812,6 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         f.write("SERVER_CXXFLAGS = $(CXXFLAGS)\n")
         f.write("SERVER_LDFLAGS = $(LDFLAGS) -L/usr/local/cuda/lib64 -L/usr/local/cuda/lib64/stubs -lcudart -lcuda -lnvidia-ml -lcublas -Wl,-rpath,/usr/local/cuda/lib64\n\n")
 
-        # 定义 test 的编译参数和链接参数
-        f.write("# Compilation flags for test\n")
-        f.write("TEST_CXXFLAGS = $(CXXFLAGS)\n")
-        f.write("TEST_LDFLAGS = $(LDFLAGS) -L/usr/local/cuda/lib64 -L/usr/local/cuda/lib64/stubs -lcudart -lcuda -lnvidia-ml -lcublas -Wl,-rpath,/usr/local/cuda/lib64\n\n")
-
         # 定义 hook.so 的源文件列表
         f.write("# Source files for hook.so\n")
         f.write("HOOK_SRCS = \\\n")
@@ -838,18 +832,12 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         f.write("    ../rpc.cpp\\\n")
         f.write("    ../server.cpp\n\n")
 
-        # 定义 test 的源文件列表
-        f.write("# Source files for test\n")
-        f.write("TEST_SRCS = \\\n")
-        f.write("    ../test/test.cpp\n\n")
-
         # 定义目标文件列表
         f.write("HOOK_OBJS = $(HOOK_SRCS:.cpp=.o)\n")
         f.write("SERVER_OBJS = $(SERVER_SRCS:.cpp=.o)\n\n")
-        f.write("TEST_OBJS = $(TEST_SRCS:.cpp=.o)\n\n")
 
         # 定义 all 目标
-        f.write("all: hook.so server test\n\n")
+        f.write("all: hook.so server\n\n")
 
         # 编译 hook.so
         f.write("hook.so: $(HOOK_OBJS)\n")
@@ -859,13 +847,9 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         f.write("server: $(SERVER_OBJS)\n")
         f.write("\t$(CXX) $(SERVER_CXXFLAGS) -o $@ $^ $(SERVER_LDFLAGS)\n\n")
 
-        # 编译 test
-        f.write("test: $(TEST_OBJS)\n")
-        f.write("\t$(CXX) $(TEST_CXXFLAGS) -o $@ $^ $(TEST_LDFLAGS)\n\n")
-
         # 清理规则
         f.write("clean:\n")
-        f.write("\trm -f $(HOOK_OBJS) $(SERVER_OBJS) $(TEST_OBJS) hook.so server test\n\n")
+        f.write("\trm -f $(HOOK_OBJS) $(SERVER_OBJS) hook.so server\n\n")
 
         # 伪目标
         f.write(".PHONY: all clean\n")
