@@ -36,7 +36,6 @@ SERVER_SRCS = \
     handle_server.cpp\
     ../manual_handle.cpp\
     ../rpc.cpp\
-    ../rpc_server.cpp\
     ../server.cpp
 
 # Source files for test

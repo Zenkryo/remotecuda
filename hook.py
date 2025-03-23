@@ -836,7 +836,6 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         f.write("    handle_server.cpp\\\n")
         f.write("    ../manual_handle.cpp\\\n")
         f.write("    ../rpc.cpp\\\n")
-        f.write("    ../rpc_server.cpp\\\n")
         f.write("    ../server.cpp\n\n")
 
         # 定义 test 的源文件列表

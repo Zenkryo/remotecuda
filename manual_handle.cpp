@@ -44,7 +44,7 @@ int handle_mem2server(void *args0) {
             return 1;
         }
         rpc_write(client, &ptr, sizeof(ptr)); // 返回服务器侧申请的内存地址
-        client->buffers->push(ptr);           // 保存临时内存地址
+        client->tmpbufs->push(ptr);           // 保存临时内存地址
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -73,8 +73,8 @@ int handle_mem2client(void *args0) {
         read_one_now(client, &size, sizeof(size), false);
         // TODO 这里有个问题，当mem2server和mem2client调用次数不一致时，会导致问题
         // 获取第一个元素
-        ptr = client->buffers->front();
-        client->buffers->pop();
+        ptr = client->tmpbufs->front();
+        client->tmpbufs->pop();
         rpc_write(client, ptr, size, true);
         to_free = true;
     }

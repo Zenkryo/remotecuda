@@ -798,7 +798,7 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
     return _result;
 }
 
-extern "C" cudaError_t cudaMallocPitch_v2(void **devPtr, size_t *pitch, size_t width, size_t height) {
+extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t width, size_t height) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMallocPitch called" << std::endl;
 #endif

@@ -5,6 +5,7 @@
 RpcClient clients_pool[MAX_CONNECTIONS];
 pthread_mutex_t pool_lock;
 pthread_t rpc_thread_id;
+uint8_t client_id[8];
 
 // 连接服务器
 static int rpc_connect(const char *server, uint16_t port) {
@@ -24,6 +25,8 @@ static int rpc_connect(const char *server, uint16_t port) {
         close(sockfd);
         return -1;
     }
+    // 发送连接请求
+
     return sockfd;
 }
 
@@ -271,6 +274,10 @@ void hexdump(const char *desc, void *buf, size_t len) {
 
 // 初始化连接池
 void rpc_init() {
+    srand(time(NULL));
+    for(int i = 0; i < 8; i++) {
+        client_id[i] = rand() % 256;
+    }
     pthread_mutex_init(&pool_lock, NULL);
     for(int i = 0; i < MAX_CONNECTIONS; i++) {
         memset(&clients_pool[i], 0, sizeof(RpcClient));
@@ -411,24 +418,24 @@ ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len = 
             return -1;
         }
     }
-    if(length == 0){
+    if(length == 0) {
         return total_read;
     }
-    if(size == 0){
-        tmp_buffer= (void *)malloc(length);
-        if(tmp_buffer == nullptr){
+    if(size == 0) {
+        tmp_buffer = (void *)malloc(length);
+        if(tmp_buffer == nullptr) {
             errno = ENOBUFS; // 缓冲区不足
             return -1;
         }
         *(void **)buffer = tmp_buffer;
-    }else{
+    } else {
         tmp_buffer = buffer;
     }
     iov.iov_len = length;
     iov.iov_base = tmp_buffer;
     bytes_read = read_full_iovec(client->sockfd, &iov, 1);
     if(bytes_read < 0) {
-        if(size == 0){
+        if(size == 0) {
             free(tmp_buffer);
         }
         return -1;
