@@ -1,14 +1,15 @@
 #include <stdlib.h>
 #include <iostream>
+#include <uuid/uuid.h>
 #include "rpc.h"
 
 RpcClient clients_pool[MAX_CONNECTIONS];
 pthread_mutex_t pool_lock;
 pthread_t rpc_thread_id;
-uint8_t client_id[8];
+uuid_t client_id;
 
 // 连接服务器
-static int rpc_connect(const char *server, uint16_t port) {
+static int rpc_connect(const char *server, uint16_t port, uint16_t version_key) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) {
         perror("socket creation failed");
@@ -25,13 +26,36 @@ static int rpc_connect(const char *server, uint16_t port) {
         close(sockfd);
         return -1;
     }
-    // 发送连接请求
 
+    handshake_request handshake_req;
+    uuid_copy(handshake_req.id, client_id);
+    handshake_req.version_key = version_key;
+
+    // 发送握手请求
+    if(write(sockfd, &handshake_req, sizeof(handshake_req)) != sizeof(handshake_req)) {
+        perror("registration request failed");
+        close(sockfd);
+        return -1;
+    }
+
+    // 读取握手响应
+    handshake_response handshake_rsp;
+    if(read(sockfd, &handshake_rsp, sizeof(handshake_rsp)) != sizeof(handshake_rsp)) {
+        perror("registration response failed");
+        close(sockfd);
+        return -1;
+    }
+    if(handshake_rsp.status != 0) {
+        perror("registration failed");
+        close(sockfd);
+        return -1;
+    }
     return sockfd;
 }
 
 //  线程函数，用于维护连接
 static void *rpc_thread(void *arg) {
+    uint16_t version_key = *(uint16_t *)arg;
     // 获取环境变量CUDA_SERVER
     const char *cuda_server = getenv("CUDA_SERVER");
     if(!cuda_server) {
@@ -42,7 +66,7 @@ static void *rpc_thread(void *arg) {
         pthread_mutex_lock(&pool_lock);
         for(int i = 0; i < MAX_CONNECTIONS; i++) {
             if(clients_pool[i].sockfd == -1) {
-                int sockfd = rpc_connect(cuda_server, 12345);
+                int sockfd = rpc_connect(cuda_server, 12345, version_key);
                 if(sockfd != -1) {
                     clients_pool[i].sockfd = sockfd;
                 }
@@ -273,18 +297,15 @@ void hexdump(const char *desc, void *buf, size_t len) {
 }
 
 // 初始化连接池
-void rpc_init() {
-    srand(time(NULL));
-    for(int i = 0; i < 8; i++) {
-        client_id[i] = rand() % 256;
-    }
+void rpc_init(uint16_t version_key) {
+    uuid_generate(client_id);
     pthread_mutex_init(&pool_lock, NULL);
     for(int i = 0; i < MAX_CONNECTIONS; i++) {
         memset(&clients_pool[i], 0, sizeof(RpcClient));
         clients_pool[i].sockfd = -1;
     }
     // 创建一个线程用于维护连接
-    pthread_create(&rpc_thread_id, NULL, rpc_thread, NULL);
+    pthread_create(&rpc_thread_id, NULL, rpc_thread, &version_key);
 }
 
 // 取得一个RPC客户端

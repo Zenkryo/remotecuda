@@ -6,6 +6,7 @@
 #include <cuda_runtime.h>
 #include <cublas_api.h>
 #include "rpc.h"
+#include "gen/hook_api.h"
 
 void *getHookFunc(const char *symbol);
 // 保存系统的 dlsym 函数指针
@@ -57,7 +58,7 @@ extern "C" void *dlsym(void *handle, const char *symbol) {
 static std::unordered_map<std::string, void *> so_handles;
 
 // Hook 的初始化函数
-void init_hook() { rpc_init(); }
+void init_hook() { rpc_init(VERSION_KEY); }
 
 void *get_so_handle(const std::string &so_file) {
     if(so_handles.find(so_file) == so_handles.end()) {

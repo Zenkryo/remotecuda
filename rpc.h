@@ -9,6 +9,7 @@
 #include <unistd.h>    // for read, write, close
 #include <stdio.h>
 #include <errno.h>
+#include <uuid/uuid.h>
 #include <pthread.h> // for mutex
 
 #define MAX_IOCV_COUNT 64
@@ -30,7 +31,16 @@ typedef struct _RpcClient {
     std::queue<void *> *tmpbufs;            // 用于存储需要释放的缓冲区
 } RpcClient;
 
-void rpc_init();
+typedef struct {
+    uuid_t id;
+    uint16_t version_key;
+} handshake_request;
+
+typedef struct {
+    int status;
+} handshake_response;
+
+void rpc_init(uint16_t version_key);
 RpcClient *rpc_get_client();
 void rpc_free_client(RpcClient *client);
 void rpc_release_client(RpcClient *client);

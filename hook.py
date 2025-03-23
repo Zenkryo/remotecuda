@@ -5,7 +5,8 @@ import os
 import logging
 import hashlib
 import logging
-import re
+import random
+import time
 from cxxheaderparser.simple import parse_file, ParserOptions
 from cxxheaderparser.preprocessor import make_gcc_preprocessor
 from cxxheaderparser.types import Array, Pointer, Type, FunctionType, AnonymousName
@@ -15,19 +16,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    ## "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    ## "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    ## "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    ## "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    ## "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
+    "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    ##"hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    ##"/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    ##"/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
@@ -114,6 +115,8 @@ MANUAL_FUNCTIONS = [
 # 隐藏类型
 HIDDEN_TYPES = ["cudnnRuntimeTag_t"]
 
+random.seed(time.time())
+VERSION_KEY = random.randint(0, 0xFFFF)  # 定义一个16位的随机数作为版本密钥，每次生成的值都是随机的
 
 def generate_hook_api_h(output_dir, function_map):
     """
@@ -124,6 +127,7 @@ def generate_hook_api_h(output_dir, function_map):
     with open(hook_api_file, "w") as f:
         f.write("#ifndef HOOK_API_H\n")
         f.write("#define HOOK_API_H\n\n")
+        f.write(f"#define VERSION_KEY 0x{VERSION_KEY:04X}\n\n")
 
         for header_file, functions in function_map.items():
             for function in functions:
@@ -687,7 +691,7 @@ def calculate_pointer_sizes(function):
     if function_name in copy_operations:
         formulas = copy_operations[function_name]
         for param_name, formula in formulas.items():
-            if has_param(param_name):
+            if has_param(param_name, param_names):
                 sizes.append(f"int size_{param_name} = {formula}")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -708,9 +712,9 @@ def calculate_pointer_sizes(function):
             param_name = param.name
             if param_name in ['x', 'y']:
                 inc_param = f'inc{param_name}'
-                if has_param(inc_param) and has_param('n'):
+                if has_param(inc_param, param_names) and has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * n * abs({inc_param})")
-                elif has_param('n'):
+                elif has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * n")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -733,10 +737,10 @@ def calculate_pointer_sizes(function):
 
             param_name = param.name
             if param_name in ['A', 'B', 'C']:
-                if has_param(f'ld{param_name.lower()}') and has_param('n'):
+                if has_param(f'ld{param_name.lower()}', param_names) and has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n")
             elif param_name in ['x', 'y']:
-                if has_param(f'inc{param_name}') and has_param('n'):
+                if has_param(f'inc{param_name}', param_names) and has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * n * abs(inc{param_name})")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -758,8 +762,8 @@ def calculate_pointer_sizes(function):
 
             param_name = param.name
             if param_name in ['A', 'B', 'C']:
-                if has_param(f'ld{param_name.lower()}'):
-                    if has_param('n') and has_param('k'):
+                if has_param(f'ld{param_name.lower()}', param_names):
+                    if has_param('n', param_names) and has_param('k', param_names):
                         # For operations like gemm
                         if 'transa' in param_names or 'transb' in param_names:
                             trans_param = 'transa' if param_name == 'A' else 'transb' if param_name == 'B' else None
@@ -770,10 +774,10 @@ def calculate_pointer_sizes(function):
                                 )
                         else:
                             sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n")
-                    elif has_param('n'):
+                    elif has_param('n', param_names):
                         sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n")
             elif param_name in ['x'] and 'dgmm' in function_name:
-                if has_param('incx') and has_param('m') and has_param('n'):
+                if has_param('incx', param_names) and has_param('m', param_names) and has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * ((mode == CUBLAS_SIDE_LEFT) ? m : n) * abs(incx)")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -793,10 +797,10 @@ def calculate_pointer_sizes(function):
             param_name = param.name
             if param_name.endswith('array') or param_name.endswith('Array'):
                 # Batched array of pointers
-                if has_param('batchCount'):
+                if has_param('batchCount', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * batchCount")
             elif param_name in ['A', 'B', 'C']:
-                if has_param(f'ld{param_name.lower()}') and has_param('n') and has_param('batchCount'):
+                if has_param(f'ld{param_name.lower()}', param_names) and has_param('n', param_names) and has_param('batchCount', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n * batchCount")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -815,8 +819,8 @@ def calculate_pointer_sizes(function):
 
             param_name = param.name
             if param_name in ['A', 'B', 'C']:
-                if has_param(f'ld{param_name.lower()}') and has_param(f'stride{param_name}') and has_param('batchCount'):
-                    if has_param('n'):
+                if has_param(f'ld{param_name.lower()}', param_names) and has_param(f'stride{param_name}', param_names) and has_param('batchCount', param_names):
+                    if has_param('n', param_names):
                         sizes.append(
                             f"int size_{param_name} = sizeof({base_type}) * "
                             f"(ld{param_name.lower()} * n + (batchCount - 1) * abs(stride{param_name}))"
@@ -839,13 +843,13 @@ def calculate_pointer_sizes(function):
 
             param_name = param.name
             if param_name in ['A', 'Ainv', 'C']:
-                if has_param('lda') and has_param('n'):
+                if has_param('lda', param_names) and has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * lda * n")
-                elif has_param('lda_inv') and has_param('n'):
+                elif has_param('lda_inv', param_names) and has_param('n', param_names):
                     sizes.append(f"int size_{param_name} = sizeof({base_type}) * lda_inv * n")
-            elif param_name.endswith('Array') and has_param('batchSize'):
+            elif param_name.endswith('Array') and has_param('batchSize', param_names):
                 sizes.append(f"int size_{param_name} = sizeof({base_type}) * batchSize")
-            elif param_name == 'devInfoArray' and has_param('batchSize'):
+            elif param_name == 'devInfoArray' and has_param('batchSize', param_names):
                 sizes.append(f"int size_{param_name} = sizeof(int) * batchSize")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -863,7 +867,7 @@ def calculate_pointer_sizes(function):
                 continue
 
             param_name = param.name
-            if param_name in ['AP', 'A'] and has_param('n'):
+            if param_name in ['AP', 'A'] and has_param('n', param_names):
                 sizes.append(f"int size_{param_name} = sizeof({base_type}) * ((n * (n + 1)) / 2)")
         print(f"\nFunction: {function_name}")
         print("Calculated sizes:", sizes)
@@ -1084,7 +1088,7 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         for include_dir in include_dirs:
             f.write(f" -I{include_dir}")
         f.write(" -DCUBLASAPI= -DDEBUG\n")
-        f.write("LDFLAGS = -ldl -lpthread\n\n")
+        f.write("LDFLAGS = -ldl -lpthread -luuid\n\n")
 
         # 定义 hook.so 的编译参数和链接参数
         f.write("# Compilation flags for hook.so\n")
