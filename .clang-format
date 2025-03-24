@@ -9,5 +9,4 @@ ColumnLimit: 512
 IndentWidth: 4
 UseTab: Never
 SortIncludes: false
-SeparateDefinitionBlocks: Always
 ...

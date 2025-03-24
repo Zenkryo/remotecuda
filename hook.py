@@ -5,6 +5,7 @@ import os
 import logging
 import hashlib
 import logging
+import re
 from cxxheaderparser.simple import parse_file, ParserOptions
 from cxxheaderparser.preprocessor import make_gcc_preprocessor
 from cxxheaderparser.types import Array, Pointer, Type, FunctionType, AnonymousName
@@ -293,6 +294,19 @@ def getArrayLengthParam(function, param):
                 return _param.name
     return "0"
 
+# 获取指针指向内存的长度
+def getPointerLength(function, param):
+    param_name = param.name
+    param_type = param.type.ptr_to.format()
+    for _param in function.parameters:
+        if _param.name == "ld" + param_name.lower() and _param.type.format() == "int":
+            return _param.name
+        if _param.type.format() == "cudaDataType" and (param_type == "void" or param_type == "const void"):
+            if _param.name.endswith("type") or _param.name.endswith("Type"):
+                pre = _param.name[:-4]
+                if pre.find(param_name) != -1:
+                    return "getSizeFromCudaDataType("+_param.name+")"
+    return "0"
 
 # 处理值类型参数
 def handle_param_type(function, param, f, is_client=True, position=0):
@@ -313,12 +327,13 @@ def handle_param_type(function, param, f, is_client=True, position=0):
 # 处理void *类型的参数
 def handle_param_pvoid(function, param, f, is_client=True, position=0):
     if is_client:
+        len = getPointerLength(function, param)
         if position == 0:
-            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, 0);\n")
+            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
-            f.write(f"    mem2client((void *){param.name}, 0);\n")
+            f.write(f"    mem2client((void *){param.name}, {len});\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -329,12 +344,13 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
 # 处理const void *参数
 def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
     if is_client:
+        len = getPointerLength(function, param)
         if position == 0:
-            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, 0);\n")
+            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
-            f.write(f"    mem2client((void *){param.name}, 0);\n")
+            f.write(f"    mem2client((void *){param.name}, {len});\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -390,45 +406,76 @@ def handle_param_phidden(function, param, f, is_client=True, position=0):
 
 # 处理const type *参数
 def handle_param_pconsttype(function, param, f, is_client=True, position=0):
+    param_type_name = param.type.ptr_to.format()
+    if param_type_name.startswith("const "):
+        param_type_name = param_type_name[6:]
     if is_client:
-        if position == 1:
-            f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
+        len = getPointerLength(function, param)
+        if position == 0:
+            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
+        elif position == 1:
+            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+        elif position == 3:
+            f.write(f"    mem2client((void *){param.name}, {len});\n")
     else:
         if position == 0:
-            # 移除参数类型字符串中开头的 const
-            param_type_name = param.type.ptr_to.format()
-            param_type_name = param_type_name[6:]
-            f.write(f"    {param_type_name} {param.name};\n")
+            f.write(f"    {param_type_name} *{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
-            return "&" + param.name
+            return param.name
+    # if is_client:
+    #     if position == 1:
+    #         f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
+    # else:
+    #     if position == 0:
+    #         # 移除参数类型字符串中开头的 const
+    #         param_type_name = param.type.ptr_to.format()
+    #         param_type_name = param_type_name[6:]
+    #         f.write(f"    {param_type_name} {param.name};\n")
+    #         f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+    #         return "&" + param.name
 
 
 # 处理输入类型的type *参数
-def handle_param_ptype_in(function, param, f, is_client=True, position=0):
+# def handle_param_ptype_in(function, param, f, is_client=True, position=0):
+#     if is_client:
+#         if position == 1:
+#             f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
+#     else:
+#         if position == 0:
+#             param_type_name = param.type.ptr_to.format()
+#             f.write(f"    {param_type_name} {param.name};\n")
+#             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+#             return param.name
+
+
+# 处理输出类型的type *参数
+# def handle_param_ptype_out(function, param, f, is_client=True, position=0):
+#     if is_client:
+#         if position == 1:
+#             f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
+#     else:
+#         if position == 0:
+#             param_type_name = param.type.ptr_to.format()
+#             f.write(f"    {param_type_name} {param.name};\n")
+#             return "&" + param.name
+#         elif position == 2:
+#             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+
+def handle_param_ptype(function, param, f, is_client=True, position=0):
+    param_type_name = param.type.ptr_to.format()
     if is_client:
-        if position == 1:
-            f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
+        len = getPointerLength(function, param)
+        if position == 0:
+            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
+        elif position == 1:
+            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+        elif position == 3:
+            f.write(f"    mem2client((void *){param.name}, {len});\n")
     else:
         if position == 0:
-            param_type_name = param.type.ptr_to.format()
-            f.write(f"    {param_type_name} {param.name};\n")
+            f.write(f"    {param_type_name}*{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             return param.name
-
-
-# 处理输出类型的
-def handle_param_ptype_out(function, param, f, is_client=True, position=0):
-    if is_client:
-        if position == 1:
-            f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
-    else:
-        if position == 0:
-            param_type_name = param.type.ptr_to.format()
-            f.write(f"    {param_type_name} {param.name};\n")
-            return "&" + param.name
-        elif position == 2:
-            f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
-
 
 # 处理void **类型的参数
 def handle_param_ppvoid(function, param, f, is_client=True, position=0):
@@ -572,7 +619,7 @@ def handle_param(function, param, f, is_client=True, position=0):
             elif param_type_name == "struct cudaGraphNodeParams":
                 return handle_param_phidden(function, param, f, is_client, position)
             else:
-                return handle_param_ptype_out(function, param, f, is_client, position)
+                return handle_param_ptype(function, param, f, is_client, position)
         elif isinstance(param_type.ptr_to, Pointer):  # 指针的指针
             if isinstance(param_type.ptr_to.ptr_to, Type):  # 指向值类型的指针的指针
                 if param_type.ptr_to.ptr_to.format() == "void":  # void **
@@ -606,8 +653,240 @@ def handle_param(function, param, f, is_client=True, position=0):
     else:
         f.write(f'    std::cerr << "PARAM Not supported" << std::endl; // {param.name} \n')
         f.write(f"    exit(1);\n")
+from cxxheaderparser.types import Pointer, Type
 
+def calculate_pointer_sizes(function):
+    """
+    Analyze a CUDA/CUBLAS API function and return accurate size calculations for pointer parameters,
+    with debug prints before each return.
+    """
+    sizes = []
+    function_name = function.name.format()
+    param_names = [param.name for param in function.parameters]
 
+    # Helper function to get base type name
+    def get_base_type(param):
+        if isinstance(param.type, Pointer):
+            base_type = param.type.ptr_to
+            if isinstance(base_type, Type):
+                return base_type.format().replace('const ', '')
+        return None
+
+    # 1. Handle memory copy operations first
+    copy_operations = {
+        'cublasSetMatrix': {'A': 'lda * cols * elemSize', 'B': 'ldb * cols * elemSize'},
+        'cublasGetMatrix': {'A': 'lda * cols * elemSize', 'B': 'ldb * cols * elemSize'},
+        'cublasSetMatrixAsync': {'A': 'lda * cols * elemSize', 'B': 'ldb * cols * elemSize'},
+        'cublasGetMatrixAsync': {'A': 'lda * cols * elemSize', 'B': 'ldb * cols * elemSize'},
+        'cublasSetVector': {'x': 'n * elemSize', 'devicePtr': 'n * elemSize'},
+        'cublasGetVector': {'x': 'n * elemSize', 'y': 'n * elemSize'},
+        'cublasSetVectorAsync': {'hostPtr': 'n * elemSize', 'devicePtr': 'n * elemSize'},
+        'cublasGetVectorAsync': {'devicePtr': 'n * elemSize', 'hostPtr': 'n * elemSize'},
+    }
+
+    if function_name in copy_operations:
+        formulas = copy_operations[function_name]
+        for param_name, formula in formulas.items():
+            if has_param(param_name):
+                sizes.append(f"int size_{param_name} = {formula}")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 2. Handle BLAS Level 1 operations (vector-vector)
+    level1_ops = ['nrm2', 'dot', 'scal', 'axpy', 'copy', 'swap', 'iamax', 'iamin', 'asum', 'rot']
+    if any(op in function_name for op in level1_ops):
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name in ['x', 'y']:
+                inc_param = f'inc{param_name}'
+                if has_param(inc_param) and has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * n * abs({inc_param})")
+                elif has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * n")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 3. Handle BLAS Level 2 operations (matrix-vector)
+    level2_ops = ['gemv', 'gbmv', 'trmv', 'tbmv', 'tpmv', 'trsv', 'tpsv', 'tbsv',
+                 'symv', 'hemv', 'sbmv', 'hbmv', 'spmv', 'hpmv', 'ger', 'geru',
+                 'gerc', 'syr', 'her', 'spr', 'hpr', 'syr2', 'her2', 'spr2', 'hpr2']
+
+    if any(op in function_name for op in level2_ops):
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name in ['A', 'B', 'C']:
+                if has_param(f'ld{param_name.lower()}') and has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n")
+            elif param_name in ['x', 'y']:
+                if has_param(f'inc{param_name}') and has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * n * abs(inc{param_name})")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 4. Handle BLAS Level 3 operations (matrix-matrix)
+    level3_ops = ['gemm', 'symm', 'hemm', 'syrk', 'herk', 'syr2k', 'her2k',
+                 'trmm', 'trsm', 'geam', 'dgmm']
+
+    if any(op in function_name for op in level3_ops):
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name in ['A', 'B', 'C']:
+                if has_param(f'ld{param_name.lower()}'):
+                    if has_param('n') and has_param('k'):
+                        # For operations like gemm
+                        if 'transa' in param_names or 'transb' in param_names:
+                            trans_param = 'transa' if param_name == 'A' else 'transb' if param_name == 'B' else None
+                            if trans_param:
+                                sizes.append(
+                                    f"int size_{param_name} = sizeof({base_type}) * "
+                                    f"ld{param_name.lower()} * (({trans_param} == CUBLAS_OP_N) ? k : n)"
+                                )
+                        else:
+                            sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n")
+                    elif has_param('n'):
+                        sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n")
+            elif param_name in ['x'] and 'dgmm' in function_name:
+                if has_param('incx') and has_param('m') and has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * ((mode == CUBLAS_SIDE_LEFT) ? m : n) * abs(incx)")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 5. Handle batched operations
+    if 'Batched' in function_name:
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name.endswith('array') or param_name.endswith('Array'):
+                # Batched array of pointers
+                if has_param('batchCount'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * batchCount")
+            elif param_name in ['A', 'B', 'C']:
+                if has_param(f'ld{param_name.lower()}') and has_param('n') and has_param('batchCount'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * ld{param_name.lower()} * n * batchCount")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 6. Handle strided batched operations
+    if 'StridedBatched' in function_name:
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name in ['A', 'B', 'C']:
+                if has_param(f'ld{param_name.lower()}') and has_param(f'stride{param_name}') and has_param('batchCount'):
+                    if has_param('n'):
+                        sizes.append(
+                            f"int size_{param_name} = sizeof({base_type}) * "
+                            f"(ld{param_name.lower()} * n + (batchCount - 1) * abs(stride{param_name}))"
+                        )
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 7. Handle LAPACK-like operations
+    lapack_ops = ['getrf', 'getri', 'getrs', 'matinv', 'geqrf', 'gels']
+    if any(op in function_name for op in lapack_ops):
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name in ['A', 'Ainv', 'C']:
+                if has_param('lda') and has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * lda * n")
+                elif has_param('lda_inv') and has_param('n'):
+                    sizes.append(f"int size_{param_name} = sizeof({base_type}) * lda_inv * n")
+            elif param_name.endswith('Array') and has_param('batchSize'):
+                sizes.append(f"int size_{param_name} = sizeof({base_type}) * batchSize")
+            elif param_name == 'devInfoArray' and has_param('batchSize'):
+                sizes.append(f"int size_{param_name} = sizeof(int) * batchSize")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # 8. Handle other special operations
+    if function_name in ['cublasXtpttr', 'cublasXtrttp']:
+        for param in function.parameters:
+            if not isinstance(param.type, Pointer):
+                continue
+
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                continue
+
+            param_name = param.name
+            if param_name in ['AP', 'A'] and has_param('n'):
+                sizes.append(f"int size_{param_name} = sizeof({base_type}) * ((n * (n + 1)) / 2)")
+        print(f"\nFunction: {function_name}")
+        print("Calculated sizes:", sizes)
+        print("-" * 50)
+        return sizes
+
+    # Default case for unhandled functions
+    for param in function.parameters:
+        if isinstance(param.type, Pointer):
+            base_type = get_base_type(param)
+            if base_type == 'void':
+                sizes.append(f"int size_{param.name} = 0  // Cannot determine size for void* in {function_name}")
+            else:
+                sizes.append(f"int size_{param.name} = 0  // Unknown size calculation for {function_name}")
+
+    print(f"\nFunction: {function_name}")
+    print("Calculated sizes:", sizes)
+    print("-" * 50)
+    return sizes
+
+# Helper function used in the implementation
+def has_param(name, param_names):
+    return name in param_names
 def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_file):
     """
     生成对应头文件的 .cpp 文件，包含 Hook 的函数实现
@@ -631,12 +910,15 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         f.write('extern "C" void *mem2server(void *clientPtr, size_t size);\n')
         f.write('extern "C" void mem2client(void *clientPtr, size_t size);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
+        if header_file.endswith("cublas_api.h"):
+            f.write("int getSizeFromCudaDataType(cudaDataType type);\n")
         # 写入被 Hook 的函数实现
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             function_map[header_file] = []
             for function in parsed_header.namespace.functions:
                 if function.inline:
                     continue
+                calculate_pointer_sizes(function)
                 function_name = function.name.format()
                 if function_name in INLINE_FUNCTIONS:
                     continue

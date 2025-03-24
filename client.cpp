@@ -3,6 +3,8 @@
 #include <dlfcn.h>
 #include <unordered_map>
 #include <string>
+#include <cuda_runtime.h>
+#include <cublas_api.h>
 #include "rpc.h"
 
 void *getHookFunc(const char *symbol);
@@ -80,3 +82,67 @@ void cleanup_hook() {
 __attribute__((constructor)) void init() { init_hook(); }
 
 __attribute__((destructor)) void cleanup() { cleanup_hook(); }
+
+int getSizeFromCudaDataType(cudaDataType type) {
+    switch(type) {
+    case CUDA_R_16F:
+        return 2; // 半精度浮点数
+    case CUDA_C_16F:
+        return 4; // 半精度复数 (2 + 2)
+    case CUDA_R_16BF:
+        return 2; // 半精度bfloat16
+    case CUDA_C_16BF:
+        return 4; // 半精度复数bfloat16 (2 + 2)
+    case CUDA_R_32F:
+        return 4; // 单精度浮点数
+    case CUDA_C_32F:
+        return 8; // 单精度复数 (4 + 4)
+    case CUDA_R_64F:
+        return 8; // 双精度浮点数
+    case CUDA_C_64F:
+        return 16; // 双精度复数 (8 + 8)
+    case CUDA_R_4I:
+        return 1; // 4位整数
+    case CUDA_C_4I:
+        return 2; // 4位复数整数 (1 + 1)
+    case CUDA_R_4U:
+        return 1; // 4位无符号整数
+    case CUDA_C_4U:
+        return 2; // 4位无符号复数整数 (1 + 1)
+    case CUDA_R_8I:
+        return 1; // 8位整数
+    case CUDA_C_8I:
+        return 2; // 8位复数整数 (1 + 1)
+    case CUDA_R_8U:
+        return 1; // 8位无符号整数
+    case CUDA_C_8U:
+        return 2; // 8位无符号复数整数 (1 + 1)
+    case CUDA_R_16I:
+        return 2; // 16位整数
+    case CUDA_C_16I:
+        return 4; // 16位复数整数 (2 + 2)
+    case CUDA_R_16U:
+        return 2; // 16位无符号整数
+    case CUDA_C_16U:
+        return 4; // 16位无符号复数整数 (2 + 2)
+    case CUDA_R_32I:
+        return 4; // 32位整数
+    case CUDA_C_32I:
+        return 8; // 32位复数整数 (4 + 4)
+    case CUDA_R_32U:
+        return 4; // 32位无符号整数
+    case CUDA_C_32U:
+        return 8; // 32位无符号复数整数 (4 + 4)
+    case CUDA_R_64I:
+        return 8; // 64位整数
+    case CUDA_C_64I:
+        return 16; // 64位复数整数 (8 + 8)
+    case CUDA_R_64U:
+        return 8; // 64位无符号整数
+    case CUDA_C_64U:
+        return 16; // 64位无符号复数整数 (8 + 8)
+    default:
+        printf("Unsupported cudaDataType\n");
+        return -1; // 未知类型返回错误
+    }
+}
