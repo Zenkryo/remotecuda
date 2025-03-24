@@ -1082,6 +1082,7 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)image, 0);
     return _result;
 }
 
@@ -1111,6 +1112,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
     }
     // PARAM void **optionValues
     rpc_free_client(client);
+    mem2client((void *)image, 0);
     // PARAM void **optionValues
     return _result;
 }
@@ -1136,6 +1138,7 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)fatCubin, 0);
     return _result;
 }
 
@@ -1704,6 +1707,7 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)srcHost, 0);
     return _result;
 }
 
@@ -1830,6 +1834,7 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)srcHost, 0);
     return _result;
 }
 
@@ -2049,6 +2054,7 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)srcHost, 0);
     return _result;
 }
 
@@ -2128,6 +2134,7 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)srcHost, 0);
     return _result;
 }
 
@@ -3456,6 +3463,7 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)value, 0);
     return _result;
 }
 

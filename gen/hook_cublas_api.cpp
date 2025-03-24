@@ -471,6 +471,7 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     mem2client((void *)devicePtr, 0);
     return _result;
 }
@@ -501,6 +502,7 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     mem2client((void *)y, 0);
     return _result;
 }
@@ -532,6 +534,7 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)B, 0);
     return _result;
 }
@@ -563,6 +566,7 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)B, 0);
     return _result;
 }
@@ -594,6 +598,7 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)hostPtr, 0);
     mem2client((void *)devicePtr, 0);
     return _result;
 }
@@ -625,6 +630,7 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)devicePtr, 0);
     mem2client((void *)hostPtr, 0);
     return _result;
 }
@@ -657,6 +663,7 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)B, 0);
     return _result;
 }
@@ -689,6 +696,7 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)B, 0);
     return _result;
 }
@@ -742,6 +750,7 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     mem2client((void *)result, 0);
     return _result;
 }
@@ -882,6 +891,8 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
+    mem2client((void *)y, 0);
     mem2client((void *)result, 0);
     return _result;
 }
@@ -918,6 +929,8 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
+    mem2client((void *)y, 0);
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1118,6 +1131,7 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -1310,6 +1324,8 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)alpha, 0);
+    mem2client((void *)x, 0);
     mem2client((void *)y, 0);
     return _result;
 }
@@ -1454,6 +1470,7 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     mem2client((void *)y, 0);
     return _result;
 }
@@ -1836,6 +1853,7 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     return _result;
 }
 
@@ -1968,6 +1986,7 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     return _result;
 }
 
@@ -1999,6 +2018,7 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)x, 0);
     mem2client((void *)result, 0);
     return _result;
 }
@@ -2317,6 +2337,8 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
     rpc_free_client(client);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
+    mem2client((void *)c, 0);
+    mem2client((void *)s, 0);
     return _result;
 }
 
@@ -2551,6 +2573,7 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
     rpc_free_client(client);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
+    mem2client((void *)param, 0);
     return _result;
 }
 
@@ -2646,6 +2669,7 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
     mem2client((void *)d1, 0);
     mem2client((void *)d2, 0);
     mem2client((void *)x1, 0);
+    mem2client((void *)y1, 0);
     mem2client((void *)param, 0);
     return _result;
 }
@@ -4886,12 +4910,12 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, alpha, sizeof(*alpha));
-    rpc_write(client, A, sizeof(*A));
+    rpc_write(client, &A, sizeof(A));
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, B, sizeof(*B));
+    rpc_write(client, &B, sizeof(B));
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, beta, sizeof(*beta));
-    rpc_read(client, C, sizeof(*C));
+    rpc_write(client, &C, sizeof(C));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5046,6 +5070,8 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     mem2client((void *)C, 0);
     return _result;
 }
@@ -5193,6 +5219,8 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     mem2client((void *)C, 0);
     return _result;
 }
@@ -5235,6 +5263,8 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     mem2client((void *)C, 0);
     return _result;
 }
@@ -5439,6 +5469,7 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)C, 0);
     return _result;
 }
@@ -5476,6 +5507,7 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)C, 0);
     return _result;
 }
@@ -5577,6 +5609,7 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)C, 0);
     return _result;
 }
@@ -5614,6 +5647,7 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_free_client(client);
+    mem2client((void *)A, 0);
     mem2client((void *)C, 0);
     return _result;
 }

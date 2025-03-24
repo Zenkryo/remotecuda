@@ -19,11 +19,17 @@
 #define MAX_FUNCTION_NAME 128
 #define MAX_ARGS 32
 
+struct ParamInfo {
+    int size;
+    void *ptr;
+    bool is_pointer;
+};
+
 struct Function {
     char *name;
     void *fat_cubin;       // the fat cubin that this function is a part of.
     const char *host_func; // if registered, points at the host function.
-    int *arg_sizes;
+    ParamInfo *params;  // 改用 ParamInfo 数组替代原来的 arg_sizes
     int arg_count;
 };
 
@@ -118,11 +124,14 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             std::cerr << "Failed to allocate memory" << std::endl;
             exit(1);
         }
-        int *arg_sizes = (int *)malloc(MAX_ARGS * sizeof(int));
-        if(arg_sizes == nullptr) {
+
+        ParamInfo *params = (ParamInfo *)malloc(MAX_ARGS * sizeof(ParamInfo));
+        if(params == nullptr) {
             std::cerr << "Failed to allocate memory" << std::endl;
+            free(name);
             exit(1);
         }
+        memset(params, 0, MAX_ARGS * sizeof(ParamInfo));  // 初始化参数数组
         int arg_count = 0;
 
         i += strlen(".entry");
@@ -141,63 +150,85 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
         }
 
         if(ptx_string[i] == '(') {
-            for(; arg_count < MAX_ARGS; arg_count++) {
-                int arg_size = 0;
+            i++; // 跳过左括号
+            while(i < ptx_len && ptx_string[i] != ')') {
+                // 跳过空白字符
+                while(i < ptx_len && isspace(ptx_string[i])) i++;
 
-                while(i < ptx_len && (ptx_string[i] != '.' && ptx_string[i] != ')')) {
-                    i++;
+                // 查找 .param 标记
+                if(i + 5 >= ptx_len || strncmp(ptx_string + i, ".param", 6) != 0) {
+                    // 移动到下一个参数
+                    while(i < ptx_len && ptx_string[i] != ',' && ptx_string[i] != ')') i++;
+                    if(ptx_string[i] == ',') i++;
+                    continue;
+                }
+                i += 6; // 跳过 .param
+
+                // 跳过空白字符
+                while(i < ptx_len && isspace(ptx_string[i])) i++;
+
+                // 检查是否是指针类型 (.u64)
+                if(i + 3 < ptx_len && strncmp(ptx_string + i, ".u64", 4) == 0) {
+                    params[arg_count].is_pointer = true;
+                    params[arg_count].size = 8;  // 指针大小为8字节
+                    i += 4;
+                } else if(ptx_string[i] == '.') {
+                    i++; // 跳过点号
+                    params[arg_count].is_pointer = false;
+                    params[arg_count].size = get_type_size(ptx_string + i);
+                    // 跳过类型名
+                    while(i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_')) i++;
                 }
 
+                // 检查数组声明
+                while(i < ptx_len && ptx_string[i] != '[' && ptx_string[i] != ',' && ptx_string[i] != ')') i++;
+                if(ptx_string[i] == '[') {
+                    i++; // 跳过 [
+                    int array_size = 0;
+                    while(i < ptx_len && isdigit(ptx_string[i])) {
+                        array_size = array_size * 10 + (ptx_string[i] - '0');
+                        i++;
+                    }
+                    if(array_size > 0) {
+                        params[arg_count].size *= array_size;
+                    }
+                    while(i < ptx_len && ptx_string[i] != ']') i++;
+                    if(ptx_string[i] == ']') i++;
+                }
+
+                arg_count++;
+
+                // 跳过空白字符
+                while(i < ptx_len && isspace(ptx_string[i])) i++;
+
+                // 检查是否还有更多参数
+                if(ptx_string[i] == ',') {
+                    i++;
+                    continue;
+                }
                 if(ptx_string[i] == ')') {
                     break;
                 }
-
-                // assert that the next token is "param"
-                if(i + 5 >= ptx_len || strncmp(ptx_string + i, ".param", strlen(".param")) != 0) {
-                    continue;
-                }
-
-                while(true) {
-                    while(i < ptx_len && (ptx_string[i] != '.' && ptx_string[i] != ',' && ptx_string[i] != ')' && ptx_string[i] != '[')) {
-                        i++;
-                    }
-
-                    if(ptx_string[i] == '.') {
-                        // read the type, ignoring if it's not a valid type
-                        int type_size = get_type_size(ptx_string + (++i));
-                        if(type_size == 0) {
-                            continue;
-                        }
-                        arg_size = type_size;
-                    } else if(ptx_string[i] == '[') {
-                        // this is an array type. read until the ]
-                        int start = i + 1;
-                        while(i < ptx_len && ptx_string[i] != ']') {
-                            i++;
-                        }
-
-                        // parse the int value
-                        int n = 0;
-                        for(int j = start; j < i; j++) {
-                            n = n * 10 + ptx_string[j] - '0';
-                        }
-                        arg_size *= n;
-                    } else if(ptx_string[i] == ',' || ptx_string[i] == ')') {
-                        break;
-                    }
-                }
-                arg_sizes[arg_count] = arg_size;
             }
         }
-        // add the function to the list
+
+        // 添加函数到列表
         functions.push_back(Function{
             .name = name,
             .fat_cubin = fatCubin,
             .host_func = nullptr,
-            .arg_sizes = arg_sizes,
+            .params = params,
             .arg_count = arg_count,
         });
-        // printf("function %s has %d arguments\n", name, arg_count);
+
+#ifdef DEBUG
+        // 打印调试信息
+        printf("Function: %s with %d arguments:\n", name, arg_count);
+        for(int j = 0; j < arg_count; j++) {
+            printf("  Arg %d: size=%d, is_pointer=%d\n",
+                   j, params[j].size, params[j].is_pointer);
+        }
+#endif
     }
 }
 
@@ -343,7 +374,7 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
  */
 extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
 #ifdef DEBUG
-    std::cout << "Hook: mem2server called" << std::endl;
+    std::cout << "Hook: mem2server called " << clientPtr << " " << size << std::endl;
 #endif
     auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it1 != cs_dev_mems.end()) {
@@ -352,6 +383,11 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
     auto it2 = server_dev_mems.find(clientPtr);
     if(it2 != server_dev_mems.end()) {
         return (void *)it2->first;
+    }
+    for(auto &func : functions) {
+        if(func.host_func == clientPtr){
+            return (void *)func.fat_cubin;
+        }
     }
 
     RpcClient *client = rpc_get_client();
@@ -374,7 +410,7 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
         auto it3 = cs_union_mems.find(clientPtr);
         if(it3 != cs_union_mems.end()) {
             serverPtr = it3->second.first;
-            memSize = it->second.second;
+            memSize = it3->second.second;
             rpc_write(client, &serverPtr, sizeof(serverPtr));
             rpc_write(client, &memSize, sizeof(memSize));
             rpc_write(client, clientPtr, memSize, true);
@@ -402,7 +438,7 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
  */
 extern "C" void mem2client(void *clientPtr, size_t size = 0) {
 #ifdef DEBUG
-    std::cout << "Hook: mem2client called" << std::endl;
+    std::cout << "Hook: mem2client called " << clientPtr << " " << size << std::endl;
 #endif
     auto it3 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it3 != cs_dev_mems.end()) {
@@ -411,6 +447,11 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0) {
     auto it4 = server_dev_mems.find(clientPtr);
     if(it4 != server_dev_mems.end()) {
         return;
+    }
+    for(auto &func : functions) {
+        if(func.host_func == clientPtr){
+            return;
+        }
     }
 
     RpcClient *client = rpc_get_client();
@@ -433,7 +474,7 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0) {
         auto it2 = cs_union_mems.find(clientPtr);
         if(it2 != cs_union_mems.end()) {
             serverPtr = it2->second.first;
-            memSize = size;
+            memSize = it2->second.second;
             rpc_write(client, &serverPtr, sizeof(serverPtr));
             rpc_write(client, &memSize, sizeof(memSize), false);
             rpc_read(client, clientPtr, memSize, true);
@@ -645,6 +686,11 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         std::cerr << "Failed to find function" << std::endl;
         return cudaErrorInvalidDeviceFunction;
     }
+    for(int i = 0; i < f->arg_count; i++) {
+        if(f->params[i].is_pointer){
+            f->params[i].ptr = mem2server(*((void**)args[i]));
+        }
+    }
 
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -660,7 +706,11 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_write(client, &f->arg_count, sizeof(f->arg_count));
 
     for(int i = 0; i < f->arg_count; i++) {
-        rpc_write(client, args[i], f->arg_sizes[i], true);
+        if(f->params[i].is_pointer){
+            rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
+        } else {
+            rpc_write(client, args[i], f->params[i].size, true);
+        }
     }
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -669,6 +719,12 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         exit(1);
     }
     rpc_free_client(client);
+    _result = cudaDeviceSynchronize();
+    for(int i = 0; i < f->arg_count; i++) {
+        if(f->params[i].is_pointer){
+            mem2client(*((void**)args[i]));
+        }
+    }
     return _result;
 }
 
@@ -786,11 +842,11 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*devPtr);
+        rpc_release_client(client);
         exit(1);
     }
     if(_result == cudaSuccess) {
         cs_union_mems[*devPtr] = std::make_pair((void *)serverPtr, size);
-        rpc_release_client(client);
     } else {
         free(*devPtr);
     }
@@ -827,258 +883,7 @@ extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t widt
     return _result;
 }
 
-// extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind) {
-// #ifdef DEBUG
-//     std::cout << "Hook: cudaMemcpy called" << std::endl;
-// #endif
-//     printf("=======================cudaMemcpy dst: %p, src: %p, count: %zu, kind: %d\n", dst, src, count, kind);
-//     cudaError_t _result;
-//     RpcClient *client = rpc_get_client();
-//     if(client == nullptr) {
-//         std::cerr << "Failed to get rpc client" << std::endl;
-//         exit(1);
-//     }
-//     rpc_prepare_request(client, RPC_cudaMemcpy);
-//     void *serverSrc;
-//     void *serverDst;
-//     bool src_is_union;
-//     bool dst_is_union;
 
-//     switch(kind) {
-//     case cudaMemcpyHostToDevice:
-//         serverSrc = getServerHostPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             serverSrc = getUnionPtr((void *)src);
-//         }
-//         serverDst = getUnionPtr(dst);
-//         if(serverDst == nullptr) {
-//             serverDst = getServerDevPtr(dst);
-//             if(serverDst == nullptr) {
-//                 printf("device memory %p not in \n", dst);
-//                 serverDst = dst;
-//             }
-//         } else {
-//             memcpy(dst, src, count);
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_write(client, src, count, true);
-//         break;
-//     case cudaMemcpyDeviceToHost:
-//         serverSrc = getUnionPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             serverSrc = getServerDevPtr((void *)src);
-//             if(serverSrc == nullptr) {
-//                 printf("device memory %p not in \n", src);
-//                 serverSrc = (void *)src;
-//             }
-//         }
-//         serverDst = getUnionPtr(dst);
-//         if(serverDst == nullptr) {
-//             serverDst = getServerHostPtr(dst);
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_read(client, dst, count, true);
-//         break;
-//     case cudaMemcpyDeviceToDevice:
-//         serverSrc = getUnionPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             src_is_union = false;
-//             serverSrc = getServerDevPtr((void *)src);
-//             if(serverSrc == nullptr) {
-//                 printf("device memory %p not in \n", src);
-//                 serverSrc = (void *)src;
-//             }
-//         } else {
-//             src_is_union = true;
-//         }
-//         serverDst = getUnionPtr(dst);
-//         if(serverDst == nullptr) {
-//             dst_is_union = false;
-//             serverDst = getServerDevPtr(dst);
-//             if(serverDst == nullptr) {
-//                 printf("device memory %p not in \n", dst);
-//                 serverDst = dst;
-//             }
-//         } else {
-//             dst_is_union = true;
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
-//             rpc_write(client, src, count, true);
-//         }
-//         if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
-//             memcpy(dst, src, count);
-//         } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
-//             rpc_read(client, dst, count, true);
-//         }
-//         break;
-//     case cudaMemcpyHostToHost:
-//         memcpy(dst, src, count);
-//         serverSrc = getServerHostPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             serverSrc = getUnionPtr((void *)src);
-//         }
-//         serverDst = getServerHostPtr(dst);
-//         if(serverDst == nullptr) {
-//             serverDst = getUnionPtr(dst);
-//         }
-//         if(serverDst == nullptr) {
-//             rpc_free_client(client);
-//             return cudaSuccess; // 本地内存拷贝,不需要服务器端处理
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_write(client, src, count, true);
-//         break;
-//     }
-//     rpc_read(client, &_result, sizeof(_result));
-//     if(rpc_submit_request(client) != 0) {
-//         std::cerr << "Failed to submit request" << std::endl;
-//         rpc_release_client(client);
-//         exit(1);
-//     }
-//     rpc_free_client(client);
-//     return _result;
-// }
-
-// extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count, enum cudaMemcpyKind kind, cudaStream_t stream) {
-// #ifdef DEBUG
-//     std::cout << "Hook: cudaMemcpyAsync called" << std::endl;
-// #endif
-//     cudaError_t _result;
-//     RpcClient *client = rpc_get_client();
-//     if(client == nullptr) {
-//         std::cerr << "Failed to get rpc client" << std::endl;
-//         exit(1);
-//     }
-//     rpc_prepare_request(client, RPC_cudaMemcpyAsync);
-//     void *serverSrc;
-//     void *serverDst;
-//     bool src_is_union;
-//     bool dst_is_union;
-
-//     switch(kind) {
-//     case cudaMemcpyHostToDevice:
-//         serverSrc = getServerHostPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             serverSrc = getUnionPtr((void *)src);
-//         }
-//         serverDst = getUnionPtr(dst);
-//         if(serverDst == nullptr) {
-//             serverDst = getServerDevPtr(dst);
-//             if(serverDst == nullptr) {
-//                 printf("device memory %p not in \n", dst);
-//                 serverDst = dst;
-//             }
-//         } else {
-//             memcpy(dst, src, count);
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_write(client, &stream, sizeof(stream));
-//         rpc_write(client, src, count, true);
-//         break;
-//     case cudaMemcpyDeviceToHost:
-//         serverSrc = getUnionPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             serverSrc = getServerDevPtr((void *)src);
-//             if(serverSrc == nullptr) {
-//                 printf("device memory %p not in \n", src);
-//                 serverSrc = (void *)src;
-//             }
-//         }
-//         serverDst = getUnionPtr(dst);
-//         if(serverDst == nullptr) {
-//             serverDst = getServerHostPtr(dst);
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_write(client, &stream, sizeof(stream));
-//         rpc_read(client, dst, count, true);
-//         break;
-//     case cudaMemcpyDeviceToDevice:
-//         serverSrc = getUnionPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             src_is_union = false;
-//             serverSrc = getServerDevPtr((void *)src);
-//             if(serverSrc == nullptr) {
-//                 printf("device memory %p not in \n", src);
-//                 serverSrc = (void *)src;
-//             }
-//         } else {
-//             src_is_union = true;
-//         }
-//         serverDst = getUnionPtr(dst);
-//         if(serverDst == nullptr) {
-//             dst_is_union = false;
-//             serverDst = getServerDevPtr(dst);
-//             if(serverDst == nullptr) {
-//                 printf("device memory %p not in \n", dst);
-//                 serverDst = dst;
-//             }
-//         } else {
-//             dst_is_union = true;
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_write(client, &stream, sizeof(stream));
-//         if(src_is_union) { // 源地址为统一指针，需要将客户端数据发送到服务器
-//             rpc_write(client, src, count, true);
-//         }
-//         if(src_is_union && dst_is_union) { // 源地址和目的地址都是统一指针，无需从服务器读取数据
-//             memcpy(dst, src, count);
-//         } else if(dst_is_union) { // 目的地址为统一指针，需要从服务器读取数据
-//             rpc_read(client, dst, count, true);
-//         }
-//         break;
-//     case cudaMemcpyHostToHost:
-//         memcpy(dst, src, count);
-//         serverSrc = getServerHostPtr((void *)src);
-//         if(serverSrc == nullptr) {
-//             serverSrc = getUnionPtr((void *)src);
-//         }
-//         serverDst = getServerHostPtr(dst);
-//         if(serverDst == nullptr) {
-//             serverDst = getUnionPtr(dst);
-//         }
-//         if(serverDst == nullptr) {
-//             rpc_free_client(client);
-//             return cudaSuccess; // 本地内存拷贝,不需要服务器端处理
-//         }
-//         rpc_write(client, &serverDst, sizeof(serverDst));
-//         rpc_write(client, &serverSrc, sizeof(serverSrc));
-//         rpc_write(client, &count, sizeof(count));
-//         rpc_write(client, &kind, sizeof(kind));
-//         rpc_write(client, &stream, sizeof(stream));
-//         rpc_write(client, src, count, true);
-//         break;
-//     }
-//     rpc_read(client, &_result, sizeof(_result));
-//     if(rpc_submit_request(client) != 0) {
-//         std::cerr << "Failed to submit request" << std::endl;
-//         rpc_release_client(client);
-//         exit(1);
-//     }
-//     rpc_free_client(client);
-//     return _result;
-// }
 
 extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset, enum cudaMemcpyKind kind) {
 #ifdef DEBUG
@@ -1446,6 +1251,7 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
         rpc_release_client(client);
         exit(1);
     }
+    server_dev_mems[(void *)hostVar] = size;
     rpc_free_client(client);
 }
 

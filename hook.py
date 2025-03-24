@@ -333,6 +333,8 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
             f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, 0);\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+        elif position == 3:
+            f.write(f"    mem2client((void *){param.name}, 0);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
