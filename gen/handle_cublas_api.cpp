@@ -511,66 +511,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasGetStatusName(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGetStatusName called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasStatus_t status;
-    rpc_read(client, &status, sizeof(status));
-    const char *_result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGetStatusName(status);
-    rpc_write(client, _result, strlen(_result) + 1, true);
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGetStatusString(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGetStatusString called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasStatus_t status;
-    rpc_read(client, &status, sizeof(status));
-    const char *_result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGetStatusString(status);
-    rpc_write(client, _result, strlen(_result) + 1, true);
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasLoggerConfigure(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasLoggerConfigure called" << std::endl;
@@ -708,46 +648,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSetVector_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSetVector_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *devicePtr;
-    rpc_read(client, &devicePtr, sizeof(devicePtr));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSetVector_64(n, elemSize, x, incx, devicePtr, incy);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasGetVector(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasGetVector called" << std::endl;
@@ -774,46 +674,6 @@ int handle_cublasGetVector(void *args0) {
         goto _RTN_;
     }
     _result = cublasGetVector(n, elemSize, x, incx, y, incy);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGetVector_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGetVector_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGetVector_64(n, elemSize, x, incx, y, incy);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -870,48 +730,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSetMatrix_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSetMatrix_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t rows;
-    rpc_read(client, &rows, sizeof(rows));
-    int64_t cols;
-    rpc_read(client, &cols, sizeof(cols));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSetMatrix_64(rows, cols, elemSize, A, lda, B, ldb);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasGetMatrix(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasGetMatrix called" << std::endl;
@@ -940,48 +758,6 @@ int handle_cublasGetMatrix(void *args0) {
         goto _RTN_;
     }
     _result = cublasGetMatrix(rows, cols, elemSize, A, lda, B, ldb);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGetMatrix_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGetMatrix_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t rows;
-    rpc_read(client, &rows, sizeof(rows));
-    int64_t cols;
-    rpc_read(client, &cols, sizeof(cols));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGetMatrix_64(rows, cols, elemSize, A, lda, B, ldb);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1038,48 +814,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSetVectorAsync_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSetVectorAsync_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *hostPtr;
-    rpc_read(client, &hostPtr, sizeof(hostPtr));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *devicePtr;
-    rpc_read(client, &devicePtr, sizeof(devicePtr));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSetVectorAsync_64(n, elemSize, hostPtr, incx, devicePtr, incy, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasGetVectorAsync(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasGetVectorAsync called" << std::endl;
@@ -1108,48 +842,6 @@ int handle_cublasGetVectorAsync(void *args0) {
         goto _RTN_;
     }
     _result = cublasGetVectorAsync(n, elemSize, devicePtr, incx, hostPtr, incy, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGetVectorAsync_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGetVectorAsync_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *devicePtr;
-    rpc_read(client, &devicePtr, sizeof(devicePtr));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *hostPtr;
-    rpc_read(client, &hostPtr, sizeof(hostPtr));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGetVectorAsync_64(n, elemSize, devicePtr, incx, hostPtr, incy, stream);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1208,50 +900,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSetMatrixAsync_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSetMatrixAsync_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t rows;
-    rpc_read(client, &rows, sizeof(rows));
-    int64_t cols;
-    rpc_read(client, &cols, sizeof(cols));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSetMatrixAsync_64(rows, cols, elemSize, A, lda, B, ldb, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasGetMatrixAsync(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasGetMatrixAsync called" << std::endl;
@@ -1282,50 +930,6 @@ int handle_cublasGetMatrixAsync(void *args0) {
         goto _RTN_;
     }
     _result = cublasGetMatrixAsync(rows, cols, elemSize, A, lda, B, ldb, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGetMatrixAsync_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGetMatrixAsync_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int64_t rows;
-    rpc_read(client, &rows, sizeof(rows));
-    int64_t cols;
-    rpc_read(client, &cols, sizeof(cols));
-    int64_t elemSize;
-    rpc_read(client, &elemSize, sizeof(elemSize));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGetMatrixAsync_64(rows, cols, elemSize, A, lda, B, ldb, stream);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1415,50 +1019,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasNrm2Ex_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasNrm2Ex_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *result;
-    rpc_read(client, &result, sizeof(result));
-    cudaDataType resultType;
-    rpc_read(client, &resultType, sizeof(resultType));
-    cudaDataType executionType;
-    rpc_read(client, &executionType, sizeof(executionType));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasNrm2Ex_64(handle, n, x, xType, incx, result, resultType, executionType);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSnrm2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSnrm2_v2 called" << std::endl;
@@ -1482,44 +1042,6 @@ int handle_cublasSnrm2_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSnrm2_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSnrm2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSnrm2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSnrm2_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1573,44 +1095,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDnrm2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDnrm2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDnrm2_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasScnrm2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasScnrm2_v2 called" << std::endl;
@@ -1649,44 +1133,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasScnrm2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasScnrm2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasScnrm2_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDznrm2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDznrm2_v2 called" << std::endl;
@@ -1710,44 +1156,6 @@ int handle_cublasDznrm2_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDznrm2_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDznrm2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDznrm2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDznrm2_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1813,56 +1221,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDotEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDotEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    void *result;
-    rpc_read(client, &result, sizeof(result));
-    cudaDataType resultType;
-    rpc_read(client, &resultType, sizeof(resultType));
-    cudaDataType executionType;
-    rpc_read(client, &executionType, sizeof(executionType));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDotEx_64(handle, n, x, xType, incx, y, yType, incy, result, resultType, executionType);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDotcEx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDotcEx called" << std::endl;
@@ -1913,56 +1271,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDotcEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDotcEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    void *result;
-    rpc_read(client, &result, sizeof(result));
-    cudaDataType resultType;
-    rpc_read(client, &resultType, sizeof(resultType));
-    cudaDataType executionType;
-    rpc_read(client, &executionType, sizeof(executionType));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDotcEx_64(handle, n, x, xType, incx, y, yType, incy, result, resultType, executionType);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSdot_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSdot_v2 called" << std::endl;
@@ -1990,48 +1298,6 @@ int handle_cublasSdot_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSdot_v2(handle, n, &x, incx, &y, incy, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSdot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSdot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSdot_v2_64(handle, n, &x, incx, &y, incy, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2089,48 +1355,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDdot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDdot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDdot_v2_64(handle, n, &x, incx, &y, incy, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCdotu_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCdotu_v2 called" << std::endl;
@@ -2158,48 +1382,6 @@ int handle_cublasCdotu_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCdotu_v2(handle, n, &x, incx, &y, incy, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCdotu_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCdotu_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCdotu_v2_64(handle, n, &x, incx, &y, incy, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2257,48 +1439,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCdotc_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCdotc_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCdotc_v2_64(handle, n, &x, incx, &y, incy, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZdotu_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZdotu_v2 called" << std::endl;
@@ -2341,48 +1481,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZdotu_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZdotu_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZdotu_v2_64(handle, n, &x, incx, &y, incy, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZdotc_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZdotc_v2 called" << std::endl;
@@ -2410,48 +1508,6 @@ int handle_cublasZdotc_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZdotc_v2(handle, n, &x, incx, &y, incy, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZdotc_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZdotc_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZdotc_v2_64(handle, n, &x, incx, &y, incy, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2511,50 +1567,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasScalEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasScalEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cudaDataType alphaType;
-    rpc_read(client, &alphaType, sizeof(alphaType));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cudaDataType executionType;
-    rpc_read(client, &executionType, sizeof(executionType));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasScalEx_64(handle, n, alpha, alphaType, x, xType, incx, executionType);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSscal_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSscal_v2 called" << std::endl;
@@ -2578,44 +1590,6 @@ int handle_cublasSscal_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSscal_v2(handle, n, &alpha, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSscal_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSscal_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSscal_v2_64(handle, n, &alpha, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2669,44 +1643,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDscal_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDscal_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDscal_v2_64(handle, n, &alpha, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCscal_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCscal_v2 called" << std::endl;
@@ -2730,44 +1666,6 @@ int handle_cublasCscal_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCscal_v2(handle, n, &alpha, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCscal_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCscal_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCscal_v2_64(handle, n, &alpha, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2821,44 +1719,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsscal_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsscal_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsscal_v2_64(handle, n, &alpha, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZscal_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZscal_v2 called" << std::endl;
@@ -2897,44 +1757,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZscal_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZscal_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZscal_v2_64(handle, n, &alpha, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZdscal_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZdscal_v2 called" << std::endl;
@@ -2958,44 +1780,6 @@ int handle_cublasZdscal_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZdscal_v2(handle, n, &alpha, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZdscal_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZdscal_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZdscal_v2_64(handle, n, &alpha, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -3061,56 +1845,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasAxpyEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasAxpyEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cudaDataType alphaType;
-    rpc_read(client, &alphaType, sizeof(alphaType));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cudaDataType executiontype;
-    rpc_read(client, &executiontype, sizeof(executiontype));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasAxpyEx_64(handle, n, alpha, alphaType, x, xType, incx, y, yType, incy, executiontype);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSaxpy_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSaxpy_v2 called" << std::endl;
@@ -3138,48 +1872,6 @@ int handle_cublasSaxpy_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSaxpy_v2(handle, n, &alpha, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSaxpy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSaxpy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSaxpy_v2_64(handle, n, &alpha, &x, incx, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -3237,48 +1929,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDaxpy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDaxpy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDaxpy_v2_64(handle, n, &alpha, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCaxpy_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCaxpy_v2 called" << std::endl;
@@ -3321,48 +1971,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCaxpy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCaxpy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCaxpy_v2_64(handle, n, &alpha, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZaxpy_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZaxpy_v2 called" << std::endl;
@@ -3390,48 +1998,6 @@ int handle_cublasZaxpy_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZaxpy_v2(handle, n, &alpha, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZaxpy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZaxpy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZaxpy_v2_64(handle, n, &alpha, &x, incx, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -3491,50 +2057,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCopyEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCopyEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCopyEx_64(handle, n, x, xType, incx, y, yType, incy);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasScopy_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasScopy_v2 called" << std::endl;
@@ -3560,46 +2082,6 @@ int handle_cublasScopy_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasScopy_v2(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasScopy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasScopy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasScopy_v2_64(handle, n, &x, incx, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -3655,46 +2137,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDcopy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDcopy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDcopy_v2_64(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCcopy_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCcopy_v2 called" << std::endl;
@@ -3720,46 +2162,6 @@ int handle_cublasCcopy_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCcopy_v2(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCcopy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCcopy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCcopy_v2_64(handle, n, &x, incx, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -3815,46 +2217,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZcopy_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZcopy_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZcopy_v2_64(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSswap_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSswap_v2 called" << std::endl;
@@ -3879,46 +2241,6 @@ int handle_cublasSswap_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSswap_v2(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSswap_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSswap_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSswap_v2_64(handle, n, &x, incx, &y, incy);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
@@ -3975,46 +2297,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDswap_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDswap_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDswap_v2_64(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCswap_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCswap_v2 called" << std::endl;
@@ -4055,46 +2337,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCswap_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCswap_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCswap_v2_64(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZswap_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZswap_v2 called" << std::endl;
@@ -4119,46 +2361,6 @@ int handle_cublasZswap_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZswap_v2(handle, n, &x, incx, &y, incy);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZswap_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZswap_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZswap_v2_64(handle, n, &x, incx, &y, incy);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
@@ -4219,50 +2421,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSwapEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSwapEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSwapEx_64(handle, n, x, xType, incx, y, yType, incy);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasIsamax_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasIsamax_v2 called" << std::endl;
@@ -4286,44 +2444,6 @@ int handle_cublasIsamax_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasIsamax_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasIsamax_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIsamax_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIsamax_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4377,44 +2497,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasIdamax_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIdamax_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIdamax_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasIcamax_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasIcamax_v2 called" << std::endl;
@@ -4453,44 +2535,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasIcamax_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIcamax_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIcamax_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasIzamax_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasIzamax_v2 called" << std::endl;
@@ -4514,44 +2558,6 @@ int handle_cublasIzamax_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasIzamax_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasIzamax_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIzamax_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIzamax_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4607,46 +2613,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasIamaxEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIamaxEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIamaxEx_64(handle, n, x, xType, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasIsamin_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasIsamin_v2 called" << std::endl;
@@ -4670,44 +2636,6 @@ int handle_cublasIsamin_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasIsamin_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasIsamin_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIsamin_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIsamin_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4761,44 +2689,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasIdamin_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIdamin_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIdamin_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasIcamin_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasIcamin_v2 called" << std::endl;
@@ -4822,44 +2712,6 @@ int handle_cublasIcamin_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasIcamin_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasIcamin_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIcamin_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIcamin_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4913,44 +2765,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasIzamin_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIzamin_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIzamin_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasIaminEx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasIaminEx called" << std::endl;
@@ -4976,46 +2790,6 @@ int handle_cublasIaminEx(void *args0) {
         goto _RTN_;
     }
     _result = cublasIaminEx(handle, n, x, xType, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasIaminEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasIaminEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    int64_t result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasIaminEx_64(handle, n, x, xType, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5075,50 +2849,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasAsumEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasAsumEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *result;
-    rpc_read(client, &result, sizeof(result));
-    cudaDataType resultType;
-    rpc_read(client, &resultType, sizeof(resultType));
-    cudaDataType executiontype;
-    rpc_read(client, &executiontype, sizeof(executiontype));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasAsumEx_64(handle, n, x, xType, incx, result, resultType, executiontype);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSasum_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSasum_v2 called" << std::endl;
@@ -5142,44 +2872,6 @@ int handle_cublasSasum_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSasum_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSasum_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSasum_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSasum_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5233,44 +2925,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDasum_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDasum_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDasum_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasScasum_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasScasum_v2 called" << std::endl;
@@ -5294,44 +2948,6 @@ int handle_cublasScasum_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasScasum_v2(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasScasum_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasScasum_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasScasum_v2_64(handle, n, &x, incx, &result);
     rpc_write(client, &result, sizeof(result));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5385,44 +3001,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDzasum_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDzasum_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double result;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDzasum_v2_64(handle, n, &x, incx, &result);
-    rpc_write(client, &result, sizeof(result));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSrot_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSrot_v2 called" << std::endl;
@@ -5451,50 +3029,6 @@ int handle_cublasSrot_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSrot_v2(handle, n, &x, incx, &y, incy, &c, &s);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSrot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSrot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float c;
-    rpc_read(client, &c, sizeof(c));
-    float s;
-    rpc_read(client, &s, sizeof(s));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSrot_v2_64(handle, n, &x, incx, &y, incy, &c, &s);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
@@ -5555,50 +3089,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDrot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDrot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double c;
-    rpc_read(client, &c, sizeof(c));
-    double s;
-    rpc_read(client, &s, sizeof(s));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDrot_v2_64(handle, n, &x, incx, &y, incy, &c, &s);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCrot_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCrot_v2 called" << std::endl;
@@ -5627,50 +3117,6 @@ int handle_cublasCrot_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCrot_v2(handle, n, &x, incx, &y, incy, &c, &s);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCrot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCrot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float c;
-    rpc_read(client, &c, sizeof(c));
-    cuComplex s;
-    rpc_read(client, &s, sizeof(s));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCrot_v2_64(handle, n, &x, incx, &y, incy, &c, &s);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
@@ -5731,50 +3177,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsrot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsrot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float c;
-    rpc_read(client, &c, sizeof(c));
-    float s;
-    rpc_read(client, &s, sizeof(s));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsrot_v2_64(handle, n, &x, incx, &y, incy, &c, &s);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZrot_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZrot_v2 called" << std::endl;
@@ -5803,50 +3205,6 @@ int handle_cublasZrot_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZrot_v2(handle, n, &x, incx, &y, incy, &c, &s);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZrot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZrot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double c;
-    rpc_read(client, &c, sizeof(c));
-    cuDoubleComplex s;
-    rpc_read(client, &s, sizeof(s));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZrot_v2_64(handle, n, &x, incx, &y, incy, &c, &s);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
@@ -5907,50 +3265,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZdrot_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZdrot_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double c;
-    rpc_read(client, &c, sizeof(c));
-    double s;
-    rpc_read(client, &s, sizeof(s));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZdrot_v2_64(handle, n, &x, incx, &y, incy, &c, &s);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasRotEx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasRotEx called" << std::endl;
@@ -5989,58 +3303,6 @@ int handle_cublasRotEx(void *args0) {
         goto _RTN_;
     }
     _result = cublasRotEx(handle, n, x, xType, incx, y, yType, incy, c, s, csType, executiontype);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasRotEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasRotEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    void *c;
-    rpc_read(client, &c, sizeof(c));
-    void *s;
-    rpc_read(client, &s, sizeof(s));
-    cudaDataType csType;
-    rpc_read(client, &csType, sizeof(csType));
-    cudaDataType executiontype;
-    rpc_read(client, &executiontype, sizeof(executiontype));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasRotEx_64(handle, n, x, xType, incx, y, yType, incy, c, s, csType, executiontype);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6293,48 +3555,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSrotm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSrotm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float param;
-    rpc_read(client, &param, sizeof(param));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSrotm_v2_64(handle, n, &x, incx, &y, incy, &param);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDrotm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDrotm_v2 called" << std::endl;
@@ -6361,48 +3581,6 @@ int handle_cublasDrotm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDrotm_v2(handle, n, &x, incx, &y, incy, &param);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDrotm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDrotm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double param;
-    rpc_read(client, &param, sizeof(param));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDrotm_v2_64(handle, n, &x, incx, &y, incy, &param);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
@@ -6455,56 +3633,6 @@ int handle_cublasRotmEx(void *args0) {
         goto _RTN_;
     }
     _result = cublasRotmEx(handle, n, x, xType, incx, y, yType, incy, param, paramType, executiontype);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasRotmEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasRotmEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    void *x;
-    rpc_read(client, &x, sizeof(x));
-    cudaDataType xType;
-    rpc_read(client, &xType, sizeof(xType));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    void *y;
-    rpc_read(client, &y, sizeof(y));
-    cudaDataType yType;
-    rpc_read(client, &yType, sizeof(yType));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    void *param;
-    rpc_read(client, &param, sizeof(param));
-    cudaDataType paramType;
-    rpc_read(client, &paramType, sizeof(paramType));
-    cudaDataType executiontype;
-    rpc_read(client, &executiontype, sizeof(executiontype));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasRotmEx_64(handle, n, x, xType, incx, y, yType, incy, param, paramType, executiontype);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6703,58 +3831,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSgemv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemv_v2_64(handle, trans, m, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDgemv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDgemv_v2 called" << std::endl;
@@ -6792,58 +3868,6 @@ int handle_cublasDgemv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDgemv_v2(handle, trans, m, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemv_v2_64(handle, trans, m, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -6911,58 +3935,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgemv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemv_v2_64(handle, trans, m, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZgemv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZgemv_v2 called" << std::endl;
@@ -7000,58 +3972,6 @@ int handle_cublasZgemv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZgemv_v2(handle, trans, m, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemv_v2_64(handle, trans, m, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -7123,62 +4043,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSgbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t kl;
-    rpc_read(client, &kl, sizeof(kl));
-    int64_t ku;
-    rpc_read(client, &ku, sizeof(ku));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgbmv_v2_64(handle, trans, m, n, kl, ku, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDgbmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDgbmv_v2 called" << std::endl;
@@ -7220,62 +4084,6 @@ int handle_cublasDgbmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDgbmv_v2(handle, trans, m, n, kl, ku, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t kl;
-    rpc_read(client, &kl, sizeof(kl));
-    int64_t ku;
-    rpc_read(client, &ku, sizeof(ku));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgbmv_v2_64(handle, trans, m, n, kl, ku, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -7347,62 +4155,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t kl;
-    rpc_read(client, &kl, sizeof(kl));
-    int64_t ku;
-    rpc_read(client, &ku, sizeof(ku));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgbmv_v2_64(handle, trans, m, n, kl, ku, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZgbmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZgbmv_v2 called" << std::endl;
@@ -7444,62 +4196,6 @@ int handle_cublasZgbmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZgbmv_v2(handle, trans, m, n, kl, ku, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t kl;
-    rpc_read(client, &kl, sizeof(kl));
-    int64_t ku;
-    rpc_read(client, &ku, sizeof(ku));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgbmv_v2_64(handle, trans, m, n, kl, ku, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -7561,52 +4257,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStrmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStrmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStrmv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtrmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtrmv_v2 called" << std::endl;
@@ -7638,52 +4288,6 @@ int handle_cublasDtrmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtrmv_v2(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtrmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtrmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtrmv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -7745,52 +4349,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtrmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtrmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtrmv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtrmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtrmv_v2 called" << std::endl;
@@ -7822,52 +4380,6 @@ int handle_cublasZtrmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtrmv_v2(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtrmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtrmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtrmv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -7931,54 +4443,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStbmv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtbmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtbmv_v2 called" << std::endl;
@@ -8012,54 +4476,6 @@ int handle_cublasDtbmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtbmv_v2(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtbmv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8123,54 +4539,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtbmv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtbmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtbmv_v2 called" << std::endl;
@@ -8204,54 +4572,6 @@ int handle_cublasZtbmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtbmv_v2(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtbmv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8311,50 +4631,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStpmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStpmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float AP;
-    rpc_read(client, &AP, sizeof(AP));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStpmv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtpmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtpmv_v2 called" << std::endl;
@@ -8384,50 +4660,6 @@ int handle_cublasDtpmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtpmv_v2(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtpmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtpmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double AP;
-    rpc_read(client, &AP, sizeof(AP));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtpmv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8487,50 +4719,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtpmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtpmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex AP;
-    rpc_read(client, &AP, sizeof(AP));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtpmv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtpmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtpmv_v2 called" << std::endl;
@@ -8560,50 +4748,6 @@ int handle_cublasZtpmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtpmv_v2(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtpmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtpmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex AP;
-    rpc_read(client, &AP, sizeof(AP));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtpmv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8665,52 +4809,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStrsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStrsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStrsv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtrsv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtrsv_v2 called" << std::endl;
@@ -8742,52 +4840,6 @@ int handle_cublasDtrsv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtrsv_v2(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtrsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtrsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtrsv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8849,52 +4901,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtrsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtrsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtrsv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtrsv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtrsv_v2 called" << std::endl;
@@ -8926,52 +4932,6 @@ int handle_cublasZtrsv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtrsv_v2(handle, uplo, trans, diag, n, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtrsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtrsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtrsv_v2_64(handle, uplo, trans, diag, n, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9031,50 +4991,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStpsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStpsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float AP;
-    rpc_read(client, &AP, sizeof(AP));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStpsv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtpsv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtpsv_v2 called" << std::endl;
@@ -9104,50 +5020,6 @@ int handle_cublasDtpsv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtpsv_v2(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtpsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtpsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double AP;
-    rpc_read(client, &AP, sizeof(AP));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtpsv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9207,50 +5079,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtpsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtpsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex AP;
-    rpc_read(client, &AP, sizeof(AP));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtpsv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtpsv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtpsv_v2 called" << std::endl;
@@ -9280,50 +5108,6 @@ int handle_cublasZtpsv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtpsv_v2(handle, uplo, trans, diag, n, &AP, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtpsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtpsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex AP;
-    rpc_read(client, &AP, sizeof(AP));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtpsv_v2_64(handle, uplo, trans, diag, n, &AP, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9387,54 +5171,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStbsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStbsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStbsv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtbsv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtbsv_v2 called" << std::endl;
@@ -9468,54 +5204,6 @@ int handle_cublasDtbsv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtbsv_v2(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtbsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtbsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtbsv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9579,54 +5267,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtbsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtbsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtbsv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtbsv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtbsv_v2 called" << std::endl;
@@ -9660,54 +5300,6 @@ int handle_cublasZtbsv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtbsv_v2(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtbsv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtbsv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtbsv_v2_64(handle, uplo, trans, diag, n, k, &A, lda, &x, incx);
     rpc_write(client, &x, sizeof(x));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9773,56 +5365,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSsymv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsymv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsymv_v2_64(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDsymv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDsymv_v2 called" << std::endl;
@@ -9858,56 +5400,6 @@ int handle_cublasDsymv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDsymv_v2(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDsymv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsymv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsymv_v2_64(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9973,56 +5465,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsymv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsymv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsymv_v2_64(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZsymv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZsymv_v2 called" << std::endl;
@@ -10058,56 +5500,6 @@ int handle_cublasZsymv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZsymv_v2(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZsymv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsymv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsymv_v2_64(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -10173,56 +5565,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasChemv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasChemv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasChemv_v2_64(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZhemv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZhemv_v2 called" << std::endl;
@@ -10258,56 +5600,6 @@ int handle_cublasZhemv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZhemv_v2(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZhemv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZhemv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZhemv_v2_64(handle, uplo, n, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -10375,58 +5667,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSsbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsbmv_v2_64(handle, uplo, n, k, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDsbmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDsbmv_v2 called" << std::endl;
@@ -10464,58 +5704,6 @@ int handle_cublasDsbmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDsbmv_v2(handle, uplo, n, k, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDsbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsbmv_v2_64(handle, uplo, n, k, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -10583,58 +5771,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasChbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasChbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasChbmv_v2_64(handle, uplo, n, k, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZhbmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZhbmv_v2 called" << std::endl;
@@ -10672,58 +5808,6 @@ int handle_cublasZhbmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZhbmv_v2(handle, uplo, n, k, &alpha, &A, lda, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZhbmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZhbmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZhbmv_v2_64(handle, uplo, n, k, &alpha, &A, lda, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -10787,54 +5871,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSspmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSspmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float AP;
-    rpc_read(client, &AP, sizeof(AP));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSspmv_v2_64(handle, uplo, n, &alpha, &AP, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDspmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDspmv_v2 called" << std::endl;
@@ -10868,54 +5904,6 @@ int handle_cublasDspmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDspmv_v2(handle, uplo, n, &alpha, &AP, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDspmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDspmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double AP;
-    rpc_read(client, &AP, sizeof(AP));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDspmv_v2_64(handle, uplo, n, &alpha, &AP, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -10979,54 +5967,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasChpmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasChpmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex AP;
-    rpc_read(client, &AP, sizeof(AP));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasChpmv_v2_64(handle, uplo, n, &alpha, &AP, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZhpmv_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZhpmv_v2 called" << std::endl;
@@ -11060,54 +6000,6 @@ int handle_cublasZhpmv_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZhpmv_v2(handle, uplo, n, &alpha, &AP, &x, incx, &beta, &y, incy);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZhpmv_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZhpmv_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex AP;
-    rpc_read(client, &AP, sizeof(AP));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZhpmv_v2_64(handle, uplo, n, &alpha, &AP, &x, incx, &beta, &y, incy);
     rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -11171,54 +6063,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSger_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSger_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSger_v2_64(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDger_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDger_v2 called" << std::endl;
@@ -11252,54 +6096,6 @@ int handle_cublasDger_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDger_v2(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDger_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDger_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDger_v2_64(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -11363,54 +6159,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgeru_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgeru_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgeru_v2_64(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgerc_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgerc_v2 called" << std::endl;
@@ -11444,54 +6192,6 @@ int handle_cublasCgerc_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCgerc_v2(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgerc_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgerc_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgerc_v2_64(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -11555,54 +6255,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZgeru_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgeru_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgeru_v2_64(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZgerc_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZgerc_v2 called" << std::endl;
@@ -11636,54 +6288,6 @@ int handle_cublasZgerc_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZgerc_v2(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgerc_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgerc_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgerc_v2_64(handle, m, n, &alpha, &x, incx, &y, incy, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -11743,50 +6347,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSsyr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsyr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsyr_v2_64(handle, uplo, n, &alpha, &x, incx, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDsyr_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDsyr_v2 called" << std::endl;
@@ -11816,50 +6376,6 @@ int handle_cublasDsyr_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDsyr_v2(handle, uplo, n, &alpha, &x, incx, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDsyr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsyr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsyr_v2_64(handle, uplo, n, &alpha, &x, incx, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -11919,50 +6435,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsyr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyr_v2_64(handle, uplo, n, &alpha, &x, incx, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZsyr_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZsyr_v2 called" << std::endl;
@@ -11992,50 +6464,6 @@ int handle_cublasZsyr_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZsyr_v2(handle, uplo, n, &alpha, &x, incx, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZsyr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsyr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsyr_v2_64(handle, uplo, n, &alpha, &x, incx, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -12095,50 +6523,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCher_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCher_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCher_v2_64(handle, uplo, n, &alpha, &x, incx, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZher_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZher_v2 called" << std::endl;
@@ -12168,50 +6552,6 @@ int handle_cublasZher_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZher_v2(handle, uplo, n, &alpha, &x, incx, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZher_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZher_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZher_v2_64(handle, uplo, n, &alpha, &x, incx, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -12269,48 +6609,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSspr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSspr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSspr_v2_64(handle, uplo, n, &alpha, &x, incx, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDspr_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDspr_v2 called" << std::endl;
@@ -12338,48 +6636,6 @@ int handle_cublasDspr_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDspr_v2(handle, uplo, n, &alpha, &x, incx, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDspr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDspr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDspr_v2_64(handle, uplo, n, &alpha, &x, incx, &AP);
     rpc_write(client, &AP, sizeof(AP));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -12437,48 +6693,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasChpr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasChpr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasChpr_v2_64(handle, uplo, n, &alpha, &x, incx, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZhpr_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZhpr_v2 called" << std::endl;
@@ -12506,48 +6720,6 @@ int handle_cublasZhpr_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZhpr_v2(handle, uplo, n, &alpha, &x, incx, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZhpr_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZhpr_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZhpr_v2_64(handle, uplo, n, &alpha, &x, incx, &AP);
     rpc_write(client, &AP, sizeof(AP));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -12611,54 +6783,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSsyr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsyr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsyr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDsyr2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDsyr2_v2 called" << std::endl;
@@ -12692,54 +6816,6 @@ int handle_cublasDsyr2_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDsyr2_v2(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDsyr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsyr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsyr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -12803,54 +6879,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsyr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZsyr2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZsyr2_v2 called" << std::endl;
@@ -12884,54 +6912,6 @@ int handle_cublasZsyr2_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZsyr2_v2(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZsyr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsyr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsyr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -12995,54 +6975,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCher2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCher2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCher2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZher2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZher2_v2 called" << std::endl;
@@ -13076,54 +7008,6 @@ int handle_cublasZher2_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZher2_v2(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
-    rpc_write(client, &A, sizeof(A));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZher2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZher2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex A;
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZher2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &A, lda);
     rpc_write(client, &A, sizeof(A));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -13185,52 +7069,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSspr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSspr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    float AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSspr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDspr2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDspr2_v2 called" << std::endl;
@@ -13262,52 +7100,6 @@ int handle_cublasDspr2_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDspr2_v2(handle, uplo, n, &alpha, &x, incx, &y, incy, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDspr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDspr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    double AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDspr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &AP);
     rpc_write(client, &AP, sizeof(AP));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -13369,52 +7161,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasChpr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasChpr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuComplex AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasChpr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZhpr2_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZhpr2_v2 called" << std::endl;
@@ -13447,1876 +7193,6 @@ int handle_cublasZhpr2_v2(void *args0) {
     }
     _result = cublasZhpr2_v2(handle, uplo, n, &alpha, &x, incx, &y, incy, &AP);
     rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZhpr2_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZhpr2_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex y;
-    rpc_read(client, &y, sizeof(y));
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex AP;
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZhpr2_v2_64(handle, uplo, n, &alpha, &x, incx, &y, incy, &AP);
-    rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemvBatched(handle, trans, m, n, &alpha, (const float * const *)Aarray, lda, (const float * const *)xarray, incx, &beta, (float * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemvBatched_64(handle, trans, m, n, &alpha, (const float * const *)Aarray, lda, (const float * const *)xarray, incx, &beta, (float * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemvBatched(handle, trans, m, n, &alpha, (const double * const *)Aarray, lda, (const double * const *)xarray, incx, &beta, (double * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemvBatched_64(handle, trans, m, n, &alpha, (const double * const *)Aarray, lda, (const double * const *)xarray, incx, &beta, (double * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemvBatched(handle, trans, m, n, &alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)xarray, incx, &beta, (cuComplex * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemvBatched_64(handle, trans, m, n, &alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)xarray, incx, &beta, (cuComplex * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemvBatched(handle, trans, m, n, &alpha, (const cuDoubleComplex * const *)Aarray, lda, (const cuDoubleComplex * const *)xarray, incx, &beta, (cuDoubleComplex * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemvBatched_64(handle, trans, m, n, &alpha, (const cuDoubleComplex * const *)Aarray, lda, (const cuDoubleComplex * const *)xarray, incx, &beta, (cuDoubleComplex * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSHgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSHgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __half *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSHgemvBatched(handle, trans, m, n, &alpha, (const __half * const *)Aarray, lda, (const __half * const *)xarray, incx, &beta, (__half * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSHgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSHgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __half *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSHgemvBatched_64(handle, trans, m, n, &alpha, (const __half * const *)Aarray, lda, (const __half * const *)xarray, incx, &beta, (__half * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSSgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSSgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __half *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSSgemvBatched(handle, trans, m, n, &alpha, (const __half * const *)Aarray, lda, (const __half * const *)xarray, incx, &beta, (float * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSSgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSSgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __half *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSSgemvBatched_64(handle, trans, m, n, &alpha, (const __half * const *)Aarray, lda, (const __half * const *)xarray, incx, &beta, (float * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSTgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSTgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __nv_bfloat16 *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __nv_bfloat16 *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSTgemvBatched(handle, trans, m, n, &alpha, (const __nv_bfloat16 * const *)Aarray, lda, (const __nv_bfloat16 * const *)xarray, incx, &beta, (__nv_bfloat16 * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSTgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSTgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __nv_bfloat16 *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __nv_bfloat16 *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSTgemvBatched_64(handle, trans, m, n, &alpha, (const __nv_bfloat16 * const *)Aarray, lda, (const __nv_bfloat16 * const *)xarray, incx, &beta, (__nv_bfloat16 * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSSgemvBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSSgemvBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __nv_bfloat16 *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSSgemvBatched(handle, trans, m, n, &alpha, (const __nv_bfloat16 * const *)Aarray, lda, (const __nv_bfloat16 * const *)xarray, incx, &beta, (float * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSSgemvBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSSgemvBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __nv_bfloat16 *xarray = nullptr;
-    rpc_read(client, &xarray, 0, true);
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *yarray = nullptr;
-    rpc_read(client, &yarray, 0, true);
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSSgemvBatched_64(handle, trans, m, n, &alpha, (const __nv_bfloat16 * const *)Aarray, lda, (const __nv_bfloat16 * const *)xarray, incx, &beta, (float * const *)yarray, incy, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSHgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSHgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __half x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSHgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSHgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSHgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __half x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSHgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSSgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSSgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __half x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSSgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHSSgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHSSgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __half x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHSSgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSTgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSTgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __nv_bfloat16 x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __nv_bfloat16 y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSTgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSTgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSTgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __nv_bfloat16 x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __nv_bfloat16 y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSTgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSSgemvStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSSgemvStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __nv_bfloat16 x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSSgemvStridedBatched(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasTSSgemvStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasTSSgemvStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __nv_bfloat16 A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __nv_bfloat16 x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    long long int stridex;
-    rpc_read(client, &stridex, sizeof(stridex));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float y;
-    int64_t incy;
-    rpc_read(client, &incy, sizeof(incy));
-    long long int stridey;
-    rpc_read(client, &stridey, sizeof(stridey));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasTSSgemvStridedBatched_64(handle, trans, m, n, &alpha, &A, lda, strideA, &x, incx, stridex, &beta, &y, incy, stridey, batchCount);
-    rpc_write(client, &y, sizeof(y));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -15372,62 +7248,6 @@ int handle_cublasSgemm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSgemm_v2(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemm_v2_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -15499,62 +7319,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDgemm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemm_v2_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgemm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgemm_v2 called" << std::endl;
@@ -15611,62 +7375,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgemm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemm_v2_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgemm3m(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgemm3m called" << std::endl;
@@ -15708,62 +7416,6 @@ int handle_cublasCgemm3m(void *args0) {
         goto _RTN_;
     }
     _result = cublasCgemm3m(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemm3m_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemm3m_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemm3m_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -15841,68 +7493,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgemm3mEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemm3mEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    cudaDataType Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemm3mEx_64(handle, transa, transb, m, n, k, &alpha, A, Atype, lda, B, Btype, ldb, &beta, C, Ctype, ldc);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZgemm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZgemm_v2 called" << std::endl;
@@ -15944,62 +7534,6 @@ int handle_cublasZgemm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZgemm_v2(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemm_v2_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -16071,62 +7605,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZgemm3m_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemm3m_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemm3m_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasHgemm(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasHgemm called" << std::endl;
@@ -16168,62 +7646,6 @@ int handle_cublasHgemm(void *args0) {
         goto _RTN_;
     }
     _result = cublasHgemm(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHgemm_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHgemm_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    __half alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __half B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    __half beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHgemm_64(handle, transa, transb, m, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -16301,134 +7723,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasSgemmEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemmEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    cudaDataType Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemmEx_64(handle, transa, transb, m, n, k, &alpha, A, Atype, lda, B, Btype, ldb, &beta, C, Ctype, ldc);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGemmEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGemmEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    void *alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    cudaDataType Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    void *beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasComputeType_t computeType;
-    rpc_read(client, &computeType, sizeof(computeType));
-    cublasGemmAlgo_t algo;
-    rpc_read(client, &algo, sizeof(algo));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGemmEx_64(handle, transa, transb, m, n, k, alpha, A, Atype, lda, B, Btype, ldb, beta, C, Ctype, ldc, computeType, algo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgemmEx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgemmEx called" << std::endl;
@@ -16491,9 +7785,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgemmEx_64(void *args0) {
+int handle_cublasUint8gemmBias(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cublasCgemmEx_64 called" << std::endl;
+    std::cout << "Handle function cublasUint8gemmBias called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -16504,41 +7798,43 @@ int handle_cublasCgemmEx_64(void *args0) {
     rpc_read(client, &transa, sizeof(transa));
     cublasOperation_t transb;
     rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
+    cublasOperation_t transc;
+    rpc_read(client, &transc, sizeof(transc));
+    int m;
     rpc_read(client, &m, sizeof(m));
-    int64_t n;
+    int n;
     rpc_read(client, &n, sizeof(n));
-    int64_t k;
+    int k;
     rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
+    unsigned char A;
     rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
+    int A_bias;
+    rpc_read(client, &A_bias, sizeof(A_bias));
+    int lda;
     rpc_read(client, &lda, sizeof(lda));
-    void *B;
+    unsigned char B;
     rpc_read(client, &B, sizeof(B));
-    cudaDataType Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t ldb;
+    int B_bias;
+    rpc_read(client, &B_bias, sizeof(B_bias));
+    int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
+    unsigned char C;
+    int C_bias;
+    rpc_read(client, &C_bias, sizeof(C_bias));
+    int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
+    int C_mult;
+    rpc_read(client, &C_mult, sizeof(C_mult));
+    int C_shift;
+    rpc_read(client, &C_shift, sizeof(C_shift));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgemmEx_64(handle, transa, transb, m, n, k, &alpha, A, Atype, lda, B, Btype, ldb, &beta, C, Ctype, ldc);
+    _result = cublasUint8gemmBias(handle, transa, transb, transc, m, n, k, &A, A_bias, lda, &B, B_bias, ldb, &C, C_bias, ldc, C_mult, C_shift);
+    rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -16588,56 +7884,6 @@ int handle_cublasSsyrk_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSsyrk_v2(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSsyrk_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsyrk_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsyrk_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -16703,56 +7949,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDsyrk_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsyrk_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsyrk_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCsyrk_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCsyrk_v2 called" << std::endl;
@@ -16803,56 +7999,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsyrk_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyrk_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyrk_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZsyrk_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZsyrk_v2 called" << std::endl;
@@ -16888,56 +8034,6 @@ int handle_cublasZsyrk_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZsyrk_v2(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZsyrk_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsyrk_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsyrk_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -17007,60 +8103,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCsyrkEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyrkEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyrkEx_64(handle, uplo, trans, n, k, &alpha, A, Atype, lda, &beta, C, Ctype, ldc);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCsyrk3mEx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCsyrk3mEx called" << std::endl;
@@ -17101,60 +8143,6 @@ int handle_cublasCsyrk3mEx(void *args0) {
         goto _RTN_;
     }
     _result = cublasCsyrk3mEx(handle, uplo, trans, n, k, &alpha, A, Atype, lda, &beta, C, Ctype, ldc);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCsyrk3mEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyrk3mEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyrk3mEx_64(handle, uplo, trans, n, k, &alpha, A, Atype, lda, &beta, C, Ctype, ldc);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -17219,56 +8207,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCherk_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCherk_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCherk_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZherk_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZherk_v2 called" << std::endl;
@@ -17304,56 +8242,6 @@ int handle_cublasZherk_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZherk_v2(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZherk_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZherk_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZherk_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -17423,60 +8311,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCherkEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCherkEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCherkEx_64(handle, uplo, trans, n, k, &alpha, A, Atype, lda, &beta, C, Ctype, ldc);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCherk3mEx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCherk3mEx called" << std::endl;
@@ -17531,60 +8365,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCherk3mEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCherk3mEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCherk3mEx_64(handle, uplo, trans, n, k, &alpha, A, Atype, lda, &beta, C, Ctype, ldc);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSsyr2k_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSsyr2k_v2 called" << std::endl;
@@ -17624,60 +8404,6 @@ int handle_cublasSsyr2k_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSsyr2k_v2(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSsyr2k_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsyr2k_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsyr2k_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -17747,60 +8473,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDsyr2k_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsyr2k_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsyr2k_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCsyr2k_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCsyr2k_v2 called" << std::endl;
@@ -17840,60 +8512,6 @@ int handle_cublasCsyr2k_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCsyr2k_v2(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCsyr2k_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyr2k_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyr2k_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -17963,60 +8581,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZsyr2k_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsyr2k_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsyr2k_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCher2k_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCher2k_v2 called" << std::endl;
@@ -18056,60 +8620,6 @@ int handle_cublasCher2k_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCher2k_v2(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCher2k_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCher2k_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCher2k_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -18179,60 +8689,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZher2k_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZher2k_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZher2k_v2_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSsyrkx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSsyrkx called" << std::endl;
@@ -18272,60 +8728,6 @@ int handle_cublasSsyrkx(void *args0) {
         goto _RTN_;
     }
     _result = cublasSsyrkx(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSsyrkx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsyrkx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsyrkx_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -18395,60 +8797,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDsyrkx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsyrkx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsyrkx_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCsyrkx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCsyrkx called" << std::endl;
@@ -18488,60 +8836,6 @@ int handle_cublasCsyrkx(void *args0) {
         goto _RTN_;
     }
     _result = cublasCsyrkx(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCsyrkx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsyrkx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsyrkx_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -18611,60 +8905,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZsyrkx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsyrkx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsyrkx_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCherkx(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCherkx called" << std::endl;
@@ -18704,60 +8944,6 @@ int handle_cublasCherkx(void *args0) {
         goto _RTN_;
     }
     _result = cublasCherkx(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCherkx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCherkx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCherkx_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -18827,60 +9013,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZherkx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZherkx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZherkx_64(handle, uplo, trans, n, k, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSsymm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSsymm_v2 called" << std::endl;
@@ -18920,60 +9052,6 @@ int handle_cublasSsymm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasSsymm_v2(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSsymm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSsymm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSsymm_v2_64(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -19043,60 +9121,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDsymm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDsymm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDsymm_v2_64(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCsymm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCsymm_v2 called" << std::endl;
@@ -19136,60 +9160,6 @@ int handle_cublasCsymm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasCsymm_v2(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCsymm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCsymm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCsymm_v2_64(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -19259,60 +9229,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZsymm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZsymm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZsymm_v2_64(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasChemm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasChemm_v2 called" << std::endl;
@@ -19352,60 +9268,6 @@ int handle_cublasChemm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasChemm_v2(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasChemm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasChemm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasChemm_v2_64(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -19475,60 +9337,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZhemm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZhemm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZhemm_v2_64(handle, side, uplo, m, n, &alpha, &A, lda, &B, ldb, &beta, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasStrsm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasStrsm_v2 called" << std::endl;
@@ -19566,58 +9374,6 @@ int handle_cublasStrsm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasStrsm_v2(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb);
-    rpc_write(client, &B, sizeof(B));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasStrsm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStrsm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float B;
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStrsm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb);
     rpc_write(client, &B, sizeof(B));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -19685,58 +9441,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDtrsm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtrsm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double B;
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtrsm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb);
-    rpc_write(client, &B, sizeof(B));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCtrsm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCtrsm_v2 called" << std::endl;
@@ -19789,58 +9493,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtrsm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtrsm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtrsm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb);
-    rpc_write(client, &B, sizeof(B));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtrsm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtrsm_v2 called" << std::endl;
@@ -19878,58 +9530,6 @@ int handle_cublasZtrsm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtrsm_v2(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb);
-    rpc_write(client, &B, sizeof(B));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtrsm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtrsm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtrsm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb);
     rpc_write(client, &B, sizeof(B));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -20001,62 +9601,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStrmm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStrmm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStrmm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtrmm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtrmm_v2 called" << std::endl;
@@ -20098,62 +9642,6 @@ int handle_cublasDtrmm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtrmm_v2(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtrmm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtrmm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtrmm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -20225,62 +9713,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtrmm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtrmm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtrmm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtrmm_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtrmm_v2 called" << std::endl;
@@ -20322,62 +9754,6 @@ int handle_cublasZtrmm_v2(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtrmm_v2(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtrmm_v2_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtrmm_v2_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtrmm_v2_64(handle, side, uplo, trans, diag, m, n, &alpha, &A, lda, &B, ldb, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -20451,64 +9827,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasHgemmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHgemmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    __half alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    __half *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    __half beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHgemmBatched_64(handle, transa, transb, m, n, k, &alpha, (const __half * const *)Aarray, lda, (const __half * const *)Barray, ldb, &beta, (__half * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasSgemmBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasSgemmBatched called" << std::endl;
@@ -20553,64 +9871,6 @@ int handle_cublasSgemmBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasSgemmBatched(handle, transa, transb, m, n, k, &alpha, (const float * const *)Aarray, lda, (const float * const *)Barray, ldb, &beta, (float * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemmBatched_64(handle, transa, transb, m, n, k, &alpha, (const float * const *)Aarray, lda, (const float * const *)Barray, ldb, &beta, (float * const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -20683,64 +9943,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDgemmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemmBatched_64(handle, transa, transb, m, n, k, &alpha, (const double * const *)Aarray, lda, (const double * const *)Barray, ldb, &beta, (double * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgemmBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgemmBatched called" << std::endl;
@@ -20785,64 +9987,6 @@ int handle_cublasCgemmBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasCgemmBatched(handle, transa, transb, m, n, k, &alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)Barray, ldb, &beta, (cuComplex * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemmBatched_64(handle, transa, transb, m, n, k, &alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)Barray, ldb, &beta, (cuComplex * const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -20915,64 +10059,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgemm3mBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemm3mBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemm3mBatched_64(handle, transa, transb, m, n, k, &alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)Barray, ldb, &beta, (cuComplex * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZgemmBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZgemmBatched called" << std::endl;
@@ -21017,192 +10103,6 @@ int handle_cublasZgemmBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasZgemmBatched(handle, transa, transb, m, n, k, &alpha, (const cuDoubleComplex * const *)Aarray, lda, (const cuDoubleComplex * const *)Barray, ldb, &beta, (cuDoubleComplex * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgemmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgemmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgemmBatched_64(handle, transa, transb, m, n, k, &alpha, (const cuDoubleComplex * const *)Aarray, lda, (const cuDoubleComplex * const *)Barray, ldb, &beta, (cuDoubleComplex * const *)Carray, ldc, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHgemmStridedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHgemmStridedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    int k;
-    rpc_read(client, &k, sizeof(k));
-    __half alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __half B;
-    rpc_read(client, &B, sizeof(B));
-    int ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    __half beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half C;
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHgemmStridedBatched(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasHgemmStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasHgemmStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    __half alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    __half A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    __half B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    __half beta;
-    rpc_read(client, &beta, sizeof(beta));
-    __half C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasHgemmStridedBatched_64(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
-    rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -21266,70 +10166,6 @@ int handle_cublasSgemmStridedBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasSgemmStridedBatched(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemmStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemmStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemmStridedBatched_64(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -21409,70 +10245,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDgemmStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemmStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemmStridedBatched_64(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgemmStridedBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgemmStridedBatched called" << std::endl;
@@ -21522,70 +10294,6 @@ int handle_cublasCgemmStridedBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasCgemmStridedBatched(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgemmStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemmStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemmStridedBatched_64(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -21665,70 +10373,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCgemm3mStridedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgemm3mStridedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgemm3mStridedBatched_64(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZgemmStridedBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZgemmStridedBatched called" << std::endl;
@@ -21793,9 +10437,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZgemmStridedBatched_64(void *args0) {
+int handle_cublasHgemmStridedBatched(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cublasZgemmStridedBatched_64 called" << std::endl;
+    std::cout << "Handle function cublasHgemmStridedBatched called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -21806,34 +10450,34 @@ int handle_cublasZgemmStridedBatched_64(void *args0) {
     rpc_read(client, &transa, sizeof(transa));
     cublasOperation_t transb;
     rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
+    int m;
     rpc_read(client, &m, sizeof(m));
-    int64_t n;
+    int n;
     rpc_read(client, &n, sizeof(n));
-    int64_t k;
+    int k;
     rpc_read(client, &k, sizeof(k));
-    cuDoubleComplex alpha;
+    __half alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
+    __half A;
     rpc_read(client, &A, sizeof(A));
-    int64_t lda;
+    int lda;
     rpc_read(client, &lda, sizeof(lda));
     long long int strideA;
     rpc_read(client, &strideA, sizeof(strideA));
-    cuDoubleComplex B;
+    __half B;
     rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
+    int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
     long long int strideB;
     rpc_read(client, &strideB, sizeof(strideB));
-    cuDoubleComplex beta;
+    __half beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex C;
-    int64_t ldc;
+    __half C;
+    int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
     long long int strideC;
     rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
+    int batchCount;
     rpc_read(client, &batchCount, sizeof(batchCount));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -21841,526 +10485,8 @@ int handle_cublasZgemmStridedBatched_64(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgemmStridedBatched_64(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
+    _result = cublasHgemmStridedBatched(handle, transa, transb, m, n, k, &alpha, &A, lda, strideA, &B, ldb, strideB, &beta, &C, ldc, strideC, batchCount);
     rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGemmBatchedEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGemmBatchedEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    void *alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    void *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    cudaDataType Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    void *beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasComputeType_t computeType;
-    rpc_read(client, &computeType, sizeof(computeType));
-    cublasGemmAlgo_t algo;
-    rpc_read(client, &algo, sizeof(algo));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGemmBatchedEx_64(handle, transa, transb, m, n, k, alpha, (const void * const *)Aarray, Atype, lda, (const void * const *)Barray, Btype, ldb, beta, (void * const *)Carray, Ctype, ldc, batchCount, computeType, algo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGemmStridedBatchedEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGemmStridedBatchedEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    int64_t k;
-    rpc_read(client, &k, sizeof(k));
-    void *alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    void *A;
-    rpc_read(client, &A, sizeof(A));
-    cudaDataType Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    long long int strideA;
-    rpc_read(client, &strideA, sizeof(strideA));
-    void *B;
-    rpc_read(client, &B, sizeof(B));
-    cudaDataType Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    long long int strideB;
-    rpc_read(client, &strideB, sizeof(strideB));
-    void *beta;
-    rpc_read(client, &beta, sizeof(beta));
-    void *C;
-    rpc_read(client, &C, sizeof(C));
-    cudaDataType Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    long long int strideC;
-    rpc_read(client, &strideC, sizeof(strideC));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasComputeType_t computeType;
-    rpc_read(client, &computeType, sizeof(computeType));
-    cublasGemmAlgo_t algo;
-    rpc_read(client, &algo, sizeof(algo));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGemmStridedBatchedEx_64(handle, transa, transb, m, n, k, alpha, A, Atype, lda, strideA, B, Btype, ldb, strideB, beta, C, Ctype, ldc, strideC, batchCount, computeType, algo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemmGroupedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemmGroupedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t *transa_array = nullptr;
-    rpc_read(client, &transa_array, 0, true);
-    cublasOperation_t *transb_array = nullptr;
-    rpc_read(client, &transb_array, 0, true);
-    int *m_array = nullptr;
-    rpc_read(client, &m_array, 0, true);
-    int *n_array = nullptr;
-    rpc_read(client, &n_array, 0, true);
-    int *k_array = nullptr;
-    rpc_read(client, &k_array, 0, true);
-    float *alpha_array = nullptr;
-    rpc_read(client, &alpha_array, 0, true);
-    float *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int *lda_array = nullptr;
-    rpc_read(client, &lda_array, 0, true);
-    float *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int *ldb_array = nullptr;
-    rpc_read(client, &ldb_array, 0, true);
-    float *beta_array = nullptr;
-    rpc_read(client, &beta_array, 0, true);
-    float *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int *ldc_array = nullptr;
-    rpc_read(client, &ldc_array, 0, true);
-    int group_count;
-    rpc_read(client, &group_count, sizeof(group_count));
-    int *group_size = nullptr;
-    rpc_read(client, &group_size, 0, true);
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemmGroupedBatched(handle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, (const float * const *)Aarray, lda_array, (const float * const *)Barray, ldb_array, beta_array, (float * const *)Carray, ldc_array, group_count, group_size);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgemmGroupedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgemmGroupedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t *transa_array = nullptr;
-    rpc_read(client, &transa_array, 0, true);
-    cublasOperation_t *transb_array = nullptr;
-    rpc_read(client, &transb_array, 0, true);
-    int64_t *m_array = nullptr;
-    rpc_read(client, &m_array, 0, true);
-    int64_t *n_array = nullptr;
-    rpc_read(client, &n_array, 0, true);
-    int64_t *k_array = nullptr;
-    rpc_read(client, &k_array, 0, true);
-    float *alpha_array = nullptr;
-    rpc_read(client, &alpha_array, 0, true);
-    float *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t *lda_array = nullptr;
-    rpc_read(client, &lda_array, 0, true);
-    float *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t *ldb_array = nullptr;
-    rpc_read(client, &ldb_array, 0, true);
-    float *beta_array = nullptr;
-    rpc_read(client, &beta_array, 0, true);
-    float *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t *ldc_array = nullptr;
-    rpc_read(client, &ldc_array, 0, true);
-    int64_t group_count;
-    rpc_read(client, &group_count, sizeof(group_count));
-    int64_t *group_size = nullptr;
-    rpc_read(client, &group_size, 0, true);
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgemmGroupedBatched_64(handle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, (const float * const *)Aarray, lda_array, (const float * const *)Barray, ldb_array, beta_array, (float * const *)Carray, ldc_array, group_count, group_size);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemmGroupedBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemmGroupedBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t *transa_array = nullptr;
-    rpc_read(client, &transa_array, 0, true);
-    cublasOperation_t *transb_array = nullptr;
-    rpc_read(client, &transb_array, 0, true);
-    int *m_array = nullptr;
-    rpc_read(client, &m_array, 0, true);
-    int *n_array = nullptr;
-    rpc_read(client, &n_array, 0, true);
-    int *k_array = nullptr;
-    rpc_read(client, &k_array, 0, true);
-    double *alpha_array = nullptr;
-    rpc_read(client, &alpha_array, 0, true);
-    double *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int *lda_array = nullptr;
-    rpc_read(client, &lda_array, 0, true);
-    double *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int *ldb_array = nullptr;
-    rpc_read(client, &ldb_array, 0, true);
-    double *beta_array = nullptr;
-    rpc_read(client, &beta_array, 0, true);
-    double *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int *ldc_array = nullptr;
-    rpc_read(client, &ldc_array, 0, true);
-    int group_count;
-    rpc_read(client, &group_count, sizeof(group_count));
-    int *group_size = nullptr;
-    rpc_read(client, &group_size, 0, true);
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemmGroupedBatched(handle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, (const double * const *)Aarray, lda_array, (const double * const *)Barray, ldb_array, beta_array, (double * const *)Carray, ldc_array, group_count, group_size);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgemmGroupedBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgemmGroupedBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t *transa_array = nullptr;
-    rpc_read(client, &transa_array, 0, true);
-    cublasOperation_t *transb_array = nullptr;
-    rpc_read(client, &transb_array, 0, true);
-    int64_t *m_array = nullptr;
-    rpc_read(client, &m_array, 0, true);
-    int64_t *n_array = nullptr;
-    rpc_read(client, &n_array, 0, true);
-    int64_t *k_array = nullptr;
-    rpc_read(client, &k_array, 0, true);
-    double *alpha_array = nullptr;
-    rpc_read(client, &alpha_array, 0, true);
-    double *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int64_t *lda_array = nullptr;
-    rpc_read(client, &lda_array, 0, true);
-    double *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int64_t *ldb_array = nullptr;
-    rpc_read(client, &ldb_array, 0, true);
-    double *beta_array = nullptr;
-    rpc_read(client, &beta_array, 0, true);
-    double *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    int64_t *ldc_array = nullptr;
-    rpc_read(client, &ldc_array, 0, true);
-    int64_t group_count;
-    rpc_read(client, &group_count, sizeof(group_count));
-    int64_t *group_size = nullptr;
-    rpc_read(client, &group_size, 0, true);
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgemmGroupedBatched_64(handle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, (const double * const *)Aarray, lda_array, (const double * const *)Barray, ldb_array, beta_array, (double * const *)Carray, ldc_array, group_count, group_size);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGemmGroupedBatchedEx(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGemmGroupedBatchedEx called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t *transa_array = nullptr;
-    rpc_read(client, &transa_array, 0, true);
-    cublasOperation_t *transb_array = nullptr;
-    rpc_read(client, &transb_array, 0, true);
-    int *m_array = nullptr;
-    rpc_read(client, &m_array, 0, true);
-    int *n_array = nullptr;
-    rpc_read(client, &n_array, 0, true);
-    int *k_array = nullptr;
-    rpc_read(client, &k_array, 0, true);
-    void *alpha_array;
-    rpc_read(client, &alpha_array, sizeof(alpha_array));
-    void *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    cudaDataType_t Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int *lda_array = nullptr;
-    rpc_read(client, &lda_array, 0, true);
-    void *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    cudaDataType_t Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int *ldb_array = nullptr;
-    rpc_read(client, &ldb_array, 0, true);
-    void *beta_array;
-    rpc_read(client, &beta_array, sizeof(beta_array));
-    void *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    cudaDataType_t Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int *ldc_array = nullptr;
-    rpc_read(client, &ldc_array, 0, true);
-    int group_count;
-    rpc_read(client, &group_count, sizeof(group_count));
-    int *group_size = nullptr;
-    rpc_read(client, &group_size, 0, true);
-    cublasComputeType_t computeType;
-    rpc_read(client, &computeType, sizeof(computeType));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGemmGroupedBatchedEx(handle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, (const void * const *)Aarray, Atype, lda_array, (const void * const *)Barray, Btype, ldb_array, beta_array, (void * const *)Carray, Ctype, ldc_array, group_count, group_size, computeType);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasGemmGroupedBatchedEx_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasGemmGroupedBatchedEx_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t *transa_array = nullptr;
-    rpc_read(client, &transa_array, 0, true);
-    cublasOperation_t *transb_array = nullptr;
-    rpc_read(client, &transb_array, 0, true);
-    int64_t *m_array = nullptr;
-    rpc_read(client, &m_array, 0, true);
-    int64_t *n_array = nullptr;
-    rpc_read(client, &n_array, 0, true);
-    int64_t *k_array = nullptr;
-    rpc_read(client, &k_array, 0, true);
-    void *alpha_array;
-    rpc_read(client, &alpha_array, sizeof(alpha_array));
-    void *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    cudaDataType_t Atype;
-    rpc_read(client, &Atype, sizeof(Atype));
-    int64_t *lda_array = nullptr;
-    rpc_read(client, &lda_array, 0, true);
-    void *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    cudaDataType_t Btype;
-    rpc_read(client, &Btype, sizeof(Btype));
-    int64_t *ldb_array = nullptr;
-    rpc_read(client, &ldb_array, 0, true);
-    void *beta_array;
-    rpc_read(client, &beta_array, sizeof(beta_array));
-    void *Carray = nullptr;
-    rpc_read(client, &Carray, 0, true);
-    cudaDataType_t Ctype;
-    rpc_read(client, &Ctype, sizeof(Ctype));
-    int64_t *ldc_array = nullptr;
-    rpc_read(client, &ldc_array, 0, true);
-    int64_t group_count;
-    rpc_read(client, &group_count, sizeof(group_count));
-    int64_t *group_size = nullptr;
-    rpc_read(client, &group_size, 0, true);
-    cublasComputeType_t computeType;
-    rpc_read(client, &computeType, sizeof(computeType));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasGemmGroupedBatchedEx_64(handle, transa_array, transb_array, m_array, n_array, k_array, alpha_array, (const void * const *)Aarray, Atype, lda_array, (const void * const *)Barray, Btype, ldb_array, beta_array, (void * const *)Carray, Ctype, ldc_array, group_count, group_size, computeType);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -22414,60 +10540,6 @@ int handle_cublasSgeam(void *args0) {
         goto _RTN_;
     }
     _result = cublasSgeam(handle, transa, transb, m, n, &alpha, &A, lda, &beta, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgeam_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgeam_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float beta;
-    rpc_read(client, &beta, sizeof(beta));
-    float B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgeam_64(handle, transa, transb, m, n, &alpha, &A, lda, &beta, &B, ldb, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -22537,60 +10609,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasDgeam_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgeam_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double beta;
-    rpc_read(client, &beta, sizeof(beta));
-    double B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgeam_64(handle, transa, transb, m, n, &alpha, &A, lda, &beta, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasCgeam(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasCgeam called" << std::endl;
@@ -22630,60 +10648,6 @@ int handle_cublasCgeam(void *args0) {
         goto _RTN_;
     }
     _result = cublasCgeam(handle, transa, transb, m, n, &alpha, &A, lda, &beta, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgeam_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgeam_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgeam_64(handle, transa, transb, m, n, &alpha, &A, lda, &beta, &B, ldb, &C, ldc);
     rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -22753,46 +10717,544 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasZgeam_64(void *args0) {
+int handle_cublasSgetrfBatched(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cublasZgeam_64 called" << std::endl;
+    std::cout << "Handle function cublasSgetrfBatched called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
+    int n;
     rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
+    float *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex beta;
-    rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex B;
-    rpc_read(client, &B, sizeof(B));
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
+    int P;
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgeam_64(handle, transa, transb, m, n, &alpha, &A, lda, &beta, &B, ldb, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
+    _result = cublasSgetrfBatched(handle, n, (float * const *)A, lda, &P, &info, batchSize);
+    rpc_write(client, &P, sizeof(P));
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasDgetrfBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasDgetrfBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    double *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasDgetrfBatched(handle, n, (double * const *)A, lda, &P, &info, batchSize);
+    rpc_write(client, &P, sizeof(P));
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasCgetrfBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasCgetrfBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    cuComplex *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasCgetrfBatched(handle, n, (cuComplex * const *)A, lda, &P, &info, batchSize);
+    rpc_write(client, &P, sizeof(P));
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasZgetrfBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasZgetrfBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    cuDoubleComplex *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasZgetrfBatched(handle, n, (cuDoubleComplex * const *)A, lda, &P, &info, batchSize);
+    rpc_write(client, &P, sizeof(P));
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasSgetriBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasSgetriBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    float *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    rpc_read(client, &P, sizeof(P));
+    float *C = nullptr;
+    rpc_read(client, &C, 0, true);
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasSgetriBatched(handle, n, (const float * const *)A, lda, &P, (float * const *)C, ldc, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasDgetriBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasDgetriBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    double *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    rpc_read(client, &P, sizeof(P));
+    double *C = nullptr;
+    rpc_read(client, &C, 0, true);
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasDgetriBatched(handle, n, (const double * const *)A, lda, &P, (double * const *)C, ldc, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasCgetriBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasCgetriBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    cuComplex *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    rpc_read(client, &P, sizeof(P));
+    cuComplex *C = nullptr;
+    rpc_read(client, &C, 0, true);
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasCgetriBatched(handle, n, (const cuComplex * const *)A, lda, &P, (cuComplex * const *)C, ldc, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasZgetriBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasZgetriBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    cuDoubleComplex *A = nullptr;
+    rpc_read(client, &A, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int P;
+    rpc_read(client, &P, sizeof(P));
+    cuDoubleComplex *C = nullptr;
+    rpc_read(client, &C, 0, true);
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasZgetriBatched(handle, n, (const cuDoubleComplex * const *)A, lda, &P, (cuDoubleComplex * const *)C, ldc, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasSgetrsBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasSgetrsBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasOperation_t trans;
+    rpc_read(client, &trans, sizeof(trans));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    int nrhs;
+    rpc_read(client, &nrhs, sizeof(nrhs));
+    float *Aarray = nullptr;
+    rpc_read(client, &Aarray, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int devIpiv;
+    rpc_read(client, &devIpiv, sizeof(devIpiv));
+    float *Barray = nullptr;
+    rpc_read(client, &Barray, 0, true);
+    int ldb;
+    rpc_read(client, &ldb, sizeof(ldb));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasSgetrsBatched(handle, trans, n, nrhs, (const float * const *)Aarray, lda, &devIpiv, (float * const *)Barray, ldb, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasDgetrsBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasDgetrsBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasOperation_t trans;
+    rpc_read(client, &trans, sizeof(trans));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    int nrhs;
+    rpc_read(client, &nrhs, sizeof(nrhs));
+    double *Aarray = nullptr;
+    rpc_read(client, &Aarray, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int devIpiv;
+    rpc_read(client, &devIpiv, sizeof(devIpiv));
+    double *Barray = nullptr;
+    rpc_read(client, &Barray, 0, true);
+    int ldb;
+    rpc_read(client, &ldb, sizeof(ldb));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasDgetrsBatched(handle, trans, n, nrhs, (const double * const *)Aarray, lda, &devIpiv, (double * const *)Barray, ldb, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasCgetrsBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasCgetrsBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasOperation_t trans;
+    rpc_read(client, &trans, sizeof(trans));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    int nrhs;
+    rpc_read(client, &nrhs, sizeof(nrhs));
+    cuComplex *Aarray = nullptr;
+    rpc_read(client, &Aarray, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int devIpiv;
+    rpc_read(client, &devIpiv, sizeof(devIpiv));
+    cuComplex *Barray = nullptr;
+    rpc_read(client, &Barray, 0, true);
+    int ldb;
+    rpc_read(client, &ldb, sizeof(ldb));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasCgetrsBatched(handle, trans, n, nrhs, (const cuComplex * const *)Aarray, lda, &devIpiv, (cuComplex * const *)Barray, ldb, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasZgetrsBatched(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasZgetrsBatched called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasOperation_t trans;
+    rpc_read(client, &trans, sizeof(trans));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    int nrhs;
+    rpc_read(client, &nrhs, sizeof(nrhs));
+    cuDoubleComplex *Aarray = nullptr;
+    rpc_read(client, &Aarray, 0, true);
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    int devIpiv;
+    rpc_read(client, &devIpiv, sizeof(devIpiv));
+    cuDoubleComplex *Barray = nullptr;
+    rpc_read(client, &Barray, 0, true);
+    int ldb;
+    rpc_read(client, &ldb, sizeof(ldb));
+    int info;
+    int batchSize;
+    rpc_read(client, &batchSize, sizeof(batchSize));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasZgetrsBatched(handle, trans, n, nrhs, (const cuDoubleComplex * const *)Aarray, lda, &devIpiv, (cuDoubleComplex * const *)Barray, ldb, &info, batchSize);
+    rpc_write(client, &info, sizeof(info));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -22861,60 +11323,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasStrsmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasStrsmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    float *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float *B = nullptr;
-    rpc_read(client, &B, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasStrsmBatched_64(handle, side, uplo, trans, diag, m, n, &alpha, (const float * const *)A, lda, (float * const *)B, ldb, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasDtrsmBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasDtrsmBatched called" << std::endl;
@@ -22955,60 +11363,6 @@ int handle_cublasDtrsmBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasDtrsmBatched(handle, side, uplo, trans, diag, m, n, &alpha, (const double * const *)A, lda, (double * const *)B, ldb, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDtrsmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDtrsmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    double *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double *B = nullptr;
-    rpc_read(client, &B, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDtrsmBatched_64(handle, side, uplo, trans, diag, m, n, &alpha, (const double * const *)A, lda, (double * const *)B, ldb, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -23077,60 +11431,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cublasCtrsmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCtrsmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex *B = nullptr;
-    rpc_read(client, &B, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCtrsmBatched_64(handle, side, uplo, trans, diag, m, n, &alpha, (const cuComplex * const *)A, lda, (cuComplex * const *)B, ldb, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cublasZtrsmBatched(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasZtrsmBatched called" << std::endl;
@@ -23171,444 +11471,6 @@ int handle_cublasZtrsmBatched(void *args0) {
         goto _RTN_;
     }
     _result = cublasZtrsmBatched(handle, side, uplo, trans, diag, m, n, &alpha, (const cuDoubleComplex * const *)A, lda, (cuDoubleComplex * const *)B, ldb, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZtrsmBatched_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZtrsmBatched_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t side;
-    rpc_read(client, &side, sizeof(side));
-    cublasFillMode_t uplo;
-    rpc_read(client, &uplo, sizeof(uplo));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    cublasDiagType_t diag;
-    rpc_read(client, &diag, sizeof(diag));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex alpha;
-    rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex *B = nullptr;
-    rpc_read(client, &B, 0, true);
-    int64_t ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int64_t batchCount;
-    rpc_read(client, &batchCount, sizeof(batchCount));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZtrsmBatched_64(handle, side, uplo, trans, diag, m, n, &alpha, (const cuDoubleComplex * const *)A, lda, (cuDoubleComplex * const *)B, ldb, batchCount);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSdgmm(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSdgmm called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float C;
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSdgmm_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSdgmm_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    float A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    float x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    float C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSdgmm_64(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDdgmm(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDdgmm called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double C;
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDdgmm_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDdgmm_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    double A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    double x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    double C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDdgmm_64(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCdgmm(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCdgmm called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex C;
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCdgmm_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCdgmm_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCdgmm_64(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZdgmm(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZdgmm called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex C;
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZdgmm_64(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZdgmm_64 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasSideMode_t mode;
-    rpc_read(client, &mode, sizeof(mode));
-    int64_t m;
-    rpc_read(client, &m, sizeof(m));
-    int64_t n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex A;
-    rpc_read(client, &A, sizeof(A));
-    int64_t lda;
-    rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex x;
-    rpc_read(client, &x, sizeof(x));
-    int64_t incx;
-    rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex C;
-    int64_t ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZdgmm_64(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
-    rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -24183,6 +12045,198 @@ _RTN_:
     return rtn;
 }
 
+int handle_cublasSdgmm(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasSdgmm called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasSideMode_t mode;
+    rpc_read(client, &mode, sizeof(mode));
+    int m;
+    rpc_read(client, &m, sizeof(m));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    float A;
+    rpc_read(client, &A, sizeof(A));
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    float x;
+    rpc_read(client, &x, sizeof(x));
+    int incx;
+    rpc_read(client, &incx, sizeof(incx));
+    float C;
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasSdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
+    rpc_write(client, &C, sizeof(C));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasDdgmm(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasDdgmm called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasSideMode_t mode;
+    rpc_read(client, &mode, sizeof(mode));
+    int m;
+    rpc_read(client, &m, sizeof(m));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    double A;
+    rpc_read(client, &A, sizeof(A));
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    double x;
+    rpc_read(client, &x, sizeof(x));
+    int incx;
+    rpc_read(client, &incx, sizeof(incx));
+    double C;
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasDdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
+    rpc_write(client, &C, sizeof(C));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasCdgmm(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasCdgmm called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasSideMode_t mode;
+    rpc_read(client, &mode, sizeof(mode));
+    int m;
+    rpc_read(client, &m, sizeof(m));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    cuComplex A;
+    rpc_read(client, &A, sizeof(A));
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    cuComplex x;
+    rpc_read(client, &x, sizeof(x));
+    int incx;
+    rpc_read(client, &incx, sizeof(incx));
+    cuComplex C;
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasCdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
+    rpc_write(client, &C, sizeof(C));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cublasZdgmm(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cublasZdgmm called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cublasHandle_t handle;
+    rpc_read(client, &handle, sizeof(handle));
+    cublasSideMode_t mode;
+    rpc_read(client, &mode, sizeof(mode));
+    int m;
+    rpc_read(client, &m, sizeof(m));
+    int n;
+    rpc_read(client, &n, sizeof(n));
+    cuDoubleComplex A;
+    rpc_read(client, &A, sizeof(A));
+    int lda;
+    rpc_read(client, &lda, sizeof(lda));
+    cuDoubleComplex x;
+    rpc_read(client, &x, sizeof(x));
+    int incx;
+    rpc_read(client, &incx, sizeof(incx));
+    cuDoubleComplex C;
+    int ldc;
+    rpc_read(client, &ldc, sizeof(ldc));
+    cublasStatus_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cublasZdgmm(handle, mode, m, n, &A, lda, &x, incx, &C, ldc);
+    rpc_write(client, &C, sizeof(C));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cublasStpttr(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cublasStpttr called" << std::endl;
@@ -24489,622 +12543,6 @@ int handle_cublasZtrttp(void *args0) {
     }
     _result = cublasZtrttp(handle, uplo, n, &A, lda, &AP);
     rpc_write(client, &AP, sizeof(AP));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgetrfBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgetrfBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgetrfBatched(handle, n, (float * const *)A, lda, &P, &info, batchSize);
-    rpc_write(client, &P, sizeof(P));
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgetrfBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgetrfBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    double *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgetrfBatched(handle, n, (double * const *)A, lda, &P, &info, batchSize);
-    rpc_write(client, &P, sizeof(P));
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgetrfBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgetrfBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgetrfBatched(handle, n, (cuComplex * const *)A, lda, &P, &info, batchSize);
-    rpc_write(client, &P, sizeof(P));
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgetrfBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgetrfBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgetrfBatched(handle, n, (cuDoubleComplex * const *)A, lda, &P, &info, batchSize);
-    rpc_write(client, &P, sizeof(P));
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgetriBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgetriBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    float *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    rpc_read(client, &P, sizeof(P));
-    float *C = nullptr;
-    rpc_read(client, &C, 0, true);
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgetriBatched(handle, n, (const float * const *)A, lda, &P, (float * const *)C, ldc, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgetriBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgetriBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    double *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    rpc_read(client, &P, sizeof(P));
-    double *C = nullptr;
-    rpc_read(client, &C, 0, true);
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgetriBatched(handle, n, (const double * const *)A, lda, &P, (double * const *)C, ldc, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgetriBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgetriBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuComplex *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    rpc_read(client, &P, sizeof(P));
-    cuComplex *C = nullptr;
-    rpc_read(client, &C, 0, true);
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgetriBatched(handle, n, (const cuComplex * const *)A, lda, &P, (cuComplex * const *)C, ldc, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgetriBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgetriBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex *A = nullptr;
-    rpc_read(client, &A, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int P;
-    rpc_read(client, &P, sizeof(P));
-    cuDoubleComplex *C = nullptr;
-    rpc_read(client, &C, 0, true);
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgetriBatched(handle, n, (const cuDoubleComplex * const *)A, lda, &P, (cuDoubleComplex * const *)C, ldc, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasSgetrsBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasSgetrsBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    int nrhs;
-    rpc_read(client, &nrhs, sizeof(nrhs));
-    float *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int devIpiv;
-    rpc_read(client, &devIpiv, sizeof(devIpiv));
-    float *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasSgetrsBatched(handle, trans, n, nrhs, (const float * const *)Aarray, lda, &devIpiv, (float * const *)Barray, ldb, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasDgetrsBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasDgetrsBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    int nrhs;
-    rpc_read(client, &nrhs, sizeof(nrhs));
-    double *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int devIpiv;
-    rpc_read(client, &devIpiv, sizeof(devIpiv));
-    double *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasDgetrsBatched(handle, trans, n, nrhs, (const double * const *)Aarray, lda, &devIpiv, (double * const *)Barray, ldb, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasCgetrsBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasCgetrsBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    int nrhs;
-    rpc_read(client, &nrhs, sizeof(nrhs));
-    cuComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int devIpiv;
-    rpc_read(client, &devIpiv, sizeof(devIpiv));
-    cuComplex *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasCgetrsBatched(handle, trans, n, nrhs, (const cuComplex * const *)Aarray, lda, &devIpiv, (cuComplex * const *)Barray, ldb, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasZgetrsBatched(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasZgetrsBatched called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t trans;
-    rpc_read(client, &trans, sizeof(trans));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    int nrhs;
-    rpc_read(client, &nrhs, sizeof(nrhs));
-    cuDoubleComplex *Aarray = nullptr;
-    rpc_read(client, &Aarray, 0, true);
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    int devIpiv;
-    rpc_read(client, &devIpiv, sizeof(devIpiv));
-    cuDoubleComplex *Barray = nullptr;
-    rpc_read(client, &Barray, 0, true);
-    int ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    int info;
-    int batchSize;
-    rpc_read(client, &batchSize, sizeof(batchSize));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasZgetrsBatched(handle, trans, n, nrhs, (const cuDoubleComplex * const *)Aarray, lda, &devIpiv, (cuDoubleComplex * const *)Barray, ldb, &info, batchSize);
-    rpc_write(client, &info, sizeof(info));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cublasUint8gemmBias(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cublasUint8gemmBias called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t handle;
-    rpc_read(client, &handle, sizeof(handle));
-    cublasOperation_t transa;
-    rpc_read(client, &transa, sizeof(transa));
-    cublasOperation_t transb;
-    rpc_read(client, &transb, sizeof(transb));
-    cublasOperation_t transc;
-    rpc_read(client, &transc, sizeof(transc));
-    int m;
-    rpc_read(client, &m, sizeof(m));
-    int n;
-    rpc_read(client, &n, sizeof(n));
-    int k;
-    rpc_read(client, &k, sizeof(k));
-    unsigned char A;
-    rpc_read(client, &A, sizeof(A));
-    int A_bias;
-    rpc_read(client, &A_bias, sizeof(A_bias));
-    int lda;
-    rpc_read(client, &lda, sizeof(lda));
-    unsigned char B;
-    rpc_read(client, &B, sizeof(B));
-    int B_bias;
-    rpc_read(client, &B_bias, sizeof(B_bias));
-    int ldb;
-    rpc_read(client, &ldb, sizeof(ldb));
-    unsigned char C;
-    int C_bias;
-    rpc_read(client, &C_bias, sizeof(C_bias));
-    int ldc;
-    rpc_read(client, &ldc, sizeof(ldc));
-    int C_mult;
-    rpc_read(client, &C_mult, sizeof(C_mult));
-    int C_shift;
-    rpc_read(client, &C_shift, sizeof(C_shift));
-    cublasStatus_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cublasUint8gemmBias(handle, transa, transb, transc, m, n, k, &A, A_bias, lda, &B, B_bias, ldb, &C, C_bias, ldc, C_mult, C_shift);
-    rpc_write(client, &C, sizeof(C));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

@@ -251,6 +251,66 @@ _RTN_:
     return rtn;
 }
 
+int handle_cudaDeviceGetSharedMemConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaDeviceGetSharedMemConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    enum cudaSharedMemConfig pConfig;
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaDeviceGetSharedMemConfig(&pConfig);
+    rpc_write(client, &pConfig, sizeof(pConfig));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaDeviceSetSharedMemConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaDeviceSetSharedMemConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    enum cudaSharedMemConfig config;
+    rpc_read(client, &config, sizeof(config));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaDeviceSetSharedMemConfig(config);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cudaDeviceGetByPCIBusId(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaDeviceGetByPCIBusId called" << std::endl;
@@ -499,134 +559,6 @@ int handle_cudaDeviceFlushGPUDirectRDMAWrites(void *args0) {
         goto _RTN_;
     }
     _result = cudaDeviceFlushGPUDirectRDMAWrites(target, scope);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaDeviceRegisterAsyncNotification(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaDeviceRegisterAsyncNotification called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int device;
-    rpc_read(client, &device, sizeof(device));
-    cudaAsyncCallback callbackFunc;
-    rpc_read(client, &callbackFunc, sizeof(callbackFunc));
-    void *userData;
-    rpc_read(client, &userData, sizeof(userData));
-    cudaAsyncCallbackHandle_t callback;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaDeviceRegisterAsyncNotification(device, callbackFunc, userData, &callback);
-    rpc_write(client, &callback, sizeof(callback));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaDeviceUnregisterAsyncNotification(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaDeviceUnregisterAsyncNotification called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int device;
-    rpc_read(client, &device, sizeof(device));
-    cudaAsyncCallbackHandle_t callback;
-    rpc_read(client, &callback, sizeof(callback));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaDeviceUnregisterAsyncNotification(device, callback);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaDeviceGetSharedMemConfig(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaDeviceGetSharedMemConfig called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    enum cudaSharedMemConfig pConfig;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaDeviceGetSharedMemConfig(&pConfig);
-    rpc_write(client, &pConfig, sizeof(pConfig));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaDeviceSetSharedMemConfig(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaDeviceSetSharedMemConfig called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    enum cudaSharedMemConfig config;
-    rpc_read(client, &config, sizeof(config));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaDeviceSetSharedMemConfig(config);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -907,9 +839,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGetDeviceProperties_v2(void *args0) {
+int handle_cudaGetDeviceProperties(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function cudaGetDeviceProperties_v2 called" << std::endl;
+    std::cout << "Handle function cudaGetDeviceProperties called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -923,7 +855,7 @@ int handle_cudaGetDeviceProperties_v2(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cudaGetDeviceProperties_v2(&prop, device);
+    _result = cudaGetDeviceProperties(&prop, device);
     rpc_write(client, &prop, sizeof(prop));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1157,40 +1089,6 @@ int handle_cudaChooseDevice(void *args0) {
     }
     _result = cudaChooseDevice(&device, &prop);
     rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaInitDevice(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaInitDevice called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int deviceFlags;
-    rpc_read(client, &deviceFlags, sizeof(deviceFlags));
-    unsigned int flags;
-    rpc_read(client, &flags, sizeof(flags));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaInitDevice(device, deviceFlags, flags);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1517,70 +1415,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaStreamGetId(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaStreamGetId called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaStream_t hStream;
-    rpc_read(client, &hStream, sizeof(hStream));
-    unsigned long long streamId;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaStreamGetId(hStream, &streamId);
-    rpc_write(client, &streamId, sizeof(streamId));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaStreamGetDevice(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaStreamGetDevice called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaStream_t hStream;
-    rpc_read(client, &hStream, sizeof(hStream));
-    int device;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaStreamGetDevice(hStream, &device);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaCtxResetPersistingL2Cache(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaCtxResetPersistingL2Cache called" << std::endl;
@@ -1650,9 +1484,9 @@ int handle_cudaStreamGetAttribute(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaStream_t hStream;
     rpc_read(client, &hStream, sizeof(hStream));
-    cudaLaunchAttributeID attr;
+    enum cudaStreamAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    cudaLaunchAttributeValue value_out;
+    union cudaStreamAttrValue value_out;
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -1684,9 +1518,9 @@ int handle_cudaStreamSetAttribute(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaStream_t hStream;
     rpc_read(client, &hStream, sizeof(hStream));
-    cudaLaunchAttributeID attr;
+    enum cudaStreamAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    cudaLaunchAttributeValue value;
+    union cudaStreamAttrValue value;
     rpc_read(client, &value, sizeof(value));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1937,46 +1771,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaStreamBeginCaptureToGraph(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaStreamBeginCaptureToGraph called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t dependencies;
-    rpc_read(client, &dependencies, sizeof(dependencies));
-    cudaGraphEdgeData dependencyData;
-    rpc_read(client, &dependencyData, sizeof(dependencyData));
-    size_t numDependencies;
-    rpc_read(client, &numDependencies, sizeof(numDependencies));
-    enum cudaStreamCaptureMode mode;
-    rpc_read(client, &mode, sizeof(mode));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaStreamBeginCaptureToGraph(stream, graph, &dependencies, &dependencyData, numDependencies, mode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaThreadExchangeStreamCaptureMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaThreadExchangeStreamCaptureMode called" << std::endl;
@@ -2071,6 +1865,40 @@ _RTN_:
     return rtn;
 }
 
+int handle_cudaStreamGetCaptureInfo(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaStreamGetCaptureInfo called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    cudaStream_t stream;
+    rpc_read(client, &stream, sizeof(stream));
+    enum cudaStreamCaptureStatus pCaptureStatus;
+    unsigned long long pId;
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaStreamGetCaptureInfo(stream, &pCaptureStatus, &pId);
+    rpc_write(client, &pCaptureStatus, sizeof(pCaptureStatus));
+    rpc_write(client, &pId, sizeof(pId));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cudaStreamGetCaptureInfo_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaStreamGetCaptureInfo_v2 called" << std::endl;
@@ -2115,56 +1943,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaStreamGetCaptureInfo_v3(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaStreamGetCaptureInfo_v3 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    enum cudaStreamCaptureStatus captureStatus_out;
-    unsigned long long id_out;
-    cudaGraph_t graph_out;
-    // PARAM const cudaGraphNode_t **dependencies_out
-    const cudaGraphNode_t *dependencies_out;
-    // PARAM const cudaGraphEdgeData **edgeData_out
-    const cudaGraphEdgeData *edgeData_out;
-    size_t numDependencies_out;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM const cudaGraphNode_t **dependencies_out
-    // PARAM const cudaGraphEdgeData **edgeData_out
-    _result = cudaStreamGetCaptureInfo_v3(stream, &captureStatus_out, &id_out, &graph_out, &dependencies_out, &edgeData_out, &numDependencies_out);
-    rpc_write(client, &captureStatus_out, sizeof(captureStatus_out));
-    rpc_write(client, &id_out, sizeof(id_out));
-    rpc_write(client, &graph_out, sizeof(graph_out));
-    // PARAM const cudaGraphNode_t **dependencies_out
-    rpc_write(client, dependencies_out, sizeof(cudaGraphNode_t));
-    // PARAM const cudaGraphEdgeData **edgeData_out
-    rpc_write(client, edgeData_out, sizeof(cudaGraphEdgeData));
-    rpc_write(client, &numDependencies_out, sizeof(numDependencies_out));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM const cudaGraphNode_t **dependencies_out
-    // PARAM const cudaGraphEdgeData **edgeData_out
-    return rtn;
-}
-
 int handle_cudaStreamUpdateCaptureDependencies(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaStreamUpdateCaptureDependencies called" << std::endl;
@@ -2186,44 +1964,6 @@ int handle_cudaStreamUpdateCaptureDependencies(void *args0) {
         goto _RTN_;
     }
     _result = cudaStreamUpdateCaptureDependencies(stream, &dependencies, numDependencies, flags);
-    rpc_write(client, &dependencies, sizeof(dependencies));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaStreamUpdateCaptureDependencies_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaStreamUpdateCaptureDependencies_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cudaGraphNode_t dependencies;
-    cudaGraphEdgeData dependencyData;
-    rpc_read(client, &dependencyData, sizeof(dependencyData));
-    size_t numDependencies;
-    rpc_read(client, &numDependencies, sizeof(numDependencies));
-    unsigned int flags;
-    rpc_read(client, &flags, sizeof(flags));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaStreamUpdateCaptureDependencies_v2(stream, &dependencies, &dependencyData, numDependencies, flags);
     rpc_write(client, &dependencies, sizeof(dependencies));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2476,40 +2216,6 @@ int handle_cudaEventElapsedTime(void *args0) {
         goto _RTN_;
     }
     _result = cudaEventElapsedTime(&ms, start, end);
-    rpc_write(client, &ms, sizeof(ms));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaEventElapsedTime_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaEventElapsedTime_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    float ms;
-    cudaEvent_t start;
-    rpc_read(client, &start, sizeof(start));
-    cudaEvent_t end;
-    rpc_read(client, &end, sizeof(end));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaEventElapsedTime_v2(&ms, start, end);
     rpc_write(client, &ms, sizeof(ms));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -2792,43 +2498,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaLaunchKernelExC(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLaunchKernelExC called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaLaunchConfig_t config;
-    rpc_read(client, &config, sizeof(config));
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    // PARAM void **args
-    void *args;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **args
-    _result = cudaLaunchKernelExC(&config, func, &args);
-    // PARAM void **args
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **args
-    return rtn;
-}
-
 int handle_cudaLaunchCooperativeKernel(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaLaunchCooperativeKernel called" << std::endl;
@@ -2938,6 +2607,38 @@ _RTN_:
     return rtn;
 }
 
+int handle_cudaFuncSetSharedMemConfig(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaFuncSetSharedMemConfig called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    void *func;
+    rpc_read(client, &func, sizeof(func));
+    enum cudaSharedMemConfig config;
+    rpc_read(client, &config, sizeof(config));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaFuncSetSharedMemConfig(func, config);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cudaFuncGetAttributes(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaFuncGetAttributes called" << std::endl;
@@ -2990,78 +2691,6 @@ int handle_cudaFuncSetAttribute(void *args0) {
         goto _RTN_;
     }
     _result = cudaFuncSetAttribute(func, attr, value);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaFuncGetName(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaFuncGetName called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM const char **name
-    const char *name;
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM const char **name
-    _result = cudaFuncGetName(&name, func);
-    // PARAM const char **name
-    rpc_write(client, name, strlen(name) + 1, true);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM const char **name
-    return rtn;
-}
-
-int handle_cudaFuncGetParamInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaFuncGetParamInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    size_t paramIndex;
-    rpc_read(client, &paramIndex, sizeof(paramIndex));
-    size_t paramOffset;
-    size_t paramSize;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaFuncGetParamInfo(func, paramIndex, &paramOffset, &paramSize);
-    rpc_write(client, &paramOffset, sizeof(paramOffset));
-    rpc_write(client, &paramSize, sizeof(paramSize));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3156,38 +2785,6 @@ int handle_cudaLaunchHostFunc(void *args0) {
         goto _RTN_;
     }
     _result = cudaLaunchHostFunc(stream, fn, userData);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaFuncSetSharedMemConfig(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaFuncSetSharedMemConfig called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    enum cudaSharedMemConfig config;
-    rpc_read(client, &config, sizeof(config));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaFuncSetSharedMemConfig(func, config);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3298,74 +2895,6 @@ int handle_cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(void *args0) {
     }
     _result = cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(&numBlocks, func, blockSize, dynamicSMemSize, flags);
     rpc_write(client, &numBlocks, sizeof(numBlocks));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaOccupancyMaxPotentialClusterSize(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaOccupancyMaxPotentialClusterSize called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int clusterSize;
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    cudaLaunchConfig_t launchConfig;
-    rpc_read(client, &launchConfig, sizeof(launchConfig));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaOccupancyMaxPotentialClusterSize(&clusterSize, func, &launchConfig);
-    rpc_write(client, &clusterSize, sizeof(clusterSize));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaOccupancyMaxActiveClusters(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaOccupancyMaxActiveClusters called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    int numClusters;
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    cudaLaunchConfig_t launchConfig;
-    rpc_read(client, &launchConfig, sizeof(launchConfig));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaOccupancyMaxActiveClusters(&numClusters, func, &launchConfig);
-    rpc_write(client, &numClusters, sizeof(numClusters));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3945,74 +3474,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaArrayGetMemoryRequirements(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaArrayGetMemoryRequirements called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    struct cudaArrayMemoryRequirements memoryRequirements;
-    cudaArray_t array;
-    rpc_read(client, &array, sizeof(array));
-    int device;
-    rpc_read(client, &device, sizeof(device));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaArrayGetMemoryRequirements(&memoryRequirements, array, device);
-    rpc_write(client, &memoryRequirements, sizeof(memoryRequirements));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaMipmappedArrayGetMemoryRequirements(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMipmappedArrayGetMemoryRequirements called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    struct cudaArrayMemoryRequirements memoryRequirements;
-    cudaMipmappedArray_t mipmap;
-    rpc_read(client, &mipmap, sizeof(mipmap));
-    int device;
-    rpc_read(client, &device, sizeof(device));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaMipmappedArrayGetMemoryRequirements(&memoryRequirements, mipmap, device);
-    rpc_write(client, &memoryRequirements, sizeof(memoryRequirements));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaArrayGetSparseProperties(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaArrayGetSparseProperties called" << std::endl;
@@ -4391,96 +3852,6 @@ int handle_cudaMemcpyPeerAsync(void *args0) {
         goto _RTN_;
     }
     _result = cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaMemcpyBatchAsync(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemcpyBatchAsync called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **dsts
-    void *dsts;
-    // PARAM void **srcs
-    void *srcs;
-    size_t sizes;
-    size_t count;
-    rpc_read(client, &count, sizeof(count));
-    struct cudaMemcpyAttributes attrs;
-    size_t attrsIdxs;
-    size_t numAttrs;
-    rpc_read(client, &numAttrs, sizeof(numAttrs));
-    size_t failIdx;
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **dsts
-    // PARAM void **srcs
-    _result = cudaMemcpyBatchAsync(&dsts, &srcs, &sizes, count, &attrs, &attrsIdxs, numAttrs, &failIdx, stream);
-    // PARAM void **dsts
-    // PARAM void **srcs
-    rpc_write(client, &sizes, sizeof(sizes));
-    rpc_write(client, &attrs, sizeof(attrs));
-    rpc_write(client, &attrsIdxs, sizeof(attrsIdxs));
-    rpc_write(client, &failIdx, sizeof(failIdx));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **dsts
-    // PARAM void **srcs
-    return rtn;
-}
-
-int handle_cudaMemcpy3DBatchAsync(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemcpy3DBatchAsync called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    size_t numOps;
-    rpc_read(client, &numOps, sizeof(numOps));
-    struct cudaMemcpy3DBatchOp opList;
-    size_t failIdx;
-    unsigned long long flags;
-    rpc_read(client, &flags, sizeof(flags));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaMemcpy3DBatchAsync(numOps, &opList, &failIdx, flags, stream);
-    rpc_write(client, &opList, sizeof(opList));
-    rpc_write(client, &failIdx, sizeof(failIdx));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4927,44 +4298,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaMemPrefetchAsync_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemPrefetchAsync_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    void *devPtr;
-    rpc_read(client, &devPtr, sizeof(devPtr));
-    size_t count;
-    rpc_read(client, &count, sizeof(count));
-    struct cudaMemLocation location;
-    rpc_read(client, &location, sizeof(location));
-    unsigned int flags;
-    rpc_read(client, &flags, sizeof(flags));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaMemPrefetchAsync_v2(devPtr, count, location, flags, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaMemAdvise(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaMemAdvise called" << std::endl;
@@ -4987,42 +4320,6 @@ int handle_cudaMemAdvise(void *args0) {
         goto _RTN_;
     }
     _result = cudaMemAdvise(devPtr, count, advice, device);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaMemAdvise_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemAdvise_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    void *devPtr;
-    rpc_read(client, &devPtr, sizeof(devPtr));
-    size_t count;
-    rpc_read(client, &count, sizeof(count));
-    enum cudaMemoryAdvise advice;
-    rpc_read(client, &advice, sizeof(advice));
-    struct cudaMemLocation location;
-    rpc_read(client, &location, sizeof(location));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaMemAdvise_v2(devPtr, count, advice, location);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6168,6 +5465,322 @@ _RTN_:
     return rtn;
 }
 
+int handle_cudaBindTexture(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaBindTexture called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t offset;
+    struct textureReference texref;
+    rpc_read(client, &texref, sizeof(texref));
+    void *devPtr;
+    rpc_read(client, &devPtr, sizeof(devPtr));
+    struct cudaChannelFormatDesc desc;
+    rpc_read(client, &desc, sizeof(desc));
+    size_t size;
+    rpc_read(client, &size, sizeof(size));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaBindTexture(&offset, &texref, devPtr, &desc, size);
+    rpc_write(client, &offset, sizeof(offset));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaBindTexture2D(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaBindTexture2D called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t offset;
+    struct textureReference texref;
+    rpc_read(client, &texref, sizeof(texref));
+    void *devPtr;
+    rpc_read(client, &devPtr, sizeof(devPtr));
+    struct cudaChannelFormatDesc desc;
+    rpc_read(client, &desc, sizeof(desc));
+    size_t width;
+    rpc_read(client, &width, sizeof(width));
+    size_t height;
+    rpc_read(client, &height, sizeof(height));
+    size_t pitch;
+    rpc_read(client, &pitch, sizeof(pitch));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaBindTexture2D(&offset, &texref, devPtr, &desc, width, height, pitch);
+    rpc_write(client, &offset, sizeof(offset));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaBindTextureToArray(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaBindTextureToArray called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    struct textureReference texref;
+    rpc_read(client, &texref, sizeof(texref));
+    cudaArray_const_t array;
+    rpc_read(client, &array, sizeof(array));
+    struct cudaChannelFormatDesc desc;
+    rpc_read(client, &desc, sizeof(desc));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaBindTextureToArray(&texref, array, &desc);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaBindTextureToMipmappedArray(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaBindTextureToMipmappedArray called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    struct textureReference texref;
+    rpc_read(client, &texref, sizeof(texref));
+    cudaMipmappedArray_const_t mipmappedArray;
+    rpc_read(client, &mipmappedArray, sizeof(mipmappedArray));
+    struct cudaChannelFormatDesc desc;
+    rpc_read(client, &desc, sizeof(desc));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaBindTextureToMipmappedArray(&texref, mipmappedArray, &desc);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaUnbindTexture(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaUnbindTexture called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    struct textureReference texref;
+    rpc_read(client, &texref, sizeof(texref));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaUnbindTexture(&texref);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaGetTextureAlignmentOffset(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaGetTextureAlignmentOffset called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t offset;
+    struct textureReference texref;
+    rpc_read(client, &texref, sizeof(texref));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaGetTextureAlignmentOffset(&offset, &texref);
+    rpc_write(client, &offset, sizeof(offset));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaGetTextureReference(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaGetTextureReference called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    // PARAM const struct textureReference **texref
+    const struct textureReference *texref;
+    void *symbol;
+    rpc_read(client, &symbol, sizeof(symbol));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM const struct textureReference **texref
+    _result = cudaGetTextureReference(&texref, symbol);
+    // PARAM const struct textureReference **texref
+    rpc_write(client, texref, sizeof(struct textureReference));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM const struct textureReference **texref
+    return rtn;
+}
+
+int handle_cudaBindSurfaceToArray(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaBindSurfaceToArray called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    struct surfaceReference surfref;
+    rpc_read(client, &surfref, sizeof(surfref));
+    cudaArray_const_t array;
+    rpc_read(client, &array, sizeof(array));
+    struct cudaChannelFormatDesc desc;
+    rpc_read(client, &desc, sizeof(desc));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaBindSurfaceToArray(&surfref, array, &desc);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cudaGetSurfaceReference(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaGetSurfaceReference called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    // PARAM const struct surfaceReference **surfref
+    const struct surfaceReference *surfref;
+    void *symbol;
+    rpc_read(client, &symbol, sizeof(symbol));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    // PARAM const struct surfaceReference **surfref
+    _result = cudaGetSurfaceReference(&surfref, symbol);
+    // PARAM const struct surfaceReference **surfref
+    rpc_write(client, surfref, sizeof(struct surfaceReference));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    // PARAM const struct surfaceReference **surfref
+    return rtn;
+}
+
 int handle_cudaGetChannelDesc(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGetChannelDesc called" << std::endl;
@@ -6729,9 +6342,9 @@ int handle_cudaGraphKernelNodeGetAttribute(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    cudaLaunchAttributeID attr;
+    enum cudaKernelNodeAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    cudaLaunchAttributeValue value_out;
+    union cudaKernelNodeAttrValue value_out;
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -6763,9 +6376,9 @@ int handle_cudaGraphKernelNodeSetAttribute(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    cudaLaunchAttributeID attr;
+    enum cudaKernelNodeAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    cudaLaunchAttributeValue value;
+    union cudaKernelNodeAttrValue value;
     rpc_read(client, &value, sizeof(value));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8302,44 +7915,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGraphGetEdges_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphGetEdges_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t from;
-    cudaGraphNode_t to;
-    cudaGraphEdgeData edgeData;
-    size_t numEdges;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphGetEdges_v2(graph, &from, &to, &edgeData, &numEdges);
-    rpc_write(client, &from, sizeof(from));
-    rpc_write(client, &to, sizeof(to));
-    rpc_write(client, &edgeData, sizeof(edgeData));
-    rpc_write(client, &numEdges, sizeof(numEdges));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaGraphNodeGetDependencies(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGraphNodeGetDependencies called" << std::endl;
@@ -8374,42 +7949,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGraphNodeGetDependencies_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphNodeGetDependencies_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphNode_t node;
-    rpc_read(client, &node, sizeof(node));
-    cudaGraphNode_t pDependencies;
-    cudaGraphEdgeData edgeData;
-    size_t pNumDependencies;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphNodeGetDependencies_v2(node, &pDependencies, &edgeData, &pNumDependencies);
-    rpc_write(client, &pDependencies, sizeof(pDependencies));
-    rpc_write(client, &edgeData, sizeof(edgeData));
-    rpc_write(client, &pNumDependencies, sizeof(pNumDependencies));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaGraphNodeGetDependentNodes(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGraphNodeGetDependentNodes called" << std::endl;
@@ -8429,42 +7968,6 @@ int handle_cudaGraphNodeGetDependentNodes(void *args0) {
     }
     _result = cudaGraphNodeGetDependentNodes(node, &pDependentNodes, &pNumDependentNodes);
     rpc_write(client, &pDependentNodes, sizeof(pDependentNodes));
-    rpc_write(client, &pNumDependentNodes, sizeof(pNumDependentNodes));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphNodeGetDependentNodes_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphNodeGetDependentNodes_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphNode_t node;
-    rpc_read(client, &node, sizeof(node));
-    cudaGraphNode_t pDependentNodes;
-    cudaGraphEdgeData edgeData;
-    size_t pNumDependentNodes;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphNodeGetDependentNodes_v2(node, &pDependentNodes, &edgeData, &pNumDependentNodes);
-    rpc_write(client, &pDependentNodes, sizeof(pDependentNodes));
-    rpc_write(client, &edgeData, sizeof(edgeData));
     rpc_write(client, &pNumDependentNodes, sizeof(pNumDependentNodes));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -8516,44 +8019,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGraphAddDependencies_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphAddDependencies_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t from;
-    rpc_read(client, &from, sizeof(from));
-    cudaGraphNode_t to;
-    rpc_read(client, &to, sizeof(to));
-    cudaGraphEdgeData edgeData;
-    rpc_read(client, &edgeData, sizeof(edgeData));
-    size_t numDependencies;
-    rpc_read(client, &numDependencies, sizeof(numDependencies));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphAddDependencies_v2(graph, &from, &to, &edgeData, numDependencies);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaGraphRemoveDependencies(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGraphRemoveDependencies called" << std::endl;
@@ -8576,44 +8041,6 @@ int handle_cudaGraphRemoveDependencies(void *args0) {
         goto _RTN_;
     }
     _result = cudaGraphRemoveDependencies(graph, &from, &to, numDependencies);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphRemoveDependencies_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphRemoveDependencies_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t from;
-    rpc_read(client, &from, sizeof(from));
-    cudaGraphNode_t to;
-    rpc_read(client, &to, sizeof(to));
-    cudaGraphEdgeData edgeData;
-    rpc_read(client, &edgeData, sizeof(edgeData));
-    size_t numDependencies;
-    rpc_read(client, &numDependencies, sizeof(numDependencies));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphRemoveDependencies_v2(graph, &from, &to, &edgeData, numDependencies);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8668,16 +8095,20 @@ int handle_cudaGraphInstantiate(void *args0) {
     cudaGraphExec_t pGraphExec;
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    unsigned long long flags;
-    rpc_read(client, &flags, sizeof(flags));
+    cudaGraphNode_t pErrorNode;
+    char pLogBuffer[1024];
+    size_t bufferSize;
+    rpc_read(client, &bufferSize, sizeof(bufferSize));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = cudaGraphInstantiate(&pGraphExec, graph, flags);
+    _result = cudaGraphInstantiate(&pGraphExec, graph, &pErrorNode, pLogBuffer, bufferSize);
     rpc_write(client, &pGraphExec, sizeof(pGraphExec));
+    rpc_write(client, &pErrorNode, sizeof(pErrorNode));
+    rpc_write(client, pLogBuffer, strlen(pLogBuffer) + 1, true);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8712,72 +8143,6 @@ int handle_cudaGraphInstantiateWithFlags(void *args0) {
     }
     _result = cudaGraphInstantiateWithFlags(&pGraphExec, graph, flags);
     rpc_write(client, &pGraphExec, sizeof(pGraphExec));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphInstantiateWithParams(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphInstantiateWithParams called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphExec_t pGraphExec;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphInstantiateParams instantiateParams;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphInstantiateWithParams(&pGraphExec, graph, &instantiateParams);
-    rpc_write(client, &pGraphExec, sizeof(pGraphExec));
-    rpc_write(client, &instantiateParams, sizeof(instantiateParams));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphExecGetFlags(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphExecGetFlags called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphExec_t graphExec;
-    rpc_read(client, &graphExec, sizeof(graphExec));
-    unsigned long long flags;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphExecGetFlags(graphExec, &flags);
-    rpc_write(client, &flags, sizeof(flags));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9222,74 +8587,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGraphNodeSetEnabled(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphNodeSetEnabled called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphExec_t hGraphExec;
-    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
-    cudaGraphNode_t hNode;
-    rpc_read(client, &hNode, sizeof(hNode));
-    unsigned int isEnabled;
-    rpc_read(client, &isEnabled, sizeof(isEnabled));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphNodeSetEnabled(hGraphExec, hNode, isEnabled);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphNodeGetEnabled(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphNodeGetEnabled called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphExec_t hGraphExec;
-    rpc_read(client, &hGraphExec, sizeof(hGraphExec));
-    cudaGraphNode_t hNode;
-    rpc_read(client, &hNode, sizeof(hNode));
-    unsigned int isEnabled;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphNodeGetEnabled(hGraphExec, hNode, &isEnabled);
-    rpc_write(client, &isEnabled, sizeof(isEnabled));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaGraphExecUpdate(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGraphExecUpdate called" << std::endl;
@@ -9301,15 +8598,17 @@ int handle_cudaGraphExecUpdate(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraph_t hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    cudaGraphExecUpdateResultInfo resultInfo;
+    cudaGraphNode_t hErrorNode_out;
+    enum cudaGraphExecUpdateResult updateResult_out;
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = cudaGraphExecUpdate(hGraphExec, hGraph, &resultInfo);
-    rpc_write(client, &resultInfo, sizeof(resultInfo));
+    _result = cudaGraphExecUpdate(hGraphExec, hGraph, &hErrorNode_out, &updateResult_out);
+    rpc_write(client, &hErrorNode_out, sizeof(hErrorNode_out));
+    rpc_write(client, &updateResult_out, sizeof(updateResult_out));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9655,186 +8954,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGraphAddNode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphAddNode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphNode_t pGraphNode;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t pDependencies;
-    rpc_read(client, &pDependencies, sizeof(pDependencies));
-    size_t numDependencies;
-    rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaGraphNodeParams *nodeParams;
-    rpc_read(client, &nodeParams, sizeof(nodeParams));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphAddNode(&pGraphNode, graph, &pDependencies, numDependencies, nodeParams);
-    rpc_write(client, &pGraphNode, sizeof(pGraphNode));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphAddNode_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphAddNode_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphNode_t pGraphNode;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t pDependencies;
-    rpc_read(client, &pDependencies, sizeof(pDependencies));
-    cudaGraphEdgeData dependencyData;
-    rpc_read(client, &dependencyData, sizeof(dependencyData));
-    size_t numDependencies;
-    rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaGraphNodeParams *nodeParams;
-    rpc_read(client, &nodeParams, sizeof(nodeParams));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphAddNode_v2(&pGraphNode, graph, &pDependencies, &dependencyData, numDependencies, nodeParams);
-    rpc_write(client, &pGraphNode, sizeof(pGraphNode));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphNodeSetParams(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphNodeSetParams called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphNode_t node;
-    rpc_read(client, &node, sizeof(node));
-    struct cudaGraphNodeParams *nodeParams;
-    rpc_read(client, &nodeParams, sizeof(nodeParams));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphNodeSetParams(node, nodeParams);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphExecNodeSetParams(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphExecNodeSetParams called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphExec_t graphExec;
-    rpc_read(client, &graphExec, sizeof(graphExec));
-    cudaGraphNode_t node;
-    rpc_read(client, &node, sizeof(node));
-    struct cudaGraphNodeParams *nodeParams;
-    rpc_read(client, &nodeParams, sizeof(nodeParams));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphExecNodeSetParams(graphExec, node, nodeParams);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGraphConditionalHandleCreate(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphConditionalHandleCreate called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphConditionalHandle pHandle_out;
-    cudaGraph_t graph;
-    rpc_read(client, &graph, sizeof(graph));
-    unsigned int defaultLaunchValue;
-    rpc_read(client, &defaultLaunchValue, sizeof(defaultLaunchValue));
-    unsigned int flags;
-    rpc_read(client, &flags, sizeof(flags));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGraphConditionalHandleCreate(&pHandle_out, graph, defaultLaunchValue, flags);
-    rpc_write(client, &pHandle_out, sizeof(pHandle_out));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaGetDriverEntryPoint(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGetDriverEntryPoint called" << std::endl;
@@ -9848,7 +8967,6 @@ int handle_cudaGetDriverEntryPoint(void *args0) {
     void *funcPtr;
     unsigned long long flags;
     rpc_read(client, &flags, sizeof(flags));
-    enum cudaDriverEntryPointQueryResult driverStatus;
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -9857,51 +8975,8 @@ int handle_cudaGetDriverEntryPoint(void *args0) {
     }
     buffers.insert(symbol);
     // PARAM void **funcPtr
-    _result = cudaGetDriverEntryPoint(symbol, &funcPtr, flags, &driverStatus);
+    _result = cudaGetDriverEntryPoint(symbol, &funcPtr, flags);
     // PARAM void **funcPtr
-    rpc_write(client, &driverStatus, sizeof(driverStatus));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **funcPtr
-    return rtn;
-}
-
-int handle_cudaGetDriverEntryPointByVersion(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGetDriverEntryPointByVersion called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    char *symbol = nullptr;
-    rpc_read(client, &symbol, 0, true);
-    // PARAM void **funcPtr
-    void *funcPtr;
-    unsigned int cudaVersion;
-    rpc_read(client, &cudaVersion, sizeof(cudaVersion));
-    unsigned long long flags;
-    rpc_read(client, &flags, sizeof(flags));
-    enum cudaDriverEntryPointQueryResult driverStatus;
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    buffers.insert(symbol);
-    // PARAM void **funcPtr
-    _result = cudaGetDriverEntryPointByVersion(symbol, &funcPtr, cudaVersion, flags, &driverStatus);
-    // PARAM void **funcPtr
-    rpc_write(client, &driverStatus, sizeof(driverStatus));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9914,392 +8989,6 @@ _RTN_:
         ::free(*it);
     }
     // PARAM void **funcPtr
-    return rtn;
-}
-
-int handle_cudaLibraryLoadData(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryLoadData called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaLibrary_t library;
-    void *code;
-    rpc_read(client, &code, sizeof(code));
-    enum cudaJitOption jitOptions;
-    // PARAM void **jitOptionsValues
-    void *jitOptionsValues;
-    unsigned int numJitOptions;
-    rpc_read(client, &numJitOptions, sizeof(numJitOptions));
-    enum cudaLibraryOption libraryOptions;
-    // PARAM void **libraryOptionValues
-    void *libraryOptionValues;
-    unsigned int numLibraryOptions;
-    rpc_read(client, &numLibraryOptions, sizeof(numLibraryOptions));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    _result = cudaLibraryLoadData(&library, code, &jitOptions, &jitOptionsValues, numJitOptions, &libraryOptions, &libraryOptionValues, numLibraryOptions);
-    rpc_write(client, &library, sizeof(library));
-    rpc_write(client, &jitOptions, sizeof(jitOptions));
-    // PARAM void **jitOptionsValues
-    rpc_write(client, &libraryOptions, sizeof(libraryOptions));
-    // PARAM void **libraryOptionValues
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    return rtn;
-}
-
-int handle_cudaLibraryLoadFromFile(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryLoadFromFile called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaLibrary_t library;
-    char *fileName = nullptr;
-    rpc_read(client, &fileName, 0, true);
-    enum cudaJitOption jitOptions;
-    // PARAM void **jitOptionsValues
-    void *jitOptionsValues;
-    unsigned int numJitOptions;
-    rpc_read(client, &numJitOptions, sizeof(numJitOptions));
-    enum cudaLibraryOption libraryOptions;
-    // PARAM void **libraryOptionValues
-    void *libraryOptionValues;
-    unsigned int numLibraryOptions;
-    rpc_read(client, &numLibraryOptions, sizeof(numLibraryOptions));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    buffers.insert(fileName);
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    _result = cudaLibraryLoadFromFile(&library, fileName, &jitOptions, &jitOptionsValues, numJitOptions, &libraryOptions, &libraryOptionValues, numLibraryOptions);
-    rpc_write(client, &library, sizeof(library));
-    rpc_write(client, &jitOptions, sizeof(jitOptions));
-    // PARAM void **jitOptionsValues
-    rpc_write(client, &libraryOptions, sizeof(libraryOptions));
-    // PARAM void **libraryOptionValues
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    return rtn;
-}
-
-int handle_cudaLibraryUnload(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryUnload called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaLibrary_t library;
-    rpc_read(client, &library, sizeof(library));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaLibraryUnload(library);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaLibraryGetKernel(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryGetKernel called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaKernel_t pKernel;
-    cudaLibrary_t library;
-    rpc_read(client, &library, sizeof(library));
-    char *name = nullptr;
-    rpc_read(client, &name, 0, true);
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    buffers.insert(name);
-    _result = cudaLibraryGetKernel(&pKernel, library, name);
-    rpc_write(client, &pKernel, sizeof(pKernel));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaLibraryGetGlobal(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryGetGlobal called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **dptr
-    void *dptr;
-    size_t bytes;
-    cudaLibrary_t library;
-    rpc_read(client, &library, sizeof(library));
-    char *name = nullptr;
-    rpc_read(client, &name, 0, true);
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **dptr
-    buffers.insert(name);
-    _result = cudaLibraryGetGlobal(&dptr, &bytes, library, name);
-    // PARAM void **dptr
-    rpc_write(client, &bytes, sizeof(bytes));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **dptr
-    return rtn;
-}
-
-int handle_cudaLibraryGetManaged(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryGetManaged called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **dptr
-    void *dptr;
-    size_t bytes;
-    cudaLibrary_t library;
-    rpc_read(client, &library, sizeof(library));
-    char *name = nullptr;
-    rpc_read(client, &name, 0, true);
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **dptr
-    buffers.insert(name);
-    _result = cudaLibraryGetManaged(&dptr, &bytes, library, name);
-    // PARAM void **dptr
-    rpc_write(client, &bytes, sizeof(bytes));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **dptr
-    return rtn;
-}
-
-int handle_cudaLibraryGetUnifiedFunction(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryGetUnifiedFunction called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **fptr
-    void *fptr;
-    cudaLibrary_t library;
-    rpc_read(client, &library, sizeof(library));
-    char *symbol = nullptr;
-    rpc_read(client, &symbol, 0, true);
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **fptr
-    buffers.insert(symbol);
-    _result = cudaLibraryGetUnifiedFunction(&fptr, library, symbol);
-    // PARAM void **fptr
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **fptr
-    return rtn;
-}
-
-int handle_cudaLibraryGetKernelCount(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryGetKernelCount called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int count;
-    cudaLibrary_t lib;
-    rpc_read(client, &lib, sizeof(lib));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaLibraryGetKernelCount(&count, lib);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaLibraryEnumerateKernels(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLibraryEnumerateKernels called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaKernel_t kernels;
-    unsigned int numKernels;
-    rpc_read(client, &numKernels, sizeof(numKernels));
-    cudaLibrary_t lib;
-    rpc_read(client, &lib, sizeof(lib));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaLibraryEnumerateKernels(&kernels, numKernels, lib);
-    rpc_write(client, &kernels, sizeof(kernels));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaKernelSetAttributeForDevice(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaKernelSetAttributeForDevice called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaKernel_t kernel;
-    rpc_read(client, &kernel, sizeof(kernel));
-    enum cudaFuncAttribute attr;
-    rpc_read(client, &attr, sizeof(attr));
-    int value;
-    rpc_read(client, &value, sizeof(value));
-    int device;
-    rpc_read(client, &device, sizeof(device));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaKernelSetAttributeForDevice(kernel, attr, value, device);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
     return rtn;
 }
 
@@ -10357,38 +9046,6 @@ int handle_cudaGetFuncBySymbol(void *args0) {
     }
     _result = cudaGetFuncBySymbol(&functionPtr, symbolPtr);
     rpc_write(client, &functionPtr, sizeof(functionPtr));
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_cudaGetKernel(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGetKernel called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaKernel_t kernelPtr;
-    void *entryFuncAddr;
-    rpc_read(client, &entryFuncAddr, sizeof(entryFuncAddr));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = cudaGetKernel(&kernelPtr, entryFuncAddr);
-    rpc_write(client, &kernelPtr, sizeof(kernelPtr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
