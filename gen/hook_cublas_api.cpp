@@ -636,8 +636,8 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasSetMatrix called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -659,8 +659,8 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -700,8 +700,8 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasGetMatrix called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -723,8 +723,8 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -892,8 +892,8 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
 #ifdef DEBUG
     std::cout << "Hook: cublasSetMatrixAsync called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -916,8 +916,8 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -958,8 +958,8 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
 #ifdef DEBUG
     std::cout << "Hook: cublasGetMatrixAsync called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -982,8 +982,8 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -1045,8 +1045,8 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
 #ifdef DEBUG
     std::cout << "Hook: cublasNrm2Ex called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1069,8 +1069,8 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -1078,8 +1078,8 @@ extern "C" cublasStatus_t cublasNrm2Ex_64(cublasHandle_t handle, int64_t n, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasNrm2Ex_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1102,8 +1102,8 @@ extern "C" cublasStatus_t cublasNrm2Ex_64(cublasHandle_t handle, int64_t n, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -1111,7 +1111,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
 #ifdef DEBUG
     std::cout << "Hook: cublasSnrm2_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1132,7 +1132,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1141,7 +1141,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasSnrm2_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1162,7 +1162,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1171,7 +1171,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
 #ifdef DEBUG
     std::cout << "Hook: cublasDnrm2_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1192,7 +1192,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1201,7 +1201,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasDnrm2_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1222,7 +1222,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1231,7 +1231,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
 #ifdef DEBUG
     std::cout << "Hook: cublasScnrm2_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1252,7 +1252,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1261,7 +1261,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2_64(cublasHandle_t handle, int64_t n, c
 #ifdef DEBUG
     std::cout << "Hook: cublasScnrm2_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1282,7 +1282,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2_64(cublasHandle_t handle, int64_t n, c
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1291,7 +1291,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
 #ifdef DEBUG
     std::cout << "Hook: cublasDznrm2_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1312,7 +1312,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1321,7 +1321,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2_64(cublasHandle_t handle, int64_t n, c
 #ifdef DEBUG
     std::cout << "Hook: cublasDznrm2_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1342,7 +1342,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2_64(cublasHandle_t handle, int64_t n, c
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1351,9 +1351,9 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
 #ifdef DEBUG
     std::cout << "Hook: cublasDotEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1379,9 +1379,9 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -1389,9 +1389,9 @@ extern "C" cublasStatus_t cublasDotEx_64(cublasHandle_t handle, int64_t n, const
 #ifdef DEBUG
     std::cout << "Hook: cublasDotEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1417,9 +1417,9 @@ extern "C" cublasStatus_t cublasDotEx_64(cublasHandle_t handle, int64_t n, const
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -1427,9 +1427,9 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
 #ifdef DEBUG
     std::cout << "Hook: cublasDotcEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1455,9 +1455,9 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -1465,9 +1465,9 @@ extern "C" cublasStatus_t cublasDotcEx_64(cublasHandle_t handle, int64_t n, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasDotcEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1493,9 +1493,9 @@ extern "C" cublasStatus_t cublasDotcEx_64(cublasHandle_t handle, int64_t n, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -1503,8 +1503,8 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
 #ifdef DEBUG
     std::cout << "Hook: cublasSdot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1527,8 +1527,8 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1537,8 +1537,8 @@ extern "C" cublasStatus_t cublasSdot_v2_64(cublasHandle_t handle, int64_t n, con
 #ifdef DEBUG
     std::cout << "Hook: cublasSdot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1561,8 +1561,8 @@ extern "C" cublasStatus_t cublasSdot_v2_64(cublasHandle_t handle, int64_t n, con
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1571,8 +1571,8 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
 #ifdef DEBUG
     std::cout << "Hook: cublasDdot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1595,8 +1595,8 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1605,8 +1605,8 @@ extern "C" cublasStatus_t cublasDdot_v2_64(cublasHandle_t handle, int64_t n, con
 #ifdef DEBUG
     std::cout << "Hook: cublasDdot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1629,8 +1629,8 @@ extern "C" cublasStatus_t cublasDdot_v2_64(cublasHandle_t handle, int64_t n, con
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1639,8 +1639,8 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
 #ifdef DEBUG
     std::cout << "Hook: cublasCdotu_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1663,8 +1663,8 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1673,8 +1673,8 @@ extern "C" cublasStatus_t cublasCdotu_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasCdotu_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1697,8 +1697,8 @@ extern "C" cublasStatus_t cublasCdotu_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1707,8 +1707,8 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
 #ifdef DEBUG
     std::cout << "Hook: cublasCdotc_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1731,8 +1731,8 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1741,8 +1741,8 @@ extern "C" cublasStatus_t cublasCdotc_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasCdotc_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1765,8 +1765,8 @@ extern "C" cublasStatus_t cublasCdotc_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1775,8 +1775,8 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
 #ifdef DEBUG
     std::cout << "Hook: cublasZdotu_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1799,8 +1799,8 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1809,8 +1809,8 @@ extern "C" cublasStatus_t cublasZdotu_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasZdotu_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1833,8 +1833,8 @@ extern "C" cublasStatus_t cublasZdotu_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1843,8 +1843,8 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
 #ifdef DEBUG
     std::cout << "Hook: cublasZdotc_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1867,8 +1867,8 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1877,8 +1877,8 @@ extern "C" cublasStatus_t cublasZdotc_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasZdotc_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -1901,8 +1901,8 @@ extern "C" cublasStatus_t cublasZdotc_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -1911,8 +1911,8 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
 #ifdef DEBUG
     std::cout << "Hook: cublasScalEx called" << std::endl;
 #endif
-    void *_0alpha = mem2server((void *)alpha, getSizeFromCudaDataType(alphaType));
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
+    void *_0alpha = mem2server((void *)alpha, 0);
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1935,8 +1935,8 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)alpha, getSizeFromCudaDataType(alphaType));
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
+    mem2client((void *)alpha, 0);
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     return _result;
 }
 
@@ -1944,8 +1944,8 @@ extern "C" cublasStatus_t cublasScalEx_64(cublasHandle_t handle, int64_t n, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasScalEx_64 called" << std::endl;
 #endif
-    void *_0alpha = mem2server((void *)alpha, getSizeFromCudaDataType(alphaType));
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
+    void *_0alpha = mem2server((void *)alpha, 0);
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1968,8 +1968,8 @@ extern "C" cublasStatus_t cublasScalEx_64(cublasHandle_t handle, int64_t n, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)alpha, getSizeFromCudaDataType(alphaType));
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
+    mem2client((void *)alpha, 0);
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     return _result;
 }
 
@@ -1978,7 +1978,7 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
     std::cout << "Hook: cublasSscal_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1999,7 +1999,7 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
     return _result;
 }
 
@@ -2008,7 +2008,7 @@ extern "C" cublasStatus_t cublasSscal_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasSscal_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2029,7 +2029,7 @@ extern "C" cublasStatus_t cublasSscal_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
     return _result;
 }
 
@@ -2038,7 +2038,7 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
     std::cout << "Hook: cublasDscal_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2059,7 +2059,7 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
     return _result;
 }
 
@@ -2068,7 +2068,7 @@ extern "C" cublasStatus_t cublasDscal_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasDscal_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2089,7 +2089,7 @@ extern "C" cublasStatus_t cublasDscal_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
     return _result;
 }
 
@@ -2098,7 +2098,7 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
     std::cout << "Hook: cublasCscal_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2119,7 +2119,7 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2128,7 +2128,7 @@ extern "C" cublasStatus_t cublasCscal_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasCscal_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2149,7 +2149,7 @@ extern "C" cublasStatus_t cublasCscal_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2158,7 +2158,7 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
     std::cout << "Hook: cublasCsscal_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2179,7 +2179,7 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2188,7 +2188,7 @@ extern "C" cublasStatus_t cublasCsscal_v2_64(cublasHandle_t handle, int64_t n, c
     std::cout << "Hook: cublasCsscal_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2209,7 +2209,7 @@ extern "C" cublasStatus_t cublasCsscal_v2_64(cublasHandle_t handle, int64_t n, c
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2218,7 +2218,7 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
     std::cout << "Hook: cublasZscal_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2239,7 +2239,7 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2248,7 +2248,7 @@ extern "C" cublasStatus_t cublasZscal_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasZscal_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2269,7 +2269,7 @@ extern "C" cublasStatus_t cublasZscal_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2278,7 +2278,7 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
     std::cout << "Hook: cublasZdscal_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2299,7 +2299,7 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2308,7 +2308,7 @@ extern "C" cublasStatus_t cublasZdscal_v2_64(cublasHandle_t handle, int64_t n, c
     std::cout << "Hook: cublasZdscal_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2329,7 +2329,7 @@ extern "C" cublasStatus_t cublasZdscal_v2_64(cublasHandle_t handle, int64_t n, c
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     return _result;
 }
 
@@ -2337,9 +2337,9 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
 #ifdef DEBUG
     std::cout << "Hook: cublasAxpyEx called" << std::endl;
 #endif
-    void *_0alpha = mem2server((void *)alpha, getSizeFromCudaDataType(alphaType));
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
+    void *_0alpha = mem2server((void *)alpha, 0);
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2365,9 +2365,9 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)alpha, getSizeFromCudaDataType(alphaType));
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
+    mem2client((void *)alpha, 0);
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     return _result;
 }
 
@@ -2375,9 +2375,9 @@ extern "C" cublasStatus_t cublasAxpyEx_64(cublasHandle_t handle, int64_t n, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasAxpyEx_64 called" << std::endl;
 #endif
-    void *_0alpha = mem2server((void *)alpha, getSizeFromCudaDataType(alphaType));
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
+    void *_0alpha = mem2server((void *)alpha, 0);
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2403,9 +2403,9 @@ extern "C" cublasStatus_t cublasAxpyEx_64(cublasHandle_t handle, int64_t n, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)alpha, getSizeFromCudaDataType(alphaType));
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
+    mem2client((void *)alpha, 0);
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     return _result;
 }
 
@@ -2414,8 +2414,8 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
     std::cout << "Hook: cublasSaxpy_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2438,8 +2438,8 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     return _result;
 }
 
@@ -2448,8 +2448,8 @@ extern "C" cublasStatus_t cublasSaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasSaxpy_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2472,8 +2472,8 @@ extern "C" cublasStatus_t cublasSaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     return _result;
 }
 
@@ -2482,8 +2482,8 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
     std::cout << "Hook: cublasDaxpy_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2506,8 +2506,8 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     return _result;
 }
 
@@ -2516,8 +2516,8 @@ extern "C" cublasStatus_t cublasDaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasDaxpy_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2540,8 +2540,8 @@ extern "C" cublasStatus_t cublasDaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     return _result;
 }
 
@@ -2550,8 +2550,8 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
     std::cout << "Hook: cublasCaxpy_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2574,8 +2574,8 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2584,8 +2584,8 @@ extern "C" cublasStatus_t cublasCaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasCaxpy_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2608,8 +2608,8 @@ extern "C" cublasStatus_t cublasCaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2618,8 +2618,8 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
     std::cout << "Hook: cublasZaxpy_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2642,8 +2642,8 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2652,8 +2652,8 @@ extern "C" cublasStatus_t cublasZaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     std::cout << "Hook: cublasZaxpy_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2676,8 +2676,8 @@ extern "C" cublasStatus_t cublasZaxpy_v2_64(cublasHandle_t handle, int64_t n, co
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2685,8 +2685,8 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
 #ifdef DEBUG
     std::cout << "Hook: cublasCopyEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2709,8 +2709,8 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     return _result;
 }
 
@@ -2718,8 +2718,8 @@ extern "C" cublasStatus_t cublasCopyEx_64(cublasHandle_t handle, int64_t n, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasCopyEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2742,8 +2742,8 @@ extern "C" cublasStatus_t cublasCopyEx_64(cublasHandle_t handle, int64_t n, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     return _result;
 }
 
@@ -2751,8 +2751,8 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
 #ifdef DEBUG
     std::cout << "Hook: cublasScopy_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2773,8 +2773,8 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     return _result;
 }
 
@@ -2782,8 +2782,8 @@ extern "C" cublasStatus_t cublasScopy_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasScopy_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2804,8 +2804,8 @@ extern "C" cublasStatus_t cublasScopy_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     return _result;
 }
 
@@ -2813,8 +2813,8 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
 #ifdef DEBUG
     std::cout << "Hook: cublasDcopy_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2835,8 +2835,8 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     return _result;
 }
 
@@ -2844,8 +2844,8 @@ extern "C" cublasStatus_t cublasDcopy_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasDcopy_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2866,8 +2866,8 @@ extern "C" cublasStatus_t cublasDcopy_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     return _result;
 }
 
@@ -2875,8 +2875,8 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
 #ifdef DEBUG
     std::cout << "Hook: cublasCcopy_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2897,8 +2897,8 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2906,8 +2906,8 @@ extern "C" cublasStatus_t cublasCcopy_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasCcopy_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2928,8 +2928,8 @@ extern "C" cublasStatus_t cublasCcopy_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2937,8 +2937,8 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
 #ifdef DEBUG
     std::cout << "Hook: cublasZcopy_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2959,8 +2959,8 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2968,8 +2968,8 @@ extern "C" cublasStatus_t cublasZcopy_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasZcopy_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2990,8 +2990,8 @@ extern "C" cublasStatus_t cublasZcopy_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     return _result;
 }
 
@@ -2999,8 +2999,8 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
 #ifdef DEBUG
     std::cout << "Hook: cublasSswap_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3021,8 +3021,8 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     return _result;
 }
 
@@ -3030,8 +3030,8 @@ extern "C" cublasStatus_t cublasSswap_v2_64(cublasHandle_t handle, int64_t n, fl
 #ifdef DEBUG
     std::cout << "Hook: cublasSswap_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3052,8 +3052,8 @@ extern "C" cublasStatus_t cublasSswap_v2_64(cublasHandle_t handle, int64_t n, fl
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     return _result;
 }
 
@@ -3061,8 +3061,8 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
 #ifdef DEBUG
     std::cout << "Hook: cublasDswap_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3083,8 +3083,8 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     return _result;
 }
 
@@ -3092,8 +3092,8 @@ extern "C" cublasStatus_t cublasDswap_v2_64(cublasHandle_t handle, int64_t n, do
 #ifdef DEBUG
     std::cout << "Hook: cublasDswap_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3114,8 +3114,8 @@ extern "C" cublasStatus_t cublasDswap_v2_64(cublasHandle_t handle, int64_t n, do
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     return _result;
 }
 
@@ -3123,8 +3123,8 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
 #ifdef DEBUG
     std::cout << "Hook: cublasCswap_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3145,8 +3145,8 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     return _result;
 }
 
@@ -3154,8 +3154,8 @@ extern "C" cublasStatus_t cublasCswap_v2_64(cublasHandle_t handle, int64_t n, cu
 #ifdef DEBUG
     std::cout << "Hook: cublasCswap_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3176,8 +3176,8 @@ extern "C" cublasStatus_t cublasCswap_v2_64(cublasHandle_t handle, int64_t n, cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     return _result;
 }
 
@@ -3185,8 +3185,8 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
 #ifdef DEBUG
     std::cout << "Hook: cublasZswap_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3207,8 +3207,8 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     return _result;
 }
 
@@ -3216,8 +3216,8 @@ extern "C" cublasStatus_t cublasZswap_v2_64(cublasHandle_t handle, int64_t n, cu
 #ifdef DEBUG
     std::cout << "Hook: cublasZswap_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3238,8 +3238,8 @@ extern "C" cublasStatus_t cublasZswap_v2_64(cublasHandle_t handle, int64_t n, cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     return _result;
 }
 
@@ -3247,8 +3247,8 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
 #ifdef DEBUG
     std::cout << "Hook: cublasSwapEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3271,8 +3271,8 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     return _result;
 }
 
@@ -3280,8 +3280,8 @@ extern "C" cublasStatus_t cublasSwapEx_64(cublasHandle_t handle, int64_t n, void
 #ifdef DEBUG
     std::cout << "Hook: cublasSwapEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3304,8 +3304,8 @@ extern "C" cublasStatus_t cublasSwapEx_64(cublasHandle_t handle, int64_t n, void
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
     return _result;
 }
 
@@ -3553,7 +3553,7 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
 #ifdef DEBUG
     std::cout << "Hook: cublasIamaxEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -3575,7 +3575,7 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -3584,7 +3584,7 @@ extern "C" cublasStatus_t cublasIamaxEx_64(cublasHandle_t handle, int64_t n, con
 #ifdef DEBUG
     std::cout << "Hook: cublasIamaxEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -3606,7 +3606,7 @@ extern "C" cublasStatus_t cublasIamaxEx_64(cublasHandle_t handle, int64_t n, con
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -3855,7 +3855,7 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
 #ifdef DEBUG
     std::cout << "Hook: cublasIaminEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -3877,7 +3877,7 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -3886,7 +3886,7 @@ extern "C" cublasStatus_t cublasIaminEx_64(cublasHandle_t handle, int64_t n, con
 #ifdef DEBUG
     std::cout << "Hook: cublasIaminEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -3908,7 +3908,7 @@ extern "C" cublasStatus_t cublasIaminEx_64(cublasHandle_t handle, int64_t n, con
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -3917,8 +3917,8 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
 #ifdef DEBUG
     std::cout << "Hook: cublasAsumEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3941,8 +3941,8 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -3950,8 +3950,8 @@ extern "C" cublasStatus_t cublasAsumEx_64(cublasHandle_t handle, int64_t n, cons
 #ifdef DEBUG
     std::cout << "Hook: cublasAsumEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0result = mem2server((void *)result, getSizeFromCudaDataType(resultType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0result = mem2server((void *)result, n * getSizeFromCudaDataType(resultType));
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3974,8 +3974,8 @@ extern "C" cublasStatus_t cublasAsumEx_64(cublasHandle_t handle, int64_t n, cons
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)result, getSizeFromCudaDataType(resultType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)result, n * getSizeFromCudaDataType(resultType));
     return _result;
 }
 
@@ -3983,7 +3983,7 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
 #ifdef DEBUG
     std::cout << "Hook: cublasSasum_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4004,7 +4004,7 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4013,7 +4013,7 @@ extern "C" cublasStatus_t cublasSasum_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasSasum_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4034,7 +4034,7 @@ extern "C" cublasStatus_t cublasSasum_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4043,7 +4043,7 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
 #ifdef DEBUG
     std::cout << "Hook: cublasDasum_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4064,7 +4064,7 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4073,7 +4073,7 @@ extern "C" cublasStatus_t cublasDasum_v2_64(cublasHandle_t handle, int64_t n, co
 #ifdef DEBUG
     std::cout << "Hook: cublasDasum_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4094,7 +4094,7 @@ extern "C" cublasStatus_t cublasDasum_v2_64(cublasHandle_t handle, int64_t n, co
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4103,7 +4103,7 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
 #ifdef DEBUG
     std::cout << "Hook: cublasScasum_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4124,7 +4124,7 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4133,7 +4133,7 @@ extern "C" cublasStatus_t cublasScasum_v2_64(cublasHandle_t handle, int64_t n, c
 #ifdef DEBUG
     std::cout << "Hook: cublasScasum_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4154,7 +4154,7 @@ extern "C" cublasStatus_t cublasScasum_v2_64(cublasHandle_t handle, int64_t n, c
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4163,7 +4163,7 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
 #ifdef DEBUG
     std::cout << "Hook: cublasDzasum_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4184,7 +4184,7 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4193,7 +4193,7 @@ extern "C" cublasStatus_t cublasDzasum_v2_64(cublasHandle_t handle, int64_t n, c
 #ifdef DEBUG
     std::cout << "Hook: cublasDzasum_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     void *_0result = mem2server((void *)result, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4214,7 +4214,7 @@ extern "C" cublasStatus_t cublasDzasum_v2_64(cublasHandle_t handle, int64_t n, c
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
     mem2client((void *)result, 0);
     return _result;
 }
@@ -4223,8 +4223,8 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
 #ifdef DEBUG
     std::cout << "Hook: cublasSrot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4249,8 +4249,8 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4260,8 +4260,8 @@ extern "C" cublasStatus_t cublasSrot_v2_64(cublasHandle_t handle, int64_t n, flo
 #ifdef DEBUG
     std::cout << "Hook: cublasSrot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4286,8 +4286,8 @@ extern "C" cublasStatus_t cublasSrot_v2_64(cublasHandle_t handle, int64_t n, flo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4297,8 +4297,8 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
 #ifdef DEBUG
     std::cout << "Hook: cublasDrot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4323,8 +4323,8 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4334,8 +4334,8 @@ extern "C" cublasStatus_t cublasDrot_v2_64(cublasHandle_t handle, int64_t n, dou
 #ifdef DEBUG
     std::cout << "Hook: cublasDrot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4360,8 +4360,8 @@ extern "C" cublasStatus_t cublasDrot_v2_64(cublasHandle_t handle, int64_t n, dou
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4371,8 +4371,8 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
 #ifdef DEBUG
     std::cout << "Hook: cublasCrot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4397,8 +4397,8 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4408,8 +4408,8 @@ extern "C" cublasStatus_t cublasCrot_v2_64(cublasHandle_t handle, int64_t n, cuC
 #ifdef DEBUG
     std::cout << "Hook: cublasCrot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4434,8 +4434,8 @@ extern "C" cublasStatus_t cublasCrot_v2_64(cublasHandle_t handle, int64_t n, cuC
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4445,8 +4445,8 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
 #ifdef DEBUG
     std::cout << "Hook: cublasCsrot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4471,8 +4471,8 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4482,8 +4482,8 @@ extern "C" cublasStatus_t cublasCsrot_v2_64(cublasHandle_t handle, int64_t n, cu
 #ifdef DEBUG
     std::cout << "Hook: cublasCsrot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4508,8 +4508,8 @@ extern "C" cublasStatus_t cublasCsrot_v2_64(cublasHandle_t handle, int64_t n, cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4519,8 +4519,8 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
 #ifdef DEBUG
     std::cout << "Hook: cublasZrot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4545,8 +4545,8 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4556,8 +4556,8 @@ extern "C" cublasStatus_t cublasZrot_v2_64(cublasHandle_t handle, int64_t n, cuD
 #ifdef DEBUG
     std::cout << "Hook: cublasZrot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4582,8 +4582,8 @@ extern "C" cublasStatus_t cublasZrot_v2_64(cublasHandle_t handle, int64_t n, cuD
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4593,8 +4593,8 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
 #ifdef DEBUG
     std::cout << "Hook: cublasZdrot_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4619,8 +4619,8 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4630,8 +4630,8 @@ extern "C" cublasStatus_t cublasZdrot_v2_64(cublasHandle_t handle, int64_t n, cu
 #ifdef DEBUG
     std::cout << "Hook: cublasZdrot_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     void *_0c = mem2server((void *)c, 0);
     void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
@@ -4656,8 +4656,8 @@ extern "C" cublasStatus_t cublasZdrot_v2_64(cublasHandle_t handle, int64_t n, cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(cuDoubleComplex) * n * abs(incx));
+    mem2client((void *)y, sizeof(cuDoubleComplex) * n * abs(incy));
     mem2client((void *)c, 0);
     mem2client((void *)s, 0);
     return _result;
@@ -4667,10 +4667,10 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
 #ifdef DEBUG
     std::cout << "Hook: cublasRotEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0c = mem2server((void *)c, getSizeFromCudaDataType(csType));
-    void *_0s = mem2server((void *)s, getSizeFromCudaDataType(csType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0c = mem2server((void *)c, 0);
+    void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4697,10 +4697,10 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)c, getSizeFromCudaDataType(csType));
-    mem2client((void *)s, getSizeFromCudaDataType(csType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)c, 0);
+    mem2client((void *)s, 0);
     return _result;
 }
 
@@ -4708,10 +4708,10 @@ extern "C" cublasStatus_t cublasRotEx_64(cublasHandle_t handle, int64_t n, void 
 #ifdef DEBUG
     std::cout << "Hook: cublasRotEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0c = mem2server((void *)c, getSizeFromCudaDataType(csType));
-    void *_0s = mem2server((void *)s, getSizeFromCudaDataType(csType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0c = mem2server((void *)c, 0);
+    void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4738,10 +4738,10 @@ extern "C" cublasStatus_t cublasRotEx_64(cublasHandle_t handle, int64_t n, void 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)c, getSizeFromCudaDataType(csType));
-    mem2client((void *)s, getSizeFromCudaDataType(csType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)c, 0);
+    mem2client((void *)s, 0);
     return _result;
 }
 
@@ -4885,10 +4885,10 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
 #ifdef DEBUG
     std::cout << "Hook: cublasRotgEx called" << std::endl;
 #endif
-    void *_0a = mem2server((void *)a, getSizeFromCudaDataType(abType));
-    void *_0b = mem2server((void *)b, getSizeFromCudaDataType(abType));
-    void *_0c = mem2server((void *)c, getSizeFromCudaDataType(csType));
-    void *_0s = mem2server((void *)s, getSizeFromCudaDataType(csType));
+    void *_0a = mem2server((void *)a, 0);
+    void *_0b = mem2server((void *)b, 0);
+    void *_0c = mem2server((void *)c, 0);
+    void *_0s = mem2server((void *)s, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4911,10 +4911,10 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)a, getSizeFromCudaDataType(abType));
-    mem2client((void *)b, getSizeFromCudaDataType(abType));
-    mem2client((void *)c, getSizeFromCudaDataType(csType));
-    mem2client((void *)s, getSizeFromCudaDataType(csType));
+    mem2client((void *)a, 0);
+    mem2client((void *)b, 0);
+    mem2client((void *)c, 0);
+    mem2client((void *)s, 0);
     return _result;
 }
 
@@ -4922,8 +4922,8 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
 #ifdef DEBUG
     std::cout << "Hook: cublasSrotm_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4946,8 +4946,8 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     mem2client((void *)param, 0);
     return _result;
 }
@@ -4956,8 +4956,8 @@ extern "C" cublasStatus_t cublasSrotm_v2_64(cublasHandle_t handle, int64_t n, fl
 #ifdef DEBUG
     std::cout << "Hook: cublasSrotm_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(float) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(float) * n * abs(incy));
     void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -4980,8 +4980,8 @@ extern "C" cublasStatus_t cublasSrotm_v2_64(cublasHandle_t handle, int64_t n, fl
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(float) * n * abs(incx));
+    mem2client((void *)y, sizeof(float) * n * abs(incy));
     mem2client((void *)param, 0);
     return _result;
 }
@@ -4990,8 +4990,8 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
 #ifdef DEBUG
     std::cout << "Hook: cublasDrotm_v2 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -5014,8 +5014,8 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     mem2client((void *)param, 0);
     return _result;
 }
@@ -5024,8 +5024,8 @@ extern "C" cublasStatus_t cublasDrotm_v2_64(cublasHandle_t handle, int64_t n, do
 #ifdef DEBUG
     std::cout << "Hook: cublasDrotm_v2_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, 0);
-    void *_0y = mem2server((void *)y, 0);
+    void *_0x = mem2server((void *)x, sizeof(double) * n * abs(incx));
+    void *_0y = mem2server((void *)y, sizeof(double) * n * abs(incy));
     void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -5048,8 +5048,8 @@ extern "C" cublasStatus_t cublasDrotm_v2_64(cublasHandle_t handle, int64_t n, do
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, 0);
-    mem2client((void *)y, 0);
+    mem2client((void *)x, sizeof(double) * n * abs(incx));
+    mem2client((void *)y, sizeof(double) * n * abs(incy));
     mem2client((void *)param, 0);
     return _result;
 }
@@ -5058,9 +5058,9 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
 #ifdef DEBUG
     std::cout << "Hook: cublasRotmEx called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0param = mem2server((void *)param, getSizeFromCudaDataType(paramType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5086,9 +5086,9 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)param, getSizeFromCudaDataType(paramType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)param, 0);
     return _result;
 }
 
@@ -5096,9 +5096,9 @@ extern "C" cublasStatus_t cublasRotmEx_64(cublasHandle_t handle, int64_t n, void
 #ifdef DEBUG
     std::cout << "Hook: cublasRotmEx_64 called" << std::endl;
 #endif
-    void *_0x = mem2server((void *)x, getSizeFromCudaDataType(xType));
-    void *_0y = mem2server((void *)y, getSizeFromCudaDataType(yType));
-    void *_0param = mem2server((void *)param, getSizeFromCudaDataType(paramType));
+    void *_0x = mem2server((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    void *_0y = mem2server((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5124,9 +5124,9 @@ extern "C" cublasStatus_t cublasRotmEx_64(cublasHandle_t handle, int64_t n, void
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)x, getSizeFromCudaDataType(xType));
-    mem2client((void *)y, getSizeFromCudaDataType(yType));
-    mem2client((void *)param, getSizeFromCudaDataType(paramType));
+    mem2client((void *)x, (1 + (n - 1) * abs(incx)) * getSizeFromCudaDataType(xType));
+    mem2client((void *)y, (1 + (n - 1) * abs(incy)) * getSizeFromCudaDataType(yType));
+    mem2client((void *)param, 0);
     return _result;
 }
 
@@ -5208,11 +5208,11 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
 #ifdef DEBUG
     std::cout << "Hook: cublasRotmgEx called" << std::endl;
 #endif
-    void *_0d1 = mem2server((void *)d1, getSizeFromCudaDataType(d1Type));
-    void *_0d2 = mem2server((void *)d2, getSizeFromCudaDataType(d2Type));
-    void *_0x1 = mem2server((void *)x1, getSizeFromCudaDataType(x1Type));
-    void *_0y1 = mem2server((void *)y1, getSizeFromCudaDataType(y1Type));
-    void *_0param = mem2server((void *)param, getSizeFromCudaDataType(paramType));
+    void *_0d1 = mem2server((void *)d1, 0);
+    void *_0d2 = mem2server((void *)d2, 0);
+    void *_0x1 = mem2server((void *)x1, 0);
+    void *_0y1 = mem2server((void *)y1, 0);
+    void *_0param = mem2server((void *)param, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5239,11 +5239,11 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)d1, getSizeFromCudaDataType(d1Type));
-    mem2client((void *)d2, getSizeFromCudaDataType(d2Type));
-    mem2client((void *)x1, getSizeFromCudaDataType(x1Type));
-    mem2client((void *)y1, getSizeFromCudaDataType(y1Type));
-    mem2client((void *)param, getSizeFromCudaDataType(paramType));
+    mem2client((void *)d1, 0);
+    mem2client((void *)d2, 0);
+    mem2client((void *)x1, 0);
+    mem2client((void *)y1, 0);
+    mem2client((void *)param, 0);
     return _result;
 }
 
@@ -5252,7 +5252,7 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasSgemv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5283,7 +5283,7 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5295,7 +5295,7 @@ extern "C" cublasStatus_t cublasSgemv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasSgemv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5326,7 +5326,7 @@ extern "C" cublasStatus_t cublasSgemv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5338,7 +5338,7 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasDgemv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5369,7 +5369,7 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5381,7 +5381,7 @@ extern "C" cublasStatus_t cublasDgemv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasDgemv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5412,7 +5412,7 @@ extern "C" cublasStatus_t cublasDgemv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5424,7 +5424,7 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasCgemv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5455,7 +5455,7 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5467,7 +5467,7 @@ extern "C" cublasStatus_t cublasCgemv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasCgemv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5498,7 +5498,7 @@ extern "C" cublasStatus_t cublasCgemv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5510,7 +5510,7 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasZgemv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5541,7 +5541,7 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5553,7 +5553,7 @@ extern "C" cublasStatus_t cublasZgemv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasZgemv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5584,7 +5584,7 @@ extern "C" cublasStatus_t cublasZgemv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5596,7 +5596,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasSgbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5629,7 +5629,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5641,7 +5641,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasSgbmv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5674,7 +5674,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5686,7 +5686,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasDgbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5719,7 +5719,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5731,7 +5731,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasDgbmv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5764,7 +5764,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5776,7 +5776,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasCgbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5809,7 +5809,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5821,7 +5821,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasCgbmv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5854,7 +5854,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5866,7 +5866,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasZgbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5899,7 +5899,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5911,7 +5911,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasZgbmv_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -5944,7 +5944,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -5955,7 +5955,7 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasStrmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -5980,7 +5980,7 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -5989,7 +5989,7 @@ extern "C" cublasStatus_t cublasStrmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasStrmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6014,7 +6014,7 @@ extern "C" cublasStatus_t cublasStrmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6023,7 +6023,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6048,7 +6048,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6057,7 +6057,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6082,7 +6082,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6091,7 +6091,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6116,7 +6116,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6125,7 +6125,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6150,7 +6150,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6159,7 +6159,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6184,7 +6184,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6193,7 +6193,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6218,7 +6218,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6227,7 +6227,7 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasStbmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6253,7 +6253,7 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6262,7 +6262,7 @@ extern "C" cublasStatus_t cublasStbmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasStbmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6288,7 +6288,7 @@ extern "C" cublasStatus_t cublasStbmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6297,7 +6297,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasDtbmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6323,7 +6323,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6332,7 +6332,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasDtbmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6358,7 +6358,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6367,7 +6367,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasCtbmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6393,7 +6393,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6402,7 +6402,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasCtbmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6428,7 +6428,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6437,7 +6437,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasZtbmv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6463,7 +6463,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6472,7 +6472,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasZtbmv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6498,7 +6498,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6771,7 +6771,7 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasStrsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6796,7 +6796,7 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6805,7 +6805,7 @@ extern "C" cublasStatus_t cublasStrsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasStrsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6830,7 +6830,7 @@ extern "C" cublasStatus_t cublasStrsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6839,7 +6839,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6864,7 +6864,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6873,7 +6873,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6898,7 +6898,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6907,7 +6907,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6932,7 +6932,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6941,7 +6941,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -6966,7 +6966,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -6975,7 +6975,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7000,7 +7000,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7009,7 +7009,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7034,7 +7034,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7307,7 +7307,7 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasStbsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7333,7 +7333,7 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7342,7 +7342,7 @@ extern "C" cublasStatus_t cublasStbsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasStbsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7368,7 +7368,7 @@ extern "C" cublasStatus_t cublasStbsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7377,7 +7377,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasDtbsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7403,7 +7403,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7412,7 +7412,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasDtbsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7438,7 +7438,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7447,7 +7447,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasCtbsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7473,7 +7473,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7482,7 +7482,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasCtbsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7508,7 +7508,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7517,7 +7517,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
 #ifdef DEBUG
     std::cout << "Hook: cublasZtbsv_v2 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7543,7 +7543,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7552,7 +7552,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2_64(cublasHandle_t handle, cublasFillMod
 #ifdef DEBUG
     std::cout << "Hook: cublasZtbsv_v2_64 called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -7578,7 +7578,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2_64(cublasHandle_t handle, cublasFillMod
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     return _result;
 }
@@ -7588,7 +7588,7 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasSsymv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -7618,7 +7618,7 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -7672,7 +7672,7 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasDsymv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -7702,7 +7702,7 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -7756,7 +7756,7 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasCsymv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -7786,7 +7786,7 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -7840,7 +7840,7 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasZsymv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -7870,7 +7870,7 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -7924,7 +7924,7 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasChemv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -7954,7 +7954,7 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -8008,7 +8008,7 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasZhemv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -8038,7 +8038,7 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -8092,7 +8092,7 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasSsbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -8123,7 +8123,7 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -8178,7 +8178,7 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasDsbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -8209,7 +8209,7 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -8264,7 +8264,7 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasChbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -8295,7 +8295,7 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -8350,7 +8350,7 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasZhbmv_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -8381,7 +8381,7 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -8766,7 +8766,7 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8794,7 +8794,7 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -8844,7 +8844,7 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8872,7 +8872,7 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -8922,7 +8922,7 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8950,7 +8950,7 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9000,7 +9000,7 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9028,7 +9028,7 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9078,7 +9078,7 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9106,7 +9106,7 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9156,7 +9156,7 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9184,7 +9184,7 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9233,7 +9233,7 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9258,7 +9258,7 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9303,7 +9303,7 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9328,7 +9328,7 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9373,7 +9373,7 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9398,7 +9398,7 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9443,7 +9443,7 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9468,7 +9468,7 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9513,7 +9513,7 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9538,7 +9538,7 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9583,7 +9583,7 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9608,7 +9608,7 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -9926,7 +9926,7 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -9954,7 +9954,7 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -10004,7 +10004,7 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -10032,7 +10032,7 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -10082,7 +10082,7 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -10110,7 +10110,7 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -10160,7 +10160,7 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -10188,7 +10188,7 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -10238,7 +10238,7 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -10266,7 +10266,7 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -10316,7 +10316,7 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
     void *_0alpha = mem2server((void *)alpha, 0);
     void *_0x = mem2server((void *)x, 0);
     void *_0y = mem2server((void *)y, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -10344,7 +10344,7 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client((void *)alpha, 0);
     mem2client((void *)x, 0);
     mem2client((void *)y, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -11304,7 +11304,7 @@ extern "C" cublasStatus_t cublasSgemvStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasSgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11339,7 +11339,7 @@ extern "C" cublasStatus_t cublasSgemvStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11351,7 +11351,7 @@ extern "C" cublasStatus_t cublasSgemvStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasSgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11386,7 +11386,7 @@ extern "C" cublasStatus_t cublasSgemvStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11398,7 +11398,7 @@ extern "C" cublasStatus_t cublasDgemvStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasDgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11433,7 +11433,7 @@ extern "C" cublasStatus_t cublasDgemvStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11445,7 +11445,7 @@ extern "C" cublasStatus_t cublasDgemvStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasDgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11480,7 +11480,7 @@ extern "C" cublasStatus_t cublasDgemvStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11492,7 +11492,7 @@ extern "C" cublasStatus_t cublasCgemvStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasCgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11527,7 +11527,7 @@ extern "C" cublasStatus_t cublasCgemvStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11539,7 +11539,7 @@ extern "C" cublasStatus_t cublasCgemvStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasCgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11574,7 +11574,7 @@ extern "C" cublasStatus_t cublasCgemvStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11586,7 +11586,7 @@ extern "C" cublasStatus_t cublasZgemvStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasZgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11621,7 +11621,7 @@ extern "C" cublasStatus_t cublasZgemvStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11633,7 +11633,7 @@ extern "C" cublasStatus_t cublasZgemvStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasZgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11668,7 +11668,7 @@ extern "C" cublasStatus_t cublasZgemvStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11680,7 +11680,7 @@ extern "C" cublasStatus_t cublasHSHgemvStridedBatched(cublasHandle_t handle, cub
     std::cout << "Hook: cublasHSHgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11715,7 +11715,7 @@ extern "C" cublasStatus_t cublasHSHgemvStridedBatched(cublasHandle_t handle, cub
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(__half) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11727,7 +11727,7 @@ extern "C" cublasStatus_t cublasHSHgemvStridedBatched_64(cublasHandle_t handle, 
     std::cout << "Hook: cublasHSHgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11762,7 +11762,7 @@ extern "C" cublasStatus_t cublasHSHgemvStridedBatched_64(cublasHandle_t handle, 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(__half) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11774,7 +11774,7 @@ extern "C" cublasStatus_t cublasHSSgemvStridedBatched(cublasHandle_t handle, cub
     std::cout << "Hook: cublasHSSgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11809,7 +11809,7 @@ extern "C" cublasStatus_t cublasHSSgemvStridedBatched(cublasHandle_t handle, cub
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(__half) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11821,7 +11821,7 @@ extern "C" cublasStatus_t cublasHSSgemvStridedBatched_64(cublasHandle_t handle, 
     std::cout << "Hook: cublasHSSgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11856,7 +11856,7 @@ extern "C" cublasStatus_t cublasHSSgemvStridedBatched_64(cublasHandle_t handle, 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(__half) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11868,7 +11868,7 @@ extern "C" cublasStatus_t cublasTSTgemvStridedBatched(cublasHandle_t handle, cub
     std::cout << "Hook: cublasTSTgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(__nv_bfloat16) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11903,7 +11903,7 @@ extern "C" cublasStatus_t cublasTSTgemvStridedBatched(cublasHandle_t handle, cub
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(__nv_bfloat16) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11915,7 +11915,7 @@ extern "C" cublasStatus_t cublasTSTgemvStridedBatched_64(cublasHandle_t handle, 
     std::cout << "Hook: cublasTSTgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(__nv_bfloat16) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11950,7 +11950,7 @@ extern "C" cublasStatus_t cublasTSTgemvStridedBatched_64(cublasHandle_t handle, 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(__nv_bfloat16) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -11962,7 +11962,7 @@ extern "C" cublasStatus_t cublasTSSgemvStridedBatched(cublasHandle_t handle, cub
     std::cout << "Hook: cublasTSSgemvStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(__nv_bfloat16) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -11997,7 +11997,7 @@ extern "C" cublasStatus_t cublasTSSgemvStridedBatched(cublasHandle_t handle, cub
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(__nv_bfloat16) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -12009,7 +12009,7 @@ extern "C" cublasStatus_t cublasTSSgemvStridedBatched_64(cublasHandle_t handle, 
     std::cout << "Hook: cublasTSSgemvStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(__nv_bfloat16) * lda * n);
     void *_0x = mem2server((void *)x, 0);
     void *_0beta = mem2server((void *)beta, 0);
     void *_0y = mem2server((void *)y, 0);
@@ -12044,7 +12044,7 @@ extern "C" cublasStatus_t cublasTSSgemvStridedBatched_64(cublasHandle_t handle, 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(__nv_bfloat16) * lda * n);
     mem2client((void *)x, 0);
     mem2client((void *)beta, 0);
     mem2client((void *)y, 0);
@@ -12056,10 +12056,10 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasSgemm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12089,10 +12089,10 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -12101,10 +12101,10 @@ extern "C" cublasStatus_t cublasSgemm_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasSgemm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12134,10 +12134,10 @@ extern "C" cublasStatus_t cublasSgemm_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -12146,10 +12146,10 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasDgemm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12179,10 +12179,10 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -12191,10 +12191,10 @@ extern "C" cublasStatus_t cublasDgemm_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasDgemm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12224,10 +12224,10 @@ extern "C" cublasStatus_t cublasDgemm_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -12236,10 +12236,10 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasCgemm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12269,10 +12269,10 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -12281,10 +12281,10 @@ extern "C" cublasStatus_t cublasCgemm_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasCgemm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12314,10 +12314,10 @@ extern "C" cublasStatus_t cublasCgemm_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -12326,10 +12326,10 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
     std::cout << "Hook: cublasCgemm3m called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12359,10 +12359,10 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -12371,10 +12371,10 @@ extern "C" cublasStatus_t cublasCgemm3m_64(cublasHandle_t handle, cublasOperatio
     std::cout << "Hook: cublasCgemm3m_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12404,10 +12404,10 @@ extern "C" cublasStatus_t cublasCgemm3m_64(cublasHandle_t handle, cublasOperatio
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -12416,10 +12416,10 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
     std::cout << "Hook: cublasCgemm3mEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12452,10 +12452,10 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -12464,10 +12464,10 @@ extern "C" cublasStatus_t cublasCgemm3mEx_64(cublasHandle_t handle, cublasOperat
     std::cout << "Hook: cublasCgemm3mEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12500,10 +12500,10 @@ extern "C" cublasStatus_t cublasCgemm3mEx_64(cublasHandle_t handle, cublasOperat
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -12512,10 +12512,10 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasZgemm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12545,10 +12545,10 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -12557,10 +12557,10 @@ extern "C" cublasStatus_t cublasZgemm_v2_64(cublasHandle_t handle, cublasOperati
     std::cout << "Hook: cublasZgemm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12590,10 +12590,10 @@ extern "C" cublasStatus_t cublasZgemm_v2_64(cublasHandle_t handle, cublasOperati
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -12602,10 +12602,10 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
     std::cout << "Hook: cublasZgemm3m called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12635,10 +12635,10 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -12647,10 +12647,10 @@ extern "C" cublasStatus_t cublasZgemm3m_64(cublasHandle_t handle, cublasOperatio
     std::cout << "Hook: cublasZgemm3m_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12680,10 +12680,10 @@ extern "C" cublasStatus_t cublasZgemm3m_64(cublasHandle_t handle, cublasOperatio
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -12692,10 +12692,10 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
     std::cout << "Hook: cublasHgemm called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(__half) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12725,10 +12725,10 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(__half) * ldc * n);
     return _result;
 }
 
@@ -12737,10 +12737,10 @@ extern "C" cublasStatus_t cublasHgemm_64(cublasHandle_t handle, cublasOperation_
     std::cout << "Hook: cublasHgemm_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(__half) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12770,10 +12770,10 @@ extern "C" cublasStatus_t cublasHgemm_64(cublasHandle_t handle, cublasOperation_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(__half) * ldc * n);
     return _result;
 }
 
@@ -12782,10 +12782,10 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
     std::cout << "Hook: cublasSgemmEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12818,10 +12818,10 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -12830,10 +12830,10 @@ extern "C" cublasStatus_t cublasSgemmEx_64(cublasHandle_t handle, cublasOperatio
     std::cout << "Hook: cublasSgemmEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12866,10 +12866,10 @@ extern "C" cublasStatus_t cublasSgemmEx_64(cublasHandle_t handle, cublasOperatio
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -12878,10 +12878,10 @@ extern "C" cublasStatus_t cublasGemmEx_64(cublasHandle_t handle, cublasOperation
     std::cout << "Hook: cublasGemmEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12916,10 +12916,10 @@ extern "C" cublasStatus_t cublasGemmEx_64(cublasHandle_t handle, cublasOperation
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -12928,10 +12928,10 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
     std::cout << "Hook: cublasCgemmEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -12964,10 +12964,10 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -12976,10 +12976,10 @@ extern "C" cublasStatus_t cublasCgemmEx_64(cublasHandle_t handle, cublasOperatio
     std::cout << "Hook: cublasCgemmEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13012,10 +13012,10 @@ extern "C" cublasStatus_t cublasCgemmEx_64(cublasHandle_t handle, cublasOperatio
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, sizeof(void) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(void) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13024,9 +13024,9 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasSsyrk_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13053,9 +13053,9 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -13064,9 +13064,9 @@ extern "C" cublasStatus_t cublasSsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     std::cout << "Hook: cublasSsyrk_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13093,9 +13093,9 @@ extern "C" cublasStatus_t cublasSsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -13104,9 +13104,9 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasDsyrk_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13133,9 +13133,9 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -13144,9 +13144,9 @@ extern "C" cublasStatus_t cublasDsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     std::cout << "Hook: cublasDsyrk_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13173,9 +13173,9 @@ extern "C" cublasStatus_t cublasDsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -13184,9 +13184,9 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasCsyrk_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13213,9 +13213,9 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -13224,9 +13224,9 @@ extern "C" cublasStatus_t cublasCsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     std::cout << "Hook: cublasCsyrk_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13253,9 +13253,9 @@ extern "C" cublasStatus_t cublasCsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -13264,9 +13264,9 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasZsyrk_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13293,9 +13293,9 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -13304,9 +13304,9 @@ extern "C" cublasStatus_t cublasZsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     std::cout << "Hook: cublasZsyrk_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13333,9 +13333,9 @@ extern "C" cublasStatus_t cublasZsyrk_v2_64(cublasHandle_t handle, cublasFillMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -13344,9 +13344,9 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
     std::cout << "Hook: cublasCsyrkEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13375,9 +13375,9 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13386,9 +13386,9 @@ extern "C" cublasStatus_t cublasCsyrkEx_64(cublasHandle_t handle, cublasFillMode
     std::cout << "Hook: cublasCsyrkEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13417,9 +13417,9 @@ extern "C" cublasStatus_t cublasCsyrkEx_64(cublasHandle_t handle, cublasFillMode
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13428,9 +13428,9 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasCsyrk3mEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13459,9 +13459,9 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13470,9 +13470,9 @@ extern "C" cublasStatus_t cublasCsyrk3mEx_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasCsyrk3mEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13501,9 +13501,9 @@ extern "C" cublasStatus_t cublasCsyrk3mEx_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13512,9 +13512,9 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasCherk_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13541,9 +13541,9 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -13552,9 +13552,9 @@ extern "C" cublasStatus_t cublasCherk_v2_64(cublasHandle_t handle, cublasFillMod
     std::cout << "Hook: cublasCherk_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13581,9 +13581,9 @@ extern "C" cublasStatus_t cublasCherk_v2_64(cublasHandle_t handle, cublasFillMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -13592,9 +13592,9 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
     std::cout << "Hook: cublasZherk_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13621,9 +13621,9 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -13632,9 +13632,9 @@ extern "C" cublasStatus_t cublasZherk_v2_64(cublasHandle_t handle, cublasFillMod
     std::cout << "Hook: cublasZherk_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13661,9 +13661,9 @@ extern "C" cublasStatus_t cublasZherk_v2_64(cublasHandle_t handle, cublasFillMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -13672,9 +13672,9 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
     std::cout << "Hook: cublasCherkEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13703,9 +13703,9 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13714,9 +13714,9 @@ extern "C" cublasStatus_t cublasCherkEx_64(cublasHandle_t handle, cublasFillMode
     std::cout << "Hook: cublasCherkEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13745,9 +13745,9 @@ extern "C" cublasStatus_t cublasCherkEx_64(cublasHandle_t handle, cublasFillMode
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13756,9 +13756,9 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasCherk3mEx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13787,9 +13787,9 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13798,9 +13798,9 @@ extern "C" cublasStatus_t cublasCherk3mEx_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasCherk3mEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
+    void *_0A = mem2server((void *)A, sizeof(void) * lda * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, sizeof(void) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13829,9 +13829,9 @@ extern "C" cublasStatus_t cublasCherk3mEx_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
+    mem2client((void *)A, sizeof(void) * lda * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, sizeof(void) * ldc * n);
     return _result;
 }
 
@@ -13840,10 +13840,10 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasSsyr2k_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13872,10 +13872,10 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(float) * lda * n);
+    mem2client((void *)B, sizeof(float) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -13884,10 +13884,10 @@ extern "C" cublasStatus_t cublasSsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasSsyr2k_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13916,10 +13916,10 @@ extern "C" cublasStatus_t cublasSsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
+    mem2client((void *)B, sizeof(float) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -13928,10 +13928,10 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasDsyr2k_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -13960,10 +13960,10 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(double) * lda * n);
+    mem2client((void *)B, sizeof(double) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -13972,10 +13972,10 @@ extern "C" cublasStatus_t cublasDsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasDsyr2k_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14004,10 +14004,10 @@ extern "C" cublasStatus_t cublasDsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
+    mem2client((void *)B, sizeof(double) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -14016,10 +14016,10 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasCsyr2k_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14048,10 +14048,10 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14060,10 +14060,10 @@ extern "C" cublasStatus_t cublasCsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasCsyr2k_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14092,10 +14092,10 @@ extern "C" cublasStatus_t cublasCsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14104,10 +14104,10 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasZsyr2k_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14136,10 +14136,10 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14148,10 +14148,10 @@ extern "C" cublasStatus_t cublasZsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasZsyr2k_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14180,10 +14180,10 @@ extern "C" cublasStatus_t cublasZsyr2k_v2_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14192,10 +14192,10 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasCher2k_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14224,10 +14224,10 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14236,10 +14236,10 @@ extern "C" cublasStatus_t cublasCher2k_v2_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasCher2k_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14268,10 +14268,10 @@ extern "C" cublasStatus_t cublasCher2k_v2_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14280,10 +14280,10 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasZher2k_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14312,10 +14312,10 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14324,10 +14324,10 @@ extern "C" cublasStatus_t cublasZher2k_v2_64(cublasHandle_t handle, cublasFillMo
     std::cout << "Hook: cublasZher2k_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14356,10 +14356,10 @@ extern "C" cublasStatus_t cublasZher2k_v2_64(cublasHandle_t handle, cublasFillMo
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14368,10 +14368,10 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasSsyrkx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14400,10 +14400,10 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(float) * lda * n);
+    mem2client((void *)B, sizeof(float) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -14412,10 +14412,10 @@ extern "C" cublasStatus_t cublasSsyrkx_64(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasSsyrkx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14444,10 +14444,10 @@ extern "C" cublasStatus_t cublasSsyrkx_64(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
+    mem2client((void *)B, sizeof(float) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -14456,10 +14456,10 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasDsyrkx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14488,10 +14488,10 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(double) * lda * n);
+    mem2client((void *)B, sizeof(double) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -14500,10 +14500,10 @@ extern "C" cublasStatus_t cublasDsyrkx_64(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasDsyrkx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14532,10 +14532,10 @@ extern "C" cublasStatus_t cublasDsyrkx_64(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
+    mem2client((void *)B, sizeof(double) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -14544,10 +14544,10 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasCsyrkx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14576,10 +14576,10 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14588,10 +14588,10 @@ extern "C" cublasStatus_t cublasCsyrkx_64(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasCsyrkx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14620,10 +14620,10 @@ extern "C" cublasStatus_t cublasCsyrkx_64(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14632,10 +14632,10 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasZsyrkx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14664,10 +14664,10 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14676,10 +14676,10 @@ extern "C" cublasStatus_t cublasZsyrkx_64(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasZsyrkx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14708,10 +14708,10 @@ extern "C" cublasStatus_t cublasZsyrkx_64(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14720,10 +14720,10 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasCherkx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14752,10 +14752,10 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14764,10 +14764,10 @@ extern "C" cublasStatus_t cublasCherkx_64(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasCherkx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14796,10 +14796,10 @@ extern "C" cublasStatus_t cublasCherkx_64(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -14808,10 +14808,10 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasZherkx called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14840,10 +14840,10 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14852,10 +14852,10 @@ extern "C" cublasStatus_t cublasZherkx_64(cublasHandle_t handle, cublasFillMode_
     std::cout << "Hook: cublasZherkx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14884,10 +14884,10 @@ extern "C" cublasStatus_t cublasZherkx_64(cublasHandle_t handle, cublasFillMode_
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -14896,10 +14896,10 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasSsymm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14928,10 +14928,10 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(float) * lda * n);
+    mem2client((void *)B, sizeof(float) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -14940,10 +14940,10 @@ extern "C" cublasStatus_t cublasSsymm_v2_64(cublasHandle_t handle, cublasSideMod
     std::cout << "Hook: cublasSsymm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -14972,10 +14972,10 @@ extern "C" cublasStatus_t cublasSsymm_v2_64(cublasHandle_t handle, cublasSideMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(float) * lda * n);
+    mem2client((void *)B, sizeof(float) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -14984,10 +14984,10 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasDsymm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15016,10 +15016,10 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(double) * lda * n);
+    mem2client((void *)B, sizeof(double) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -15028,10 +15028,10 @@ extern "C" cublasStatus_t cublasDsymm_v2_64(cublasHandle_t handle, cublasSideMod
     std::cout << "Hook: cublasDsymm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15060,10 +15060,10 @@ extern "C" cublasStatus_t cublasDsymm_v2_64(cublasHandle_t handle, cublasSideMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(double) * lda * n);
+    mem2client((void *)B, sizeof(double) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -15072,10 +15072,10 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasCsymm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15104,10 +15104,10 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -15116,10 +15116,10 @@ extern "C" cublasStatus_t cublasCsymm_v2_64(cublasHandle_t handle, cublasSideMod
     std::cout << "Hook: cublasCsymm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15148,10 +15148,10 @@ extern "C" cublasStatus_t cublasCsymm_v2_64(cublasHandle_t handle, cublasSideMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -15160,10 +15160,10 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasZsymm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15192,10 +15192,10 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -15204,10 +15204,10 @@ extern "C" cublasStatus_t cublasZsymm_v2_64(cublasHandle_t handle, cublasSideMod
     std::cout << "Hook: cublasZsymm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15236,10 +15236,10 @@ extern "C" cublasStatus_t cublasZsymm_v2_64(cublasHandle_t handle, cublasSideMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -15248,10 +15248,10 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasChemm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15280,10 +15280,10 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -15292,10 +15292,10 @@ extern "C" cublasStatus_t cublasChemm_v2_64(cublasHandle_t handle, cublasSideMod
     std::cout << "Hook: cublasChemm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15324,10 +15324,10 @@ extern "C" cublasStatus_t cublasChemm_v2_64(cublasHandle_t handle, cublasSideMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -15336,10 +15336,10 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasZhemm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15368,10 +15368,10 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -15380,10 +15380,10 @@ extern "C" cublasStatus_t cublasZhemm_v2_64(cublasHandle_t handle, cublasSideMod
     std::cout << "Hook: cublasZhemm_v2_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15412,10 +15412,10 @@ extern "C" cublasStatus_t cublasZhemm_v2_64(cublasHandle_t handle, cublasSideMod
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * n);
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * n);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -15424,8 +15424,8 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasStrsm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15453,8 +15453,8 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -15502,8 +15502,8 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasDtrsm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15531,8 +15531,8 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -15580,8 +15580,8 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasCtrsm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15609,8 +15609,8 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -15658,8 +15658,8 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasZtrsm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15687,8 +15687,8 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     return _result;
 }
 
@@ -15736,9 +15736,9 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasStrmm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15768,9 +15768,9 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -15822,9 +15822,9 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasDtrmm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15854,9 +15854,9 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -15908,9 +15908,9 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasCtrmm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -15940,9 +15940,9 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -15994,9 +15994,9 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     std::cout << "Hook: cublasZtrmm_v2 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16026,9 +16026,9 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -16560,10 +16560,10 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasHgemmStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(__half) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16597,10 +16597,10 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(__half) * ldc * n);
     return _result;
 }
 
@@ -16609,10 +16609,10 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasHgemmStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(__half) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16646,10 +16646,10 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(__half) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(__half) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(__half) * ldc * n);
     return _result;
 }
 
@@ -16658,10 +16658,10 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasSgemmStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16695,10 +16695,10 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -16707,10 +16707,10 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasSgemmStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(float) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16744,10 +16744,10 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(float) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(float) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(float) * ldc * n);
     return _result;
 }
 
@@ -16756,10 +16756,10 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasDgemmStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16793,10 +16793,10 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -16805,10 +16805,10 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasDgemmStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(double) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16842,10 +16842,10 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(double) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(double) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(double) * ldc * n);
     return _result;
 }
 
@@ -16854,10 +16854,10 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasCgemmStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16891,10 +16891,10 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -16903,10 +16903,10 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasCgemmStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16940,10 +16940,10 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -16952,10 +16952,10 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
     std::cout << "Hook: cublasCgemm3mStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -16989,10 +16989,10 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -17001,10 +17001,10 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched_64(cublasHandle_t handle, 
     std::cout << "Hook: cublasCgemm3mStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17038,10 +17038,10 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched_64(cublasHandle_t handle, 
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuComplex) * ldc * n);
     return _result;
 }
 
@@ -17050,10 +17050,10 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
     std::cout << "Hook: cublasZgemmStridedBatched called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17087,10 +17087,10 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -17099,10 +17099,10 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched_64(cublasHandle_t handle, cu
     std::cout << "Hook: cublasZgemmStridedBatched_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, 0);
-    void *_0B = mem2server((void *)B, 0);
+    void *_0A = mem2server((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, 0);
+    void *_0C = mem2server((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17136,10 +17136,10 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched_64(cublasHandle_t handle, cu
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, 0);
-    mem2client((void *)B, 0);
+    mem2client((void *)A, sizeof(cuDoubleComplex) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(cuDoubleComplex) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
     mem2client((void *)beta, 0);
-    mem2client((void *)C, 0);
+    mem2client((void *)C, sizeof(cuDoubleComplex) * ldc * n);
     return _result;
 }
 
@@ -17193,10 +17193,10 @@ extern "C" cublasStatus_t cublasGemmStridedBatchedEx_64(cublasHandle_t handle, c
     std::cout << "Hook: cublasGemmStridedBatchedEx_64 called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, getSizeFromCudaDataType(Atype));
-    void *_0B = mem2server((void *)B, getSizeFromCudaDataType(Btype));
+    void *_0A = mem2server((void *)A, 0);
+    void *_0B = mem2server((void *)B, 0);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0C = mem2server((void *)C, getSizeFromCudaDataType(Ctype));
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17235,10 +17235,10 @@ extern "C" cublasStatus_t cublasGemmStridedBatchedEx_64(cublasHandle_t handle, c
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, getSizeFromCudaDataType(Atype));
-    mem2client((void *)B, getSizeFromCudaDataType(Btype));
+    mem2client((void *)A, 0);
+    mem2client((void *)B, 0);
     mem2client((void *)beta, 0);
-    mem2client((void *)C, getSizeFromCudaDataType(Ctype));
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -17485,10 +17485,10 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
     std::cout << "Hook: cublasSgeam called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17517,10 +17517,10 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)beta, 0);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -17573,10 +17573,10 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
     std::cout << "Hook: cublasDgeam called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17605,10 +17605,10 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)beta, 0);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -17661,10 +17661,10 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
     std::cout << "Hook: cublasCgeam called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17693,10 +17693,10 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)beta, 0);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -17749,10 +17749,10 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
     std::cout << "Hook: cublasZgeam called" << std::endl;
 #endif
     void *_0alpha = mem2server((void *)alpha, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0beta = mem2server((void *)beta, 0);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0B = mem2server((void *)B, 0);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -17781,10 +17781,10 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
     }
     rpc_free_client(client);
     mem2client((void *)alpha, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)beta, 0);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)B, 0);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -18124,9 +18124,9 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
 #ifdef DEBUG
     std::cout << "Hook: cublasSdgmm called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18151,9 +18151,9 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -18198,9 +18198,9 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
 #ifdef DEBUG
     std::cout << "Hook: cublasDdgmm called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18225,9 +18225,9 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -18272,9 +18272,9 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
 #ifdef DEBUG
     std::cout << "Hook: cublasCdgmm called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18299,9 +18299,9 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -18346,9 +18346,9 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
 #ifdef DEBUG
     std::cout << "Hook: cublasZdgmm called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0x = mem2server((void *)x, 0);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0C = mem2server((void *)C, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18373,9 +18373,9 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)x, 0);
-    mem2client((void *)C, ldc);
+    mem2client((void *)C, 0);
     return _result;
 }
 
@@ -18817,7 +18817,7 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasStpttr called" << std::endl;
 #endif
     void *_0AP = mem2server((void *)AP, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18839,7 +18839,7 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)AP, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -18848,7 +18848,7 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasDtpttr called" << std::endl;
 #endif
     void *_0AP = mem2server((void *)AP, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18870,7 +18870,7 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)AP, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -18879,7 +18879,7 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasCtpttr called" << std::endl;
 #endif
     void *_0AP = mem2server((void *)AP, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18901,7 +18901,7 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)AP, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -18910,7 +18910,7 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
     std::cout << "Hook: cublasZtpttr called" << std::endl;
 #endif
     void *_0AP = mem2server((void *)AP, 0);
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -18932,7 +18932,7 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
     }
     rpc_free_client(client);
     mem2client((void *)AP, 0);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     return _result;
 }
 
@@ -18940,7 +18940,7 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
 #ifdef DEBUG
     std::cout << "Hook: cublasStrttp called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0AP = mem2server((void *)AP, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -18962,7 +18962,7 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)AP, 0);
     return _result;
 }
@@ -18971,7 +18971,7 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrttp called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0AP = mem2server((void *)AP, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -18993,7 +18993,7 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)AP, 0);
     return _result;
 }
@@ -19002,7 +19002,7 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrttp called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0AP = mem2server((void *)AP, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -19024,7 +19024,7 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)AP, 0);
     return _result;
 }
@@ -19033,7 +19033,7 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrttp called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
+    void *_0A = mem2server((void *)A, 0);
     void *_0AP = mem2server((void *)AP, 0);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
@@ -19055,7 +19055,7 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
+    mem2client((void *)A, 0);
     mem2client((void *)AP, 0);
     return _result;
 }
@@ -19472,9 +19472,9 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
 #ifdef DEBUG
     std::cout << "Hook: cublasUint8gemmBias called" << std::endl;
 #endif
-    void *_0A = mem2server((void *)A, lda);
-    void *_0B = mem2server((void *)B, ldb);
-    void *_0C = mem2server((void *)C, ldc);
+    void *_0A = mem2server((void *)A, sizeof(unsigned char) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    void *_0B = mem2server((void *)B, sizeof(unsigned char) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
+    void *_0C = mem2server((void *)C, sizeof(unsigned char) * ldc * n);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -19507,9 +19507,9 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)A, lda);
-    mem2client((void *)B, ldb);
-    mem2client((void *)C, ldc);
+    mem2client((void *)A, sizeof(unsigned char) * lda * ((transa == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)B, sizeof(unsigned char) * ldb * ((transb == CUBLAS_OP_N) ? k : n));
+    mem2client((void *)C, sizeof(unsigned char) * ldc * n);
     return _result;
 }
 
