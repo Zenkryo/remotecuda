@@ -84,7 +84,7 @@ __attribute__((constructor)) void init() { init_hook(); }
 
 __attribute__((destructor)) void cleanup() { cleanup_hook(); }
 
-int getSizeFromCudaDataType(cudaDataType type) {
+int sizeofType(cudaDataType type) {
     switch(type) {
     case CUDA_R_16F:
         return 2; // 半精度浮点数

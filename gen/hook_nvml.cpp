@@ -123,7 +123,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion(int *cudaDriverVersion) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlSystemGetCudaDriverVersion called" << std::endl;
 #endif
-    void *_0cudaDriverVersion = mem2server((void *)cudaDriverVersion, 0);
+    void *_0cudaDriverVersion = mem2server((void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -139,7 +139,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion(int *cudaDriverVersion) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)cudaDriverVersion, 0);
+    mem2client((void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
     return _result;
 }
 
@@ -147,7 +147,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int *cudaDriverVersion
 #ifdef DEBUG
     std::cout << "Hook: nvmlSystemGetCudaDriverVersion_v2 called" << std::endl;
 #endif
-    void *_0cudaDriverVersion = mem2server((void *)cudaDriverVersion, 0);
+    void *_0cudaDriverVersion = mem2server((void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -163,7 +163,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int *cudaDriverVersion
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)cudaDriverVersion, 0);
+    mem2client((void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
     return _result;
 }
 
@@ -191,91 +191,11 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwbcEntry_t *hwbcEntries) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetHicVersion called" << std::endl;
-#endif
-    void *_0hwbcCount = mem2server((void *)hwbcCount, 0);
-    void *_0hwbcEntries = mem2server((void *)hwbcEntries, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetHicVersion);
-    rpc_write(client, &_0hwbcCount, sizeof(_0hwbcCount));
-    rpc_write(client, &_0hwbcEntries, sizeof(_0hwbcEntries));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)hwbcCount, 0);
-    mem2client((void *)hwbcEntries, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int *count, nvmlDevice_t *deviceArray) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetTopologyGpuSet called" << std::endl;
-#endif
-    void *_0count = mem2server((void *)count, 0);
-    void *_0deviceArray = mem2server((void *)deviceArray, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetTopologyGpuSet);
-    rpc_write(client, &cpuNumber, sizeof(cpuNumber));
-    rpc_write(client, &_0count, sizeof(_0count));
-    rpc_write(client, &_0deviceArray, sizeof(_0deviceArray));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)count, 0);
-    mem2client((void *)deviceArray, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t *branchInfo, unsigned int length) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetDriverBranch called" << std::endl;
-#endif
-    void *_0branchInfo = mem2server((void *)branchInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetDriverBranch);
-    rpc_write(client, &_0branchInfo, sizeof(_0branchInfo));
-    rpc_write(client, &length, sizeof(length));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)branchInfo, 0);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetCount called" << std::endl;
 #endif
-    void *_0unitCount = mem2server((void *)unitCount, 0);
+    void *_0unitCount = mem2server((void *)unitCount, sizeof(*unitCount));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -291,7 +211,7 @@ extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)unitCount, 0);
+    mem2client((void *)unitCount, sizeof(*unitCount));
     return _result;
 }
 
@@ -299,7 +219,7 @@ extern "C" nvmlReturn_t nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t 
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetHandleByIndex called" << std::endl;
 #endif
-    void *_0unit = mem2server((void *)unit, 0);
+    void *_0unit = mem2server((void *)unit, sizeof(*unit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -316,7 +236,7 @@ extern "C" nvmlReturn_t nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)unit, 0);
+    mem2client((void *)unit, sizeof(*unit));
     return _result;
 }
 
@@ -324,7 +244,7 @@ extern "C" nvmlReturn_t nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t *inf
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetUnitInfo called" << std::endl;
 #endif
-    void *_0info = mem2server((void *)info, 0);
+    void *_0info = mem2server((void *)info, sizeof(*info));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -341,7 +261,7 @@ extern "C" nvmlReturn_t nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t *inf
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)info, 0);
+    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -349,7 +269,7 @@ extern "C" nvmlReturn_t nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t *sta
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetLedState called" << std::endl;
 #endif
-    void *_0state = mem2server((void *)state, 0);
+    void *_0state = mem2server((void *)state, sizeof(*state));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -366,7 +286,7 @@ extern "C" nvmlReturn_t nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t *sta
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)state, 0);
+    mem2client((void *)state, sizeof(*state));
     return _result;
 }
 
@@ -374,7 +294,7 @@ extern "C" nvmlReturn_t nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t *psu) 
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetPsuInfo called" << std::endl;
 #endif
-    void *_0psu = mem2server((void *)psu, 0);
+    void *_0psu = mem2server((void *)psu, sizeof(*psu));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -391,7 +311,7 @@ extern "C" nvmlReturn_t nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t *psu) 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)psu, 0);
+    mem2client((void *)psu, sizeof(*psu));
     return _result;
 }
 
@@ -399,7 +319,7 @@ extern "C" nvmlReturn_t nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int typ
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetTemperature called" << std::endl;
 #endif
-    void *_0temp = mem2server((void *)temp, 0);
+    void *_0temp = mem2server((void *)temp, sizeof(*temp));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -417,7 +337,7 @@ extern "C" nvmlReturn_t nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int typ
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)temp, 0);
+    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -425,7 +345,7 @@ extern "C" nvmlReturn_t nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpee
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetFanSpeedInfo called" << std::endl;
 #endif
-    void *_0fanSpeeds = mem2server((void *)fanSpeeds, 0);
+    void *_0fanSpeeds = mem2server((void *)fanSpeeds, sizeof(*fanSpeeds));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -442,7 +362,7 @@ extern "C" nvmlReturn_t nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpee
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)fanSpeeds, 0);
+    mem2client((void *)fanSpeeds, sizeof(*fanSpeeds));
     return _result;
 }
 
@@ -450,8 +370,8 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetDevices called" << std::endl;
 #endif
-    void *_0deviceCount = mem2server((void *)deviceCount, 0);
-    void *_0devices = mem2server((void *)devices, 0);
+    void *_0deviceCount = mem2server((void *)deviceCount, sizeof(*deviceCount));
+    void *_0devices = mem2server((void *)devices, sizeof(*devices));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -469,8 +389,35 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)deviceCount, 0);
-    mem2client((void *)devices, 0);
+    mem2client((void *)deviceCount, sizeof(*deviceCount));
+    mem2client((void *)devices, sizeof(*devices));
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwbcEntry_t *hwbcEntries) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetHicVersion called" << std::endl;
+#endif
+    void *_0hwbcCount = mem2server((void *)hwbcCount, sizeof(*hwbcCount));
+    void *_0hwbcEntries = mem2server((void *)hwbcEntries, sizeof(*hwbcEntries));
+    nvmlReturn_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlSystemGetHicVersion);
+    rpc_write(client, &_0hwbcCount, sizeof(_0hwbcCount));
+    rpc_write(client, &_0hwbcEntries, sizeof(_0hwbcEntries));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    mem2client((void *)hwbcCount, sizeof(*hwbcCount));
+    mem2client((void *)hwbcEntries, sizeof(*hwbcEntries));
     return _result;
 }
 
@@ -478,7 +425,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCount_v2 called" << std::endl;
 #endif
-    void *_0deviceCount = mem2server((void *)deviceCount, 0);
+    void *_0deviceCount = mem2server((void *)deviceCount, sizeof(*deviceCount));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -494,7 +441,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)deviceCount, 0);
+    mem2client((void *)deviceCount, sizeof(*deviceCount));
     return _result;
 }
 
@@ -502,7 +449,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDevi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAttributes_v2 called" << std::endl;
 #endif
-    void *_0attributes = mem2server((void *)attributes, 0);
+    void *_0attributes = mem2server((void *)attributes, sizeof(*attributes));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -519,7 +466,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDevi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)attributes, 0);
+    mem2client((void *)attributes, sizeof(*attributes));
     return _result;
 }
 
@@ -527,7 +474,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDe
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetHandleByIndex_v2 called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, 0);
+    void *_0device = mem2server((void *)device, sizeof(*device));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -544,7 +491,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDe
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)device, 0);
+    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -552,7 +499,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleBySerial(const char *serial, nvmlDevi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetHandleBySerial called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, 0);
+    void *_0device = mem2server((void *)device, sizeof(*device));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -569,7 +516,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleBySerial(const char *serial, nvmlDevi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)device, 0);
+    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -577,7 +524,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetHandleByUUID called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, 0);
+    void *_0device = mem2server((void *)device, sizeof(*device));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -594,7 +541,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)device, 0);
+    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -602,7 +549,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByPciBusId_v2(const char *pciBusId, n
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetHandleByPciBusId_v2 called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, 0);
+    void *_0device = mem2server((void *)device, sizeof(*device));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -619,7 +566,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByPciBusId_v2(const char *pciBusId, n
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)device, 0);
+    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -651,7 +598,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetBrand called" << std::endl;
 #endif
-    void *_0type = mem2server((void *)type, 0);
+    void *_0type = mem2server((void *)type, sizeof(*type));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -668,7 +615,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)type, 0);
+    mem2client((void *)type, sizeof(*type));
     return _result;
 }
 
@@ -676,7 +623,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *in
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetIndex called" << std::endl;
 #endif
-    void *_0index = mem2server((void *)index, 0);
+    void *_0index = mem2server((void *)index, sizeof(*index));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -693,7 +640,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *in
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)index, 0);
+    mem2client((void *)index, sizeof(*index));
     return _result;
 }
 
@@ -721,61 +668,11 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetModuleId(nvmlDevice_t device, unsigned int *moduleId) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetModuleId called" << std::endl;
-#endif
-    void *_0moduleId = mem2server((void *)moduleId, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetModuleId);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0moduleId, sizeof(_0moduleId));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)moduleId, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetC2cModeInfoV(nvmlDevice_t device, nvmlC2cModeInfo_v1_t *c2cModeInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetC2cModeInfoV called" << std::endl;
-#endif
-    void *_0c2cModeInfo = mem2server((void *)c2cModeInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetC2cModeInfoV);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0c2cModeInfo, sizeof(_0c2cModeInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)c2cModeInfo, 0);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigned int nodeSetSize, unsigned long *nodeSet, nvmlAffinityScope_t scope) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMemoryAffinity called" << std::endl;
 #endif
-    void *_0nodeSet = mem2server((void *)nodeSet, 0);
+    void *_0nodeSet = mem2server((void *)nodeSet, sizeof(*nodeSet));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -794,7 +691,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)nodeSet, 0);
+    mem2client((void *)nodeSet, sizeof(*nodeSet));
     return _result;
 }
 
@@ -802,7 +699,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCpuAffinityWithinScope called" << std::endl;
 #endif
-    void *_0cpuSet = mem2server((void *)cpuSet, 0);
+    void *_0cpuSet = mem2server((void *)cpuSet, sizeof(*cpuSet));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -821,7 +718,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)cpuSet, 0);
+    mem2client((void *)cpuSet, sizeof(*cpuSet));
     return _result;
 }
 
@@ -829,7 +726,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned i
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCpuAffinity called" << std::endl;
 #endif
-    void *_0cpuSet = mem2server((void *)cpuSet, 0);
+    void *_0cpuSet = mem2server((void *)cpuSet, sizeof(*cpuSet));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -847,7 +744,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned i
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)cpuSet, 0);
+    mem2client((void *)cpuSet, sizeof(*cpuSet));
     return _result;
 }
 
@@ -895,36 +792,11 @@ extern "C" nvmlReturn_t nvmlDeviceClearCpuAffinity(nvmlDevice_t device) {
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetNumaNodeId(nvmlDevice_t device, unsigned int *node) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetNumaNodeId called" << std::endl;
-#endif
-    void *_0node = mem2server((void *)node, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetNumaNodeId);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0node, sizeof(_0node));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)node, 0);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuTopologyLevel_t *pathInfo) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTopologyCommonAncestor called" << std::endl;
 #endif
-    void *_0pathInfo = mem2server((void *)pathInfo, 0);
+    void *_0pathInfo = mem2server((void *)pathInfo, sizeof(*pathInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -942,7 +814,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pathInfo, 0);
+    mem2client((void *)pathInfo, sizeof(*pathInfo));
     return _result;
 }
 
@@ -950,8 +822,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTopologyNearestGpus called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
-    void *_0deviceArray = mem2server((void *)deviceArray, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
+    void *_0deviceArray = mem2server((void *)deviceArray, sizeof(*deviceArray));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -970,8 +842,36 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
-    mem2client((void *)deviceArray, 0);
+    mem2client((void *)count, sizeof(*count));
+    mem2client((void *)deviceArray, sizeof(*deviceArray));
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int *count, nvmlDevice_t *deviceArray) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetTopologyGpuSet called" << std::endl;
+#endif
+    void *_0count = mem2server((void *)count, sizeof(*count));
+    void *_0deviceArray = mem2server((void *)deviceArray, sizeof(*deviceArray));
+    nvmlReturn_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlSystemGetTopologyGpuSet);
+    rpc_write(client, &cpuNumber, sizeof(cpuNumber));
+    rpc_write(client, &_0count, sizeof(_0count));
+    rpc_write(client, &_0deviceArray, sizeof(_0deviceArray));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    mem2client((void *)count, sizeof(*count));
+    mem2client((void *)deviceArray, sizeof(*deviceArray));
     return _result;
 }
 
@@ -979,7 +879,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetP2PStatus called" << std::endl;
 #endif
-    void *_0p2pStatus = mem2server((void *)p2pStatus, 0);
+    void *_0p2pStatus = mem2server((void *)p2pStatus, sizeof(*p2pStatus));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -998,7 +898,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)p2pStatus, 0);
+    mem2client((void *)p2pStatus, sizeof(*p2pStatus));
     return _result;
 }
 
@@ -1026,11 +926,35 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, char *mdevUuid, unsigned int size) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuInstanceGetMdevUUID called" << std::endl;
+#endif
+    nvmlReturn_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetMdevUUID);
+    rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
+    rpc_read(client, mdevUuid, size, true);
+    rpc_write(client, &size, sizeof(size));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned int *minorNumber) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMinorNumber called" << std::endl;
 #endif
-    void *_0minorNumber = mem2server((void *)minorNumber, 0);
+    void *_0minorNumber = mem2server((void *)minorNumber, sizeof(*minorNumber));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1047,7 +971,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned i
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)minorNumber, 0);
+    mem2client((void *)minorNumber, sizeof(*minorNumber));
     return _result;
 }
 
@@ -1128,7 +1052,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t d
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetInforomConfigurationChecksum called" << std::endl;
 #endif
-    void *_0checksum = mem2server((void *)checksum, 0);
+    void *_0checksum = mem2server((void *)checksum, sizeof(*checksum));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1145,7 +1069,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t d
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)checksum, 0);
+    mem2client((void *)checksum, sizeof(*checksum));
     return _result;
 }
 
@@ -1171,39 +1095,11 @@ extern "C" nvmlReturn_t nvmlDeviceValidateInforom(nvmlDevice_t device) {
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetLastBBXFlushTime(nvmlDevice_t device, unsigned long long *timestamp, unsigned long *durationUs) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetLastBBXFlushTime called" << std::endl;
-#endif
-    void *_0timestamp = mem2server((void *)timestamp, 0);
-    void *_0durationUs = mem2server((void *)durationUs, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetLastBBXFlushTime);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0timestamp, sizeof(_0timestamp));
-    rpc_write(client, &_0durationUs, sizeof(_0durationUs));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)timestamp, 0);
-    mem2client((void *)durationUs, 0);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnableState_t *display) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDisplayMode called" << std::endl;
 #endif
-    void *_0display = mem2server((void *)display, 0);
+    void *_0display = mem2server((void *)display, sizeof(*display));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1220,7 +1116,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnable
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)display, 0);
+    mem2client((void *)display, sizeof(*display));
     return _result;
 }
 
@@ -1228,7 +1124,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnab
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDisplayActive called" << std::endl;
 #endif
-    void *_0isActive = mem2server((void *)isActive, 0);
+    void *_0isActive = mem2server((void *)isActive, sizeof(*isActive));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1245,7 +1141,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnab
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)isActive, 0);
+    mem2client((void *)isActive, sizeof(*isActive));
     return _result;
 }
 
@@ -1253,7 +1149,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPersistenceMode called" << std::endl;
 #endif
-    void *_0mode = mem2server((void *)mode, 0);
+    void *_0mode = mem2server((void *)mode, sizeof(*mode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1270,32 +1166,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)mode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetPciInfoExt(nvmlDevice_t device, nvmlPciInfoExt_t *pci) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetPciInfoExt called" << std::endl;
-#endif
-    void *_0pci = mem2server((void *)pci, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetPciInfoExt);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pci, sizeof(_0pci));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pci, 0);
+    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -1303,7 +1174,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPciInfo_v3 called" << std::endl;
 #endif
-    void *_0pci = mem2server((void *)pci, 0);
+    void *_0pci = mem2server((void *)pci, sizeof(*pci));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1320,7 +1191,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pci, 0);
+    mem2client((void *)pci, sizeof(*pci));
     return _result;
 }
 
@@ -1328,7 +1199,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMaxPcieLinkGeneration called" << std::endl;
 #endif
-    void *_0maxLinkGen = mem2server((void *)maxLinkGen, 0);
+    void *_0maxLinkGen = mem2server((void *)maxLinkGen, sizeof(*maxLinkGen));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1345,32 +1216,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)maxLinkGen, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGpuMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int *maxLinkGenDevice) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGpuMaxPcieLinkGeneration called" << std::endl;
-#endif
-    void *_0maxLinkGenDevice = mem2server((void *)maxLinkGenDevice, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGpuMaxPcieLinkGeneration);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0maxLinkGenDevice, sizeof(_0maxLinkGenDevice));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)maxLinkGenDevice, 0);
+    mem2client((void *)maxLinkGen, sizeof(*maxLinkGen));
     return _result;
 }
 
@@ -1378,7 +1224,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsig
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMaxPcieLinkWidth called" << std::endl;
 #endif
-    void *_0maxLinkWidth = mem2server((void *)maxLinkWidth, 0);
+    void *_0maxLinkWidth = mem2server((void *)maxLinkWidth, sizeof(*maxLinkWidth));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1395,7 +1241,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsig
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)maxLinkWidth, 0);
+    mem2client((void *)maxLinkWidth, sizeof(*maxLinkWidth));
     return _result;
 }
 
@@ -1403,7 +1249,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCurrPcieLinkGeneration called" << std::endl;
 #endif
-    void *_0currLinkGen = mem2server((void *)currLinkGen, 0);
+    void *_0currLinkGen = mem2server((void *)currLinkGen, sizeof(*currLinkGen));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1420,7 +1266,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)currLinkGen, 0);
+    mem2client((void *)currLinkGen, sizeof(*currLinkGen));
     return _result;
 }
 
@@ -1428,7 +1274,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCurrPcieLinkWidth called" << std::endl;
 #endif
-    void *_0currLinkWidth = mem2server((void *)currLinkWidth, 0);
+    void *_0currLinkWidth = mem2server((void *)currLinkWidth, sizeof(*currLinkWidth));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1445,7 +1291,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)currLinkWidth, 0);
+    mem2client((void *)currLinkWidth, sizeof(*currLinkWidth));
     return _result;
 }
 
@@ -1453,7 +1299,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPci
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPcieThroughput called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
+    void *_0value = mem2server((void *)value, sizeof(*value));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1471,7 +1317,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPci
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)value, 0);
+    mem2client((void *)value, sizeof(*value));
     return _result;
 }
 
@@ -1479,7 +1325,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPcieReplayCounter called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
+    void *_0value = mem2server((void *)value, sizeof(*value));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1496,7 +1342,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)value, 0);
+    mem2client((void *)value, sizeof(*value));
     return _result;
 }
 
@@ -1504,7 +1350,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockTyp
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetClockInfo called" << std::endl;
 #endif
-    void *_0clock = mem2server((void *)clock, 0);
+    void *_0clock = mem2server((void *)clock, sizeof(*clock));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1522,7 +1368,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockTyp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clock, 0);
+    mem2client((void *)clock, sizeof(*clock));
     return _result;
 }
 
@@ -1530,7 +1376,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMaxClockInfo called" << std::endl;
 #endif
-    void *_0clock = mem2server((void *)clock, 0);
+    void *_0clock = mem2server((void *)clock, sizeof(*clock));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1548,32 +1394,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clock, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGpcClkVfOffset(nvmlDevice_t device, int *offset) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGpcClkVfOffset called" << std::endl;
-#endif
-    void *_0offset = mem2server((void *)offset, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGpcClkVfOffset);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0offset, sizeof(_0offset));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)offset, 0);
+    mem2client((void *)clock, sizeof(*clock));
     return _result;
 }
 
@@ -1581,7 +1402,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvml
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetApplicationsClock called" << std::endl;
 #endif
-    void *_0clockMHz = mem2server((void *)clockMHz, 0);
+    void *_0clockMHz = mem2server((void *)clockMHz, sizeof(*clockMHz));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1599,7 +1420,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvml
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, 0);
+    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -1607,7 +1428,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDefaultApplicationsClock called" << std::endl;
 #endif
-    void *_0clockMHz = mem2server((void *)clockMHz, 0);
+    void *_0clockMHz = mem2server((void *)clockMHz, sizeof(*clockMHz));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1625,7 +1446,29 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, 0);
+    mem2client((void *)clockMHz, sizeof(*clockMHz));
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceResetApplicationsClocks called" << std::endl;
+#endif
+    nvmlReturn_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlDeviceResetApplicationsClocks);
+    rpc_write(client, &device, sizeof(device));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -1633,7 +1476,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetClock called" << std::endl;
 #endif
-    void *_0clockMHz = mem2server((void *)clockMHz, 0);
+    void *_0clockMHz = mem2server((void *)clockMHz, sizeof(*clockMHz));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1652,7 +1495,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, 0);
+    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -1660,7 +1503,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMaxCustomerBoostClock called" << std::endl;
 #endif
-    void *_0clockMHz = mem2server((void *)clockMHz, 0);
+    void *_0clockMHz = mem2server((void *)clockMHz, sizeof(*clockMHz));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1678,7 +1521,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, 0);
+    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -1686,8 +1529,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetSupportedMemoryClocks called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
-    void *_0clocksMHz = mem2server((void *)clocksMHz, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
+    void *_0clocksMHz = mem2server((void *)clocksMHz, sizeof(*clocksMHz));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1705,8 +1548,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
-    mem2client((void *)clocksMHz, 0);
+    mem2client((void *)count, sizeof(*count));
+    mem2client((void *)clocksMHz, sizeof(*clocksMHz));
     return _result;
 }
 
@@ -1714,8 +1557,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetSupportedGraphicsClocks called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
-    void *_0clocksMHz = mem2server((void *)clocksMHz, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
+    void *_0clocksMHz = mem2server((void *)clocksMHz, sizeof(*clocksMHz));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1734,8 +1577,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
-    mem2client((void *)clocksMHz, 0);
+    mem2client((void *)count, sizeof(*count));
+    mem2client((void *)clocksMHz, sizeof(*clocksMHz));
     return _result;
 }
 
@@ -1743,8 +1586,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAutoBoostedClocksEnabled called" << std::endl;
 #endif
-    void *_0isEnabled = mem2server((void *)isEnabled, 0);
-    void *_0defaultIsEnabled = mem2server((void *)defaultIsEnabled, 0);
+    void *_0isEnabled = mem2server((void *)isEnabled, sizeof(*isEnabled));
+    void *_0defaultIsEnabled = mem2server((void *)defaultIsEnabled, sizeof(*defaultIsEnabled));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1762,8 +1605,55 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)isEnabled, 0);
-    mem2client((void *)defaultIsEnabled, 0);
+    mem2client((void *)isEnabled, sizeof(*isEnabled));
+    mem2client((void *)defaultIsEnabled, sizeof(*defaultIsEnabled));
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetAutoBoostedClocksEnabled called" << std::endl;
+#endif
+    nvmlReturn_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlDeviceSetAutoBoostedClocksEnabled);
+    rpc_write(client, &device, sizeof(device));
+    rpc_write(client, &enabled, sizeof(enabled));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetDefaultAutoBoostedClocksEnabled called" << std::endl;
+#endif
+    nvmlReturn_t _result;
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_nvmlDeviceSetDefaultAutoBoostedClocksEnabled);
+    rpc_write(client, &device, sizeof(device));
+    rpc_write(client, &enabled, sizeof(enabled));
+    rpc_write(client, &flags, sizeof(flags));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
     return _result;
 }
 
@@ -1771,7 +1661,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFanSpeed called" << std::endl;
 #endif
-    void *_0speed = mem2server((void *)speed, 0);
+    void *_0speed = mem2server((void *)speed, sizeof(*speed));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1788,7 +1678,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)speed, 0);
+    mem2client((void *)speed, sizeof(*speed));
     return _result;
 }
 
@@ -1796,7 +1686,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFanSpeed_v2 called" << std::endl;
 #endif
-    void *_0speed = mem2server((void *)speed, 0);
+    void *_0speed = mem2server((void *)speed, sizeof(*speed));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1814,137 +1704,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)speed, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetFanSpeedRPM(nvmlDevice_t device, nvmlFanSpeedInfo_t *fanSpeed) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetFanSpeedRPM called" << std::endl;
-#endif
-    void *_0fanSpeed = mem2server((void *)fanSpeed, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetFanSpeedRPM);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0fanSpeed, sizeof(_0fanSpeed));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)fanSpeed, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetTargetFanSpeed(nvmlDevice_t device, unsigned int fan, unsigned int *targetSpeed) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetTargetFanSpeed called" << std::endl;
-#endif
-    void *_0targetSpeed = mem2server((void *)targetSpeed, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetTargetFanSpeed);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &fan, sizeof(fan));
-    rpc_write(client, &_0targetSpeed, sizeof(_0targetSpeed));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)targetSpeed, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetMinMaxFanSpeed(nvmlDevice_t device, unsigned int *minSpeed, unsigned int *maxSpeed) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMinMaxFanSpeed called" << std::endl;
-#endif
-    void *_0minSpeed = mem2server((void *)minSpeed, 0);
-    void *_0maxSpeed = mem2server((void *)maxSpeed, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMinMaxFanSpeed);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0minSpeed, sizeof(_0minSpeed));
-    rpc_write(client, &_0maxSpeed, sizeof(_0maxSpeed));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)minSpeed, 0);
-    mem2client((void *)maxSpeed, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetFanControlPolicy_v2(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t *policy) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetFanControlPolicy_v2 called" << std::endl;
-#endif
-    void *_0policy = mem2server((void *)policy, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetFanControlPolicy_v2);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &fan, sizeof(fan));
-    rpc_write(client, &_0policy, sizeof(_0policy));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)policy, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetNumFans(nvmlDevice_t device, unsigned int *numFans) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetNumFans called" << std::endl;
-#endif
-    void *_0numFans = mem2server((void *)numFans, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetNumFans);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0numFans, sizeof(_0numFans));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)numFans, 0);
+    mem2client((void *)speed, sizeof(*speed));
     return _result;
 }
 
@@ -1952,7 +1712,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTemperature called" << std::endl;
 #endif
-    void *_0temp = mem2server((void *)temp, 0);
+    void *_0temp = mem2server((void *)temp, sizeof(*temp));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1970,57 +1730,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)temp, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetCoolerInfo(nvmlDevice_t device, nvmlCoolerInfo_t *coolerInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetCoolerInfo called" << std::endl;
-#endif
-    void *_0coolerInfo = mem2server((void *)coolerInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetCoolerInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0coolerInfo, sizeof(_0coolerInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)coolerInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetTemperatureV(nvmlDevice_t device, nvmlTemperature_t *temperature) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetTemperatureV called" << std::endl;
-#endif
-    void *_0temperature = mem2server((void *)temperature, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetTemperatureV);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0temperature, sizeof(_0temperature));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)temperature, 0);
+    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -2028,7 +1738,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTemperatureThreshold called" << std::endl;
 #endif
-    void *_0temp = mem2server((void *)temp, 0);
+    void *_0temp = mem2server((void *)temp, sizeof(*temp));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2046,24 +1756,25 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)temp, 0);
+    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetMarginTemperature(nvmlDevice_t device, nvmlMarginTemperature_t *marginTempInfo) {
+extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int *temp) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMarginTemperature called" << std::endl;
+    std::cout << "Hook: nvmlDeviceSetTemperatureThreshold called" << std::endl;
 #endif
-    void *_0marginTempInfo = mem2server((void *)marginTempInfo, 0);
+    void *_0temp = mem2server((void *)temp, sizeof(*temp));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMarginTemperature);
+    rpc_prepare_request(client, RPC_nvmlDeviceSetTemperatureThreshold);
     rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0marginTempInfo, sizeof(_0marginTempInfo));
+    rpc_write(client, &thresholdType, sizeof(thresholdType));
+    rpc_write(client, &_0temp, sizeof(_0temp));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2071,33 +1782,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMarginTemperature(nvmlDevice_t device, nvml
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)marginTempInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetThermalSettings(nvmlDevice_t device, unsigned int sensorIndex, nvmlGpuThermalSettings_t *pThermalSettings) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetThermalSettings called" << std::endl;
-#endif
-    void *_0pThermalSettings = mem2server((void *)pThermalSettings, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetThermalSettings);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &sensorIndex, sizeof(sensorIndex));
-    rpc_write(client, &_0pThermalSettings, sizeof(_0pThermalSettings));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pThermalSettings, 0);
+    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -2105,7 +1790,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPerformanceState called" << std::endl;
 #endif
-    void *_0pState = mem2server((void *)pState, 0);
+    void *_0pState = mem2server((void *)pState, sizeof(*pState));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2122,32 +1807,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pState, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, unsigned long long *clocksEventReasons) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetCurrentClocksEventReasons called" << std::endl;
-#endif
-    void *_0clocksEventReasons = mem2server((void *)clocksEventReasons, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetCurrentClocksEventReasons);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0clocksEventReasons, sizeof(_0clocksEventReasons));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)clocksEventReasons, 0);
+    mem2client((void *)pState, sizeof(*pState));
     return _result;
 }
 
@@ -2155,7 +1815,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCurrentClocksThrottleReasons called" << std::endl;
 #endif
-    void *_0clocksThrottleReasons = mem2server((void *)clocksThrottleReasons, 0);
+    void *_0clocksThrottleReasons = mem2server((void *)clocksThrottleReasons, sizeof(*clocksThrottleReasons));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2172,32 +1832,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)clocksThrottleReasons, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device, unsigned long long *supportedClocksEventReasons) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetSupportedClocksEventReasons called" << std::endl;
-#endif
-    void *_0supportedClocksEventReasons = mem2server((void *)supportedClocksEventReasons, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetSupportedClocksEventReasons);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0supportedClocksEventReasons, sizeof(_0supportedClocksEventReasons));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)supportedClocksEventReasons, 0);
+    mem2client((void *)clocksThrottleReasons, sizeof(*clocksThrottleReasons));
     return _result;
 }
 
@@ -2205,7 +1840,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksThrottleReasons(nvmlDevice_t
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetSupportedClocksThrottleReasons called" << std::endl;
 #endif
-    void *_0supportedClocksThrottleReasons = mem2server((void *)supportedClocksThrottleReasons, 0);
+    void *_0supportedClocksThrottleReasons = mem2server((void *)supportedClocksThrottleReasons, sizeof(*supportedClocksThrottleReasons));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2222,7 +1857,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksThrottleReasons(nvmlDevice_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)supportedClocksThrottleReasons, 0);
+    mem2client((void *)supportedClocksThrottleReasons, sizeof(*supportedClocksThrottleReasons));
     return _result;
 }
 
@@ -2230,7 +1865,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPowerState called" << std::endl;
 #endif
-    void *_0pState = mem2server((void *)pState, 0);
+    void *_0pState = mem2server((void *)pState, sizeof(*pState));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2247,269 +1882,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pState, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetDynamicPstatesInfo(nvmlDevice_t device, nvmlGpuDynamicPstatesInfo_t *pDynamicPstatesInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetDynamicPstatesInfo called" << std::endl;
-#endif
-    void *_0pDynamicPstatesInfo = mem2server((void *)pDynamicPstatesInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetDynamicPstatesInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pDynamicPstatesInfo, sizeof(_0pDynamicPstatesInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pDynamicPstatesInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetMemClkVfOffset(nvmlDevice_t device, int *offset) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMemClkVfOffset called" << std::endl;
-#endif
-    void *_0offset = mem2server((void *)offset, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMemClkVfOffset);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0offset, sizeof(_0offset));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)offset, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetMinMaxClockOfPState(nvmlDevice_t device, nvmlClockType_t type, nvmlPstates_t pstate, unsigned int *minClockMHz, unsigned int *maxClockMHz) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMinMaxClockOfPState called" << std::endl;
-#endif
-    void *_0minClockMHz = mem2server((void *)minClockMHz, 0);
-    void *_0maxClockMHz = mem2server((void *)maxClockMHz, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMinMaxClockOfPState);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &type, sizeof(type));
-    rpc_write(client, &pstate, sizeof(pstate));
-    rpc_write(client, &_0minClockMHz, sizeof(_0minClockMHz));
-    rpc_write(client, &_0maxClockMHz, sizeof(_0maxClockMHz));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)minClockMHz, 0);
-    mem2client((void *)maxClockMHz, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetSupportedPerformanceStates(nvmlDevice_t device, nvmlPstates_t *pstates, unsigned int size) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetSupportedPerformanceStates called" << std::endl;
-#endif
-    void *_0pstates = mem2server((void *)pstates, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetSupportedPerformanceStates);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pstates, sizeof(_0pstates));
-    rpc_write(client, &size, sizeof(size));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pstates, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGpcClkMinMaxVfOffset(nvmlDevice_t device, int *minOffset, int *maxOffset) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGpcClkMinMaxVfOffset called" << std::endl;
-#endif
-    void *_0minOffset = mem2server((void *)minOffset, 0);
-    void *_0maxOffset = mem2server((void *)maxOffset, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGpcClkMinMaxVfOffset);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0minOffset, sizeof(_0minOffset));
-    rpc_write(client, &_0maxOffset, sizeof(_0maxOffset));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)minOffset, 0);
-    mem2client((void *)maxOffset, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetMemClkMinMaxVfOffset(nvmlDevice_t device, int *minOffset, int *maxOffset) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMemClkMinMaxVfOffset called" << std::endl;
-#endif
-    void *_0minOffset = mem2server((void *)minOffset, 0);
-    void *_0maxOffset = mem2server((void *)maxOffset, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMemClkMinMaxVfOffset);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0minOffset, sizeof(_0minOffset));
-    rpc_write(client, &_0maxOffset, sizeof(_0maxOffset));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)minOffset, 0);
-    mem2client((void *)maxOffset, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetClockOffsets called" << std::endl;
-#endif
-    void *_0info = mem2server((void *)info, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetClockOffsets);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0info, sizeof(_0info));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)info, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetClockOffsets called" << std::endl;
-#endif
-    void *_0info = mem2server((void *)info, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetClockOffsets);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0info, sizeof(_0info));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)info, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetPerformanceModes(nvmlDevice_t device, nvmlDevicePerfModes_t *perfModes) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetPerformanceModes called" << std::endl;
-#endif
-    void *_0perfModes = mem2server((void *)perfModes, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetPerformanceModes);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0perfModes, sizeof(_0perfModes));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)perfModes, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetCurrentClockFreqs(nvmlDevice_t device, nvmlDeviceCurrentClockFreqs_t *currentClockFreqs) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetCurrentClockFreqs called" << std::endl;
-#endif
-    void *_0currentClockFreqs = mem2server((void *)currentClockFreqs, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetCurrentClockFreqs);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0currentClockFreqs, sizeof(_0currentClockFreqs));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)currentClockFreqs, 0);
+    mem2client((void *)pState, sizeof(*pState));
     return _result;
 }
 
@@ -2517,7 +1890,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementMode(nvmlDevice_t device, nv
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPowerManagementMode called" << std::endl;
 #endif
-    void *_0mode = mem2server((void *)mode, 0);
+    void *_0mode = mem2server((void *)mode, sizeof(*mode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2534,7 +1907,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementMode(nvmlDevice_t device, nv
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)mode, 0);
+    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -2542,7 +1915,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, u
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPowerManagementLimit called" << std::endl;
 #endif
-    void *_0limit = mem2server((void *)limit, 0);
+    void *_0limit = mem2server((void *)limit, sizeof(*limit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2559,7 +1932,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)limit, 0);
+    mem2client((void *)limit, sizeof(*limit));
     return _result;
 }
 
@@ -2567,8 +1940,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPowerManagementLimitConstraints called" << std::endl;
 #endif
-    void *_0minLimit = mem2server((void *)minLimit, 0);
-    void *_0maxLimit = mem2server((void *)maxLimit, 0);
+    void *_0minLimit = mem2server((void *)minLimit, sizeof(*minLimit));
+    void *_0maxLimit = mem2server((void *)maxLimit, sizeof(*maxLimit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2586,8 +1959,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)minLimit, 0);
-    mem2client((void *)maxLimit, 0);
+    mem2client((void *)minLimit, sizeof(*minLimit));
+    mem2client((void *)maxLimit, sizeof(*maxLimit));
     return _result;
 }
 
@@ -2595,7 +1968,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t de
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPowerManagementDefaultLimit called" << std::endl;
 #endif
-    void *_0defaultLimit = mem2server((void *)defaultLimit, 0);
+    void *_0defaultLimit = mem2server((void *)defaultLimit, sizeof(*defaultLimit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2612,7 +1985,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t de
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)defaultLimit, 0);
+    mem2client((void *)defaultLimit, sizeof(*defaultLimit));
     return _result;
 }
 
@@ -2620,7 +1993,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned in
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPowerUsage called" << std::endl;
 #endif
-    void *_0power = mem2server((void *)power, 0);
+    void *_0power = mem2server((void *)power, sizeof(*power));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2637,7 +2010,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned in
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)power, 0);
+    mem2client((void *)power, sizeof(*power));
     return _result;
 }
 
@@ -2645,7 +2018,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTotalEnergyConsumption called" << std::endl;
 #endif
-    void *_0energy = mem2server((void *)energy, 0);
+    void *_0energy = mem2server((void *)energy, sizeof(*energy));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2662,7 +2035,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)energy, 0);
+    mem2client((void *)energy, sizeof(*energy));
     return _result;
 }
 
@@ -2670,7 +2043,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, uns
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEnforcedPowerLimit called" << std::endl;
 #endif
-    void *_0limit = mem2server((void *)limit, 0);
+    void *_0limit = mem2server((void *)limit, sizeof(*limit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2687,7 +2060,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, uns
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)limit, 0);
+    mem2client((void *)limit, sizeof(*limit));
     return _result;
 }
 
@@ -2695,8 +2068,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlG
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuOperationMode called" << std::endl;
 #endif
-    void *_0current = mem2server((void *)current, 0);
-    void *_0pending = mem2server((void *)pending, 0);
+    void *_0current = mem2server((void *)current, sizeof(*current));
+    void *_0pending = mem2server((void *)pending, sizeof(*pending));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2714,8 +2087,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlG
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)current, 0);
-    mem2client((void *)pending, 0);
+    mem2client((void *)current, sizeof(*current));
+    mem2client((void *)pending, sizeof(*pending));
     return _result;
 }
 
@@ -2723,7 +2096,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMemoryInfo called" << std::endl;
 #endif
-    void *_0memory = mem2server((void *)memory, 0);
+    void *_0memory = mem2server((void *)memory, sizeof(*memory));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2740,32 +2113,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)memory, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo_v2(nvmlDevice_t device, nvmlMemory_v2_t *memory) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMemoryInfo_v2 called" << std::endl;
-#endif
-    void *_0memory = mem2server((void *)memory, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMemoryInfo_v2);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0memory, sizeof(_0memory));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)memory, 0);
+    mem2client((void *)memory, sizeof(*memory));
     return _result;
 }
 
@@ -2773,7 +2121,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComput
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetComputeMode called" << std::endl;
 #endif
-    void *_0mode = mem2server((void *)mode, 0);
+    void *_0mode = mem2server((void *)mode, sizeof(*mode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2790,7 +2138,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComput
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)mode, 0);
+    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -2798,8 +2146,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCudaComputeCapability called" << std::endl;
 #endif
-    void *_0major = mem2server((void *)major, 0);
-    void *_0minor = mem2server((void *)minor, 0);
+    void *_0major = mem2server((void *)major, sizeof(*major));
+    void *_0minor = mem2server((void *)minor, sizeof(*minor));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2817,61 +2165,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)major, 0);
-    mem2client((void *)minor, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetDramEncryptionMode(nvmlDevice_t device, nvmlDramEncryptionInfo_t *current, nvmlDramEncryptionInfo_t *pending) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetDramEncryptionMode called" << std::endl;
-#endif
-    void *_0current = mem2server((void *)current, 0);
-    void *_0pending = mem2server((void *)pending, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetDramEncryptionMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0current, sizeof(_0current));
-    rpc_write(client, &_0pending, sizeof(_0pending));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)current, 0);
-    mem2client((void *)pending, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetDramEncryptionMode(nvmlDevice_t device, const nvmlDramEncryptionInfo_t *dramEncryption) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetDramEncryptionMode called" << std::endl;
-#endif
-    void *_0dramEncryption = mem2server((void *)dramEncryption, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetDramEncryptionMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0dramEncryption, sizeof(_0dramEncryption));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)dramEncryption, 0);
+    mem2client((void *)major, sizeof(*major));
+    mem2client((void *)minor, sizeof(*minor));
     return _result;
 }
 
@@ -2879,8 +2174,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEccMode called" << std::endl;
 #endif
-    void *_0current = mem2server((void *)current, 0);
-    void *_0pending = mem2server((void *)pending, 0);
+    void *_0current = mem2server((void *)current, sizeof(*current));
+    void *_0pending = mem2server((void *)pending, sizeof(*pending));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2898,33 +2193,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)current, 0);
-    mem2client((void *)pending, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetDefaultEccMode(nvmlDevice_t device, nvmlEnableState_t *defaultMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetDefaultEccMode called" << std::endl;
-#endif
-    void *_0defaultMode = mem2server((void *)defaultMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetDefaultEccMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0defaultMode, sizeof(_0defaultMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)defaultMode, 0);
+    mem2client((void *)current, sizeof(*current));
+    mem2client((void *)pending, sizeof(*pending));
     return _result;
 }
 
@@ -2932,7 +2202,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int *
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetBoardId called" << std::endl;
 #endif
-    void *_0boardId = mem2server((void *)boardId, 0);
+    void *_0boardId = mem2server((void *)boardId, sizeof(*boardId));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2949,7 +2219,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int *
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)boardId, 0);
+    mem2client((void *)boardId, sizeof(*boardId));
     return _result;
 }
 
@@ -2957,7 +2227,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMultiGpuBoard called" << std::endl;
 #endif
-    void *_0multiGpuBool = mem2server((void *)multiGpuBool, 0);
+    void *_0multiGpuBool = mem2server((void *)multiGpuBool, sizeof(*multiGpuBool));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2974,7 +2244,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)multiGpuBool, 0);
+    mem2client((void *)multiGpuBool, sizeof(*multiGpuBool));
     return _result;
 }
 
@@ -2982,7 +2252,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMem
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTotalEccErrors called" << std::endl;
 #endif
-    void *_0eccCounts = mem2server((void *)eccCounts, 0);
+    void *_0eccCounts = mem2server((void *)eccCounts, sizeof(*eccCounts));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3001,7 +2271,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMem
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)eccCounts, 0);
+    mem2client((void *)eccCounts, sizeof(*eccCounts));
     return _result;
 }
 
@@ -3009,7 +2279,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDetailedEccErrors(nvmlDevice_t device, nvml
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDetailedEccErrors called" << std::endl;
 #endif
-    void *_0eccCounts = mem2server((void *)eccCounts, 0);
+    void *_0eccCounts = mem2server((void *)eccCounts, sizeof(*eccCounts));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3028,7 +2298,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDetailedEccErrors(nvmlDevice_t device, nvml
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)eccCounts, 0);
+    mem2client((void *)eccCounts, sizeof(*eccCounts));
     return _result;
 }
 
@@ -3036,7 +2306,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvm
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMemoryErrorCounter called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3056,7 +2326,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvm
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -3064,7 +2334,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlU
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetUtilizationRates called" << std::endl;
 #endif
-    void *_0utilization = mem2server((void *)utilization, 0);
+    void *_0utilization = mem2server((void *)utilization, sizeof(*utilization));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3081,7 +2351,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlU
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)utilization, 0);
+    mem2client((void *)utilization, sizeof(*utilization));
     return _result;
 }
 
@@ -3089,8 +2359,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, uns
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEncoderUtilization called" << std::endl;
 #endif
-    void *_0utilization = mem2server((void *)utilization, 0);
-    void *_0samplingPeriodUs = mem2server((void *)samplingPeriodUs, 0);
+    void *_0utilization = mem2server((void *)utilization, sizeof(*utilization));
+    void *_0samplingPeriodUs = mem2server((void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3108,8 +2378,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, uns
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)utilization, 0);
-    mem2client((void *)samplingPeriodUs, 0);
+    mem2client((void *)utilization, sizeof(*utilization));
+    mem2client((void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
     return _result;
 }
 
@@ -3117,7 +2387,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEn
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEncoderCapacity called" << std::endl;
 #endif
-    void *_0encoderCapacity = mem2server((void *)encoderCapacity, 0);
+    void *_0encoderCapacity = mem2server((void *)encoderCapacity, sizeof(*encoderCapacity));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3135,7 +2405,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEn
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)encoderCapacity, 0);
+    mem2client((void *)encoderCapacity, sizeof(*encoderCapacity));
     return _result;
 }
 
@@ -3143,9 +2413,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEncoderStats called" << std::endl;
 #endif
-    void *_0sessionCount = mem2server((void *)sessionCount, 0);
-    void *_0averageFps = mem2server((void *)averageFps, 0);
-    void *_0averageLatency = mem2server((void *)averageLatency, 0);
+    void *_0sessionCount = mem2server((void *)sessionCount, sizeof(*sessionCount));
+    void *_0averageFps = mem2server((void *)averageFps, sizeof(*averageFps));
+    void *_0averageLatency = mem2server((void *)averageLatency, sizeof(*averageLatency));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3164,9 +2434,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, 0);
-    mem2client((void *)averageFps, 0);
-    mem2client((void *)averageLatency, 0);
+    mem2client((void *)sessionCount, sizeof(*sessionCount));
+    mem2client((void *)averageFps, sizeof(*averageFps));
+    mem2client((void *)averageLatency, sizeof(*averageLatency));
     return _result;
 }
 
@@ -3174,8 +2444,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsign
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEncoderSessions called" << std::endl;
 #endif
-    void *_0sessionCount = mem2server((void *)sessionCount, 0);
-    void *_0sessionInfos = mem2server((void *)sessionInfos, 0);
+    void *_0sessionCount = mem2server((void *)sessionCount, sizeof(*sessionCount));
+    void *_0sessionInfos = mem2server((void *)sessionInfos, sizeof(*sessionInfos));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3193,8 +2463,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsign
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, 0);
-    mem2client((void *)sessionInfos, 0);
+    mem2client((void *)sessionCount, sizeof(*sessionCount));
+    mem2client((void *)sessionInfos, sizeof(*sessionInfos));
     return _result;
 }
 
@@ -3202,8 +2472,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDecoderUtilization called" << std::endl;
 #endif
-    void *_0utilization = mem2server((void *)utilization, 0);
-    void *_0samplingPeriodUs = mem2server((void *)samplingPeriodUs, 0);
+    void *_0utilization = mem2server((void *)utilization, sizeof(*utilization));
+    void *_0samplingPeriodUs = mem2server((void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3221,64 +2491,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)utilization, 0);
-    mem2client((void *)samplingPeriodUs, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetJpgUtilization(nvmlDevice_t device, unsigned int *utilization, unsigned int *samplingPeriodUs) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetJpgUtilization called" << std::endl;
-#endif
-    void *_0utilization = mem2server((void *)utilization, 0);
-    void *_0samplingPeriodUs = mem2server((void *)samplingPeriodUs, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetJpgUtilization);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0utilization, sizeof(_0utilization));
-    rpc_write(client, &_0samplingPeriodUs, sizeof(_0samplingPeriodUs));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)utilization, 0);
-    mem2client((void *)samplingPeriodUs, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetOfaUtilization(nvmlDevice_t device, unsigned int *utilization, unsigned int *samplingPeriodUs) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetOfaUtilization called" << std::endl;
-#endif
-    void *_0utilization = mem2server((void *)utilization, 0);
-    void *_0samplingPeriodUs = mem2server((void *)samplingPeriodUs, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetOfaUtilization);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0utilization, sizeof(_0utilization));
-    rpc_write(client, &_0samplingPeriodUs, sizeof(_0samplingPeriodUs));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)utilization, 0);
-    mem2client((void *)samplingPeriodUs, 0);
+    mem2client((void *)utilization, sizeof(*utilization));
+    mem2client((void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
     return _result;
 }
 
@@ -3286,7 +2500,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFBCStats called" << std::endl;
 #endif
-    void *_0fbcStats = mem2server((void *)fbcStats, 0);
+    void *_0fbcStats = mem2server((void *)fbcStats, sizeof(*fbcStats));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3303,7 +2517,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)fbcStats, 0);
+    mem2client((void *)fbcStats, sizeof(*fbcStats));
     return _result;
 }
 
@@ -3311,8 +2525,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFBCSessions called" << std::endl;
 #endif
-    void *_0sessionCount = mem2server((void *)sessionCount, 0);
-    void *_0sessionInfo = mem2server((void *)sessionInfo, 0);
+    void *_0sessionCount = mem2server((void *)sessionCount, sizeof(*sessionCount));
+    void *_0sessionInfo = mem2server((void *)sessionInfo, sizeof(*sessionInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3330,24 +2544,24 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, 0);
-    mem2client((void *)sessionInfo, 0);
+    mem2client((void *)sessionCount, sizeof(*sessionCount));
+    mem2client((void *)sessionInfo, sizeof(*sessionInfo));
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverModel_t *current, nvmlDriverModel_t *pending) {
+extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriverModel_t *current, nvmlDriverModel_t *pending) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetDriverModel_v2 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetDriverModel called" << std::endl;
 #endif
-    void *_0current = mem2server((void *)current, 0);
-    void *_0pending = mem2server((void *)pending, 0);
+    void *_0current = mem2server((void *)current, sizeof(*current));
+    void *_0pending = mem2server((void *)pending, sizeof(*pending));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetDriverModel_v2);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetDriverModel);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &_0current, sizeof(_0current));
     rpc_write(client, &_0pending, sizeof(_0pending));
@@ -3358,8 +2572,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDri
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)current, 0);
-    mem2client((void *)pending, 0);
+    mem2client((void *)current, sizeof(*current));
+    mem2client((void *)pending, sizeof(*pending));
     return _result;
 }
 
@@ -3391,7 +2605,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetBridgeChipInfo called" << std::endl;
 #endif
-    void *_0bridgeHierarchy = mem2server((void *)bridgeHierarchy, 0);
+    void *_0bridgeHierarchy = mem2server((void *)bridgeHierarchy, sizeof(*bridgeHierarchy));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3408,23 +2622,23 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)bridgeHierarchy, 0);
+    mem2client((void *)bridgeHierarchy, sizeof(*bridgeHierarchy));
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetComputeRunningProcesses_v3 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetComputeRunningProcesses_v2 called" << std::endl;
 #endif
-    void *_0infoCount = mem2server((void *)infoCount, 0);
-    void *_0infos = mem2server((void *)infos, 0);
+    void *_0infoCount = mem2server((void *)infoCount, sizeof(*infoCount));
+    void *_0infos = mem2server((void *)infos, sizeof(*infos));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetComputeRunningProcesses_v3);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetComputeRunningProcesses_v2);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &_0infoCount, sizeof(_0infoCount));
     rpc_write(client, &_0infos, sizeof(_0infos));
@@ -3435,24 +2649,24 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t dev
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)infoCount, 0);
-    mem2client((void *)infos, 0);
+    mem2client((void *)infoCount, sizeof(*infoCount));
+    mem2client((void *)infos, sizeof(*infos));
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGraphicsRunningProcesses_v3 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetGraphicsRunningProcesses_v2 called" << std::endl;
 #endif
-    void *_0infoCount = mem2server((void *)infoCount, 0);
-    void *_0infos = mem2server((void *)infos, 0);
+    void *_0infoCount = mem2server((void *)infoCount, sizeof(*infoCount));
+    void *_0infos = mem2server((void *)infos, sizeof(*infos));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGraphicsRunningProcesses_v3);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetGraphicsRunningProcesses_v2);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &_0infoCount, sizeof(_0infoCount));
     rpc_write(client, &_0infos, sizeof(_0infos));
@@ -3463,24 +2677,24 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t de
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)infoCount, 0);
-    mem2client((void *)infos, 0);
+    mem2client((void *)infoCount, sizeof(*infoCount));
+    mem2client((void *)infos, sizeof(*infos));
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMPSComputeRunningProcesses_v3 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetMPSComputeRunningProcesses_v2 called" << std::endl;
 #endif
-    void *_0infoCount = mem2server((void *)infoCount, 0);
-    void *_0infos = mem2server((void *)infos, 0);
+    void *_0infoCount = mem2server((void *)infoCount, sizeof(*infoCount));
+    void *_0infos = mem2server((void *)infos, sizeof(*infos));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMPSComputeRunningProcesses_v3);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetMPSComputeRunningProcesses_v2);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &_0infoCount, sizeof(_0infoCount));
     rpc_write(client, &_0infos, sizeof(_0infos));
@@ -3491,33 +2705,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)infoCount, 0);
-    mem2client((void *)infos, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t *plist) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetRunningProcessDetailList called" << std::endl;
-#endif
-    void *_0plist = mem2server((void *)plist, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetRunningProcessDetailList);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0plist, sizeof(_0plist));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)plist, 0);
+    mem2client((void *)infoCount, sizeof(*infoCount));
+    mem2client((void *)infos, sizeof(*infos));
     return _result;
 }
 
@@ -3525,7 +2714,7 @@ extern "C" nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceOnSameBoard called" << std::endl;
 #endif
-    void *_0onSameBoard = mem2server((void *)onSameBoard, 0);
+    void *_0onSameBoard = mem2server((void *)onSameBoard, sizeof(*onSameBoard));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3543,7 +2732,7 @@ extern "C" nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)onSameBoard, 0);
+    mem2client((void *)onSameBoard, sizeof(*onSameBoard));
     return _result;
 }
 
@@ -3551,7 +2740,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRes
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAPIRestriction called" << std::endl;
 #endif
-    void *_0isRestricted = mem2server((void *)isRestricted, 0);
+    void *_0isRestricted = mem2server((void *)isRestricted, sizeof(*isRestricted));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3569,7 +2758,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRes
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)isRestricted, 0);
+    mem2client((void *)isRestricted, sizeof(*isRestricted));
     return _result;
 }
 
@@ -3577,9 +2766,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingTy
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetSamples called" << std::endl;
 #endif
-    void *_0sampleValType = mem2server((void *)sampleValType, 0);
-    void *_0sampleCount = mem2server((void *)sampleCount, 0);
-    void *_0samples = mem2server((void *)samples, 0);
+    void *_0sampleValType = mem2server((void *)sampleValType, sizeof(*sampleValType));
+    void *_0sampleCount = mem2server((void *)sampleCount, sizeof(*sampleCount));
+    void *_0samples = mem2server((void *)samples, sizeof(*samples));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3600,9 +2789,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingTy
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sampleValType, 0);
-    mem2client((void *)sampleCount, 0);
-    mem2client((void *)samples, 0);
+    mem2client((void *)sampleValType, sizeof(*sampleValType));
+    mem2client((void *)sampleCount, sizeof(*sampleCount));
+    mem2client((void *)samples, sizeof(*samples));
     return _result;
 }
 
@@ -3610,7 +2799,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetBAR1MemoryInfo called" << std::endl;
 #endif
-    void *_0bar1Memory = mem2server((void *)bar1Memory, 0);
+    void *_0bar1Memory = mem2server((void *)bar1Memory, sizeof(*bar1Memory));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3627,7 +2816,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)bar1Memory, 0);
+    mem2client((void *)bar1Memory, sizeof(*bar1Memory));
     return _result;
 }
 
@@ -3635,7 +2824,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetViolationStatus called" << std::endl;
 #endif
-    void *_0violTime = mem2server((void *)violTime, 0);
+    void *_0violTime = mem2server((void *)violTime, sizeof(*violTime));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3653,622 +2842,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)violTime, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetIrqNum(nvmlDevice_t device, unsigned int *irqNum) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetIrqNum called" << std::endl;
-#endif
-    void *_0irqNum = mem2server((void *)irqNum, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetIrqNum);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0irqNum, sizeof(_0irqNum));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)irqNum, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetNumGpuCores(nvmlDevice_t device, unsigned int *numCores) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetNumGpuCores called" << std::endl;
-#endif
-    void *_0numCores = mem2server((void *)numCores, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetNumGpuCores);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0numCores, sizeof(_0numCores));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)numCores, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetPowerSource(nvmlDevice_t device, nvmlPowerSource_t *powerSource) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetPowerSource called" << std::endl;
-#endif
-    void *_0powerSource = mem2server((void *)powerSource, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetPowerSource);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0powerSource, sizeof(_0powerSource));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)powerSource, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetMemoryBusWidth(nvmlDevice_t device, unsigned int *busWidth) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMemoryBusWidth called" << std::endl;
-#endif
-    void *_0busWidth = mem2server((void *)busWidth, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetMemoryBusWidth);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0busWidth, sizeof(_0busWidth));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)busWidth, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetPcieLinkMaxSpeed(nvmlDevice_t device, unsigned int *maxSpeed) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetPcieLinkMaxSpeed called" << std::endl;
-#endif
-    void *_0maxSpeed = mem2server((void *)maxSpeed, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetPcieLinkMaxSpeed);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0maxSpeed, sizeof(_0maxSpeed));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)maxSpeed, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetPcieSpeed(nvmlDevice_t device, unsigned int *pcieSpeed) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetPcieSpeed called" << std::endl;
-#endif
-    void *_0pcieSpeed = mem2server((void *)pcieSpeed, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetPcieSpeed);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pcieSpeed, sizeof(_0pcieSpeed));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pcieSpeed, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetAdaptiveClockInfoStatus(nvmlDevice_t device, unsigned int *adaptiveClockStatus) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetAdaptiveClockInfoStatus called" << std::endl;
-#endif
-    void *_0adaptiveClockStatus = mem2server((void *)adaptiveClockStatus, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetAdaptiveClockInfoStatus);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0adaptiveClockStatus, sizeof(_0adaptiveClockStatus));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)adaptiveClockStatus, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetBusType(nvmlDevice_t device, nvmlBusType_t *type) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetBusType called" << std::endl;
-#endif
-    void *_0type = mem2server((void *)type, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetBusType);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0type, sizeof(_0type));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)type, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGpuFabricInfo(nvmlDevice_t device, nvmlGpuFabricInfo_t *gpuFabricInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGpuFabricInfo called" << std::endl;
-#endif
-    void *_0gpuFabricInfo = mem2server((void *)gpuFabricInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGpuFabricInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0gpuFabricInfo, sizeof(_0gpuFabricInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gpuFabricInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabricInfoV_t *gpuFabricInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGpuFabricInfoV called" << std::endl;
-#endif
-    void *_0gpuFabricInfo = mem2server((void *)gpuFabricInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGpuFabricInfoV);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0gpuFabricInfo, sizeof(_0gpuFabricInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gpuFabricInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetConfComputeCapabilities(nvmlConfComputeSystemCaps_t *capabilities) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetConfComputeCapabilities called" << std::endl;
-#endif
-    void *_0capabilities = mem2server((void *)capabilities, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetConfComputeCapabilities);
-    rpc_write(client, &_0capabilities, sizeof(_0capabilities));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)capabilities, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetConfComputeState(nvmlConfComputeSystemState_t *state) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetConfComputeState called" << std::endl;
-#endif
-    void *_0state = mem2server((void *)state, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetConfComputeState);
-    rpc_write(client, &_0state, sizeof(_0state));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)state, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetConfComputeMemSizeInfo(nvmlDevice_t device, nvmlConfComputeMemSizeInfo_t *memInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetConfComputeMemSizeInfo called" << std::endl;
-#endif
-    void *_0memInfo = mem2server((void *)memInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetConfComputeMemSizeInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0memInfo, sizeof(_0memInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)memInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetConfComputeGpusReadyState(unsigned int *isAcceptingWork) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetConfComputeGpusReadyState called" << std::endl;
-#endif
-    void *_0isAcceptingWork = mem2server((void *)isAcceptingWork, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetConfComputeGpusReadyState);
-    rpc_write(client, &_0isAcceptingWork, sizeof(_0isAcceptingWork));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)isAcceptingWork, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetConfComputeProtectedMemoryUsage(nvmlDevice_t device, nvmlMemory_t *memory) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetConfComputeProtectedMemoryUsage called" << std::endl;
-#endif
-    void *_0memory = mem2server((void *)memory, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetConfComputeProtectedMemoryUsage);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0memory, sizeof(_0memory));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)memory, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetConfComputeGpuCertificate(nvmlDevice_t device, nvmlConfComputeGpuCertificate_t *gpuCert) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetConfComputeGpuCertificate called" << std::endl;
-#endif
-    void *_0gpuCert = mem2server((void *)gpuCert, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetConfComputeGpuCertificate);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0gpuCert, sizeof(_0gpuCert));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gpuCert, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetConfComputeGpuAttestationReport(nvmlDevice_t device, nvmlConfComputeGpuAttestationReport_t *gpuAtstReport) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetConfComputeGpuAttestationReport called" << std::endl;
-#endif
-    void *_0gpuAtstReport = mem2server((void *)gpuAtstReport, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetConfComputeGpuAttestationReport);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0gpuAtstReport, sizeof(_0gpuAtstReport));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gpuAtstReport, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetConfComputeKeyRotationThresholdInfo(nvmlConfComputeGetKeyRotationThresholdInfo_t *pKeyRotationThrInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetConfComputeKeyRotationThresholdInfo called" << std::endl;
-#endif
-    void *_0pKeyRotationThrInfo = mem2server((void *)pKeyRotationThrInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetConfComputeKeyRotationThresholdInfo);
-    rpc_write(client, &_0pKeyRotationThrInfo, sizeof(_0pKeyRotationThrInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pKeyRotationThrInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetConfComputeUnprotectedMemSize(nvmlDevice_t device, unsigned long long sizeKiB) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetConfComputeUnprotectedMemSize called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetConfComputeUnprotectedMemSize);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &sizeKiB, sizeof(sizeKiB));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemSetConfComputeGpusReadyState(unsigned int isAcceptingWork) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemSetConfComputeGpusReadyState called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemSetConfComputeGpusReadyState);
-    rpc_write(client, &isAcceptingWork, sizeof(isAcceptingWork));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemSetConfComputeKeyRotationThresholdInfo(nvmlConfComputeSetKeyRotationThresholdInfo_t *pKeyRotationThrInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemSetConfComputeKeyRotationThresholdInfo called" << std::endl;
-#endif
-    void *_0pKeyRotationThrInfo = mem2server((void *)pKeyRotationThrInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemSetConfComputeKeyRotationThresholdInfo);
-    rpc_write(client, &_0pKeyRotationThrInfo, sizeof(_0pKeyRotationThrInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pKeyRotationThrInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetConfComputeSettings(nvmlSystemConfComputeSettings_t *settings) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetConfComputeSettings called" << std::endl;
-#endif
-    void *_0settings = mem2server((void *)settings, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetConfComputeSettings);
-    rpc_write(client, &_0settings, sizeof(_0settings));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)settings, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char *version) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGspFirmwareVersion called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGspFirmwareVersion);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, version, 32, true);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int *isEnabled, unsigned int *defaultMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGspFirmwareMode called" << std::endl;
-#endif
-    void *_0isEnabled = mem2server((void *)isEnabled, 0);
-    void *_0defaultMode = mem2server((void *)defaultMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGspFirmwareMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0isEnabled, sizeof(_0isEnabled));
-    rpc_write(client, &_0defaultMode, sizeof(_0defaultMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)isEnabled, 0);
-    mem2client((void *)defaultMode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t *status) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetSramEccErrorStatus called" << std::endl;
-#endif
-    void *_0status = mem2server((void *)status, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetSramEccErrorStatus);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0status, sizeof(_0status));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)status, 0);
+    mem2client((void *)violTime, sizeof(*violTime));
     return _result;
 }
 
@@ -4276,7 +2850,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEna
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAccountingMode called" << std::endl;
 #endif
-    void *_0mode = mem2server((void *)mode, 0);
+    void *_0mode = mem2server((void *)mode, sizeof(*mode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4293,7 +2867,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEna
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)mode, 0);
+    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -4301,7 +2875,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsign
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAccountingStats called" << std::endl;
 #endif
-    void *_0stats = mem2server((void *)stats, 0);
+    void *_0stats = mem2server((void *)stats, sizeof(*stats));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4319,7 +2893,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsign
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)stats, 0);
+    mem2client((void *)stats, sizeof(*stats));
     return _result;
 }
 
@@ -4327,8 +2901,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigne
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAccountingPids called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
-    void *_0pids = mem2server((void *)pids, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
+    void *_0pids = mem2server((void *)pids, sizeof(*pids));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4346,8 +2920,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
-    mem2client((void *)pids, 0);
+    mem2client((void *)count, sizeof(*count));
+    mem2client((void *)pids, sizeof(*pids));
     return _result;
 }
 
@@ -4355,7 +2929,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, u
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetAccountingBufferSize called" << std::endl;
 #endif
-    void *_0bufferSize = mem2server((void *)bufferSize, 0);
+    void *_0bufferSize = mem2server((void *)bufferSize, sizeof(*bufferSize));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4372,7 +2946,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)bufferSize, 0);
+    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -4380,8 +2954,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageR
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetRetiredPages called" << std::endl;
 #endif
-    void *_0pageCount = mem2server((void *)pageCount, 0);
-    void *_0addresses = mem2server((void *)addresses, 0);
+    void *_0pageCount = mem2server((void *)pageCount, sizeof(*pageCount));
+    void *_0addresses = mem2server((void *)addresses, sizeof(*addresses));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4400,8 +2974,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageR
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pageCount, 0);
-    mem2client((void *)addresses, 0);
+    mem2client((void *)pageCount, sizeof(*pageCount));
+    mem2client((void *)addresses, sizeof(*addresses));
     return _result;
 }
 
@@ -4409,9 +2983,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPa
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetRetiredPages_v2 called" << std::endl;
 #endif
-    void *_0pageCount = mem2server((void *)pageCount, 0);
-    void *_0addresses = mem2server((void *)addresses, 0);
-    void *_0timestamps = mem2server((void *)timestamps, 0);
+    void *_0pageCount = mem2server((void *)pageCount, sizeof(*pageCount));
+    void *_0addresses = mem2server((void *)addresses, sizeof(*addresses));
+    void *_0timestamps = mem2server((void *)timestamps, sizeof(*timestamps));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4431,9 +3005,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPa
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pageCount, 0);
-    mem2client((void *)addresses, 0);
-    mem2client((void *)timestamps, 0);
+    mem2client((void *)pageCount, sizeof(*pageCount));
+    mem2client((void *)addresses, sizeof(*addresses));
+    mem2client((void *)timestamps, sizeof(*timestamps));
     return _result;
 }
 
@@ -4441,7 +3015,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t devi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetRetiredPagesPendingStatus called" << std::endl;
 #endif
-    void *_0isPending = mem2server((void *)isPending, 0);
+    void *_0isPending = mem2server((void *)isPending, sizeof(*isPending));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4458,7 +3032,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t devi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)isPending, 0);
+    mem2client((void *)isPending, sizeof(*isPending));
     return _result;
 }
 
@@ -4466,10 +3040,10 @@ extern "C" nvmlReturn_t nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetRemappedRows called" << std::endl;
 #endif
-    void *_0corrRows = mem2server((void *)corrRows, 0);
-    void *_0uncRows = mem2server((void *)uncRows, 0);
-    void *_0isPending = mem2server((void *)isPending, 0);
-    void *_0failureOccurred = mem2server((void *)failureOccurred, 0);
+    void *_0corrRows = mem2server((void *)corrRows, sizeof(*corrRows));
+    void *_0uncRows = mem2server((void *)uncRows, sizeof(*uncRows));
+    void *_0isPending = mem2server((void *)isPending, sizeof(*isPending));
+    void *_0failureOccurred = mem2server((void *)failureOccurred, sizeof(*failureOccurred));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4489,10 +3063,10 @@ extern "C" nvmlReturn_t nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)corrRows, 0);
-    mem2client((void *)uncRows, 0);
-    mem2client((void *)isPending, 0);
-    mem2client((void *)failureOccurred, 0);
+    mem2client((void *)corrRows, sizeof(*corrRows));
+    mem2client((void *)uncRows, sizeof(*uncRows));
+    mem2client((void *)isPending, sizeof(*isPending));
+    mem2client((void *)failureOccurred, sizeof(*failureOccurred));
     return _result;
 }
 
@@ -4500,7 +3074,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, n
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetRowRemapperHistogram called" << std::endl;
 #endif
-    void *_0values = mem2server((void *)values, 0);
+    void *_0values = mem2server((void *)values, sizeof(*values));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4517,7 +3091,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, n
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)values, 0);
+    mem2client((void *)values, sizeof(*values));
     return _result;
 }
 
@@ -4525,7 +3099,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetArchitecture called" << std::endl;
 #endif
-    void *_0arch = mem2server((void *)arch, 0);
+    void *_0arch = mem2server((void *)arch, sizeof(*arch));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -4542,111 +3116,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)arch, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStatus_t *status) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetClkMonStatus called" << std::endl;
-#endif
-    void *_0status = mem2server((void *)status, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetClkMonStatus);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0status, sizeof(_0status));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)status, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProcessUtilizationSample_t *utilization, unsigned int *processSamplesCount, unsigned long long lastSeenTimeStamp) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetProcessUtilization called" << std::endl;
-#endif
-    void *_0utilization = mem2server((void *)utilization, 0);
-    void *_0processSamplesCount = mem2server((void *)processSamplesCount, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetProcessUtilization);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0utilization, sizeof(_0utilization));
-    rpc_write(client, &_0processSamplesCount, sizeof(_0processSamplesCount));
-    rpc_write(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)utilization, 0);
-    mem2client((void *)processSamplesCount, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetProcessesUtilizationInfo(nvmlDevice_t device, nvmlProcessesUtilizationInfo_t *procesesUtilInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetProcessesUtilizationInfo called" << std::endl;
-#endif
-    void *_0procesesUtilInfo = mem2server((void *)procesesUtilInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetProcessesUtilizationInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0procesesUtilInfo, sizeof(_0procesesUtilInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)procesesUtilInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetPlatformInfo(nvmlDevice_t device, nvmlPlatformInfo_t *platformInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetPlatformInfo called" << std::endl;
-#endif
-    void *_0platformInfo = mem2server((void *)platformInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetPlatformInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0platformInfo, sizeof(_0platformInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)platformInfo, 0);
+    mem2client((void *)arch, sizeof(*arch));
     return _result;
 }
 
@@ -4905,18 +3375,20 @@ extern "C" nvmlReturn_t nvmlDeviceSetApplicationsClocks(nvmlDevice_t device, uns
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
+extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStatus_t *status) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceResetApplicationsClocks called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetClkMonStatus called" << std::endl;
 #endif
+    void *_0status = mem2server((void *)status, sizeof(*status));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceResetApplicationsClocks);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetClkMonStatus);
     rpc_write(client, &device, sizeof(device));
+    rpc_write(client, &_0status, sizeof(_0status));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4924,126 +3396,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
         exit(1);
     }
     rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetAutoBoostedClocksEnabled called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetAutoBoostedClocksEnabled);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &enabled, sizeof(enabled));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetDefaultAutoBoostedClocksEnabled called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetDefaultAutoBoostedClocksEnabled);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &enabled, sizeof(enabled));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetDefaultFanSpeed_v2(nvmlDevice_t device, unsigned int fan) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetDefaultFanSpeed_v2 called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetDefaultFanSpeed_v2);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &fan, sizeof(fan));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetFanControlPolicy(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t policy) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetFanControlPolicy called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetFanControlPolicy);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &fan, sizeof(fan));
-    rpc_write(client, &policy, sizeof(policy));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int *temp) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetTemperatureThreshold called" << std::endl;
-#endif
-    void *_0temp = mem2server((void *)temp, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetTemperatureThreshold);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &thresholdType, sizeof(thresholdType));
-    rpc_write(client, &_0temp, sizeof(_0temp));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)temp, 0);
+    mem2client((void *)status, sizeof(*status));
     return _result;
 }
 
@@ -5117,76 +3470,6 @@ extern "C" nvmlReturn_t nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRes
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceSetFanSpeed_v2(nvmlDevice_t device, unsigned int fan, unsigned int speed) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetFanSpeed_v2 called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetFanSpeed_v2);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &fan, sizeof(fan));
-    rpc_write(client, &speed, sizeof(speed));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetGpcClkVfOffset(nvmlDevice_t device, int offset) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetGpcClkVfOffset called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetGpcClkVfOffset);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetMemClkVfOffset(nvmlDevice_t device, int offset) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetMemClkVfOffset called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetMemClkVfOffset);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableState_t mode) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceSetAccountingMode called" << std::endl;
@@ -5232,36 +3515,11 @@ extern "C" nvmlReturn_t nvmlDeviceClearAccountingPids(nvmlDevice_t device) {
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvmlPowerValue_v2_t *powerValue) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetPowerManagementLimit_v2 called" << std::endl;
-#endif
-    void *_0powerValue = mem2server((void *)powerValue, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetPowerManagementLimit_v2);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0powerValue, sizeof(_0powerValue));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)powerValue, 0);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned int link, nvmlEnableState_t *isActive) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkState called" << std::endl;
 #endif
-    void *_0isActive = mem2server((void *)isActive, 0);
+    void *_0isActive = mem2server((void *)isActive, sizeof(*isActive));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5279,7 +3537,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned i
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)isActive, 0);
+    mem2client((void *)isActive, sizeof(*isActive));
     return _result;
 }
 
@@ -5287,7 +3545,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkVersion called" << std::endl;
 #endif
-    void *_0version = mem2server((void *)version, 0);
+    void *_0version = mem2server((void *)version, sizeof(*version));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5305,7 +3563,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)version, 0);
+    mem2client((void *)version, sizeof(*version));
     return _result;
 }
 
@@ -5313,7 +3571,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsig
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkCapability called" << std::endl;
 #endif
-    void *_0capResult = mem2server((void *)capResult, 0);
+    void *_0capResult = mem2server((void *)capResult, sizeof(*capResult));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5332,7 +3590,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsig
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)capResult, 0);
+    mem2client((void *)capResult, sizeof(*capResult));
     return _result;
 }
 
@@ -5340,7 +3598,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkRemotePciInfo_v2 called" << std::endl;
 #endif
-    void *_0pci = mem2server((void *)pci, 0);
+    void *_0pci = mem2server((void *)pci, sizeof(*pci));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5358,7 +3616,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pci, 0);
+    mem2client((void *)pci, sizeof(*pci));
     return _result;
 }
 
@@ -5366,7 +3624,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, uns
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkErrorCounter called" << std::endl;
 #endif
-    void *_0counterValue = mem2server((void *)counterValue, 0);
+    void *_0counterValue = mem2server((void *)counterValue, sizeof(*counterValue));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5385,7 +3643,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, uns
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)counterValue, 0);
+    mem2client((void *)counterValue, sizeof(*counterValue));
     return _result;
 }
 
@@ -5416,7 +3674,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetNvLinkUtilizationControl(nvmlDevice_t devic
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceSetNvLinkUtilizationControl called" << std::endl;
 #endif
-    void *_0control = mem2server((void *)control, 0);
+    void *_0control = mem2server((void *)control, sizeof(*control));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5436,7 +3694,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetNvLinkUtilizationControl(nvmlDevice_t devic
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)control, 0);
+    mem2client((void *)control, sizeof(*control));
     return _result;
 }
 
@@ -5444,7 +3702,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationControl(nvmlDevice_t devic
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkUtilizationControl called" << std::endl;
 #endif
-    void *_0control = mem2server((void *)control, 0);
+    void *_0control = mem2server((void *)control, sizeof(*control));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5463,7 +3721,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationControl(nvmlDevice_t devic
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)control, 0);
+    mem2client((void *)control, sizeof(*control));
     return _result;
 }
 
@@ -5471,8 +3729,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationCounter(nvmlDevice_t devic
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkUtilizationCounter called" << std::endl;
 #endif
-    void *_0rxcounter = mem2server((void *)rxcounter, 0);
-    void *_0txcounter = mem2server((void *)txcounter, 0);
+    void *_0rxcounter = mem2server((void *)rxcounter, sizeof(*rxcounter));
+    void *_0txcounter = mem2server((void *)txcounter, sizeof(*txcounter));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5492,8 +3750,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationCounter(nvmlDevice_t devic
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)rxcounter, 0);
-    mem2client((void *)txcounter, 0);
+    mem2client((void *)rxcounter, sizeof(*rxcounter));
+    mem2client((void *)txcounter, sizeof(*txcounter));
     return _result;
 }
 
@@ -5550,7 +3808,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetNvLinkRemoteDeviceType called" << std::endl;
 #endif
-    void *_0pNvLinkDeviceType = mem2server((void *)pNvLinkDeviceType, 0);
+    void *_0pNvLinkDeviceType = mem2server((void *)pNvLinkDeviceType, sizeof(*pNvLinkDeviceType));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5568,153 +3826,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pNvLinkDeviceType, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetNvLinkDeviceLowPowerThreshold(nvmlDevice_t device, nvmlNvLinkPowerThres_t *info) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetNvLinkDeviceLowPowerThreshold called" << std::endl;
-#endif
-    void *_0info = mem2server((void *)info, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetNvLinkDeviceLowPowerThreshold);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0info, sizeof(_0info));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)info, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemSetNvlinkBwMode(unsigned int nvlinkBwMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemSetNvlinkBwMode called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemSetNvlinkBwMode);
-    rpc_write(client, &nvlinkBwMode, sizeof(nvlinkBwMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlSystemGetNvlinkBwMode(unsigned int *nvlinkBwMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetNvlinkBwMode called" << std::endl;
-#endif
-    void *_0nvlinkBwMode = mem2server((void *)nvlinkBwMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlSystemGetNvlinkBwMode);
-    rpc_write(client, &_0nvlinkBwMode, sizeof(_0nvlinkBwMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)nvlinkBwMode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetNvlinkSupportedBwModes(nvmlDevice_t device, nvmlNvlinkSupportedBwModes_t *supportedBwMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetNvlinkSupportedBwModes called" << std::endl;
-#endif
-    void *_0supportedBwMode = mem2server((void *)supportedBwMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetNvlinkSupportedBwModes);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0supportedBwMode, sizeof(_0supportedBwMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)supportedBwMode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkGetBwMode_t *getBwMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetNvlinkBwMode called" << std::endl;
-#endif
-    void *_0getBwMode = mem2server((void *)getBwMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetNvlinkBwMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0getBwMode, sizeof(_0getBwMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)getBwMode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkSetBwMode_t *setBwMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetNvlinkBwMode called" << std::endl;
-#endif
-    void *_0setBwMode = mem2server((void *)setBwMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetNvlinkBwMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0setBwMode, sizeof(_0setBwMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)setBwMode, 0);
+    mem2client((void *)pNvLinkDeviceType, sizeof(*pNvLinkDeviceType));
     return _result;
 }
 
@@ -5722,7 +3834,7 @@ extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlEventSetCreate called" << std::endl;
 #endif
-    void *_0set = mem2server((void *)set, 0);
+    void *_0set = mem2server((void *)set, sizeof(*set));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5738,7 +3850,7 @@ extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)set, 0);
+    mem2client((void *)set, sizeof(*set));
     return _result;
 }
 
@@ -5770,7 +3882,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, un
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetSupportedEventTypes called" << std::endl;
 #endif
-    void *_0eventTypes = mem2server((void *)eventTypes, 0);
+    void *_0eventTypes = mem2server((void *)eventTypes, sizeof(*eventTypes));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5787,7 +3899,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, un
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)eventTypes, 0);
+    mem2client((void *)eventTypes, sizeof(*eventTypes));
     return _result;
 }
 
@@ -5795,7 +3907,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
 #ifdef DEBUG
     std::cout << "Hook: nvmlEventSetWait_v2 called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, 0);
+    void *_0data = mem2server((void *)data, sizeof(*data));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5813,7 +3925,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)data, 0);
+    mem2client((void *)data, sizeof(*data));
     return _result;
 }
 
@@ -5843,7 +3955,7 @@ extern "C" nvmlReturn_t nvmlDeviceModifyDrainState(nvmlPciInfo_t *pciInfo, nvmlE
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceModifyDrainState called" << std::endl;
 #endif
-    void *_0pciInfo = mem2server((void *)pciInfo, 0);
+    void *_0pciInfo = mem2server((void *)pciInfo, sizeof(*pciInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5860,7 +3972,7 @@ extern "C" nvmlReturn_t nvmlDeviceModifyDrainState(nvmlPciInfo_t *pciInfo, nvmlE
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, 0);
+    mem2client((void *)pciInfo, sizeof(*pciInfo));
     return _result;
 }
 
@@ -5868,8 +3980,8 @@ extern "C" nvmlReturn_t nvmlDeviceQueryDrainState(nvmlPciInfo_t *pciInfo, nvmlEn
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceQueryDrainState called" << std::endl;
 #endif
-    void *_0pciInfo = mem2server((void *)pciInfo, 0);
-    void *_0currentState = mem2server((void *)currentState, 0);
+    void *_0pciInfo = mem2server((void *)pciInfo, sizeof(*pciInfo));
+    void *_0currentState = mem2server((void *)currentState, sizeof(*currentState));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5886,8 +3998,8 @@ extern "C" nvmlReturn_t nvmlDeviceQueryDrainState(nvmlPciInfo_t *pciInfo, nvmlEn
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, 0);
-    mem2client((void *)currentState, 0);
+    mem2client((void *)pciInfo, sizeof(*pciInfo));
+    mem2client((void *)currentState, sizeof(*currentState));
     return _result;
 }
 
@@ -5895,7 +4007,7 @@ extern "C" nvmlReturn_t nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t *pciInfo, nvmlDetac
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceRemoveGpu_v2 called" << std::endl;
 #endif
-    void *_0pciInfo = mem2server((void *)pciInfo, 0);
+    void *_0pciInfo = mem2server((void *)pciInfo, sizeof(*pciInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5913,7 +4025,7 @@ extern "C" nvmlReturn_t nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t *pciInfo, nvmlDetac
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, 0);
+    mem2client((void *)pciInfo, sizeof(*pciInfo));
     return _result;
 }
 
@@ -5921,7 +4033,7 @@ extern "C" nvmlReturn_t nvmlDeviceDiscoverGpus(nvmlPciInfo_t *pciInfo) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceDiscoverGpus called" << std::endl;
 #endif
-    void *_0pciInfo = mem2server((void *)pciInfo, 0);
+    void *_0pciInfo = mem2server((void *)pciInfo, sizeof(*pciInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5937,7 +4049,7 @@ extern "C" nvmlReturn_t nvmlDeviceDiscoverGpus(nvmlPciInfo_t *pciInfo) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, 0);
+    mem2client((void *)pciInfo, sizeof(*pciInfo));
     return _result;
 }
 
@@ -5945,7 +4057,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFieldValues called" << std::endl;
 #endif
-    void *_0values = mem2server((void *)values, 0);
+    void *_0values = mem2server((void *)values, sizeof(*values));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5963,33 +4075,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)values, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceClearFieldValues(nvmlDevice_t device, int valuesCount, nvmlFieldValue_t *values) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceClearFieldValues called" << std::endl;
-#endif
-    void *_0values = mem2server((void *)values, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceClearFieldValues);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &valuesCount, sizeof(valuesCount));
-    rpc_write(client, &_0values, sizeof(_0values));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)values, 0);
+    mem2client((void *)values, sizeof(*values));
     return _result;
 }
 
@@ -5997,7 +4083,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvm
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetVirtualizationMode called" << std::endl;
 #endif
-    void *_0pVirtualMode = mem2server((void *)pVirtualMode, 0);
+    void *_0pVirtualMode = mem2server((void *)pVirtualMode, sizeof(*pVirtualMode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6014,7 +4100,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvm
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pVirtualMode, 0);
+    mem2client((void *)pVirtualMode, sizeof(*pVirtualMode));
     return _result;
 }
 
@@ -6022,7 +4108,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostV
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetHostVgpuMode called" << std::endl;
 #endif
-    void *_0pHostVgpuMode = mem2server((void *)pHostVgpuMode, 0);
+    void *_0pHostVgpuMode = mem2server((void *)pHostVgpuMode, sizeof(*pHostVgpuMode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6039,7 +4125,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostV
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pHostVgpuMode, 0);
+    mem2client((void *)pHostVgpuMode, sizeof(*pHostVgpuMode));
     return _result;
 }
 
@@ -6066,244 +4152,18 @@ extern "C" nvmlReturn_t nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvm
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) {
+extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t device, nvmlGridLicensableFeatures_t *pGridLicensableFeatures) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuHeterogeneousMode called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetGridLicensableFeatures_v3 called" << std::endl;
 #endif
-    void *_0pHeterogeneousMode = mem2server((void *)pHeterogeneousMode, 0);
+    void *_0pGridLicensableFeatures = mem2server((void *)pGridLicensableFeatures, sizeof(*pGridLicensableFeatures));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuHeterogeneousMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pHeterogeneousMode, sizeof(_0pHeterogeneousMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pHeterogeneousMode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetVgpuHeterogeneousMode called" << std::endl;
-#endif
-    void *_0pHeterogeneousMode = mem2server((void *)pHeterogeneousMode, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetVgpuHeterogeneousMode);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pHeterogeneousMode, sizeof(_0pHeterogeneousMode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pHeterogeneousMode, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuInstanceGetPlacementId(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuPlacementId_t *pPlacement) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuInstanceGetPlacementId called" << std::endl;
-#endif
-    void *_0pPlacement = mem2server((void *)pPlacement, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetPlacementId);
-    rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_write(client, &_0pPlacement, sizeof(_0pPlacement));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pPlacement, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuTypeSupportedPlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t *pPlacementList) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuTypeSupportedPlacements called" << std::endl;
-#endif
-    void *_0pPlacementList = mem2server((void *)pPlacementList, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuTypeSupportedPlacements);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_write(client, &_0pPlacementList, sizeof(_0pPlacementList));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pPlacementList, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t *pPlacementList) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuTypeCreatablePlacements called" << std::endl;
-#endif
-    void *_0pPlacementList = mem2server((void *)pPlacementList, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuTypeCreatablePlacements);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_write(client, &_0pPlacementList, sizeof(_0pPlacementList));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pPlacementList, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuTypeGetGspHeapSize(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long *gspHeapSize) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuTypeGetGspHeapSize called" << std::endl;
-#endif
-    void *_0gspHeapSize = mem2server((void *)gspHeapSize, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuTypeGetGspHeapSize);
-    rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_write(client, &_0gspHeapSize, sizeof(_0gspHeapSize));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gspHeapSize, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuTypeGetFbReservation(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long *fbReservation) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuTypeGetFbReservation called" << std::endl;
-#endif
-    void *_0fbReservation = mem2server((void *)fbReservation, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuTypeGetFbReservation);
-    rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_write(client, &_0fbReservation, sizeof(_0fbReservation));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)fbReservation, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuInstanceGetRuntimeStateSize(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuRuntimeState_t *pState) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuInstanceGetRuntimeStateSize called" << std::endl;
-#endif
-    void *_0pState = mem2server((void *)pState, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetRuntimeStateSize);
-    rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_write(client, &_0pState, sizeof(_0pState));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pState, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, nvmlEnableState_t state) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetVgpuCapabilities called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetVgpuCapabilities);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &capability, sizeof(capability));
-    rpc_write(client, &state, sizeof(state));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v4(nvmlDevice_t device, nvmlGridLicensableFeatures_t *pGridLicensableFeatures) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGridLicensableFeatures_v4 called" << std::endl;
-#endif
-    void *_0pGridLicensableFeatures = mem2server((void *)pGridLicensableFeatures, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGridLicensableFeatures_v4);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetGridLicensableFeatures_v3);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &_0pGridLicensableFeatures, sizeof(_0pGridLicensableFeatures));
     rpc_read(client, &_result, sizeof(_result));
@@ -6313,50 +4173,27 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v4(nvmlDevice_t devi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pGridLicensableFeatures, 0);
+    mem2client((void *)pGridLicensableFeatures, sizeof(*pGridLicensableFeatures));
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlGetVgpuDriverCapabilities(nvmlVgpuDriverCapability_t capability, unsigned int *capResult) {
+extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProcessUtilizationSample_t *utilization, unsigned int *processSamplesCount, unsigned long long lastSeenTimeStamp) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlGetVgpuDriverCapabilities called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetProcessUtilization called" << std::endl;
 #endif
-    void *_0capResult = mem2server((void *)capResult, 0);
+    void *_0utilization = mem2server((void *)utilization, sizeof(*utilization));
+    void *_0processSamplesCount = mem2server((void *)processSamplesCount, sizeof(*processSamplesCount));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_nvmlGetVgpuDriverCapabilities);
-    rpc_write(client, &capability, sizeof(capability));
-    rpc_write(client, &_0capResult, sizeof(_0capResult));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)capResult, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, unsigned int *capResult) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuCapabilities called" << std::endl;
-#endif
-    void *_0capResult = mem2server((void *)capResult, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuCapabilities);
+    rpc_prepare_request(client, RPC_nvmlDeviceGetProcessUtilization);
     rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &capability, sizeof(capability));
-    rpc_write(client, &_0capResult, sizeof(_0capResult));
+    rpc_write(client, &_0utilization, sizeof(_0utilization));
+    rpc_write(client, &_0processSamplesCount, sizeof(_0processSamplesCount));
+    rpc_write(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6364,7 +4201,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlD
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)capResult, 0);
+    mem2client((void *)utilization, sizeof(*utilization));
+    mem2client((void *)processSamplesCount, sizeof(*processSamplesCount));
     return _result;
 }
 
@@ -6372,8 +4210,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigne
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetSupportedVgpus called" << std::endl;
 #endif
-    void *_0vgpuCount = mem2server((void *)vgpuCount, 0);
-    void *_0vgpuTypeIds = mem2server((void *)vgpuTypeIds, 0);
+    void *_0vgpuCount = mem2server((void *)vgpuCount, sizeof(*vgpuCount));
+    void *_0vgpuTypeIds = mem2server((void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6391,8 +4229,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuCount, 0);
-    mem2client((void *)vgpuTypeIds, 0);
+    mem2client((void *)vgpuCount, sizeof(*vgpuCount));
+    mem2client((void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
     return _result;
 }
 
@@ -6400,8 +4238,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigne
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCreatableVgpus called" << std::endl;
 #endif
-    void *_0vgpuCount = mem2server((void *)vgpuCount, 0);
-    void *_0vgpuTypeIds = mem2server((void *)vgpuTypeIds, 0);
+    void *_0vgpuCount = mem2server((void *)vgpuCount, sizeof(*vgpuCount));
+    void *_0vgpuTypeIds = mem2server((void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6419,8 +4257,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuCount, 0);
-    mem2client((void *)vgpuTypeIds, 0);
+    mem2client((void *)vgpuCount, sizeof(*vgpuCount));
+    mem2client((void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
     return _result;
 }
 
@@ -6428,7 +4266,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetClass called" << std::endl;
 #endif
-    void *_0size = mem2server((void *)size, 0);
+    void *_0size = mem2server((void *)size, sizeof(*size));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6446,7 +4284,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)size, 0);
+    mem2client((void *)size, sizeof(*size));
     return _result;
 }
 
@@ -6454,7 +4292,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetName called" << std::endl;
 #endif
-    void *_0size = mem2server((void *)size, 0);
+    void *_0size = mem2server((void *)size, sizeof(*size));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6472,7 +4310,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)size, 0);
+    mem2client((void *)size, sizeof(*size));
     return _result;
 }
 
@@ -6480,7 +4318,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgp
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetGpuInstanceProfileId called" << std::endl;
 #endif
-    void *_0gpuInstanceProfileId = mem2server((void *)gpuInstanceProfileId, 0);
+    void *_0gpuInstanceProfileId = mem2server((void *)gpuInstanceProfileId, sizeof(*gpuInstanceProfileId));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6497,7 +4335,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)gpuInstanceProfileId, 0);
+    mem2client((void *)gpuInstanceProfileId, sizeof(*gpuInstanceProfileId));
     return _result;
 }
 
@@ -6505,8 +4343,8 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, uns
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetDeviceID called" << std::endl;
 #endif
-    void *_0deviceID = mem2server((void *)deviceID, 0);
-    void *_0subsystemID = mem2server((void *)subsystemID, 0);
+    void *_0deviceID = mem2server((void *)deviceID, sizeof(*deviceID));
+    void *_0subsystemID = mem2server((void *)subsystemID, sizeof(*subsystemID));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6524,8 +4362,8 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, uns
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)deviceID, 0);
-    mem2client((void *)subsystemID, 0);
+    mem2client((void *)deviceID, sizeof(*deviceID));
+    mem2client((void *)subsystemID, sizeof(*subsystemID));
     return _result;
 }
 
@@ -6533,7 +4371,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuType
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetFramebufferSize called" << std::endl;
 #endif
-    void *_0fbSize = mem2server((void *)fbSize, 0);
+    void *_0fbSize = mem2server((void *)fbSize, sizeof(*fbSize));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6550,7 +4388,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuType
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)fbSize, 0);
+    mem2client((void *)fbSize, sizeof(*fbSize));
     return _result;
 }
 
@@ -6558,7 +4396,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuType
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetNumDisplayHeads called" << std::endl;
 #endif
-    void *_0numDisplayHeads = mem2server((void *)numDisplayHeads, 0);
+    void *_0numDisplayHeads = mem2server((void *)numDisplayHeads, sizeof(*numDisplayHeads));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6575,7 +4413,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuType
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)numDisplayHeads, 0);
+    mem2client((void *)numDisplayHeads, sizeof(*numDisplayHeads));
     return _result;
 }
 
@@ -6583,8 +4421,8 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, u
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetResolution called" << std::endl;
 #endif
-    void *_0xdim = mem2server((void *)xdim, 0);
-    void *_0ydim = mem2server((void *)ydim, 0);
+    void *_0xdim = mem2server((void *)xdim, sizeof(*xdim));
+    void *_0ydim = mem2server((void *)ydim, sizeof(*ydim));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6603,8 +4441,8 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, u
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)xdim, 0);
-    mem2client((void *)ydim, 0);
+    mem2client((void *)xdim, sizeof(*xdim));
+    mem2client((void *)ydim, sizeof(*ydim));
     return _result;
 }
 
@@ -6636,7 +4474,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeI
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetFrameRateLimit called" << std::endl;
 #endif
-    void *_0frameRateLimit = mem2server((void *)frameRateLimit, 0);
+    void *_0frameRateLimit = mem2server((void *)frameRateLimit, sizeof(*frameRateLimit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6653,7 +4491,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeI
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)frameRateLimit, 0);
+    mem2client((void *)frameRateLimit, sizeof(*frameRateLimit));
     return _result;
 }
 
@@ -6661,7 +4499,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgp
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetMaxInstances called" << std::endl;
 #endif
-    void *_0vgpuInstanceCount = mem2server((void *)vgpuInstanceCount, 0);
+    void *_0vgpuInstanceCount = mem2server((void *)vgpuInstanceCount, sizeof(*vgpuInstanceCount));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6679,7 +4517,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuInstanceCount, 0);
+    mem2client((void *)vgpuInstanceCount, sizeof(*vgpuInstanceCount));
     return _result;
 }
 
@@ -6687,7 +4525,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuTypeGetMaxInstancesPerVm called" << std::endl;
 #endif
-    void *_0vgpuInstanceCountPerVm = mem2server((void *)vgpuInstanceCountPerVm, 0);
+    void *_0vgpuInstanceCountPerVm = mem2server((void *)vgpuInstanceCountPerVm, sizeof(*vgpuInstanceCountPerVm));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6704,32 +4542,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuInstanceCountPerVm, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuTypeGetBAR1Info(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuTypeBar1Info_t *bar1Info) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuTypeGetBAR1Info called" << std::endl;
-#endif
-    void *_0bar1Info = mem2server((void *)bar1Info, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuTypeGetBAR1Info);
-    rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_write(client, &_0bar1Info, sizeof(_0bar1Info));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)bar1Info, 0);
+    mem2client((void *)vgpuInstanceCountPerVm, sizeof(*vgpuInstanceCountPerVm));
     return _result;
 }
 
@@ -6737,8 +4550,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned i
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetActiveVgpus called" << std::endl;
 #endif
-    void *_0vgpuCount = mem2server((void *)vgpuCount, 0);
-    void *_0vgpuInstances = mem2server((void *)vgpuInstances, 0);
+    void *_0vgpuCount = mem2server((void *)vgpuCount, sizeof(*vgpuCount));
+    void *_0vgpuInstances = mem2server((void *)vgpuInstances, sizeof(*vgpuInstances));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6756,8 +4569,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned i
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuCount, 0);
-    mem2client((void *)vgpuInstances, 0);
+    mem2client((void *)vgpuCount, sizeof(*vgpuCount));
+    mem2client((void *)vgpuInstances, sizeof(*vgpuInstances));
     return _result;
 }
 
@@ -6765,7 +4578,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetVmID called" << std::endl;
 #endif
-    void *_0vmIdType = mem2server((void *)vmIdType, 0);
+    void *_0vmIdType = mem2server((void *)vmIdType, sizeof(*vmIdType));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6784,7 +4597,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vmIdType, 0);
+    mem2client((void *)vmIdType, sizeof(*vmIdType));
     return _result;
 }
 
@@ -6840,7 +4653,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstan
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetFbUsage called" << std::endl;
 #endif
-    void *_0fbUsage = mem2server((void *)fbUsage, 0);
+    void *_0fbUsage = mem2server((void *)fbUsage, sizeof(*fbUsage));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6857,7 +4670,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstan
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)fbUsage, 0);
+    mem2client((void *)fbUsage, sizeof(*fbUsage));
     return _result;
 }
 
@@ -6865,7 +4678,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpu
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetLicenseStatus called" << std::endl;
 #endif
-    void *_0licensed = mem2server((void *)licensed, 0);
+    void *_0licensed = mem2server((void *)licensed, sizeof(*licensed));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6882,7 +4695,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)licensed, 0);
+    mem2client((void *)licensed, sizeof(*licensed));
     return _result;
 }
 
@@ -6890,7 +4703,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance,
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetType called" << std::endl;
 #endif
-    void *_0vgpuTypeId = mem2server((void *)vgpuTypeId, 0);
+    void *_0vgpuTypeId = mem2server((void *)vgpuTypeId, sizeof(*vgpuTypeId));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6907,7 +4720,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuTypeId, 0);
+    mem2client((void *)vgpuTypeId, sizeof(*vgpuTypeId));
     return _result;
 }
 
@@ -6915,7 +4728,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgp
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetFrameRateLimit called" << std::endl;
 #endif
-    void *_0frameRateLimit = mem2server((void *)frameRateLimit, 0);
+    void *_0frameRateLimit = mem2server((void *)frameRateLimit, sizeof(*frameRateLimit));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6932,7 +4745,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)frameRateLimit, 0);
+    mem2client((void *)frameRateLimit, sizeof(*frameRateLimit));
     return _result;
 }
 
@@ -6940,7 +4753,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstan
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetEccMode called" << std::endl;
 #endif
-    void *_0eccMode = mem2server((void *)eccMode, 0);
+    void *_0eccMode = mem2server((void *)eccMode, sizeof(*eccMode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6957,7 +4770,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstan
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)eccMode, 0);
+    mem2client((void *)eccMode, sizeof(*eccMode));
     return _result;
 }
 
@@ -6965,7 +4778,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vg
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetEncoderCapacity called" << std::endl;
 #endif
-    void *_0encoderCapacity = mem2server((void *)encoderCapacity, 0);
+    void *_0encoderCapacity = mem2server((void *)encoderCapacity, sizeof(*encoderCapacity));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -6982,7 +4795,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vg
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)encoderCapacity, 0);
+    mem2client((void *)encoderCapacity, sizeof(*encoderCapacity));
     return _result;
 }
 
@@ -7013,9 +4826,9 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuI
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetEncoderStats called" << std::endl;
 #endif
-    void *_0sessionCount = mem2server((void *)sessionCount, 0);
-    void *_0averageFps = mem2server((void *)averageFps, 0);
-    void *_0averageLatency = mem2server((void *)averageLatency, 0);
+    void *_0sessionCount = mem2server((void *)sessionCount, sizeof(*sessionCount));
+    void *_0averageFps = mem2server((void *)averageFps, sizeof(*averageFps));
+    void *_0averageLatency = mem2server((void *)averageLatency, sizeof(*averageLatency));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7034,9 +4847,9 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuI
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, 0);
-    mem2client((void *)averageFps, 0);
-    mem2client((void *)averageLatency, 0);
+    mem2client((void *)sessionCount, sizeof(*sessionCount));
+    mem2client((void *)averageFps, sizeof(*averageFps));
+    mem2client((void *)averageLatency, sizeof(*averageLatency));
     return _result;
 }
 
@@ -7044,8 +4857,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vg
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetEncoderSessions called" << std::endl;
 #endif
-    void *_0sessionCount = mem2server((void *)sessionCount, 0);
-    void *_0sessionInfo = mem2server((void *)sessionInfo, 0);
+    void *_0sessionCount = mem2server((void *)sessionCount, sizeof(*sessionCount));
+    void *_0sessionInfo = mem2server((void *)sessionInfo, sizeof(*sessionInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7063,8 +4876,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vg
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, 0);
-    mem2client((void *)sessionInfo, 0);
+    mem2client((void *)sessionCount, sizeof(*sessionCount));
+    mem2client((void *)sessionInfo, sizeof(*sessionInfo));
     return _result;
 }
 
@@ -7072,7 +4885,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInsta
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetFBCStats called" << std::endl;
 #endif
-    void *_0fbcStats = mem2server((void *)fbcStats, 0);
+    void *_0fbcStats = mem2server((void *)fbcStats, sizeof(*fbcStats));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7089,7 +4902,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInsta
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)fbcStats, 0);
+    mem2client((void *)fbcStats, sizeof(*fbcStats));
     return _result;
 }
 
@@ -7097,8 +4910,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuIn
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetFBCSessions called" << std::endl;
 #endif
-    void *_0sessionCount = mem2server((void *)sessionCount, 0);
-    void *_0sessionInfo = mem2server((void *)sessionInfo, 0);
+    void *_0sessionCount = mem2server((void *)sessionCount, sizeof(*sessionCount));
+    void *_0sessionInfo = mem2server((void *)sessionInfo, sizeof(*sessionInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7116,8 +4929,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuIn
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, 0);
-    mem2client((void *)sessionInfo, 0);
+    mem2client((void *)sessionCount, sizeof(*sessionCount));
+    mem2client((void *)sessionInfo, sizeof(*sessionInfo));
     return _result;
 }
 
@@ -7125,7 +4938,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetGpuInstanceId called" << std::endl;
 #endif
-    void *_0gpuInstanceId = mem2server((void *)gpuInstanceId, 0);
+    void *_0gpuInstanceId = mem2server((void *)gpuInstanceId, sizeof(*gpuInstanceId));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7142,83 +4955,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)gpuInstanceId, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuPciId(nvmlVgpuInstance_t vgpuInstance, char *vgpuPciId, unsigned int *length) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuInstanceGetGpuPciId called" << std::endl;
-#endif
-    void *_0length = mem2server((void *)length, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetGpuPciId);
-    rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_read(client, vgpuPciId, *length, true);
-    rpc_write(client, &_0length, sizeof(_0length));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)length, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuTypeGetCapabilities(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuCapability_t capability, unsigned int *capResult) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuTypeGetCapabilities called" << std::endl;
-#endif
-    void *_0capResult = mem2server((void *)capResult, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuTypeGetCapabilities);
-    rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_write(client, &capability, sizeof(capability));
-    rpc_write(client, &_0capResult, sizeof(_0capResult));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)capResult, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, char *mdevUuid, unsigned int size) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuInstanceGetMdevUUID called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetMdevUUID);
-    rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_read(client, mdevUuid, size, true);
-    rpc_write(client, &size, sizeof(size));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
+    mem2client((void *)gpuInstanceId, sizeof(*gpuInstanceId));
     return _result;
 }
 
@@ -7226,8 +4963,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInsta
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetMetadata called" << std::endl;
 #endif
-    void *_0vgpuMetadata = mem2server((void *)vgpuMetadata, 0);
-    void *_0bufferSize = mem2server((void *)bufferSize, 0);
+    void *_0vgpuMetadata = mem2server((void *)vgpuMetadata, sizeof(*vgpuMetadata));
+    void *_0bufferSize = mem2server((void *)bufferSize, sizeof(*bufferSize));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7245,8 +4982,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInsta
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuMetadata, 0);
-    mem2client((void *)bufferSize, 0);
+    mem2client((void *)vgpuMetadata, sizeof(*vgpuMetadata));
+    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -7254,8 +4991,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuP
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetVgpuMetadata called" << std::endl;
 #endif
-    void *_0pgpuMetadata = mem2server((void *)pgpuMetadata, 0);
-    void *_0bufferSize = mem2server((void *)bufferSize, 0);
+    void *_0pgpuMetadata = mem2server((void *)pgpuMetadata, sizeof(*pgpuMetadata));
+    void *_0bufferSize = mem2server((void *)bufferSize, sizeof(*bufferSize));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7273,8 +5010,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuP
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)pgpuMetadata, 0);
-    mem2client((void *)bufferSize, 0);
+    mem2client((void *)pgpuMetadata, sizeof(*pgpuMetadata));
+    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -7282,9 +5019,9 @@ extern "C" nvmlReturn_t nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t *vgpuMetadat
 #ifdef DEBUG
     std::cout << "Hook: nvmlGetVgpuCompatibility called" << std::endl;
 #endif
-    void *_0vgpuMetadata = mem2server((void *)vgpuMetadata, 0);
-    void *_0pgpuMetadata = mem2server((void *)pgpuMetadata, 0);
-    void *_0compatibilityInfo = mem2server((void *)compatibilityInfo, 0);
+    void *_0vgpuMetadata = mem2server((void *)vgpuMetadata, sizeof(*vgpuMetadata));
+    void *_0pgpuMetadata = mem2server((void *)pgpuMetadata, sizeof(*pgpuMetadata));
+    void *_0compatibilityInfo = mem2server((void *)compatibilityInfo, sizeof(*compatibilityInfo));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7302,9 +5039,9 @@ extern "C" nvmlReturn_t nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t *vgpuMetadat
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuMetadata, 0);
-    mem2client((void *)pgpuMetadata, 0);
-    mem2client((void *)compatibilityInfo, 0);
+    mem2client((void *)vgpuMetadata, sizeof(*vgpuMetadata));
+    mem2client((void *)pgpuMetadata, sizeof(*pgpuMetadata));
+    mem2client((void *)compatibilityInfo, sizeof(*compatibilityInfo));
     return _result;
 }
 
@@ -7312,7 +5049,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPgpuMetadataString called" << std::endl;
 #endif
-    void *_0bufferSize = mem2server((void *)bufferSize, 0);
+    void *_0bufferSize = mem2server((void *)bufferSize, sizeof(*bufferSize));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7330,107 +5067,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)bufferSize, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSchedulerLog_t *pSchedulerLog) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuSchedulerLog called" << std::endl;
-#endif
-    void *_0pSchedulerLog = mem2server((void *)pSchedulerLog, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuSchedulerLog);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pSchedulerLog, sizeof(_0pSchedulerLog));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pSchedulerLog, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerGetState_t *pSchedulerState) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuSchedulerState called" << std::endl;
-#endif
-    void *_0pSchedulerState = mem2server((void *)pSchedulerState, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuSchedulerState);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pSchedulerState, sizeof(_0pSchedulerState));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pSchedulerState, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuSchedulerCapabilities(nvmlDevice_t device, nvmlVgpuSchedulerCapabilities_t *pCapabilities) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuSchedulerCapabilities called" << std::endl;
-#endif
-    void *_0pCapabilities = mem2server((void *)pCapabilities, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuSchedulerCapabilities);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pCapabilities, sizeof(_0pCapabilities));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pCapabilities, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerSetState_t *pSchedulerState) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetVgpuSchedulerState called" << std::endl;
-#endif
-    void *_0pSchedulerState = mem2server((void *)pSchedulerState, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceSetVgpuSchedulerState);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0pSchedulerState, sizeof(_0pSchedulerState));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)pSchedulerState, 0);
+    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -7438,8 +5075,8 @@ extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgp
 #ifdef DEBUG
     std::cout << "Hook: nvmlGetVgpuVersion called" << std::endl;
 #endif
-    void *_0supported = mem2server((void *)supported, 0);
-    void *_0current = mem2server((void *)current, 0);
+    void *_0supported = mem2server((void *)supported, sizeof(*supported));
+    void *_0current = mem2server((void *)current, sizeof(*current));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7456,8 +5093,8 @@ extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)supported, 0);
-    mem2client((void *)current, 0);
+    mem2client((void *)supported, sizeof(*supported));
+    mem2client((void *)current, sizeof(*current));
     return _result;
 }
 
@@ -7465,7 +5102,7 @@ extern "C" nvmlReturn_t nvmlSetVgpuVersion(nvmlVgpuVersion_t *vgpuVersion) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlSetVgpuVersion called" << std::endl;
 #endif
-    void *_0vgpuVersion = mem2server((void *)vgpuVersion, 0);
+    void *_0vgpuVersion = mem2server((void *)vgpuVersion, sizeof(*vgpuVersion));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7481,7 +5118,7 @@ extern "C" nvmlReturn_t nvmlSetVgpuVersion(nvmlVgpuVersion_t *vgpuVersion) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuVersion, 0);
+    mem2client((void *)vgpuVersion, sizeof(*vgpuVersion));
     return _result;
 }
 
@@ -7489,9 +5126,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetVgpuUtilization called" << std::endl;
 #endif
-    void *_0sampleValType = mem2server((void *)sampleValType, 0);
-    void *_0vgpuInstanceSamplesCount = mem2server((void *)vgpuInstanceSamplesCount, 0);
-    void *_0utilizationSamples = mem2server((void *)utilizationSamples, 0);
+    void *_0sampleValType = mem2server((void *)sampleValType, sizeof(*sampleValType));
+    void *_0vgpuInstanceSamplesCount = mem2server((void *)vgpuInstanceSamplesCount, sizeof(*vgpuInstanceSamplesCount));
+    void *_0utilizationSamples = mem2server((void *)utilizationSamples, sizeof(*utilizationSamples));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7511,34 +5148,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)sampleValType, 0);
-    mem2client((void *)vgpuInstanceSamplesCount, 0);
-    mem2client((void *)utilizationSamples, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuInstancesUtilizationInfo(nvmlDevice_t device, nvmlVgpuInstancesUtilizationInfo_t *vgpuUtilInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuInstancesUtilizationInfo called" << std::endl;
-#endif
-    void *_0vgpuUtilInfo = mem2server((void *)vgpuUtilInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuInstancesUtilizationInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0vgpuUtilInfo, sizeof(_0vgpuUtilInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)vgpuUtilInfo, 0);
+    mem2client((void *)sampleValType, sizeof(*sampleValType));
+    mem2client((void *)vgpuInstanceSamplesCount, sizeof(*vgpuInstanceSamplesCount));
+    mem2client((void *)utilizationSamples, sizeof(*utilizationSamples));
     return _result;
 }
 
@@ -7546,8 +5158,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetVgpuProcessUtilization called" << std::endl;
 #endif
-    void *_0vgpuProcessSamplesCount = mem2server((void *)vgpuProcessSamplesCount, 0);
-    void *_0utilizationSamples = mem2server((void *)utilizationSamples, 0);
+    void *_0vgpuProcessSamplesCount = mem2server((void *)vgpuProcessSamplesCount, sizeof(*vgpuProcessSamplesCount));
+    void *_0utilizationSamples = mem2server((void *)utilizationSamples, sizeof(*utilizationSamples));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7566,33 +5178,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)vgpuProcessSamplesCount, 0);
-    mem2client((void *)utilizationSamples, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessesUtilizationInfo(nvmlDevice_t device, nvmlVgpuProcessesUtilizationInfo_t *vgpuProcUtilInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetVgpuProcessesUtilizationInfo called" << std::endl;
-#endif
-    void *_0vgpuProcUtilInfo = mem2server((void *)vgpuProcUtilInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetVgpuProcessesUtilizationInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0vgpuProcUtilInfo, sizeof(_0vgpuProcUtilInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)vgpuProcUtilInfo, 0);
+    mem2client((void *)vgpuProcessSamplesCount, sizeof(*vgpuProcessSamplesCount));
+    mem2client((void *)utilizationSamples, sizeof(*utilizationSamples));
     return _result;
 }
 
@@ -7600,7 +5187,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgp
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetAccountingMode called" << std::endl;
 #endif
-    void *_0mode = mem2server((void *)mode, 0);
+    void *_0mode = mem2server((void *)mode, sizeof(*mode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7617,7 +5204,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)mode, 0);
+    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -7625,8 +5212,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgp
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetAccountingPids called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
-    void *_0pids = mem2server((void *)pids, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
+    void *_0pids = mem2server((void *)pids, sizeof(*pids));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7644,8 +5231,8 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
-    mem2client((void *)pids, 0);
+    mem2client((void *)count, sizeof(*count));
+    mem2client((void *)pids, sizeof(*pids));
     return _result;
 }
 
@@ -7653,7 +5240,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vg
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetAccountingStats called" << std::endl;
 #endif
-    void *_0stats = mem2server((void *)stats, 0);
+    void *_0stats = mem2server((void *)stats, sizeof(*stats));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7671,7 +5258,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vg
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)stats, 0);
+    mem2client((void *)stats, sizeof(*stats));
     return _result;
 }
 
@@ -7697,36 +5284,11 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t v
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseInfo_v2(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuLicenseInfo_t *licenseInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuInstanceGetLicenseInfo_v2 called" << std::endl;
-#endif
-    void *_0licenseInfo = mem2server((void *)licenseInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetLicenseInfo_v2);
-    rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_write(client, &_0licenseInfo, sizeof(_0licenseInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)licenseInfo, 0);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlGetExcludedDeviceCount(unsigned int *deviceCount) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlGetExcludedDeviceCount called" << std::endl;
 #endif
-    void *_0deviceCount = mem2server((void *)deviceCount, 0);
+    void *_0deviceCount = mem2server((void *)deviceCount, sizeof(*deviceCount));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7742,7 +5304,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceCount(unsigned int *deviceCount) {
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)deviceCount, 0);
+    mem2client((void *)deviceCount, sizeof(*deviceCount));
     return _result;
 }
 
@@ -7750,7 +5312,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvm
 #ifdef DEBUG
     std::cout << "Hook: nvmlGetExcludedDeviceInfoByIndex called" << std::endl;
 #endif
-    void *_0info = mem2server((void *)info, 0);
+    void *_0info = mem2server((void *)info, sizeof(*info));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7767,7 +5329,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvm
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)info, 0);
+    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -7775,7 +5337,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int m
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceSetMigMode called" << std::endl;
 #endif
-    void *_0activationStatus = mem2server((void *)activationStatus, 0);
+    void *_0activationStatus = mem2server((void *)activationStatus, sizeof(*activationStatus));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7793,7 +5355,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int m
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)activationStatus, 0);
+    mem2client((void *)activationStatus, sizeof(*activationStatus));
     return _result;
 }
 
@@ -7801,8 +5363,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMigMode called" << std::endl;
 #endif
-    void *_0currentMode = mem2server((void *)currentMode, 0);
-    void *_0pendingMode = mem2server((void *)pendingMode, 0);
+    void *_0currentMode = mem2server((void *)currentMode, sizeof(*currentMode));
+    void *_0pendingMode = mem2server((void *)pendingMode, sizeof(*pendingMode));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7820,8 +5382,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)currentMode, 0);
-    mem2client((void *)pendingMode, 0);
+    mem2client((void *)currentMode, sizeof(*currentMode));
+    mem2client((void *)pendingMode, sizeof(*pendingMode));
     return _result;
 }
 
@@ -7829,7 +5391,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuInstanceProfileInfo called" << std::endl;
 #endif
-    void *_0info = mem2server((void *)info, 0);
+    void *_0info = mem2server((void *)info, sizeof(*info));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7847,33 +5409,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)info, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoV(nvmlDevice_t device, unsigned int profile, nvmlGpuInstanceProfileInfo_v2_t *info) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGpuInstanceProfileInfoV called" << std::endl;
-#endif
-    void *_0info = mem2server((void *)info, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetGpuInstanceProfileInfoV);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &profile, sizeof(profile));
-    rpc_write(client, &_0info, sizeof(_0info));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)info, 0);
+    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -7881,8 +5417,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuInstancePossiblePlacements_v2 called" << std::endl;
 #endif
-    void *_0placements = mem2server((void *)placements, 0);
-    void *_0count = mem2server((void *)count, 0);
+    void *_0placements = mem2server((void *)placements, sizeof(*placements));
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7901,8 +5437,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)placements, 0);
-    mem2client((void *)count, 0);
+    mem2client((void *)placements, sizeof(*placements));
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -7910,7 +5446,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t d
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuInstanceRemainingCapacity called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7928,7 +5464,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t d
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -7936,7 +5472,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigne
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceCreateGpuInstance called" << std::endl;
 #endif
-    void *_0gpuInstance = mem2server((void *)gpuInstance, 0);
+    void *_0gpuInstance = mem2server((void *)gpuInstance, sizeof(*gpuInstance));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7954,7 +5490,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)gpuInstance, 0);
+    mem2client((void *)gpuInstance, sizeof(*gpuInstance));
     return _result;
 }
 
@@ -7962,8 +5498,8 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t de
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceCreateGpuInstanceWithPlacement called" << std::endl;
 #endif
-    void *_0placement = mem2server((void *)placement, 0);
-    void *_0gpuInstance = mem2server((void *)gpuInstance, 0);
+    void *_0placement = mem2server((void *)placement, sizeof(*placement));
+    void *_0gpuInstance = mem2server((void *)gpuInstance, sizeof(*gpuInstance));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -7982,8 +5518,8 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t de
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)placement, 0);
-    mem2client((void *)gpuInstance, 0);
+    mem2client((void *)placement, sizeof(*placement));
+    mem2client((void *)gpuInstance, sizeof(*gpuInstance));
     return _result;
 }
 
@@ -8013,8 +5549,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned 
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuInstances called" << std::endl;
 #endif
-    void *_0gpuInstances = mem2server((void *)gpuInstances, 0);
-    void *_0count = mem2server((void *)count, 0);
+    void *_0gpuInstances = mem2server((void *)gpuInstances, sizeof(*gpuInstances));
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8033,8 +5569,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)gpuInstances, 0);
-    mem2client((void *)count, 0);
+    mem2client((void *)gpuInstances, sizeof(*gpuInstances));
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8042,7 +5578,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsign
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuInstanceById called" << std::endl;
 #endif
-    void *_0gpuInstance = mem2server((void *)gpuInstance, 0);
+    void *_0gpuInstance = mem2server((void *)gpuInstance, sizeof(*gpuInstance));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8060,7 +5596,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsign
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)gpuInstance, 0);
+    mem2client((void *)gpuInstance, sizeof(*gpuInstance));
     return _result;
 }
 
@@ -8068,7 +5604,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nv
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceGetInfo called" << std::endl;
 #endif
-    void *_0info = mem2server((void *)info, 0);
+    void *_0info = mem2server((void *)info, sizeof(*info));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8085,7 +5621,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nv
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)info, 0);
+    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -8093,7 +5629,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceGetComputeInstanceProfileInfo called" << std::endl;
 #endif
-    void *_0info = mem2server((void *)info, 0);
+    void *_0info = mem2server((void *)info, sizeof(*info));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8112,34 +5648,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)info, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfoV(nvmlGpuInstance_t gpuInstance, unsigned int profile, unsigned int engProfile, nvmlComputeInstanceProfileInfo_v2_t *info) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpuInstanceGetComputeInstanceProfileInfoV called" << std::endl;
-#endif
-    void *_0info = mem2server((void *)info, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpuInstanceGetComputeInstanceProfileInfoV);
-    rpc_write(client, &gpuInstance, sizeof(gpuInstance));
-    rpc_write(client, &profile, sizeof(profile));
-    rpc_write(client, &engProfile, sizeof(engProfile));
-    rpc_write(client, &_0info, sizeof(_0info));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)info, 0);
+    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -8147,7 +5656,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceGetComputeInstanceRemainingCapacity called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8165,36 +5674,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstancePossiblePlacements(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstancePlacement_t *placements, unsigned int *count) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpuInstanceGetComputeInstancePossiblePlacements called" << std::endl;
-#endif
-    void *_0placements = mem2server((void *)placements, 0);
-    void *_0count = mem2server((void *)count, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpuInstanceGetComputeInstancePossiblePlacements);
-    rpc_write(client, &gpuInstance, sizeof(gpuInstance));
-    rpc_write(client, &profileId, sizeof(profileId));
-    rpc_write(client, &_0placements, sizeof(_0placements));
-    rpc_write(client, &_0count, sizeof(_0count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)placements, 0);
-    mem2client((void *)count, 0);
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8202,7 +5682,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceCreateComputeInstance called" << std::endl;
 #endif
-    void *_0computeInstance = mem2server((void *)computeInstance, 0);
+    void *_0computeInstance = mem2server((void *)computeInstance, sizeof(*computeInstance));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8220,36 +5700,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)computeInstance, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstanceWithPlacement(nvmlGpuInstance_t gpuInstance, unsigned int profileId, const nvmlComputeInstancePlacement_t *placement, nvmlComputeInstance_t *computeInstance) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpuInstanceCreateComputeInstanceWithPlacement called" << std::endl;
-#endif
-    void *_0placement = mem2server((void *)placement, 0);
-    void *_0computeInstance = mem2server((void *)computeInstance, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpuInstanceCreateComputeInstanceWithPlacement);
-    rpc_write(client, &gpuInstance, sizeof(gpuInstance));
-    rpc_write(client, &profileId, sizeof(profileId));
-    rpc_write(client, &_0placement, sizeof(_0placement));
-    rpc_write(client, &_0computeInstance, sizeof(_0computeInstance));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)placement, 0);
-    mem2client((void *)computeInstance, 0);
+    mem2client((void *)computeInstance, sizeof(*computeInstance));
     return _result;
 }
 
@@ -8279,8 +5730,8 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpu
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceGetComputeInstances called" << std::endl;
 #endif
-    void *_0computeInstances = mem2server((void *)computeInstances, 0);
-    void *_0count = mem2server((void *)count, 0);
+    void *_0computeInstances = mem2server((void *)computeInstances, sizeof(*computeInstances));
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8299,8 +5750,8 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)computeInstances, 0);
-    mem2client((void *)count, 0);
+    mem2client((void *)computeInstances, sizeof(*computeInstances));
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8308,7 +5759,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t 
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceGetComputeInstanceById called" << std::endl;
 #endif
-    void *_0computeInstance = mem2server((void *)computeInstance, 0);
+    void *_0computeInstance = mem2server((void *)computeInstance, sizeof(*computeInstance));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8326,7 +5777,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)computeInstance, 0);
+    mem2client((void *)computeInstance, sizeof(*computeInstance));
     return _result;
 }
 
@@ -8334,7 +5785,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t comp
 #ifdef DEBUG
     std::cout << "Hook: nvmlComputeInstanceGetInfo_v2 called" << std::endl;
 #endif
-    void *_0info = mem2server((void *)info, 0);
+    void *_0info = mem2server((void *)info, sizeof(*info));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8351,7 +5802,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t comp
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)info, 0);
+    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -8359,7 +5810,7 @@ extern "C" nvmlReturn_t nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigne
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceIsMigDeviceHandle called" << std::endl;
 #endif
-    void *_0isMigDevice = mem2server((void *)isMigDevice, 0);
+    void *_0isMigDevice = mem2server((void *)isMigDevice, sizeof(*isMigDevice));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8376,7 +5827,7 @@ extern "C" nvmlReturn_t nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)isMigDevice, 0);
+    mem2client((void *)isMigDevice, sizeof(*isMigDevice));
     return _result;
 }
 
@@ -8384,7 +5835,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetGpuInstanceId called" << std::endl;
 #endif
-    void *_0id = mem2server((void *)id, 0);
+    void *_0id = mem2server((void *)id, sizeof(*id));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8401,7 +5852,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)id, 0);
+    mem2client((void *)id, sizeof(*id));
     return _result;
 }
 
@@ -8409,7 +5860,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetComputeInstanceId called" << std::endl;
 #endif
-    void *_0id = mem2server((void *)id, 0);
+    void *_0id = mem2server((void *)id, sizeof(*id));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8426,7 +5877,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)id, 0);
+    mem2client((void *)id, sizeof(*id));
     return _result;
 }
 
@@ -8434,7 +5885,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsi
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMaxMigDeviceCount called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, 0);
+    void *_0count = mem2server((void *)count, sizeof(*count));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8451,7 +5902,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsi
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)count, 0);
+    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8459,7 +5910,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device,
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMigDeviceHandleByIndex called" << std::endl;
 #endif
-    void *_0migDevice = mem2server((void *)migDevice, 0);
+    void *_0migDevice = mem2server((void *)migDevice, sizeof(*migDevice));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8477,7 +5928,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device,
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)migDevice, 0);
+    mem2client((void *)migDevice, sizeof(*migDevice));
     return _result;
 }
 
@@ -8485,7 +5936,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDeviceHandleFromMigDeviceHandle called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, 0);
+    void *_0device = mem2server((void *)device, sizeof(*device));
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -8502,397 +5953,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)device, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmMetricsGet(nvmlGpmMetricsGet_t *metricsGet) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmMetricsGet called" << std::endl;
-#endif
-    void *_0metricsGet = mem2server((void *)metricsGet, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmMetricsGet);
-    rpc_write(client, &_0metricsGet, sizeof(_0metricsGet));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)metricsGet, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmSampleFree(nvmlGpmSample_t gpmSample) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmSampleFree called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmSampleFree);
-    rpc_write(client, &gpmSample, sizeof(gpmSample));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmSampleAlloc(nvmlGpmSample_t *gpmSample) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmSampleAlloc called" << std::endl;
-#endif
-    void *_0gpmSample = mem2server((void *)gpmSample, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmSampleAlloc);
-    rpc_write(client, &_0gpmSample, sizeof(_0gpmSample));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gpmSample, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmSampleGet(nvmlDevice_t device, nvmlGpmSample_t gpmSample) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmSampleGet called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmSampleGet);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &gpmSample, sizeof(gpmSample));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmMigSampleGet(nvmlDevice_t device, unsigned int gpuInstanceId, nvmlGpmSample_t gpmSample) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmMigSampleGet called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmMigSampleGet);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &gpuInstanceId, sizeof(gpuInstanceId));
-    rpc_write(client, &gpmSample, sizeof(gpmSample));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmQueryDeviceSupport(nvmlDevice_t device, nvmlGpmSupport_t *gpmSupport) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmQueryDeviceSupport called" << std::endl;
-#endif
-    void *_0gpmSupport = mem2server((void *)gpmSupport, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmQueryDeviceSupport);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0gpmSupport, sizeof(_0gpmSupport));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)gpmSupport, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmQueryIfStreamingEnabled(nvmlDevice_t device, unsigned int *state) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmQueryIfStreamingEnabled called" << std::endl;
-#endif
-    void *_0state = mem2server((void *)state, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmQueryIfStreamingEnabled);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0state, sizeof(_0state));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)state, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlGpmSetStreamingEnabled(nvmlDevice_t device, unsigned int state) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlGpmSetStreamingEnabled called" << std::endl;
-#endif
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlGpmSetStreamingEnabled);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &state, sizeof(state));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t *caps) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetCapabilities called" << std::endl;
-#endif
-    void *_0caps = mem2server((void *)caps, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceGetCapabilities);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0caps, sizeof(_0caps));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)caps, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileGetProfilesInfo(nvmlDevice_t device, nvmlWorkloadPowerProfileProfilesInfo_t *profilesInfo) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileGetProfilesInfo called" << std::endl;
-#endif
-    void *_0profilesInfo = mem2server((void *)profilesInfo, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceWorkloadPowerProfileGetProfilesInfo);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0profilesInfo, sizeof(_0profilesInfo));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)profilesInfo, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileGetCurrentProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileCurrentProfiles_t *currentProfiles) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileGetCurrentProfiles called" << std::endl;
-#endif
-    void *_0currentProfiles = mem2server((void *)currentProfiles, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceWorkloadPowerProfileGetCurrentProfiles);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0currentProfiles, sizeof(_0currentProfiles));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)currentProfiles, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileSetRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileSetRequestedProfiles called" << std::endl;
-#endif
-    void *_0requestedProfiles = mem2server((void *)requestedProfiles, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceWorkloadPowerProfileSetRequestedProfiles);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0requestedProfiles, sizeof(_0requestedProfiles));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)requestedProfiles, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileClearRequestedProfiles called" << std::endl;
-#endif
-    void *_0requestedProfiles = mem2server((void *)requestedProfiles, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDeviceWorkloadPowerProfileClearRequestedProfiles);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0requestedProfiles, sizeof(_0requestedProfiles));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)requestedProfiles, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t *profile) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDevicePowerSmoothingActivatePresetProfile called" << std::endl;
-#endif
-    void *_0profile = mem2server((void *)profile, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDevicePowerSmoothingActivatePresetProfile);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0profile, sizeof(_0profile));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)profile, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t device, nvmlPowerSmoothingProfile_t *profile) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDevicePowerSmoothingUpdatePresetProfileParam called" << std::endl;
-#endif
-    void *_0profile = mem2server((void *)profile, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDevicePowerSmoothingUpdatePresetProfileParam);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0profile, sizeof(_0profile));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)profile, 0);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPowerSmoothingState_t *state) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDevicePowerSmoothingSetState called" << std::endl;
-#endif
-    void *_0state = mem2server((void *)state, 0);
-    nvmlReturn_t _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_nvmlDevicePowerSmoothingSetState);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &_0state, sizeof(_0state));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    mem2client((void *)state, 0);
+    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 

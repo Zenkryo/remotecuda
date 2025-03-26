@@ -249,104 +249,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlSystemGetHicVersion(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetHicVersion called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int*hwbcCount;
-    rpc_read(client, &hwbcCount, sizeof(hwbcCount));
-    nvmlHwbcEntry_t*hwbcEntries;
-    rpc_read(client, &hwbcEntries, sizeof(hwbcEntries));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetHicVersion(hwbcCount, hwbcEntries);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetTopologyGpuSet(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetTopologyGpuSet called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int cpuNumber;
-    rpc_read(client, &cpuNumber, sizeof(cpuNumber));
-    unsigned int*count;
-    rpc_read(client, &count, sizeof(count));
-    nvmlDevice_t*deviceArray;
-    rpc_read(client, &deviceArray, sizeof(deviceArray));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetTopologyGpuSet(cpuNumber, count, deviceArray);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetDriverBranch(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetDriverBranch called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlSystemDriverBranchInfo_t*branchInfo;
-    rpc_read(client, &branchInfo, sizeof(branchInfo));
-    unsigned int length;
-    rpc_read(client, &length, sizeof(length));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetDriverBranch(branchInfo, length);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlUnitGetCount(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlUnitGetCount called" << std::endl;
@@ -591,6 +493,38 @@ int handle_nvmlUnitGetDevices(void *args0) {
         goto _RTN_;
     }
     _result = nvmlUnitGetDevices(unit, deviceCount, devices);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_nvmlSystemGetHicVersion(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function nvmlSystemGetHicVersion called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    unsigned int*hwbcCount;
+    rpc_read(client, &hwbcCount, sizeof(hwbcCount));
+    nvmlHwbcEntry_t*hwbcEntries;
+    rpc_read(client, &hwbcEntries, sizeof(hwbcEntries));
+    nvmlReturn_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = nvmlSystemGetHicVersion(hwbcCount, hwbcEntries);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -930,70 +864,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetModuleId(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetModuleId called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*moduleId;
-    rpc_read(client, &moduleId, sizeof(moduleId));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetModuleId(device, moduleId);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetC2cModeInfoV(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetC2cModeInfoV called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlC2cModeInfo_v1_t*c2cModeInfo;
-    rpc_read(client, &c2cModeInfo, sizeof(c2cModeInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetC2cModeInfoV(device, c2cModeInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetMemoryAffinity(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetMemoryAffinity called" << std::endl;
@@ -1160,38 +1030,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetNumaNodeId(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetNumaNodeId called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*node;
-    rpc_read(client, &node, sizeof(node));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetNumaNodeId(device, node);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetTopologyCommonAncestor(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetTopologyCommonAncestor called" << std::endl;
@@ -1262,6 +1100,40 @@ _RTN_:
     return rtn;
 }
 
+int handle_nvmlSystemGetTopologyGpuSet(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function nvmlSystemGetTopologyGpuSet called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    unsigned int cpuNumber;
+    rpc_read(client, &cpuNumber, sizeof(cpuNumber));
+    unsigned int*count;
+    rpc_read(client, &count, sizeof(count));
+    nvmlDevice_t*deviceArray;
+    rpc_read(client, &deviceArray, sizeof(deviceArray));
+    nvmlReturn_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = nvmlSystemGetTopologyGpuSet(cpuNumber, count, deviceArray);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_nvmlDeviceGetP2PStatus(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetP2PStatus called" << std::endl;
@@ -1318,6 +1190,40 @@ int handle_nvmlDeviceGetUUID(void *args0) {
     }
     _result = nvmlDeviceGetUUID(device, uuid, length);
     rpc_write(client, uuid, strlen(uuid) + 1, true);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_nvmlVgpuInstanceGetMdevUUID(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function nvmlVgpuInstanceGetMdevUUID called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    nvmlVgpuInstance_t vgpuInstance;
+    rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
+    char mdevUuid[1024];
+    unsigned int size;
+    rpc_read(client, &size, sizeof(size));
+    nvmlReturn_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = nvmlVgpuInstanceGetMdevUUID(vgpuInstance, mdevUuid, size);
+    rpc_write(client, mdevUuid, strlen(mdevUuid) + 1, true);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1530,40 +1436,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetLastBBXFlushTime(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetLastBBXFlushTime called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned long long*timestamp;
-    rpc_read(client, &timestamp, sizeof(timestamp));
-    unsigned long*durationUs;
-    rpc_read(client, &durationUs, sizeof(durationUs));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetLastBBXFlushTime(device, timestamp, durationUs);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetDisplayMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetDisplayMode called" << std::endl;
@@ -1660,38 +1532,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetPciInfoExt(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetPciInfoExt called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPciInfoExt_t*pci;
-    rpc_read(client, &pci, sizeof(pci));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetPciInfoExt(device, pci);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetPciInfo_v3(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetPciInfo_v3 called" << std::endl;
@@ -1742,38 +1582,6 @@ int handle_nvmlDeviceGetMaxPcieLinkGeneration(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetMaxPcieLinkGeneration(device, maxLinkGen);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGpuMaxPcieLinkGeneration(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGpuMaxPcieLinkGeneration called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*maxLinkGenDevice;
-    rpc_read(client, &maxLinkGenDevice, sizeof(maxLinkGenDevice));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGpuMaxPcieLinkGeneration(device, maxLinkGenDevice);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2018,38 +1826,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetGpcClkVfOffset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGpcClkVfOffset called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int*offset;
-    rpc_read(client, &offset, sizeof(offset));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGpcClkVfOffset(device, offset);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetApplicationsClock(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetApplicationsClock called" << std::endl;
@@ -2104,6 +1880,36 @@ int handle_nvmlDeviceGetDefaultApplicationsClock(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetDefaultApplicationsClock(device, clockType, clockMHz);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_nvmlDeviceResetApplicationsClocks(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function nvmlDeviceResetApplicationsClocks called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    nvmlDevice_t device;
+    rpc_read(client, &device, sizeof(device));
+    nvmlReturn_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = nvmlDeviceResetApplicationsClocks(device);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2292,6 +2098,72 @@ _RTN_:
     return rtn;
 }
 
+int handle_nvmlDeviceSetAutoBoostedClocksEnabled(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function nvmlDeviceSetAutoBoostedClocksEnabled called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    nvmlDevice_t device;
+    rpc_read(client, &device, sizeof(device));
+    nvmlEnableState_t enabled;
+    rpc_read(client, &enabled, sizeof(enabled));
+    nvmlReturn_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = nvmlDeviceSetAutoBoostedClocksEnabled(device, enabled);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_nvmlDeviceSetDefaultAutoBoostedClocksEnabled(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function nvmlDeviceSetDefaultAutoBoostedClocksEnabled called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    nvmlDevice_t device;
+    rpc_read(client, &device, sizeof(device));
+    nvmlEnableState_t enabled;
+    rpc_read(client, &enabled, sizeof(enabled));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    nvmlReturn_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = nvmlDeviceSetDefaultAutoBoostedClocksEnabled(device, enabled, flags);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_nvmlDeviceGetFanSpeed(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetFanSpeed called" << std::endl;
@@ -2358,172 +2230,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetFanSpeedRPM(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetFanSpeedRPM called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlFanSpeedInfo_t*fanSpeed;
-    rpc_read(client, &fanSpeed, sizeof(fanSpeed));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetFanSpeedRPM(device, fanSpeed);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetTargetFanSpeed(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetTargetFanSpeed called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int fan;
-    rpc_read(client, &fan, sizeof(fan));
-    unsigned int*targetSpeed;
-    rpc_read(client, &targetSpeed, sizeof(targetSpeed));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetTargetFanSpeed(device, fan, targetSpeed);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetMinMaxFanSpeed(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMinMaxFanSpeed called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*minSpeed;
-    rpc_read(client, &minSpeed, sizeof(minSpeed));
-    unsigned int*maxSpeed;
-    rpc_read(client, &maxSpeed, sizeof(maxSpeed));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetMinMaxFanSpeed(device, minSpeed, maxSpeed);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetFanControlPolicy_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetFanControlPolicy_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int fan;
-    rpc_read(client, &fan, sizeof(fan));
-    nvmlFanControlPolicy_t*policy;
-    rpc_read(client, &policy, sizeof(policy));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetFanControlPolicy_v2(device, fan, policy);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetNumFans(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetNumFans called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*numFans;
-    rpc_read(client, &numFans, sizeof(numFans));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetNumFans(device, numFans);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetTemperature(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetTemperature called" << std::endl;
@@ -2544,70 +2250,6 @@ int handle_nvmlDeviceGetTemperature(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetTemperature(device, sensorType, temp);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetCoolerInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetCoolerInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlCoolerInfo_t*coolerInfo;
-    rpc_read(client, &coolerInfo, sizeof(coolerInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetCoolerInfo(device, coolerInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetTemperatureV(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetTemperatureV called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlTemperature_t*temperature;
-    rpc_read(client, &temperature, sizeof(temperature));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetTemperatureV(device, temperature);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2656,58 +2298,26 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetMarginTemperature(void *args0) {
+int handle_nvmlDeviceSetTemperatureThreshold(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMarginTemperature called" << std::endl;
+    std::cout << "Handle function nvmlDeviceSetTemperatureThreshold called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlMarginTemperature_t*marginTempInfo;
-    rpc_read(client, &marginTempInfo, sizeof(marginTempInfo));
+    nvmlTemperatureThresholds_t thresholdType;
+    rpc_read(client, &thresholdType, sizeof(thresholdType));
+    int*temp;
+    rpc_read(client, &temp, sizeof(temp));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetMarginTemperature(device, marginTempInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetThermalSettings(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetThermalSettings called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int sensorIndex;
-    rpc_read(client, &sensorIndex, sizeof(sensorIndex));
-    nvmlGpuThermalSettings_t*pThermalSettings;
-    rpc_read(client, &pThermalSettings, sizeof(pThermalSettings));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetThermalSettings(device, sensorIndex, pThermalSettings);
+    _result = nvmlDeviceSetTemperatureThreshold(device, thresholdType, temp);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2754,38 +2364,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetCurrentClocksEventReasons(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetCurrentClocksEventReasons called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned long long*clocksEventReasons;
-    rpc_read(client, &clocksEventReasons, sizeof(clocksEventReasons));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetCurrentClocksEventReasons(device, clocksEventReasons);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetCurrentClocksThrottleReasons(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetCurrentClocksThrottleReasons called" << std::endl;
@@ -2804,38 +2382,6 @@ int handle_nvmlDeviceGetCurrentClocksThrottleReasons(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetCurrentClocksThrottleReasons(device, clocksThrottleReasons);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetSupportedClocksEventReasons(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetSupportedClocksEventReasons called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned long long*supportedClocksEventReasons;
-    rpc_read(client, &supportedClocksEventReasons, sizeof(supportedClocksEventReasons));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetSupportedClocksEventReasons(device, supportedClocksEventReasons);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2900,338 +2446,6 @@ int handle_nvmlDeviceGetPowerState(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetPowerState(device, pState);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetDynamicPstatesInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetDynamicPstatesInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlGpuDynamicPstatesInfo_t*pDynamicPstatesInfo;
-    rpc_read(client, &pDynamicPstatesInfo, sizeof(pDynamicPstatesInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetDynamicPstatesInfo(device, pDynamicPstatesInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetMemClkVfOffset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMemClkVfOffset called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int*offset;
-    rpc_read(client, &offset, sizeof(offset));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetMemClkVfOffset(device, offset);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetMinMaxClockOfPState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMinMaxClockOfPState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlClockType_t type;
-    rpc_read(client, &type, sizeof(type));
-    nvmlPstates_t pstate;
-    rpc_read(client, &pstate, sizeof(pstate));
-    unsigned int*minClockMHz;
-    rpc_read(client, &minClockMHz, sizeof(minClockMHz));
-    unsigned int*maxClockMHz;
-    rpc_read(client, &maxClockMHz, sizeof(maxClockMHz));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetMinMaxClockOfPState(device, type, pstate, minClockMHz, maxClockMHz);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetSupportedPerformanceStates(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetSupportedPerformanceStates called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPstates_t*pstates;
-    rpc_read(client, &pstates, sizeof(pstates));
-    unsigned int size;
-    rpc_read(client, &size, sizeof(size));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetSupportedPerformanceStates(device, pstates, size);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGpcClkMinMaxVfOffset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGpcClkMinMaxVfOffset called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int*minOffset;
-    rpc_read(client, &minOffset, sizeof(minOffset));
-    int*maxOffset;
-    rpc_read(client, &maxOffset, sizeof(maxOffset));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGpcClkMinMaxVfOffset(device, minOffset, maxOffset);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetMemClkMinMaxVfOffset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMemClkMinMaxVfOffset called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int*minOffset;
-    rpc_read(client, &minOffset, sizeof(minOffset));
-    int*maxOffset;
-    rpc_read(client, &maxOffset, sizeof(maxOffset));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetMemClkMinMaxVfOffset(device, minOffset, maxOffset);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetClockOffsets(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetClockOffsets called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlClockOffset_t*info;
-    rpc_read(client, &info, sizeof(info));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetClockOffsets(device, info);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetClockOffsets(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetClockOffsets called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlClockOffset_t*info;
-    rpc_read(client, &info, sizeof(info));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetClockOffsets(device, info);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetPerformanceModes(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetPerformanceModes called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlDevicePerfModes_t*perfModes;
-    rpc_read(client, &perfModes, sizeof(perfModes));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetPerformanceModes(device, perfModes);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetCurrentClockFreqs(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetCurrentClockFreqs called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlDeviceCurrentClockFreqs_t*currentClockFreqs;
-    rpc_read(client, &currentClockFreqs, sizeof(currentClockFreqs));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetCurrentClockFreqs(device, currentClockFreqs);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3538,38 +2752,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetMemoryInfo_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMemoryInfo_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlMemory_v2_t*memory;
-    rpc_read(client, &memory, sizeof(memory));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetMemoryInfo_v2(device, memory);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetComputeMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetComputeMode called" << std::endl;
@@ -3636,72 +2818,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetDramEncryptionMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetDramEncryptionMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlDramEncryptionInfo_t*current;
-    rpc_read(client, &current, sizeof(current));
-    nvmlDramEncryptionInfo_t*pending;
-    rpc_read(client, &pending, sizeof(pending));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetDramEncryptionMode(device, current, pending);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetDramEncryptionMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetDramEncryptionMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlDramEncryptionInfo_t *dramEncryption;
-    rpc_read(client, &dramEncryption, sizeof(dramEncryption));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetDramEncryptionMode(device, dramEncryption);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetEccMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetEccMode called" << std::endl;
@@ -3722,38 +2838,6 @@ int handle_nvmlDeviceGetEccMode(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetEccMode(device, current, pending);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetDefaultEccMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetDefaultEccMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*defaultMode;
-    rpc_read(client, &defaultMode, sizeof(defaultMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetDefaultEccMode(device, defaultMode);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4146,74 +3230,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetJpgUtilization(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetJpgUtilization called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*utilization;
-    rpc_read(client, &utilization, sizeof(utilization));
-    unsigned int*samplingPeriodUs;
-    rpc_read(client, &samplingPeriodUs, sizeof(samplingPeriodUs));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetJpgUtilization(device, utilization, samplingPeriodUs);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetOfaUtilization(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetOfaUtilization called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*utilization;
-    rpc_read(client, &utilization, sizeof(utilization));
-    unsigned int*samplingPeriodUs;
-    rpc_read(client, &samplingPeriodUs, sizeof(samplingPeriodUs));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetOfaUtilization(device, utilization, samplingPeriodUs);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetFBCStats(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetFBCStats called" << std::endl;
@@ -4280,9 +3296,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetDriverModel_v2(void *args0) {
+int handle_nvmlDeviceGetDriverModel(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetDriverModel_v2 called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetDriverModel called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -4299,7 +3315,7 @@ int handle_nvmlDeviceGetDriverModel_v2(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetDriverModel_v2(device, current, pending);
+    _result = nvmlDeviceGetDriverModel(device, current, pending);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4380,9 +3396,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetComputeRunningProcesses_v3(void *args0) {
+int handle_nvmlDeviceGetComputeRunningProcesses_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetComputeRunningProcesses_v3 called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetComputeRunningProcesses_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -4399,7 +3415,7 @@ int handle_nvmlDeviceGetComputeRunningProcesses_v3(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetComputeRunningProcesses_v3(device, infoCount, infos);
+    _result = nvmlDeviceGetComputeRunningProcesses_v2(device, infoCount, infos);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4414,9 +3430,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetGraphicsRunningProcesses_v3(void *args0) {
+int handle_nvmlDeviceGetGraphicsRunningProcesses_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGraphicsRunningProcesses_v3 called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetGraphicsRunningProcesses_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -4433,7 +3449,7 @@ int handle_nvmlDeviceGetGraphicsRunningProcesses_v3(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetGraphicsRunningProcesses_v3(device, infoCount, infos);
+    _result = nvmlDeviceGetGraphicsRunningProcesses_v2(device, infoCount, infos);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4448,9 +3464,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetMPSComputeRunningProcesses_v3(void *args0) {
+int handle_nvmlDeviceGetMPSComputeRunningProcesses_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMPSComputeRunningProcesses_v3 called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetMPSComputeRunningProcesses_v2 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -4467,39 +3483,7 @@ int handle_nvmlDeviceGetMPSComputeRunningProcesses_v3(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetMPSComputeRunningProcesses_v3(device, infoCount, infos);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetRunningProcessDetailList(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetRunningProcessDetailList called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlProcessDetailList_t*plist;
-    rpc_read(client, &plist, sizeof(plist));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetRunningProcessDetailList(device, plist);
+    _result = nvmlDeviceGetMPSComputeRunningProcesses_v2(device, infoCount, infos);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4674,794 +3658,6 @@ int handle_nvmlDeviceGetViolationStatus(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetViolationStatus(device, perfPolicyType, violTime);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetIrqNum(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetIrqNum called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*irqNum;
-    rpc_read(client, &irqNum, sizeof(irqNum));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetIrqNum(device, irqNum);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetNumGpuCores(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetNumGpuCores called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*numCores;
-    rpc_read(client, &numCores, sizeof(numCores));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetNumGpuCores(device, numCores);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetPowerSource(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetPowerSource called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPowerSource_t*powerSource;
-    rpc_read(client, &powerSource, sizeof(powerSource));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetPowerSource(device, powerSource);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetMemoryBusWidth(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetMemoryBusWidth called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*busWidth;
-    rpc_read(client, &busWidth, sizeof(busWidth));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetMemoryBusWidth(device, busWidth);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetPcieLinkMaxSpeed(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetPcieLinkMaxSpeed called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*maxSpeed;
-    rpc_read(client, &maxSpeed, sizeof(maxSpeed));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetPcieLinkMaxSpeed(device, maxSpeed);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetPcieSpeed(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetPcieSpeed called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*pcieSpeed;
-    rpc_read(client, &pcieSpeed, sizeof(pcieSpeed));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetPcieSpeed(device, pcieSpeed);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetAdaptiveClockInfoStatus(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetAdaptiveClockInfoStatus called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*adaptiveClockStatus;
-    rpc_read(client, &adaptiveClockStatus, sizeof(adaptiveClockStatus));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetAdaptiveClockInfoStatus(device, adaptiveClockStatus);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetBusType(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetBusType called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlBusType_t*type;
-    rpc_read(client, &type, sizeof(type));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetBusType(device, type);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGpuFabricInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGpuFabricInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlGpuFabricInfo_t*gpuFabricInfo;
-    rpc_read(client, &gpuFabricInfo, sizeof(gpuFabricInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGpuFabricInfo(device, gpuFabricInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGpuFabricInfoV(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGpuFabricInfoV called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlGpuFabricInfoV_t*gpuFabricInfo;
-    rpc_read(client, &gpuFabricInfo, sizeof(gpuFabricInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGpuFabricInfoV(device, gpuFabricInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetConfComputeCapabilities(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetConfComputeCapabilities called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlConfComputeSystemCaps_t*capabilities;
-    rpc_read(client, &capabilities, sizeof(capabilities));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetConfComputeCapabilities(capabilities);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetConfComputeState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetConfComputeState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlConfComputeSystemState_t*state;
-    rpc_read(client, &state, sizeof(state));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetConfComputeState(state);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetConfComputeMemSizeInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetConfComputeMemSizeInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlConfComputeMemSizeInfo_t*memInfo;
-    rpc_read(client, &memInfo, sizeof(memInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetConfComputeMemSizeInfo(device, memInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetConfComputeGpusReadyState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetConfComputeGpusReadyState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int*isAcceptingWork;
-    rpc_read(client, &isAcceptingWork, sizeof(isAcceptingWork));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetConfComputeGpusReadyState(isAcceptingWork);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetConfComputeProtectedMemoryUsage(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetConfComputeProtectedMemoryUsage called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlMemory_t*memory;
-    rpc_read(client, &memory, sizeof(memory));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetConfComputeProtectedMemoryUsage(device, memory);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetConfComputeGpuCertificate(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetConfComputeGpuCertificate called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlConfComputeGpuCertificate_t*gpuCert;
-    rpc_read(client, &gpuCert, sizeof(gpuCert));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetConfComputeGpuCertificate(device, gpuCert);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetConfComputeGpuAttestationReport(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetConfComputeGpuAttestationReport called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlConfComputeGpuAttestationReport_t*gpuAtstReport;
-    rpc_read(client, &gpuAtstReport, sizeof(gpuAtstReport));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetConfComputeGpuAttestationReport(device, gpuAtstReport);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetConfComputeKeyRotationThresholdInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetConfComputeKeyRotationThresholdInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlConfComputeGetKeyRotationThresholdInfo_t*pKeyRotationThrInfo;
-    rpc_read(client, &pKeyRotationThrInfo, sizeof(pKeyRotationThrInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetConfComputeKeyRotationThresholdInfo(pKeyRotationThrInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetConfComputeUnprotectedMemSize(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetConfComputeUnprotectedMemSize called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned long long sizeKiB;
-    rpc_read(client, &sizeKiB, sizeof(sizeKiB));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetConfComputeUnprotectedMemSize(device, sizeKiB);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemSetConfComputeGpusReadyState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemSetConfComputeGpusReadyState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int isAcceptingWork;
-    rpc_read(client, &isAcceptingWork, sizeof(isAcceptingWork));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemSetConfComputeGpusReadyState(isAcceptingWork);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemSetConfComputeKeyRotationThresholdInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemSetConfComputeKeyRotationThresholdInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlConfComputeSetKeyRotationThresholdInfo_t*pKeyRotationThrInfo;
-    rpc_read(client, &pKeyRotationThrInfo, sizeof(pKeyRotationThrInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemSetConfComputeKeyRotationThresholdInfo(pKeyRotationThrInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetConfComputeSettings(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetConfComputeSettings called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlSystemConfComputeSettings_t*settings;
-    rpc_read(client, &settings, sizeof(settings));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetConfComputeSettings(settings);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGspFirmwareVersion(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGspFirmwareVersion called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    char version[1024];
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGspFirmwareVersion(device, version);
-    rpc_write(client, version, strlen(version) + 1, true);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGspFirmwareMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGspFirmwareMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*isEnabled;
-    rpc_read(client, &isEnabled, sizeof(isEnabled));
-    unsigned int*defaultMode;
-    rpc_read(client, &defaultMode, sizeof(defaultMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGspFirmwareMode(device, isEnabled, defaultMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetSramEccErrorStatus(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetSramEccErrorStatus called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlEccSramErrorStatus_t*status;
-    rpc_read(client, &status, sizeof(status));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetSramEccErrorStatus(device, status);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5802,138 +3998,6 @@ int handle_nvmlDeviceGetArchitecture(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetArchitecture(device, arch);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetClkMonStatus(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetClkMonStatus called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlClkMonStatus_t*status;
-    rpc_read(client, &status, sizeof(status));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetClkMonStatus(device, status);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetProcessUtilization(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetProcessUtilization called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlProcessUtilizationSample_t*utilization;
-    rpc_read(client, &utilization, sizeof(utilization));
-    unsigned int*processSamplesCount;
-    rpc_read(client, &processSamplesCount, sizeof(processSamplesCount));
-    unsigned long long lastSeenTimeStamp;
-    rpc_read(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetProcessUtilization(device, utilization, processSamplesCount, lastSeenTimeStamp);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetProcessesUtilizationInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetProcessesUtilizationInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlProcessesUtilizationInfo_t*procesesUtilInfo;
-    rpc_read(client, &procesesUtilInfo, sizeof(procesesUtilInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetProcessesUtilizationInfo(device, procesesUtilInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetPlatformInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetPlatformInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPlatformInfo_t*platformInfo;
-    rpc_read(client, &platformInfo, sizeof(platformInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetPlatformInfo(device, platformInfo);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6304,188 +4368,24 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceResetApplicationsClocks(void *args0) {
+int handle_nvmlDeviceGetClkMonStatus(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceResetApplicationsClocks called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetClkMonStatus called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
+    nvmlClkMonStatus_t*status;
+    rpc_read(client, &status, sizeof(status));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceResetApplicationsClocks(device);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetAutoBoostedClocksEnabled(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetAutoBoostedClocksEnabled called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t enabled;
-    rpc_read(client, &enabled, sizeof(enabled));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetAutoBoostedClocksEnabled(device, enabled);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetDefaultAutoBoostedClocksEnabled(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetDefaultAutoBoostedClocksEnabled called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t enabled;
-    rpc_read(client, &enabled, sizeof(enabled));
-    unsigned int flags;
-    rpc_read(client, &flags, sizeof(flags));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetDefaultAutoBoostedClocksEnabled(device, enabled, flags);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetDefaultFanSpeed_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetDefaultFanSpeed_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int fan;
-    rpc_read(client, &fan, sizeof(fan));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetDefaultFanSpeed_v2(device, fan);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetFanControlPolicy(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetFanControlPolicy called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int fan;
-    rpc_read(client, &fan, sizeof(fan));
-    nvmlFanControlPolicy_t policy;
-    rpc_read(client, &policy, sizeof(policy));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetFanControlPolicy(device, fan, policy);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetTemperatureThreshold(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetTemperatureThreshold called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlTemperatureThresholds_t thresholdType;
-    rpc_read(client, &thresholdType, sizeof(thresholdType));
-    int*temp;
-    rpc_read(client, &temp, sizeof(temp));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetTemperatureThreshold(device, thresholdType, temp);
+    _result = nvmlDeviceGetClkMonStatus(device, status);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6598,104 +4498,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceSetFanSpeed_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetFanSpeed_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int fan;
-    rpc_read(client, &fan, sizeof(fan));
-    unsigned int speed;
-    rpc_read(client, &speed, sizeof(speed));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetFanSpeed_v2(device, fan, speed);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetGpcClkVfOffset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetGpcClkVfOffset called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int offset;
-    rpc_read(client, &offset, sizeof(offset));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetGpcClkVfOffset(device, offset);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetMemClkVfOffset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetMemClkVfOffset called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int offset;
-    rpc_read(client, &offset, sizeof(offset));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetMemClkVfOffset(device, offset);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceSetAccountingMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceSetAccountingMode called" << std::endl;
@@ -6744,38 +4546,6 @@ int handle_nvmlDeviceClearAccountingPids(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceClearAccountingPids(device);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetPowerManagementLimit_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetPowerManagementLimit_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPowerValue_v2_t*powerValue;
-    rpc_read(client, &powerValue, sizeof(powerValue));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetPowerManagementLimit_v2(device, powerValue);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -7212,194 +4982,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceSetNvLinkDeviceLowPowerThreshold(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetNvLinkDeviceLowPowerThreshold called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlNvLinkPowerThres_t*info;
-    rpc_read(client, &info, sizeof(info));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetNvLinkDeviceLowPowerThreshold(device, info);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemSetNvlinkBwMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemSetNvlinkBwMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int nvlinkBwMode;
-    rpc_read(client, &nvlinkBwMode, sizeof(nvlinkBwMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemSetNvlinkBwMode(nvlinkBwMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlSystemGetNvlinkBwMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlSystemGetNvlinkBwMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int*nvlinkBwMode;
-    rpc_read(client, &nvlinkBwMode, sizeof(nvlinkBwMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlSystemGetNvlinkBwMode(nvlinkBwMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetNvlinkSupportedBwModes(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetNvlinkSupportedBwModes called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlNvlinkSupportedBwModes_t*supportedBwMode;
-    rpc_read(client, &supportedBwMode, sizeof(supportedBwMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetNvlinkSupportedBwModes(device, supportedBwMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetNvlinkBwMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetNvlinkBwMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlNvlinkGetBwMode_t*getBwMode;
-    rpc_read(client, &getBwMode, sizeof(getBwMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetNvlinkBwMode(device, getBwMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetNvlinkBwMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetNvlinkBwMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlNvlinkSetBwMode_t*setBwMode;
-    rpc_read(client, &setBwMode, sizeof(setBwMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetNvlinkBwMode(device, setBwMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlEventSetCreate(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlEventSetCreate called" << std::endl;
@@ -7722,40 +5304,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceClearFieldValues(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceClearFieldValues called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    int valuesCount;
-    rpc_read(client, &valuesCount, sizeof(valuesCount));
-    nvmlFieldValue_t*values;
-    rpc_read(client, &values, sizeof(values));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceClearFieldValues(device, valuesCount, values);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetVirtualizationMode(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetVirtualizationMode called" << std::endl;
@@ -7852,303 +5400,9 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetVgpuHeterogeneousMode(void *args0) {
+int handle_nvmlDeviceGetGridLicensableFeatures_v3(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuHeterogeneousMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuHeterogeneousMode_t*pHeterogeneousMode;
-    rpc_read(client, &pHeterogeneousMode, sizeof(pHeterogeneousMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuHeterogeneousMode(device, pHeterogeneousMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetVgpuHeterogeneousMode(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetVgpuHeterogeneousMode called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode;
-    rpc_read(client, &pHeterogeneousMode, sizeof(pHeterogeneousMode));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetVgpuHeterogeneousMode(device, pHeterogeneousMode);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuInstanceGetPlacementId(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuInstanceGetPlacementId called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuInstance_t vgpuInstance;
-    rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlVgpuPlacementId_t*pPlacement;
-    rpc_read(client, &pPlacement, sizeof(pPlacement));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuInstanceGetPlacementId(vgpuInstance, pPlacement);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetVgpuTypeSupportedPlacements(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuTypeSupportedPlacements called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuTypeId_t vgpuTypeId;
-    rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    nvmlVgpuPlacementList_t*pPlacementList;
-    rpc_read(client, &pPlacementList, sizeof(pPlacementList));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuTypeSupportedPlacements(device, vgpuTypeId, pPlacementList);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetVgpuTypeCreatablePlacements(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuTypeCreatablePlacements called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuTypeId_t vgpuTypeId;
-    rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    nvmlVgpuPlacementList_t*pPlacementList;
-    rpc_read(client, &pPlacementList, sizeof(pPlacementList));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuTypeCreatablePlacements(device, vgpuTypeId, pPlacementList);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuTypeGetGspHeapSize(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuTypeGetGspHeapSize called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuTypeId_t vgpuTypeId;
-    rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned long long*gspHeapSize;
-    rpc_read(client, &gspHeapSize, sizeof(gspHeapSize));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuTypeGetGspHeapSize(vgpuTypeId, gspHeapSize);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuTypeGetFbReservation(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuTypeGetFbReservation called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuTypeId_t vgpuTypeId;
-    rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned long long*fbReservation;
-    rpc_read(client, &fbReservation, sizeof(fbReservation));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuTypeGetFbReservation(vgpuTypeId, fbReservation);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuInstanceGetRuntimeStateSize(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuInstanceGetRuntimeStateSize called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuInstance_t vgpuInstance;
-    rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlVgpuRuntimeState_t*pState;
-    rpc_read(client, &pState, sizeof(pState));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuInstanceGetRuntimeStateSize(vgpuInstance, pState);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetVgpuCapabilities(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetVgpuCapabilities called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlDeviceVgpuCapability_t capability;
-    rpc_read(client, &capability, sizeof(capability));
-    nvmlEnableState_t state;
-    rpc_read(client, &state, sizeof(state));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetVgpuCapabilities(device, capability, state);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGridLicensableFeatures_v4(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGridLicensableFeatures_v4 called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetGridLicensableFeatures_v3 called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
@@ -8163,7 +5417,7 @@ int handle_nvmlDeviceGetGridLicensableFeatures_v4(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetGridLicensableFeatures_v4(device, pGridLicensableFeatures);
+    _result = nvmlDeviceGetGridLicensableFeatures_v3(device, pGridLicensableFeatures);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8178,58 +5432,28 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlGetVgpuDriverCapabilities(void *args0) {
+int handle_nvmlDeviceGetProcessUtilization(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function nvmlGetVgpuDriverCapabilities called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuDriverCapability_t capability;
-    rpc_read(client, &capability, sizeof(capability));
-    unsigned int*capResult;
-    rpc_read(client, &capResult, sizeof(capResult));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGetVgpuDriverCapabilities(capability, capResult);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetVgpuCapabilities(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuCapabilities called" << std::endl;
+    std::cout << "Handle function nvmlDeviceGetProcessUtilization called" << std::endl;
 #endif
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlDeviceVgpuCapability_t capability;
-    rpc_read(client, &capability, sizeof(capability));
-    unsigned int*capResult;
-    rpc_read(client, &capResult, sizeof(capResult));
+    nvmlProcessUtilizationSample_t*utilization;
+    rpc_read(client, &utilization, sizeof(utilization));
+    unsigned int*processSamplesCount;
+    rpc_read(client, &processSamplesCount, sizeof(processSamplesCount));
+    unsigned long long lastSeenTimeStamp;
+    rpc_read(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
-    _result = nvmlDeviceGetVgpuCapabilities(device, capability, capResult);
+    _result = nvmlDeviceGetProcessUtilization(device, utilization, processSamplesCount, lastSeenTimeStamp);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8664,38 +5888,6 @@ int handle_nvmlVgpuTypeGetMaxInstancesPerVm(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuTypeGetMaxInstancesPerVm(vgpuTypeId, vgpuInstanceCountPerVm);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuTypeGetBAR1Info(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuTypeGetBAR1Info called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuTypeId_t vgpuTypeId;
-    rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    nvmlVgpuTypeBar1Info_t*bar1Info;
-    rpc_read(client, &bar1Info, sizeof(bar1Info));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuTypeGetBAR1Info(vgpuTypeId, bar1Info);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9240,108 +6432,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlVgpuInstanceGetGpuPciId(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuInstanceGetGpuPciId called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuInstance_t vgpuInstance;
-    rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    char vgpuPciId[1024];
-    unsigned int*length;
-    rpc_read(client, &length, sizeof(length));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuInstanceGetGpuPciId(vgpuInstance, vgpuPciId, length);
-    rpc_write(client, vgpuPciId, strlen(vgpuPciId) + 1, true);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuTypeGetCapabilities(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuTypeGetCapabilities called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuTypeId_t vgpuTypeId;
-    rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    nvmlVgpuCapability_t capability;
-    rpc_read(client, &capability, sizeof(capability));
-    unsigned int*capResult;
-    rpc_read(client, &capResult, sizeof(capResult));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuTypeGetCapabilities(vgpuTypeId, capability, capResult);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuInstanceGetMdevUUID(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuInstanceGetMdevUUID called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuInstance_t vgpuInstance;
-    rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    char mdevUuid[1024];
-    unsigned int size;
-    rpc_read(client, &size, sizeof(size));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuInstanceGetMdevUUID(vgpuInstance, mdevUuid, size);
-    rpc_write(client, mdevUuid, strlen(mdevUuid) + 1, true);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlVgpuInstanceGetMetadata(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlVgpuInstanceGetMetadata called" << std::endl;
@@ -9478,134 +6568,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetVgpuSchedulerLog(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuSchedulerLog called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuSchedulerLog_t*pSchedulerLog;
-    rpc_read(client, &pSchedulerLog, sizeof(pSchedulerLog));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuSchedulerLog(device, pSchedulerLog);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetVgpuSchedulerState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuSchedulerState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuSchedulerGetState_t*pSchedulerState;
-    rpc_read(client, &pSchedulerState, sizeof(pSchedulerState));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuSchedulerState(device, pSchedulerState);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetVgpuSchedulerCapabilities(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuSchedulerCapabilities called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuSchedulerCapabilities_t*pCapabilities;
-    rpc_read(client, &pCapabilities, sizeof(pCapabilities));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuSchedulerCapabilities(device, pCapabilities);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceSetVgpuSchedulerState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceSetVgpuSchedulerState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuSchedulerSetState_t*pSchedulerState;
-    rpc_read(client, &pSchedulerState, sizeof(pSchedulerState));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceSetVgpuSchedulerState(device, pSchedulerState);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlGetVgpuVersion(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlGetVgpuVersion called" << std::endl;
@@ -9706,38 +6668,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlDeviceGetVgpuInstancesUtilizationInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuInstancesUtilizationInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuInstancesUtilizationInfo_t*vgpuUtilInfo;
-    rpc_read(client, &vgpuUtilInfo, sizeof(vgpuUtilInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuInstancesUtilizationInfo(device, vgpuUtilInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlDeviceGetVgpuProcessUtilization(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlDeviceGetVgpuProcessUtilization called" << std::endl;
@@ -9760,38 +6690,6 @@ int handle_nvmlDeviceGetVgpuProcessUtilization(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetVgpuProcessUtilization(device, lastSeenTimeStamp, vgpuProcessSamplesCount, utilizationSamples);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetVgpuProcessesUtilizationInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetVgpuProcessesUtilizationInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlVgpuProcessesUtilizationInfo_t*vgpuProcUtilInfo;
-    rpc_read(client, &vgpuProcUtilInfo, sizeof(vgpuProcUtilInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetVgpuProcessesUtilizationInfo(device, vgpuProcUtilInfo);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9922,38 +6820,6 @@ int handle_nvmlVgpuInstanceClearAccountingPids(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuInstanceClearAccountingPids(vgpuInstance);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlVgpuInstanceGetLicenseInfo_v2(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlVgpuInstanceGetLicenseInfo_v2 called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuInstance_t vgpuInstance;
-    rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlVgpuLicenseInfo_t*licenseInfo;
-    rpc_read(client, &licenseInfo, sizeof(licenseInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlVgpuInstanceGetLicenseInfo_v2(vgpuInstance, licenseInfo);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10118,40 +6984,6 @@ int handle_nvmlDeviceGetGpuInstanceProfileInfo(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetGpuInstanceProfileInfo(device, profile, info);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetGpuInstanceProfileInfoV(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetGpuInstanceProfileInfoV called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int profile;
-    rpc_read(client, &profile, sizeof(profile));
-    nvmlGpuInstanceProfileInfo_v2_t*info;
-    rpc_read(client, &info, sizeof(info));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetGpuInstanceProfileInfoV(device, profile, info);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10474,42 +7306,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlGpuInstanceGetComputeInstanceProfileInfoV(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpuInstanceGetComputeInstanceProfileInfoV called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlGpuInstance_t gpuInstance;
-    rpc_read(client, &gpuInstance, sizeof(gpuInstance));
-    unsigned int profile;
-    rpc_read(client, &profile, sizeof(profile));
-    unsigned int engProfile;
-    rpc_read(client, &engProfile, sizeof(engProfile));
-    nvmlComputeInstanceProfileInfo_v2_t*info;
-    rpc_read(client, &info, sizeof(info));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpuInstanceGetComputeInstanceProfileInfoV(gpuInstance, profile, engProfile, info);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlGpuInstanceGetComputeInstanceRemainingCapacity(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlGpuInstanceGetComputeInstanceRemainingCapacity called" << std::endl;
@@ -10544,42 +7340,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_nvmlGpuInstanceGetComputeInstancePossiblePlacements(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpuInstanceGetComputeInstancePossiblePlacements called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlGpuInstance_t gpuInstance;
-    rpc_read(client, &gpuInstance, sizeof(gpuInstance));
-    unsigned int profileId;
-    rpc_read(client, &profileId, sizeof(profileId));
-    nvmlComputeInstancePlacement_t*placements;
-    rpc_read(client, &placements, sizeof(placements));
-    unsigned int*count;
-    rpc_read(client, &count, sizeof(count));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpuInstanceGetComputeInstancePossiblePlacements(gpuInstance, profileId, placements, count);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_nvmlGpuInstanceCreateComputeInstance(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function nvmlGpuInstanceCreateComputeInstance called" << std::endl;
@@ -10600,42 +7360,6 @@ int handle_nvmlGpuInstanceCreateComputeInstance(void *args0) {
         goto _RTN_;
     }
     _result = nvmlGpuInstanceCreateComputeInstance(gpuInstance, profileId, computeInstance);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpuInstanceCreateComputeInstanceWithPlacement(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpuInstanceCreateComputeInstanceWithPlacement called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlGpuInstance_t gpuInstance;
-    rpc_read(client, &gpuInstance, sizeof(gpuInstance));
-    unsigned int profileId;
-    rpc_read(client, &profileId, sizeof(profileId));
-    nvmlComputeInstancePlacement_t *placement;
-    rpc_read(client, &placement, sizeof(placement));
-    nvmlComputeInstance_t*computeInstance;
-    rpc_read(client, &computeInstance, sizeof(computeInstance));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpuInstanceCreateComputeInstanceWithPlacement(gpuInstance, profileId, placement, computeInstance);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10962,514 +7686,6 @@ int handle_nvmlDeviceGetDeviceHandleFromMigDeviceHandle(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetDeviceHandleFromMigDeviceHandle(migDevice, device);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmMetricsGet(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmMetricsGet called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlGpmMetricsGet_t*metricsGet;
-    rpc_read(client, &metricsGet, sizeof(metricsGet));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmMetricsGet(metricsGet);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmSampleFree(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmSampleFree called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlGpmSample_t gpmSample;
-    rpc_read(client, &gpmSample, sizeof(gpmSample));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmSampleFree(gpmSample);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmSampleAlloc(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmSampleAlloc called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlGpmSample_t*gpmSample;
-    rpc_read(client, &gpmSample, sizeof(gpmSample));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmSampleAlloc(gpmSample);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmSampleGet(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmSampleGet called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlGpmSample_t gpmSample;
-    rpc_read(client, &gpmSample, sizeof(gpmSample));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmSampleGet(device, gpmSample);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmMigSampleGet(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmMigSampleGet called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int gpuInstanceId;
-    rpc_read(client, &gpuInstanceId, sizeof(gpuInstanceId));
-    nvmlGpmSample_t gpmSample;
-    rpc_read(client, &gpmSample, sizeof(gpmSample));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmMigSampleGet(device, gpuInstanceId, gpmSample);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmQueryDeviceSupport(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmQueryDeviceSupport called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlGpmSupport_t*gpmSupport;
-    rpc_read(client, &gpmSupport, sizeof(gpmSupport));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmQueryDeviceSupport(device, gpmSupport);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmQueryIfStreamingEnabled(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmQueryIfStreamingEnabled called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int*state;
-    rpc_read(client, &state, sizeof(state));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmQueryIfStreamingEnabled(device, state);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlGpmSetStreamingEnabled(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlGpmSetStreamingEnabled called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    unsigned int state;
-    rpc_read(client, &state, sizeof(state));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlGpmSetStreamingEnabled(device, state);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceGetCapabilities(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceGetCapabilities called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlDeviceCapabilities_t*caps;
-    rpc_read(client, &caps, sizeof(caps));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceGetCapabilities(device, caps);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceWorkloadPowerProfileGetProfilesInfo(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceWorkloadPowerProfileGetProfilesInfo called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlWorkloadPowerProfileProfilesInfo_t*profilesInfo;
-    rpc_read(client, &profilesInfo, sizeof(profilesInfo));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceWorkloadPowerProfileGetProfilesInfo(device, profilesInfo);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceWorkloadPowerProfileGetCurrentProfiles(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceWorkloadPowerProfileGetCurrentProfiles called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlWorkloadPowerProfileCurrentProfiles_t*currentProfiles;
-    rpc_read(client, &currentProfiles, sizeof(currentProfiles));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceWorkloadPowerProfileGetCurrentProfiles(device, currentProfiles);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceWorkloadPowerProfileSetRequestedProfiles(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceWorkloadPowerProfileSetRequestedProfiles called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlWorkloadPowerProfileRequestedProfiles_t*requestedProfiles;
-    rpc_read(client, &requestedProfiles, sizeof(requestedProfiles));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceWorkloadPowerProfileSetRequestedProfiles(device, requestedProfiles);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDeviceWorkloadPowerProfileClearRequestedProfiles called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlWorkloadPowerProfileRequestedProfiles_t*requestedProfiles;
-    rpc_read(client, &requestedProfiles, sizeof(requestedProfiles));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(device, requestedProfiles);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDevicePowerSmoothingActivatePresetProfile(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDevicePowerSmoothingActivatePresetProfile called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPowerSmoothingProfile_t*profile;
-    rpc_read(client, &profile, sizeof(profile));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDevicePowerSmoothingActivatePresetProfile(device, profile);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDevicePowerSmoothingUpdatePresetProfileParam(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDevicePowerSmoothingUpdatePresetProfileParam called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPowerSmoothingProfile_t*profile;
-    rpc_read(client, &profile, sizeof(profile));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDevicePowerSmoothingUpdatePresetProfileParam(device, profile);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
-int handle_nvmlDevicePowerSmoothingSetState(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function nvmlDevicePowerSmoothingSetState called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    nvmlDevice_t device;
-    rpc_read(client, &device, sizeof(device));
-    nvmlPowerSmoothingState_t*state;
-    rpc_read(client, &state, sizeof(state));
-    nvmlReturn_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    _result = nvmlDevicePowerSmoothingSetState(device, state);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

@@ -16,19 +16,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    "hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
+    ##"hidden_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    ##"/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    ##"/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/stubs/libcudart.so",
+    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    ##"hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    ##"/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    ##"/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
@@ -117,6 +117,7 @@ HIDDEN_TYPES = ["cudnnRuntimeTag_t"]
 
 random.seed(time.time())
 VERSION_KEY = random.randint(0, 0xFFFF)  # 定义一个16位的随机数作为版本密钥，每次生成的值都是随机的
+
 
 def generate_hook_api_h(output_dir, function_map):
     """
@@ -298,6 +299,7 @@ def getArrayLengthParam(function, param):
                 return _param.name
     return "0"
 
+
 # 获取指针指向内存的长度
 def getPointerLength(function, param):
     param_name = param.name
@@ -309,8 +311,9 @@ def getPointerLength(function, param):
             if _param.name.endswith("type") or _param.name.endswith("Type"):
                 pre = _param.name[:-4]
                 if pre.find(param_name) != -1:
-                    return "getSizeFromCudaDataType("+_param.name+")"
+                    return "sizeofType(" + _param.name + ")"
     return "0"
+
 
 # 处理值类型参数
 def handle_param_type(function, param, f, is_client=True, position=0):
@@ -426,44 +429,7 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
             f.write(f"    {param_type_name} *{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             return param.name
-    # if is_client:
-    #     if position == 1:
-    #         f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
-    # else:
-    #     if position == 0:
-    #         # 移除参数类型字符串中开头的 const
-    #         param_type_name = param.type.ptr_to.format()
-    #         param_type_name = param_type_name[6:]
-    #         f.write(f"    {param_type_name} {param.name};\n")
-    #         f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
-    #         return "&" + param.name
 
-
-# 处理输入类型的type *参数
-# def handle_param_ptype_in(function, param, f, is_client=True, position=0):
-#     if is_client:
-#         if position == 1:
-#             f.write(f"    rpc_write(client, {param.name}, sizeof(*{param.name}));\n")
-#     else:
-#         if position == 0:
-#             param_type_name = param.type.ptr_to.format()
-#             f.write(f"    {param_type_name} {param.name};\n")
-#             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
-#             return param.name
-
-
-# 处理输出类型的type *参数
-# def handle_param_ptype_out(function, param, f, is_client=True, position=0):
-#     if is_client:
-#         if position == 1:
-#             f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
-#     else:
-#         if position == 0:
-#             param_type_name = param.type.ptr_to.format()
-#             f.write(f"    {param_type_name} {param.name};\n")
-#             return "&" + param.name
-#         elif position == 2:
-#             f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
 
 def handle_param_ptype(function, param, f, is_client=True, position=0):
     param_type_name = param.type.ptr_to.format()
@@ -480,6 +446,7 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
             f.write(f"    {param_type_name}*{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             return param.name
+
 
 # 处理void **类型的参数
 def handle_param_ppvoid(function, param, f, is_client=True, position=0):
@@ -657,113 +624,959 @@ def handle_param(function, param, f, is_client=True, position=0):
     else:
         f.write(f'    std::cerr << "PARAM Not supported" << std::endl; // {param.name} \n')
         f.write(f"    exit(1);\n")
-from cxxheaderparser.types import Pointer, Type
-def calculate_pointer_sizes(function, target_param):
-    """
-    分析CUDA/CUBLAS API函数中特定参数的内存大小
-    参数:
-        function: 函数对象
-        target_param: 目标参数对象
-    返回:
-        size_formula: 该参数的内存大小计算公式字符串
-    """
-    function_name = function.name.format()
-    param_names = [param.name for param in function.parameters]
 
-    # 如果参数不是指针类型，返回0
-    if not isinstance(target_param.type, Pointer):
+
+pointer_sizes = {
+    "cublasCreate_v2": {"handle": "sizeof(*handle)"},
+    "cublasDestroy_v2": {},
+    "cublasGetVersion_v2": {"version": "sizeof(*version)"},
+    "cublasGetProperty": {"value": "sizeof(*value)"},
+    "cublasGetCudartVersion": {},
+    "cublasSetWorkspace_v2": {"workspace": "workspaceSizeInBytes"},
+    "cublasSetStream_v2": {},
+    "cublasGetStream_v2": {"streamId": "sizeof(*streamId)"},
+    "cublasGetPointerMode_v2": {"mode": "sizeof(*mode)"},
+    "cublasSetPointerMode_v2": {},
+    "cublasGetAtomicsMode": {"mode": "sizeof(*mode)"},
+    "cublasSetAtomicsMode": {},
+    "cublasGetMathMode": {"mode": "sizeof(*mode)"},
+    "cublasSetMathMode": {},
+    "cublasGetSmCountTarget": {"smCountTarget": "sizeof(*smCountTarget)"},
+    "cublasSetSmCountTarget": {},
+    "cublasLoggerConfigure": {"logFileName": "strlen(logFileName)+1"},
+    "cublasSetLoggerCallback": {},
+    "cublasGetLoggerCallback": {"userCallback": "sizeof(*userCallback)"},
+    "cublasSetVector": {"x": "n * elemSize", "devicePtr": "n * elemSize"},
+    "cublasGetVector": {"x": "n * elemSize", "y": "n * elemSize"},
+    "cublasSetMatrix": {"A": "rows * cols * elemSize", "B": "rows * cols * elemSize"},
+    "cublasGetMatrix": {"A": "rows * cols * elemSize", "B": "rows * cols * elemSize"},
+    "cublasSetVectorAsync": {"hostPtr": "n * elemSize", "devicePtr": "n * elemSize"},
+    "cublasGetVectorAsync": {"devicePtr": "n * elemSize", "hostPtr": "n * elemSize"},
+    "cublasSetMatrixAsync": {"A": "rows * cols * elemSize", "B": "rows * cols * elemSize"},
+    "cublasGetMatrixAsync": {"A": "rows * cols * elemSize", "B": "rows * cols * elemSize"},
+    "cublasXerbla": {"srName": "strlen(srName)+1"},
+    "cublasNrm2Ex": {"x": "n * sizeofType(xType)", "result": "sizeofType(resultType)"},
+    "cublasSnrm2_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasDnrm2_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasScnrm2_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasDznrm2_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasDotEx": {"x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)", "result": "sizeofType(resultType)"},
+    "cublasDotcEx": {"x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)", "result": "sizeofType(resultType)"},
+    "cublasSdot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "result": "sizeof(*result)"},
+    "cublasDdot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "result": "sizeof(*result)"},
+    "cublasCdotu_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "result": "sizeof(*result)"},
+    "cublasCdotc_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "result": "sizeof(*result)"},
+    "cublasZdotu_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "result": "sizeof(*result)"},
+    "cublasZdotc_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "result": "sizeof(*result)"},
+    "cublasScalEx": {"alpha": "sizeofType(alphaType)", "x": "n * sizeofType(xType)"},
+    "cublasSscal_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)"},
+    "cublasDscal_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)"},
+    "cublasCscal_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)"},
+    "cublasCsscal_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)"},
+    "cublasZscal_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)"},
+    "cublasZdscal_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)"},
+    "cublasAxpyEx": {"alpha": "sizeofType(alphaType)", "x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)"},
+    "cublasSaxpy_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasDaxpy_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasCaxpy_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasZaxpy_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasCopyEx": {"x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)"},
+    "cublasScopy_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasDcopy_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasCcopy_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasZcopy_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasSswap_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasDswap_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasCswap_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasZswap_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)"},
+    "cublasSwapEx": {"x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)"},
+    "cublasIsamax_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIdamax_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIcamax_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIzamax_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIamaxEx": {"x": "n * sizeofType(xType)", "result": "sizeof(*result)"},
+    "cublasIsamin_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIdamin_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIcamin_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIzamin_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasIaminEx": {"x": "n * sizeofType(xType)", "result": "sizeof(*result)"},
+    "cublasAsumEx": {"x": "n * sizeofType(xType)", "result": "sizeofType(resultType)"},
+    "cublasSasum_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasDasum_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasScasum_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasDzasum_v2": {"x": "n * sizeof(*x)", "result": "sizeof(*result)"},
+    "cublasSrot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasDrot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasCrot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasCsrot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasZrot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasZdrot_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasRotEx": {"x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)", "c": "sizeofType(csType)", "s": "sizeofType(csType)"},
+    "cublasSrotg_v2": {"a": "sizeof(*a)", "b": "sizeof(*b)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasDrotg_v2": {"a": "sizeof(*a)", "b": "sizeof(*b)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasCrotg_v2": {"a": "sizeof(*a)", "b": "sizeof(*b)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasZrotg_v2": {"a": "sizeof(*a)", "b": "sizeof(*b)", "c": "sizeof(*c)", "s": "sizeof(*s)"},
+    "cublasRotgEx": {"a": "sizeofType(abType)", "b": "sizeofType(abType)", "c": "sizeofType(csType)", "s": "sizeofType(csType)"},
+    "cublasSrotm_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "param": "5 * sizeof(*param)"},
+    "cublasDrotm_v2": {"x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "param": "5 * sizeof(*param)"},
+    "cublasRotmEx": {"x": "n * sizeofType(xType)", "y": "n * sizeofType(yType)", "param": "5 * sizeofType(paramType)"},
+    "cublasSrotmg_v2": {"d1": "sizeof(*d1)", "d2": "sizeof(*d2)", "x1": "sizeof(*x1)", "y1": "sizeof(*y1)", "param": "5 * sizeof(*param)"},
+    "cublasDrotmg_v2": {"d1": "sizeof(*d1)", "d2": "sizeof(*d2)", "x1": "sizeof(*x1)", "y1": "sizeof(*y1)", "param": "5 * sizeof(*param)"},
+    "cublasRotmgEx": {"d1": "sizeofType(d1Type)", "d2": "sizeofType(d2Type)", "x1": "sizeofType(x1Type)", "y1": "sizeofType(y1Type)", "param": "5 * sizeofType(paramType)"},
+    "cublasSgemv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "(trans == CUBLAS_OP_N ? n : m) * sizeof(*x)", "beta": "sizeof(*beta)", "y": "(trans == CUBLAS_OP_N ? m : n) * sizeof(*y)"},
+    "cublasDgemv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "(trans == CUBLAS_OP_N ? n : m) * sizeof(*x)", "beta": "sizeof(*beta)", "y": "(trans == CUBLAS_OP_N ? m : n) * sizeof(*y)"},
+    "cublasCgemv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "(trans == CUBLAS_OP_N ? n : m) * sizeof(*x)", "beta": "sizeof(*beta)", "y": "(trans == CUBLAS_OP_N ? m : n) * sizeof(*y)"},
+    "cublasZgemv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "(trans == CUBLAS_OP_N ? n : m) * sizeof(*x)", "beta": "sizeof(*beta)", "y": "(trans == CUBLAS_OP_N ? m : n) * sizeof(*y)"},
+    "cublasSgbmv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "m * sizeof(*y)"},
+    "cublasDgbmv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "m * sizeof(*y)"},
+    "cublasCgbmv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "m * sizeof(*y)"},
+    "cublasZgbmv_v2": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "m * sizeof(*y)"},
+    "cublasStrmv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasDtrmv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasCtrmv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasZtrmv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasStbmv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasDtbmv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasCtbmv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasZtbmv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasStpmv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasDtpmv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasCtpmv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasZtpmv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasStrsv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasDtrsv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasCtrsv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasZtrsv_v2": {"A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasStpsv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasDtpsv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasCtpsv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasZtpsv_v2": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)"},
+    "cublasStbsv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasDtbsv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasCtbsv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasZtbsv_v2": {"A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)"},
+    "cublasSsymv_v2": {"alpha": "sizeof(*alpha)", "A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasDsymv_v2": {"alpha": "sizeof(*alpha)", "A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasCsymv_v2": {"alpha": "sizeof(*alpha)", "A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasZsymv_v2": {"alpha": "sizeof(*alpha)", "A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasChemv_v2": {"alpha": "sizeof(*alpha)", "A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasZhemv_v2": {"alpha": "sizeof(*alpha)", "A": "n * n * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasSsbmv_v2": {"alpha": "sizeof(*alpha)", "A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasDsbmv_v2": {"alpha": "sizeof(*alpha)", "A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasChbmv_v2": {"alpha": "sizeof(*alpha)", "A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasZhbmv_v2": {"alpha": "sizeof(*alpha)", "A": "n * k * sizeof(*A)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasSspmv_v2": {"alpha": "sizeof(*alpha)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasDspmv_v2": {"alpha": "sizeof(*alpha)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasChpmv_v2": {"alpha": "sizeof(*alpha)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasZhpmv_v2": {"alpha": "sizeof(*alpha)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "x": "n * sizeof(*x)", "beta": "sizeof(*beta)", "y": "n * sizeof(*y)"},
+    "cublasSger_v2": {"alpha": "sizeof(*alpha)", "x": "m * sizeof(*x)", "y": "n * sizeof(*y)", "A": "m * n * sizeof(*A)"},
+    "cublasDger_v2": {"alpha": "sizeof(*alpha)", "x": "m * sizeof(*x)", "y": "n * sizeof(*y)", "A": "m * n * sizeof(*A)"},
+    "cublasCgeru_v2": {"alpha": "sizeof(*alpha)", "x": "m * sizeof(*x)", "y": "n * sizeof(*y)", "A": "m * n * sizeof(*A)"},
+    "cublasCgerc_v2": {"alpha": "sizeof(*alpha)", "x": "m * sizeof(*x)", "y": "n * sizeof(*y)", "A": "m * n * sizeof(*A)"},
+    "cublasZgeru_v2": {"alpha": "sizeof(*alpha)", "x": "m * sizeof(*x)", "y": "n * sizeof(*y)", "A": "m * n * sizeof(*A)"},
+    "cublasZgerc_v2": {"alpha": "sizeof(*alpha)", "x": "m * sizeof(*x)", "y": "n * sizeof(*y)", "A": "m * n * sizeof(*A)"},
+    "cublasSsyr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "A": "n * n * sizeof(*A)"},
+    "cublasDsyr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "A": "n * n * sizeof(*A)"},
+    "cublasCsyr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "A": "n * n * sizeof(*A)"},
+    "cublasZsyr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "A": "n * n * sizeof(*A)"},
+    "cublasCher_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "A": "n * n * sizeof(*A)"},
+    "cublasZher_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "A": "n * n * sizeof(*A)"},
+    "cublasSspr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasDspr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasChpr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasZhpr_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasSsyr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "A": "n * n * sizeof(*A)"},
+    "cublasDsyr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "A": "n * n * sizeof(*A)"},
+    "cublasCsyr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "A": "n * n * sizeof(*A)"},
+    "cublasZsyr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "A": "n * n * sizeof(*A)"},
+    "cublasCher2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "A": "n * n * sizeof(*A)"},
+    "cublasZher2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "A": "n * n * sizeof(*A)"},
+    "cublasSspr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasDspr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasChpr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasZhpr2_v2": {"alpha": "sizeof(*alpha)", "x": "n * sizeof(*x)", "y": "n * sizeof(*y)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasSgemm_v2": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasDgemm_v2": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasCgemm_v2": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasCgemm3m": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasCgemm3mEx": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype)", "beta": "sizeof(*beta)", "C": "m * n * sizeofType(Ctype)"},
+    "cublasZgemm_v2": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasZgemm3m": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasHgemm": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasSgemmEx": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype)", "beta": "sizeof(*beta)", "C": "m * n * sizeofType(Ctype)"},
+    "cublasCgemmEx": {"alpha": "sizeof(*alpha)", "A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype)", "beta": "sizeof(*beta)", "C": "m * n * sizeofType(Ctype)"},
+    "cublasUint8gemmBias": {"A": "transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A)", "B": "transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasSsyrk_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasDsyrk_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCsyrk_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasZsyrk_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCsyrkEx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype)", "beta": "sizeof(*beta)", "C": "n * n * sizeofType(Ctype)"},
+    "cublasCsyrk3mEx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype)", "beta": "sizeof(*beta)", "C": "n * n * sizeofType(Ctype)"},
+    "cublasCherk_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasZherk_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCherkEx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype)", "beta": "sizeof(*beta)", "C": "n * n * sizeofType(Ctype)"},
+    "cublasCherk3mEx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype)", "beta": "sizeof(*beta)", "C": "n * n * sizeofType(Ctype)"},
+    "cublasSsyr2k_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasDsyr2k_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCsyr2k_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasZsyr2k_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCher2k_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasZher2k_v2": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasSsyrkx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasDsyrkx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCsyrkx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasZsyrkx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasCherkx": {"alpha": "sizeof(*alpha)", "A": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A)", "B": "trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasZherkx": {"alpha": "sizeof(*alpha)", "A": "n * k * sizeof(*A)", "B": "n * k * sizeof(*B)", "beta": "sizeof(*beta)", "C": "n * n * sizeof(*C)"},
+    "cublasSsymm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasDsymm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasCsymm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasZsymm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasChemm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasZhemm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasStrsm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)"},
+    "cublasDtrsm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)"},
+    "cublasCtrsm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)"},
+    "cublasZtrsm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)"},
+    "cublasStrmm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasDtrmm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasCtrmm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasZtrmm_v2": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasHgemmBatched": {"alpha": "sizeof(*alpha)", "Aarray": "m * k * sizeof(**Aarray)", "Barray": "k * n * sizeof(**Barray)", "beta": "sizeof(*beta)", "Carray": "m * n * sizeof(**Carray)"},
+    "cublasSgemmBatched": {"alpha": "sizeof(*alpha)", "Aarray": "m * k * sizeof(**Aarray)", "Barray": "k * n * sizeof(**Barray)", "beta": "sizeof(*beta)", "Carray": "m * n * sizeof(**Carray)"},
+    "cublasDgemmBatched": {"alpha": "sizeof(*alpha)", "Aarray": "m * k * sizeof(**Aarray)", "Barray": "k * n * sizeof(**Barray)", "beta": "sizeof(*beta)", "Carray": "m * n * sizeof(**Carray)"},
+    "cublasCgemmBatched": {"alpha": "sizeof(*alpha)", "Aarray": "m * k * sizeof(**Aarray)", "Barray": "k * n * sizeof(**Barray)", "beta": "sizeof(*beta)", "Carray": "m * n * sizeof(**Carray)"},
+    "cublasCgemm3mBatched": {"alpha": "sizeof(*alpha)", "Aarray": "m * k * sizeof(**Aarray)", "Barray": "k * n * sizeof(**Barray)", "beta": "sizeof(*beta)", "Carray": "m * n * sizeof(**Carray)"},
+    "cublasZgemmBatched": {"alpha": "sizeof(*alpha)", "Aarray": "m * k * sizeof(**Aarray)", "Barray": "k * n * sizeof(**Barray)", "beta": "sizeof(*beta)", "Carray": "m * n * sizeof(**Carray)"},
+    "cublasSgemmStridedBatched": {"alpha": "sizeof(*alpha)", "A": "m * k * sizeof(*A)", "B": "k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasDgemmStridedBatched": {"alpha": "sizeof(*alpha)", "A": "m * k * sizeof(*A)", "B": "k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasCgemmStridedBatched": {"alpha": "sizeof(*alpha)", "A": "m * k * sizeof(*A)", "B": "k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasCgemm3mStridedBatched": {"alpha": "sizeof(*alpha)", "A": "m * k * sizeof(*A)", "B": "k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasZgemmStridedBatched": {"alpha": "sizeof(*alpha)", "A": "m * k * sizeof(*A)", "B": "k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasHgemmStridedBatched": {"alpha": "sizeof(*alpha)", "A": "m * k * sizeof(*A)", "B": "k * n * sizeof(*B)", "beta": "sizeof(*beta)", "C": "m * n * sizeof(*C)"},
+    "cublasSgeam": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "beta": "sizeof(*beta)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasDgeam": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "beta": "sizeof(*beta)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasCgeam": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "beta": "sizeof(*beta)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasZgeam": {"alpha": "sizeof(*alpha)", "A": "m * n * sizeof(*A)", "beta": "sizeof(*beta)", "B": "m * n * sizeof(*B)", "C": "m * n * sizeof(*C)"},
+    "cublasSgetrfBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "info": "batchSize * sizeof(*info)"},
+    "cublasDgetrfBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "info": "batchSize * sizeof(*info)"},
+    "cublasCgetrfBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "info": "batchSize * sizeof(*info)"},
+    "cublasZgetrfBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "info": "batchSize * sizeof(*info)"},
+    "cublasSgetriBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "C": "n * n * sizeof(**C)", "info": "batchSize * sizeof(*info)"},
+    "cublasDgetriBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "C": "n * n * sizeof(**C)", "info": "batchSize * sizeof(*info)"},
+    "cublasCgetriBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "C": "n * n * sizeof(**C)", "info": "batchSize * sizeof(*info)"},
+    "cublasZgetriBatched": {"A": "n * n * sizeof(**A)", "P": "n * sizeof(*P)", "C": "n * n * sizeof(**C)", "info": "batchSize * sizeof(*info)"},
+    "cublasSgetrsBatched": {"Aarray": "n * n * sizeof(**Aarray)", "devIpiv": "n * sizeof(*devIpiv)", "Barray": "n * nrhs * sizeof(**Barray)", "info": "batchSize * sizeof(*info)"},
+    "cublasDgetrsBatched": {"Aarray": "n * n * sizeof(**Aarray)", "devIpiv": "n * sizeof(*devIpiv)", "Barray": "n * nrhs * sizeof(**Barray)", "info": "batchSize * sizeof(*info)"},
+    "cublasCgetrsBatched": {"Aarray": "n * n * sizeof(**Aarray)", "devIpiv": "n * sizeof(*devIpiv)", "Barray": "n * nrhs * sizeof(**Barray)", "info": "batchSize * sizeof(*info)"},
+    "cublasZgetrsBatched": {"Aarray": "n * n * sizeof(**Aarray)", "devIpiv": "n * sizeof(*devIpiv)", "Barray": "n * nrhs * sizeof(**Barray)", "info": "batchSize * sizeof(*info)"},
+    "cublasStrsmBatched": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(**A)", "B": "m * n * sizeof(**B)"},
+    "cublasDtrsmBatched": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(**A)", "B": "m * n * sizeof(**B)"},
+    "cublasCtrsmBatched": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(**A)", "B": "m * n * sizeof(**B)"},
+    "cublasZtrsmBatched": {"alpha": "sizeof(*alpha)", "A": "(side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(**A)", "B": "m * n * sizeof(**B)"},
+    "cublasSmatinvBatched": {"A": "n * n * sizeof(**A)", "Ainv": "n * n * sizeof(**Ainv)", "info": "batchSize * sizeof(*info)"},
+    "cublasDmatinvBatched": {"A": "n * n * sizeof(**A)", "Ainv": "n * n * sizeof(**Ainv)", "info": "batchSize * sizeof(*info)"},
+    "cublasCmatinvBatched": {"A": "n * n * sizeof(**A)", "Ainv": "n * n * sizeof(**Ainv)", "info": "batchSize * sizeof(*info)"},
+    "cublasZmatinvBatched": {"A": "n * n * sizeof(**A)", "Ainv": "n * n * sizeof(**Ainv)", "info": "batchSize * sizeof(*info)"},
+    "cublasSgeqrfBatched": {"Aarray": "m * n * sizeof(**Aarray)", "TauArray": "(m < n ? m : n) * sizeof(**TauArray)", "info": "batchSize * sizeof(*info)"},
+    "cublasDgeqrfBatched": {"Aarray": "m * n * sizeof(**Aarray)", "TauArray": "(m < n ? m : n) * sizeof(**TauArray)", "info": "batchSize * sizeof(*info)"},
+    "cublasCgeqrfBatched": {"Aarray": "m * n * sizeof(**Aarray)", "TauArray": "(m < n ? m : n) * sizeof(**TauArray)", "info": "batchSize * sizeof(*info)"},
+    "cublasZgeqrfBatched": {"Aarray": "m * n * sizeof(**Aarray)", "TauArray": "(m < n ? m : n) * sizeof(**TauArray)", "info": "batchSize * sizeof(*info)"},
+    "cublasSgelsBatched": {"Aarray": "m * n * sizeof(**Aarray)", "Carray": "m * nrhs * sizeof(**Carray)", "info": "batchSize * sizeof(*info)", "devInfoArray": "batchSize * sizeof(*devInfoArray)"},
+    "cublasDgelsBatched": {"Aarray": "m * n * sizeof(**Aarray)", "Carray": "m * nrhs * sizeof(**Carray)", "info": "batchSize * sizeof(*info)", "devInfoArray": "batchSize * sizeof(*devInfoArray)"},
+    "cublasCgelsBatched": {"Aarray": "m * n * sizeof(**Aarray)", "Carray": "m * nrhs * sizeof(**Carray)", "info": "batchSize * sizeof(*info)", "devInfoArray": "batchSize * sizeof(*devInfoArray)"},
+    "cublasZgelsBatched": {"Aarray": "m * n * sizeof(**Aarray)", "Carray": "m * nrhs * sizeof(**Carray)", "info": "batchSize * sizeof(*info)", "devInfoArray": "batchSize * sizeof(*devInfoArray)"},
+    "cublasSdgmm": {"A": "m * n * sizeof(*A)", "x": "(mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x)", "C": "m * n * sizeof(*C)"},
+    "cublasDdgmm": {"A": "m * n * sizeof(*A)", "x": "(mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x)", "C": "m * n * sizeof(*C)"},
+    "cublasCdgmm": {"A": "m * n * sizeof(*A)", "x": "(mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x)", "C": "m * n * sizeof(*C)"},
+    "cublasZdgmm": {"A": "m * n * sizeof(*A)", "x": "(mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x)", "C": "m * n * sizeof(*C)"},
+    "cublasStpttr": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "A": "n * n * sizeof(*A)"},
+    "cublasDtpttr": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "A": "n * n * sizeof(*A)"},
+    "cublasCtpttr": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "A": "n * n * sizeof(*A)"},
+    "cublasZtpttr": {"AP": "(n * (n + 1)) / 2 * sizeof(*AP)", "A": "n * n * sizeof(*A)"},
+    "cublasStrttp": {"A": "n * n * sizeof(*A)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasDtrttp": {"A": "n * n * sizeof(*A)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasCtrttp": {"A": "n * n * sizeof(*A)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    "cublasZtrttp": {"A": "n * n * sizeof(*A)", "AP": "(n * (n + 1)) / 2 * sizeof(*AP)"},
+    # cuda.h
+    "cuInit": {},
+    "cuDriverGetVersion": {"driverVersion": "sizeof(*driverVersion)"},
+    "cuDeviceGet": {"device": "sizeof(*device)"},
+    "cuDeviceGetCount": {"count": "sizeof(*count)"},
+    "cuDeviceGetName": {"name": "len"},
+    "cuDeviceGetUuid": {"uuid": "sizeof(*uuid)"},
+    "cuDeviceGetUuid_v2": {"uuid": "sizeof(*uuid)"},
+    "cuDeviceGetLuid": {"luid": "sizeof(*luid)", "deviceNodeMask": "sizeof(*deviceNodeMask)"},
+    "cuDeviceTotalMem_v2": {"bytes": "sizeof(*bytes)"},
+    "cuDeviceGetTexture1DLinearMaxWidth": {"maxWidthInElements": "sizeof(*maxWidthInElements)"},
+    "cuDeviceGetAttribute": {"pi": "sizeof(*pi)"},
+    "cuDeviceGetNvSciSyncAttributes": {"nvSciSyncAttrList": "sizeof(*nvSciSyncAttrList)"},
+    "cuDeviceSetMemPool": {"pool": "sizeof(*pool)"},
+    "cuDeviceGetMemPool": {"pool": "sizeof(*pool)"},
+    "cuDeviceGetDefaultMemPool": {"pool_out": "sizeof(*pool_out)"},
+    "cuDeviceGetProperties": {"prop": "sizeof(*prop)"},
+    "cuDeviceComputeCapability": {"major": "sizeof(*major)", "minor": "sizeof(*minor)"},
+    "cuDevicePrimaryCtxRetain": {"pctx": "sizeof(*pctx)"},
+    "cuDevicePrimaryCtxRelease_v2": {},
+    "cuDevicePrimaryCtxSetFlags_v2": {},
+    "cuDevicePrimaryCtxGetState": {"flags": "sizeof(*flags)", "active": "sizeof(*active)"},
+    "cuDevicePrimaryCtxReset_v2": {},
+    "cuDeviceGetExecAffinitySupport": {"pi": "sizeof(*pi)"},
+    "cuCtxCreate_v2": {"pctx": "sizeof(*pctx)"},
+    "cuCtxCreate_v3": {"pctx": "sizeof(*pctx)", "paramsArray": "numParams * sizeof(*paramsArray)"},
+    "cuCtxDestroy_v2": {},
+    "cuCtxPushCurrent_v2": {},
+    "cuCtxPopCurrent_v2": {"pctx": "sizeof(*pctx)"},
+    "cuCtxSetCurrent": {},
+    "cuCtxGetCurrent": {"pctx": "sizeof(*pctx)"},
+    "cuCtxGetDevice": {"device": "sizeof(*device)"},
+    "cuCtxGetFlags": {"flags": "sizeof(*flags)"},
+    "cuCtxSynchronize": {},
+    "cuCtxSetLimit": {},
+    "cuCtxGetLimit": {"pvalue": "sizeof(*pvalue)"},
+    "cuCtxGetCacheConfig": {"pconfig": "sizeof(*pconfig)"},
+    "cuCtxSetCacheConfig": {},
+    "cuCtxGetSharedMemConfig": {"pConfig": "sizeof(*pConfig)"},
+    "cuCtxSetSharedMemConfig": {},
+    "cuCtxGetApiVersion": {"version": "sizeof(*version)"},
+    "cuCtxGetStreamPriorityRange": {"leastPriority": "sizeof(*leastPriority)", "greatestPriority": "sizeof(*greatestPriority)"},
+    "cuCtxResetPersistingL2Cache": {},
+    "cuCtxGetExecAffinity": {"pExecAffinity": "sizeof(*pExecAffinity)"},
+    "cuCtxAttach": {"pctx": "sizeof(*pctx)"},
+    "cuCtxDetach": {},
+    "cuModuleLoad": {"module": "sizeof(*module)", "fname": "strlen(fname) + 1"},
+    "cuModuleLoadData": {"module": "sizeof(*module)", "image": "sizeof(*image)"},
+    "cuModuleLoadDataEx": {"module": "sizeof(*module)", "image": "sizeof(*image)", "options": "numOptions * sizeof(*options)", "optionValues": "numOptions * sizeof(*optionValues)"},
+    "cuModuleLoadFatBinary": {"module": "sizeof(*module)", "fatCubin": "sizeof(*fatCubin)"},
+    "cuModuleUnload": {},
+    "cuModuleGetFunction": {"hfunc": "sizeof(*hfunc)", "name": "strlen(name) + 1"},
+    "cuModuleGetTexRef": {"pTexRef": "sizeof(*pTexRef)", "name": "strlen(name) + 1"},
+    "cuModuleGetSurfRef": {"pSurfRef": "sizeof(*pSurfRef)", "name": "strlen(name) + 1"},
+    "cuLinkCreate_v2": {"options": "numOptions * sizeof(*options)", "optionValues": "numOptions * sizeof(*optionValues)", "stateOut": "sizeof(*stateOut)"},
+    "cuLinkAddData_v2": {"data": "size", "name": "strlen(name) + 1", "options": "numOptions * sizeof(*options)", "optionValues": "numOptions * sizeof(*optionValues)"},
+    "cuLinkAddFile_v2": {"path": "strlen(path) + 1", "options": "numOptions * sizeof(*options)", "optionValues": "numOptions * sizeof(*optionValues)"},
+    "cuLinkComplete": {"cubinOut": "sizeof(*cubinOut)", "sizeOut": "sizeof(*sizeOut)"},
+    "cuLinkDestroy": {},
+    "cuMemGetInfo_v2": {"free": "sizeof(*free)", "total": "sizeof(*total)"},
+    "cuMemFree_v2": {},
+    "cuMemHostGetFlags": {"pFlags": "sizeof(*pFlags)", "p": "sizeof(*p)"},
+    "cuDeviceGetByPCIBusId": {"dev": "sizeof(*dev)", "pciBusId": "strlen(pciBusId) + 1"},
+    "cuDeviceGetPCIBusId": {"pciBusId": "len"},
+    "cuIpcGetEventHandle": {"pHandle": "sizeof(*pHandle)"},
+    "cuIpcOpenEventHandle": {"phEvent": "sizeof(*phEvent)"},
+    "cuIpcGetMemHandle": {"pHandle": "sizeof(*pHandle)"},
+    "cuIpcCloseMemHandle": {},
+    "cuMemHostRegister_v2": {"p": "bytesize"},
+    "cuMemHostUnregister": {"p": "sizeof(*p)"},
+    "cuMemcpy": {},
+    "cuMemcpyPeer": {},
+    "cuMemcpyHtoD_v2": {"srcHost": "ByteCount"},
+    "cuMemcpyDtoH_v2": {"dstHost": "ByteCount"},
+    "cuMemcpyDtoD_v2": {},
+    "cuMemcpyDtoA_v2": {},
+    "cuMemcpyAtoD_v2": {},
+    "cuMemcpyHtoA_v2": {"srcHost": "ByteCount"},
+    "cuMemcpyAtoH_v2": {"dstHost": "ByteCount"},
+    "cuMemcpyAtoA_v2": {},
+    "cuMemcpy2D_v2": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemcpy2DUnaligned_v2": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemcpy3D_v2": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemcpy3DPeer": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemcpyAsync": {},
+    "cuMemcpyPeerAsync": {},
+    "cuMemcpyHtoDAsync_v2": {"srcHost": "ByteCount"},
+    "cuMemcpyDtoHAsync_v2": {"dstHost": "ByteCount"},
+    "cuMemcpyDtoDAsync_v2": {},
+    "cuMemcpyHtoAAsync_v2": {"srcHost": "ByteCount"},
+    "cuMemcpyAtoHAsync_v2": {"dstHost": "ByteCount"},
+    "cuMemcpy2DAsync_v2": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemcpy3DAsync_v2": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemcpy3DPeerAsync": {"pCopy": "sizeof(*pCopy)"},
+    "cuMemsetD8_v2": {},
+    "cuMemsetD16_v2": {},
+    "cuMemsetD32_v2": {},
+    "cuMemsetD2D8_v2": {},
+    "cuMemsetD2D16_v2": {},
+    "cuMemsetD2D32_v2": {},
+    "cuMemsetD8Async": {},
+    "cuMemsetD16Async": {},
+    "cuMemsetD32Async": {},
+    "cuMemsetD2D8Async": {},
+    "cuMemsetD2D16Async": {},
+    "cuMemsetD2D32Async": {},
+    "cuArrayCreate_v2": {"pHandle": "sizeof(*pHandle)", "pAllocateArray": "sizeof(*pAllocateArray)"},
+    "cuArrayGetDescriptor_v2": {"pArrayDescriptor": "sizeof(*pArrayDescriptor)"},
+    "cuArrayGetSparseProperties": {"sparseProperties": "sizeof(*sparseProperties)"},
+    "cuMipmappedArrayGetSparseProperties": {"sparseProperties": "sizeof(*sparseProperties)"},
+    "cuArrayGetPlane": {"pPlaneArray": "sizeof(*pPlaneArray)"},
+    "cuArrayDestroy": {},
+    "cuArray3DCreate_v2": {"pHandle": "sizeof(*pHandle)", "pAllocateArray": "sizeof(*pAllocateArray)"},
+    "cuArray3DGetDescriptor_v2": {"pArrayDescriptor": "sizeof(*pArrayDescriptor)"},
+    "cuMipmappedArrayCreate": {"pHandle": "sizeof(*pHandle)", "pMipmappedArrayDesc": "sizeof(*pMipmappedArrayDesc)"},
+    "cuMipmappedArrayGetLevel": {"pLevelArray": "sizeof(*pLevelArray)"},
+    "cuMipmappedArrayDestroy": {},
+    "cuMemAddressFree": {},
+    "cuMemMapArrayAsync": {"mapInfoList": "count * sizeof(*mapInfoList)"},
+    "cuMemUnmap": {},
+    "cuMemSetAccess": {"desc": "count * sizeof(*desc)"},
+    "cuMemGetAccess": {"flags": "sizeof(*flags)", "location": "sizeof(*location)"},
+    "cuMemExportToShareableHandle": {"shareableHandle": "sizeof(*shareableHandle)"},
+    "cuMemImportFromShareableHandle": {"handle": "sizeof(*handle)", "osHandle": "sizeof(*osHandle)"},
+    "cuMemGetAllocationGranularity": {"granularity": "sizeof(*granularity)", "prop": "sizeof(*prop)"},
+    "cuMemGetAllocationPropertiesFromHandle": {"prop": "sizeof(*prop)"},
+    "cuMemRetainAllocationHandle": {"handle": "sizeof(*handle)", "addr": "sizeof(*addr)"},
+    "cuMemFreeAsync": {},
+    "cuMemPoolTrimTo": {},
+    "cuMemPoolSetAttribute": {"value": "sizeof(*value)"},
+    "cuMemPoolGetAttribute": {"value": "sizeof(*value)"},
+    "cuMemPoolSetAccess": {"map": "count * sizeof(*map)"},
+    "cuMemPoolGetAccess": {"flags": "sizeof(*flags)", "location": "sizeof(*location)"},
+    "cuMemPoolCreate": {"pool": "sizeof(*pool)", "poolProps": "sizeof(*poolProps)"},
+    "cuMemPoolDestroy": {},
+    "cuMemPoolExportToShareableHandle": {"handle_out": "sizeof(*handle_out)"},
+    "cuMemPoolImportFromShareableHandle": {"pool_out": "sizeof(*pool_out)", "handle": "sizeof(*handle)"},
+    "cuMemPoolExportPointer": {"shareData_out": "sizeof(*shareData_out)"},
+    "cuPointerGetAttribute": {"data": "sizeof(*data)"},
+    "cuMemPrefetchAsync": {},
+    "cuMemAdvise": {},
+    "cuMemRangeGetAttribute": {"data": "dataSize"},
+    "cuMemRangeGetAttributes": {"data": "numAttributes * dataSizes[0]", "dataSizes": "numAttributes * sizeof(*dataSizes)", "attributes": "numAttributes * sizeof(*attributes)"},
+    "cuPointerSetAttribute": {"value": "sizeof(*value)"},
+    "cuPointerGetAttributes": {"attributes": "numAttributes * sizeof(*attributes)", "data": "numAttributes * sizeof(*data)"},
+    "cuStreamCreate": {"phStream": "sizeof(*phStream)"},
+    "cuStreamCreateWithPriority": {"phStream": "sizeof(*phStream)"},
+    "cuStreamGetPriority": {"priority": "sizeof(*priority)"},
+    "cuStreamGetFlags": {"flags": "sizeof(*flags)"},
+    "cuStreamGetCtx": {"pctx": "sizeof(*pctx)"},
+    "cuStreamWaitEvent": {},
+    "cuStreamAddCallback": {"userData": "sizeof(*userData)"},
+    "cuStreamBeginCapture_v2": {},
+    "cuThreadExchangeStreamCaptureMode": {"mode": "sizeof(*mode)"},
+    "cuStreamEndCapture": {"phGraph": "sizeof(*phGraph)"},
+    "cuStreamIsCapturing": {"captureStatus": "sizeof(*captureStatus)"},
+    "cuStreamGetCaptureInfo": {"captureStatus_out": "sizeof(*captureStatus_out)", "id_out": "sizeof(*id_out)"},
+    "cuStreamGetCaptureInfo_v2": {
+        "captureStatus_out": "sizeof(*captureStatus_out)",
+        "id_out": "sizeof(*id_out)",
+        "graph_out": "sizeof(*graph_out)",
+        "dependencies_out": "numDependencies_out * sizeof(*dependencies_out)",
+        "numDependencies_out": "sizeof(*numDependencies_out)",
+    },
+    "cuStreamUpdateCaptureDependencies": {"dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cuStreamAttachMemAsync": {},
+    "cuStreamQuery": {},
+    "cuStreamSynchronize": {},
+    "cuStreamDestroy_v2": {},
+    "cuStreamCopyAttributes": {},
+    "cuStreamGetAttribute": {"value_out": "sizeof(*value_out)"},
+    "cuStreamSetAttribute": {"value": "sizeof(*value)"},
+    "cuEventCreate": {"phEvent": "sizeof(*phEvent)"},
+    "cuEventRecord": {},
+    "cuEventRecordWithFlags": {},
+    "cuEventQuery": {},
+    "cuEventSynchronize": {},
+    "cuEventDestroy_v2": {},
+    "cuEventElapsedTime": {"pMilliseconds": "sizeof(*pMilliseconds)"},
+    "cuExternalMemoryGetMappedMipmappedArray": {"mipmap": "sizeof(*mipmap)", "mipmapDesc": "sizeof(*mipmapDesc)"},
+    "cuDestroyExternalMemory": {},
+    "cuImportExternalSemaphore": {"extSem_out": "sizeof(*extSem_out)", "semHandleDesc": "sizeof(*semHandleDesc)"},
+    "cuSignalExternalSemaphoresAsync": {"extSemArray": "numExtSems * sizeof(*extSemArray)", "paramsArray": "numExtSems * sizeof(*paramsArray)"},
+    "cuWaitExternalSemaphoresAsync": {"extSemArray": "numExtSems * sizeof(*extSemArray)", "paramsArray": "numExtSems * sizeof(*paramsArray)"},
+    "cuDestroyExternalSemaphore": {},
+    "cuStreamWaitValue32": {},
+    "cuStreamWaitValue64": {},
+    "cuStreamWriteValue32": {},
+    "cuStreamWriteValue64": {},
+    "cuStreamBatchMemOp": {"paramArray": "count * sizeof(*paramArray)"},
+    "cuFuncGetAttribute": {"pi": "sizeof(*pi)"},
+    "cuFuncSetAttribute": {},
+    "cuFuncSetCacheConfig": {},
+    "cuFuncSetSharedMemConfig": {},
+    "cuFuncGetModule": {"hmod": "sizeof(*hmod)"},
+    "cuLaunchKernel": {"kernelParams": "sizeof(*kernelParams)", "extra": "sizeof(*extra)"},
+    "cuLaunchCooperativeKernel": {"kernelParams": "sizeof(*kernelParams)"},
+    "cuLaunchCooperativeKernelMultiDevice": {"launchParamsList": "numDevices * sizeof(*launchParamsList)"},
+    "cuLaunchHostFunc": {"userData": "sizeof(*userData)"},
+    "cuFuncSetBlockShape": {},
+    "cuFuncSetSharedSize": {},
+    "cuParamSetSize": {},
+    "cuParamSeti": {},
+    "cuParamSetf": {},
+    "cuParamSetv": {"ptr": "numbytes"},
+    "cuLaunch": {},
+    "cuLaunchGrid": {},
+    "cuLaunchGridAsync": {},
+    "cuParamSetTexRef": {},
+    "cuGraphCreate": {"phGraph": "sizeof(*phGraph)"},
+    "cuGraphAddKernelNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphKernelNodeGetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphKernelNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphAddMemcpyNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "copyParams": "sizeof(*copyParams)"},
+    "cuGraphMemcpyNodeGetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphMemcpyNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphAddMemsetNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "memsetParams": "sizeof(*memsetParams)"},
+    "cuGraphMemsetNodeGetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphMemsetNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphAddHostNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphHostNodeGetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphHostNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphAddChildGraphNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cuGraphChildGraphNodeGetGraph": {"phGraph": "sizeof(*phGraph)"},
+    "cuGraphAddEmptyNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cuGraphAddEventRecordNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cuGraphEventRecordNodeGetEvent": {"event_out": "sizeof(*event_out)"},
+    "cuGraphEventRecordNodeSetEvent": {},
+    "cuGraphAddEventWaitNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cuGraphEventWaitNodeGetEvent": {"event_out": "sizeof(*event_out)"},
+    "cuGraphEventWaitNodeSetEvent": {},
+    "cuGraphAddExternalSemaphoresSignalNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphExternalSemaphoresSignalNodeGetParams": {"params_out": "sizeof(*params_out)"},
+    "cuGraphExternalSemaphoresSignalNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuDeviceGraphMemTrim": {},
+    "cuGraphAddExternalSemaphoresWaitNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphExternalSemaphoresWaitNodeGetParams": {"params_out": "sizeof(*params_out)"},
+    "cuGraphExternalSemaphoresWaitNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphAddMemAllocNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphMemAllocNodeGetParams": {"params_out": "sizeof(*params_out)"},
+    "cuGraphAddMemFreeNode": {"phGraphNode": "sizeof(*phGraphNode)", "dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cuDeviceGetGraphMemAttribute": {"value": "sizeof(*value)"},
+    "cuDeviceSetGraphMemAttribute": {"value": "sizeof(*value)"},
+    "cuGraphClone": {"phGraphClone": "sizeof(*phGraphClone)"},
+    "cuGraphNodeFindInClone": {"phNode": "sizeof(*phNode)"},
+    "cuGraphNodeGetType": {"type": "sizeof(*type)"},
+    "cuGraphGetNodes": {"nodes": "numNodes * sizeof(*nodes)", "numNodes": "sizeof(*numNodes)"},
+    "cuGraphGetRootNodes": {"rootNodes": "numRootNodes * sizeof(*rootNodes)", "numRootNodes": "sizeof(*numRootNodes)"},
+    "cuGraphGetEdges": {"from": "numEdges * sizeof(*from)", "to": "numEdges * sizeof(*to)", "numEdges": "sizeof(*numEdges)"},
+    "cuGraphNodeGetDependencies": {"dependencies": "numDependencies * sizeof(*dependencies)", "numDependencies": "sizeof(*numDependencies)"},
+    "cuGraphNodeGetDependentNodes": {"dependentNodes": "numDependentNodes * sizeof(*dependentNodes)", "numDependentNodes": "sizeof(*numDependentNodes)"},
+    "cuGraphAddDependencies": {"from": "numDependencies * sizeof(*from)", "to": "numDependencies * sizeof(*to)"},
+    "cuGraphRemoveDependencies": {"from": "numDependencies * sizeof(*from)", "to": "numDependencies * sizeof(*to)"},
+    "cuGraphDestroyNode": {},
+    "cuGraphInstantiate_v2": {"phGraphExec": "sizeof(*phGraphExec)", "phErrorNode": "sizeof(*phErrorNode)", "logBuffer": "bufferSize"},
+    "cuGraphInstantiateWithFlags": {"phGraphExec": "sizeof(*phGraphExec)"},
+    "cuGraphExecKernelNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphExecMemcpyNodeSetParams": {"copyParams": "sizeof(*copyParams)"},
+    "cuGraphExecMemsetNodeSetParams": {"memsetParams": "sizeof(*memsetParams)"},
+    "cuGraphExecHostNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphExecChildGraphNodeSetParams": {},
+    "cuGraphExecEventRecordNodeSetEvent": {},
+    "cuGraphExecEventWaitNodeSetEvent": {},
+    "cuGraphExecExternalSemaphoresSignalNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphExecExternalSemaphoresWaitNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cuGraphUpload": {},
+    "cuGraphLaunch": {},
+    "cuGraphExecDestroy": {},
+    "cuGraphDestroy": {},
+    "cuGraphExecUpdate": {"hErrorNode_out": "sizeof(*hErrorNode_out)", "updateResult_out": "sizeof(*updateResult_out)"},
+    "cuGraphKernelNodeCopyAttributes": {},
+    "cuGraphKernelNodeGetAttribute": {"value_out": "sizeof(*value_out)"},
+    "cuGraphKernelNodeSetAttribute": {"value": "sizeof(*value)"},
+    "cuGraphDebugDotPrint": {"path": "strlen(path) + 1"},
+    "cuUserObjectCreate": {"object_out": "sizeof(*object_out)", "ptr": "sizeof(*ptr)"},
+    "cuUserObjectRetain": {},
+    "cuUserObjectRelease": {},
+    "cuGraphRetainUserObject": {},
+    "cuGraphReleaseUserObject": {},
+    "cuOccupancyMaxActiveBlocksPerMultiprocessor": {"numBlocks": "sizeof(*numBlocks)"},
+    "cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags": {"numBlocks": "sizeof(*numBlocks)"},
+    "cuOccupancyMaxPotentialBlockSize": {"minGridSize": "sizeof(*minGridSize)", "blockSize": "sizeof(*blockSize)"},
+    "cuOccupancyMaxPotentialBlockSizeWithFlags": {"minGridSize": "sizeof(*minGridSize)", "blockSize": "sizeof(*blockSize)"},
+    "cuOccupancyAvailableDynamicSMemPerBlock": {"dynamicSmemSize": "sizeof(*dynamicSmemSize)"},
+    "cuTexRefSetArray": {},
+    "cuTexRefSetMipmappedArray": {},
+    "cuTexRefSetAddress_v2": {"ByteOffset": "sizeof(*ByteOffset)"},
+    "cuTexRefSetAddress2D_v3": {"desc": "sizeof(*desc)"},
+    "cuTexRefSetFormat": {},
+    "cuTexRefSetAddressMode": {},
+    "cuTexRefSetFilterMode": {},
+    "cuTexRefSetMipmapFilterMode": {},
+    "cuTexRefSetMipmapLevelBias": {},
+    "cuTexRefSetMipmapLevelClamp": {},
+    "cuTexRefSetMaxAnisotropy": {},
+    "cuTexRefSetBorderColor": {"pBorderColor": "sizeof(*pBorderColor)"},
+    "cuTexRefSetFlags": {},
+    "cuTexRefGetArray": {"phArray": "sizeof(*phArray)"},
+    "cuTexRefGetMipmappedArray": {"phMipmappedArray": "sizeof(*phMipmappedArray)"},
+    "cuTexRefGetAddressMode": {"pam": "sizeof(*pam)"},
+    "cuTexRefGetFilterMode": {"pfm": "sizeof(*pfm)"},
+    "cuTexRefGetFormat": {"pFormat": "sizeof(*pFormat)", "pNumChannels": "sizeof(*pNumChannels)"},
+    "cuTexRefGetMipmapFilterMode": {"pfm": "sizeof(*pfm)"},
+    "cuTexRefGetMipmapLevelBias": {"pbias": "sizeof(*pbias)"},
+    "cuTexRefGetMipmapLevelClamp": {"pminMipmapLevelClamp": "sizeof(*pminMipmapLevelClamp)", "pmaxMipmapLevelClamp": "sizeof(*pmaxMipmapLevelClamp)"},
+    "cuTexRefGetMaxAnisotropy": {"pmaxAniso": "sizeof(*pmaxAniso)"},
+    "cuTexRefGetBorderColor": {"pBorderColor": "sizeof(*pBorderColor)"},
+    "cuTexRefGetFlags": {"pFlags": "sizeof(*pFlags)"},
+    "cuTexRefCreate": {"pTexRef": "sizeof(*pTexRef)"},
+    "cuTexRefDestroy": {},
+    "cuSurfRefSetArray": {},
+    "cuSurfRefGetArray": {"phArray": "sizeof(*phArray)"},
+    "cuTexObjectCreate": {"pTexObject": "sizeof(*pTexObject)", "pResDesc": "sizeof(*pResDesc)", "pTexDesc": "sizeof(*pTexDesc)", "pResViewDesc": "sizeof(*pResViewDesc)"},
+    "cuTexObjectDestroy": {},
+    "cuTexObjectGetResourceDesc": {"pResDesc": "sizeof(*pResDesc)"},
+    "cuTexObjectGetTextureDesc": {"pTexDesc": "sizeof(*pTexDesc)"},
+    "cuTexObjectGetResourceViewDesc": {"pResViewDesc": "sizeof(*pResViewDesc)"},
+    "cuSurfObjectCreate": {"pSurfObject": "sizeof(*pSurfObject)", "pResDesc": "sizeof(*pResDesc)"},
+    "cuSurfObjectDestroy": {},
+    "cuSurfObjectGetResourceDesc": {"pResDesc": "sizeof(*pResDesc)"},
+    "cuDeviceCanAccessPeer": {"canAccessPeer": "sizeof(*canAccessPeer)"},
+    "cuCtxEnablePeerAccess": {},
+    "cuCtxDisablePeerAccess": {},
+    "cuDeviceGetP2PAttribute": {"value": "sizeof(*value)"},
+    "cuGraphicsUnregisterResource": {},
+    "cuGraphicsSubResourceGetMappedArray": {"pArray": "sizeof(*pArray)"},
+    "cuGraphicsResourceGetMappedMipmappedArray": {"pMipmappedArray": "sizeof(*pMipmappedArray)"},
+    "cuGraphicsResourceSetMapFlags_v2": {},
+    "cuGraphicsMapResources": {"resources": "count * sizeof(*resources)"},
+    "cuGraphicsUnmapResources": {"resources": "count * sizeof(*resources)"},
+    "cuGetExportTable": {"ppExportTable": "sizeof(*ppExportTable)", "pExportTableId": "sizeof(*pExportTableId)"},
+    "cuFlushGPUDirectRDMAWrites": {},
+    # cuda runtime api
+    "cudaDeviceGetLimit": {"pValue": "sizeof(*pValue)"},
+    "cudaDeviceGetTexture1DLinearMaxWidth": {"maxWidthInElements": "sizeof(*maxWidthInElements)", "fmtDesc": "sizeof(*fmtDesc)"},
+    "cudaDeviceGetCacheConfig": {"pCacheConfig": "sizeof(*pCacheConfig)"},
+    "cudaDeviceGetStreamPriorityRange": {"leastPriority": "sizeof(*leastPriority)", "greatestPriority": "sizeof(*greatestPriority)"},
+    "cudaDeviceGetSharedMemConfig": {"pConfig": "sizeof(*pConfig)"},
+    "cudaDeviceGetByPCIBusId": {"device": "sizeof(*device)", "pciBusId": "strlen(pciBusId) + 1"},
+    "cudaDeviceGetPCIBusId": {"pciBusId": "len"},
+    "cudaIpcGetEventHandle": {"handle": "sizeof(*handle)"},
+    "cudaIpcOpenEventHandle": {"event": "sizeof(*event)"},
+    "cudaIpcGetMemHandle": {"handle": "sizeof(*handle)", "devPtr": "sizeof(*devPtr)"},
+    "cudaIpcOpenMemHandle": {"devPtr": "sizeof(*devPtr)"},
+    "cudaIpcCloseMemHandle": {"devPtr": "sizeof(*devPtr)"},
+    "cudaThreadGetLimit": {"pValue": "sizeof(*pValue)"},
+    "cudaThreadGetCacheConfig": {"pCacheConfig": "sizeof(*pCacheConfig)"},
+    "cudaGetDeviceCount": {"count": "sizeof(*count)"},
+    "cudaGetDeviceProperties": {"prop": "sizeof(*prop)"},
+    "cudaDeviceGetAttribute": {"value": "sizeof(*value)"},
+    "cudaDeviceGetDefaultMemPool": {"memPool": "sizeof(*memPool)"},
+    "cudaDeviceSetMemPool": {"memPool": "sizeof(*memPool)"},
+    "cudaDeviceGetMemPool": {"memPool": "sizeof(*memPool)"},
+    "cudaDeviceGetNvSciSyncAttributes": {"nvSciSyncAttrList": "sizeof(*nvSciSyncAttrList)"},
+    "cudaDeviceGetP2PAttribute": {"value": "sizeof(*value)"},
+    "cudaChooseDevice": {"device": "sizeof(*device)", "prop": "sizeof(*prop)"},
+    "cudaSetDevice": {"device": "sizeof(*device)"},
+    "cudaGetDevice": {"device": "sizeof(*device)"},
+    "cudaSetValidDevices": {"device_arr": "len * sizeof(*device_arr)"},
+    "cudaGetDeviceFlags": {"flags": "sizeof(*flags)"},
+    "cudaStreamCreate": {"pStream": "sizeof(*pStream)"},
+    "cudaStreamCreateWithFlags": {"pStream": "sizeof(*pStream)"},
+    "cudaStreamCreateWithPriority": {"pStream": "sizeof(*pStream)"},
+    "cudaStreamGetPriority": {"priority": "sizeof(*priority)"},
+    "cudaStreamGetFlags": {"flags": "sizeof(*flags)"},
+    "cudaStreamCopyAttributes": {"dst": "sizeof(*dst)", "src": "sizeof(*src)"},
+    "cudaStreamGetAttribute": {"value_out": "sizeof(*value_out)"},
+    "cudaStreamSetAttribute": {"value": "sizeof(*value)"},
+    "cudaStreamDestroy": {"stream": "sizeof(*stream)"},
+    "cudaStreamWaitEvent": {"stream": "sizeof(*stream)", "event": "sizeof(*event)"},
+    "cudaStreamAddCallback": {"stream": "sizeof(*stream)", "callback": "sizeof(*callback)", "userData": "sizeof(*userData)"},
+    "cudaStreamSynchronize": {"stream": "sizeof(*stream)"},
+    "cudaStreamQuery": {"stream": "sizeof(*stream)"},
+    "cudaStreamAttachMemAsync": {"stream": "sizeof(*stream)", "devPtr": "length"},
+    "cudaStreamBeginCapture": {"stream": "sizeof(*stream)"},
+    "cudaThreadExchangeStreamCaptureMode": {"mode": "sizeof(*mode)"},
+    "cudaStreamEndCapture": {"stream": "sizeof(*stream)", "pGraph": "sizeof(*pGraph)"},
+    "cudaStreamIsCapturing": {"stream": "sizeof(*stream)", "pCaptureStatus": "sizeof(*pCaptureStatus)"},
+    "cudaStreamGetCaptureInfo": {"stream": "sizeof(*stream)", "pCaptureStatus": "sizeof(*pCaptureStatus)", "pId": "sizeof(*pId)"},
+    "cudaStreamGetCaptureInfo_v2": {
+        "stream": "sizeof(*stream)",
+        "captureStatus_out": "sizeof(*captureStatus_out)",
+        "id_out": "sizeof(*id_out)",
+        "graph_out": "sizeof(*graph_out)",
+        "dependencies_out": "numDependencies_out * sizeof(*dependencies_out)",
+        "numDependencies_out": "sizeof(*numDependencies_out)",
+    },
+    "cudaStreamUpdateCaptureDependencies": {"stream": "sizeof(*stream)", "dependencies": "numDependencies * sizeof(*dependencies)"},
+    "cudaEventCreate": {"event": "sizeof(*event)"},
+    "cudaEventCreateWithFlags": {"event": "sizeof(*event)"},
+    "cudaEventRecord": {"event": "sizeof(*event)", "stream": "sizeof(*stream)"},
+    "cudaEventRecordWithFlags": {"event": "sizeof(*event)", "stream": "sizeof(*stream)"},
+    "cudaEventQuery": {"event": "sizeof(*event)"},
+    "cudaEventSynchronize": {"event": "sizeof(*event)"},
+    "cudaEventDestroy": {"event": "sizeof(*event)"},
+    "cudaEventElapsedTime": {"ms": "sizeof(*ms)", "start": "sizeof(*start)", "end": "sizeof(*end)"},
+    "cudaImportExternalMemory": {"extMem_out": "sizeof(*extMem_out)", "memHandleDesc": "sizeof(*memHandleDesc)"},
+    "cudaExternalMemoryGetMappedBuffer": {"devPtr": "sizeof(*devPtr)", "bufferDesc": "sizeof(*bufferDesc)"},
+    "cudaExternalMemoryGetMappedMipmappedArray": {"mipmap": "sizeof(*mipmap)", "mipmapDesc": "sizeof(*mipmapDesc)"},
+    "cudaDestroyExternalMemory": {"extMem": "sizeof(*extMem)"},
+    "cudaImportExternalSemaphore": {"extSem_out": "sizeof(*extSem_out)", "semHandleDesc": "sizeof(*semHandleDesc)"},
+    "cudaSignalExternalSemaphoresAsync_v2": {"extSemArray": "numExtSems * sizeof(*extSemArray)", "paramsArray": "numExtSems * sizeof(*paramsArray)", "stream": "sizeof(*stream)"},
+    "cudaWaitExternalSemaphoresAsync_v2": {"extSemArray": "numExtSems * sizeof(*extSemArray)", "paramsArray": "numExtSems * sizeof(*paramsArray)", "stream": "sizeof(*stream)"},
+    "cudaDestroyExternalSemaphore": {"extSem": "sizeof(*extSem)"},
+    "cudaLaunchCooperativeKernel": {"func": "sizeof(*func)", "args": "sizeof(*args)", "stream": "sizeof(*stream)"},
+    "cudaLaunchCooperativeKernelMultiDevice": {"launchParamsList": "numDevices * sizeof(*launchParamsList)"},
+    "cudaFuncSetCacheConfig": {"func": "sizeof(*func)"},
+    "cudaFuncSetSharedMemConfig": {"func": "sizeof(*func)"},
+    "cudaFuncGetAttributes": {"attr": "sizeof(*attr)", "func": "sizeof(*func)"},
+    "cudaFuncSetAttribute": {"func": "sizeof(*func)"},
+    "cudaSetDoubleForDevice": {"d": "sizeof(*d)"},
+    "cudaSetDoubleForHost": {"d": "sizeof(*d)"},
+    "cudaLaunchHostFunc": {"stream": "sizeof(*stream)", "fn": "sizeof(*fn)", "userData": "sizeof(*userData)"},
+    "cudaOccupancyMaxActiveBlocksPerMultiprocessor": {"numBlocks": "sizeof(*numBlocks)", "func": "sizeof(*func)"},
+    "cudaOccupancyAvailableDynamicSMemPerBlock": {"dynamicSmemSize": "sizeof(*dynamicSmemSize)", "func": "sizeof(*func)"},
+    "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags": {"numBlocks": "sizeof(*numBlocks)", "func": "sizeof(*func)"},
+    "cudaMallocArray": {"array": "sizeof(*array)", "desc": "sizeof(*desc)"},
+    "cudaFreeArray": {"array": "sizeof(*array)"},
+    "cudaFreeMipmappedArray": {"mipmappedArray": "sizeof(*mipmappedArray)"},
+    "cudaHostRegister": {"ptr": "size"},
+    "cudaHostUnregister": {"ptr": "sizeof(*ptr)"},
+    "cudaHostGetDevicePointer": {"pDevice": "sizeof(*pDevice)", "pHost": "sizeof(*pHost)"},
+    "cudaHostGetFlags": {"pFlags": "sizeof(*pFlags)", "pHost": "sizeof(*pHost)"},
+    "cudaMalloc3DArray": {"array": "sizeof(*array)", "desc": "sizeof(*desc)"},
+    "cudaMallocMipmappedArray": {"mipmappedArray": "sizeof(*mipmappedArray)", "desc": "sizeof(*desc)"},
+    "cudaGetMipmappedArrayLevel": {"levelArray": "sizeof(*levelArray)", "mipmappedArray": "sizeof(*mipmappedArray)"},
+    "cudaMemcpy3D": {"p": "sizeof(*p)"},
+    "cudaMemcpy3DPeer": {"p": "sizeof(*p)"},
+    "cudaMemcpy3DAsync": {"p": "sizeof(*p)", "stream": "sizeof(*stream)"},
+    "cudaMemcpy3DPeerAsync": {"p": "sizeof(*p)", "stream": "sizeof(*stream)"},
+    "cudaMemGetInfo": {"free": "sizeof(*free)", "total": "sizeof(*total)"},
+    "cudaArrayGetInfo": {"desc": "sizeof(*desc)", "extent": "sizeof(*extent)", "flags": "sizeof(*flags)", "array": "sizeof(*array)"},
+    "cudaArrayGetPlane": {"pPlaneArray": "sizeof(*pPlaneArray)", "hArray": "sizeof(*hArray)"},
+    "cudaArrayGetSparseProperties": {"sparseProperties": "sizeof(*sparseProperties)", "array": "sizeof(*array)"},
+    "cudaMipmappedArrayGetSparseProperties": {"sparseProperties": "sizeof(*sparseProperties)", "mipmap": "sizeof(*mipmap)"},
+    "cudaMemcpy": {"dst": "count", "src": "count"},
+    "cudaMemcpyPeer": {"dst": "count", "src": "count"},
+    "cudaMemcpy2D": {"dst": "dpitch * height", "src": "spitch * height"},
+    "cudaMemcpy2DToArray": {"dst": "sizeof(*dst)", "src": "spitch * height"},
+    "cudaMemcpy2DFromArray": {"dst": "dpitch * height", "src": "sizeof(*src)"},
+    "cudaMemcpy2DArrayToArray": {"dst": "sizeof(*dst)", "src": "sizeof(*src)"},
+    "cudaMemcpyAsync": {"dst": "count", "src": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpyPeerAsync": {"dst": "count", "src": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpy2DAsync": {"dst": "dpitch * height", "src": "spitch * height", "stream": "sizeof(*stream)"},
+    "cudaMemcpy2DToArrayAsync": {"dst": "sizeof(*dst)", "src": "spitch * height", "stream": "sizeof(*stream)"},
+    "cudaMemcpy2DFromArrayAsync": {"dst": "dpitch * height", "src": "sizeof(*src)", "stream": "sizeof(*stream)"},
+    "cudaMemcpyToSymbolAsync": {"symbol": "sizeof(*symbol)", "src": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpyFromSymbolAsync": {"dst": "count", "symbol": "sizeof(*symbol)", "stream": "sizeof(*stream)"},
+    "cudaMemset2D": {"devPtr": "pitch * height"},
+    "cudaMemset3D": {"pitchedDevPtr": "sizeof(*pitchedDevPtr)"},
+    "cudaMemset2DAsync": {"devPtr": "pitch * height", "stream": "sizeof(*stream)"},
+    "cudaMemset3DAsync": {"pitchedDevPtr": "sizeof(*pitchedDevPtr)", "stream": "sizeof(*stream)"},
+    "cudaGetSymbolSize": {"size": "sizeof(*size)", "symbol": "sizeof(*symbol)"},
+    "cudaMemPrefetchAsync": {"devPtr": "count", "stream": "sizeof(*stream)"},
+    "cudaMemAdvise": {"devPtr": "count"},
+    "cudaMemRangeGetAttribute": {"data": "dataSize", "devPtr": "count"},
+    "cudaMemRangeGetAttributes": {"data": "numAttributes * sizeof(*data)", "dataSizes": "numAttributes * sizeof(*dataSizes)", "attributes": "numAttributes * sizeof(*attributes)", "devPtr": "count"},
+    "cudaMemcpyToArray": {"dst": "sizeof(*dst)", "src": "count"},
+    "cudaMemcpyFromArray": {"dst": "count", "src": "sizeof(*src)"},
+    "cudaMemcpyArrayToArray": {"dst": "sizeof(*dst)", "src": "sizeof(*src)"},
+    "cudaMemcpyToArrayAsync": {"dst": "sizeof(*dst)", "src": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpyFromArrayAsync": {"dst": "count", "src": "sizeof(*src)", "stream": "sizeof(*stream)"},
+    "cudaMallocAsync": {"devPtr": "size", "hStream": "sizeof(*hStream)"},
+    "cudaFreeAsync": {"devPtr": "sizeof(*devPtr)", "hStream": "sizeof(*hStream)"},
+    "cudaMemPoolTrimTo": {"memPool": "sizeof(*memPool)"},
+    "cudaMemPoolSetAttribute": {"memPool": "sizeof(*memPool)", "value": "sizeof(*value)"},
+    "cudaMemPoolGetAttribute": {"memPool": "sizeof(*memPool)", "value": "sizeof(*value)"},
+    "cudaMemPoolSetAccess": {"memPool": "sizeof(*memPool)", "descList": "count * sizeof(*descList)"},
+    "cudaMemPoolGetAccess": {"flags": "sizeof(*flags)", "memPool": "sizeof(*memPool)", "location": "sizeof(*location)"},
+    "cudaMemPoolCreate": {"memPool": "sizeof(*memPool)", "poolProps": "sizeof(*poolProps)"},
+    "cudaMemPoolDestroy": {"memPool": "sizeof(*memPool)"},
+    "cudaMallocFromPoolAsync": {"ptr": "size", "memPool": "sizeof(*memPool)", "stream": "sizeof(*stream)"},
+    "cudaMemPoolExportToShareableHandle": {"shareableHandle": "sizeof(*shareableHandle)", "memPool": "sizeof(*memPool)"},
+    "cudaMemPoolImportFromShareableHandle": {"memPool": "sizeof(*memPool)", "shareableHandle": "sizeof(*shareableHandle)"},
+    "cudaMemPoolExportPointer": {"exportData": "sizeof(*exportData)", "ptr": "sizeof(*ptr)"},
+    "cudaMemPoolImportPointer": {"ptr": "sizeof(*ptr)", "memPool": "sizeof(*memPool)", "exportData": "sizeof(*exportData)"},
+    "cudaPointerGetAttributes": {"attributes": "sizeof(*attributes)", "ptr": "sizeof(*ptr)"},
+    "cudaDeviceCanAccessPeer": {"canAccessPeer": "sizeof(*canAccessPeer)"},
+    "cudaGraphicsUnregisterResource": {"resource": "sizeof(*resource)"},
+    "cudaGraphicsResourceSetMapFlags": {"resource": "sizeof(*resource)"},
+    "cudaGraphicsMapResources": {"resources": "count * sizeof(*resources)", "stream": "sizeof(*stream)"},
+    "cudaGraphicsUnmapResources": {"resources": "count * sizeof(*resources)", "stream": "sizeof(*stream)"},
+    "cudaGraphicsResourceGetMappedPointer": {"devPtr": "sizeof(*devPtr)", "size": "sizeof(*size)", "resource": "sizeof(*resource)"},
+    "cudaGraphicsSubResourceGetMappedArray": {"array": "sizeof(*array)", "resource": "sizeof(*resource)"},
+    "cudaGraphicsResourceGetMappedMipmappedArray": {"mipmappedArray": "sizeof(*mipmappedArray)", "resource": "sizeof(*resource)"},
+    "cudaBindTexture": {"offset": "sizeof(*offset)", "texref": "sizeof(*texref)", "devPtr": "size", "desc": "sizeof(*desc)"},
+    "cudaBindTexture2D": {"offset": "sizeof(*offset)", "texref": "sizeof(*texref)", "devPtr": "pitch * height", "desc": "sizeof(*desc)"},
+    "cudaBindTextureToArray": {"texref": "sizeof(*texref)", "array": "sizeof(*array)", "desc": "sizeof(*desc)"},
+    "cudaBindTextureToMipmappedArray": {"texref": "sizeof(*texref)", "mipmappedArray": "sizeof(*mipmappedArray)", "desc": "sizeof(*desc)"},
+    "cudaUnbindTexture": {"texref": "sizeof(*texref)"},
+    "cudaGetTextureAlignmentOffset": {"offset": "sizeof(*offset)", "texref": "sizeof(*texref)"},
+    "cudaGetTextureReference": {"texref": "sizeof(*texref)", "symbol": "sizeof(*symbol)"},
+    "cudaBindSurfaceToArray": {"surfref": "sizeof(*surfref)", "array": "sizeof(*array)", "desc": "sizeof(*desc)"},
+    "cudaGetSurfaceReference": {"surfref": "sizeof(*surfref)", "symbol": "sizeof(*symbol)"},
+    "cudaGetChannelDesc": {"desc": "sizeof(*desc)", "array": "sizeof(*array)"},
+    "cudaCreateChannelDesc": {"desc": "sizeof(*desc)"},
+    "cudaCreateTextureObject": {"pTexObject": "sizeof(*pTexObject)", "pResDesc": "sizeof(*pResDesc)", "pTexDesc": "sizeof(*pTexDesc)", "pResViewDesc": "sizeof(*pResViewDesc)"},
+    "cudaDestroyTextureObject": {"texObject": "sizeof(*texObject)"},
+    "cudaGetTextureObjectResourceDesc": {"pResDesc": "sizeof(*pResDesc)", "texObject": "sizeof(*texObject)"},
+    "cudaGetTextureObjectTextureDesc": {"pTexDesc": "sizeof(*pTexDesc)", "texObject": "sizeof(*texObject)"},
+    "cudaGetTextureObjectResourceViewDesc": {"pResViewDesc": "sizeof(*pResViewDesc)", "texObject": "sizeof(*texObject)"},
+    "cudaCreateSurfaceObject": {"pSurfObject": "sizeof(*pSurfObject)", "pResDesc": "sizeof(*pResDesc)"},
+    "cudaDestroySurfaceObject": {"surfObject": "sizeof(*surfObject)"},
+    "cudaGetSurfaceObjectResourceDesc": {"pResDesc": "sizeof(*pResDesc)", "surfObject": "sizeof(*surfObject)"},
+    "cudaDriverGetVersion": {"driverVersion": "sizeof(*driverVersion)"},
+    "cudaRuntimeGetVersion": {"runtimeVersion": "sizeof(*runtimeVersion)"},
+    "cudaGraphCreate": {"pGraph": "sizeof(*pGraph)"},
+    "cudaGraphAddKernelNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphKernelNodeGetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphKernelNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphKernelNodeCopyAttributes": {"hSrc": "sizeof(*hSrc)", "hDst": "sizeof(*hDst)"},
+    "cudaGraphKernelNodeGetAttribute": {"value_out": "sizeof(*value_out)"},
+    "cudaGraphKernelNodeSetAttribute": {"value": "sizeof(*value)"},
+    "cudaGraphAddMemcpyNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "pCopyParams": "sizeof(*pCopyParams)"},
+    "cudaGraphAddMemcpyNodeToSymbol": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "symbol": "sizeof(*symbol)", "src": "count"},
+    "cudaGraphAddMemcpyNodeFromSymbol": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "dst": "count", "symbol": "sizeof(*symbol)"},
+    "cudaGraphAddMemcpyNode1D": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "dst": "count", "src": "count"},
+    "cudaGraphMemcpyNodeGetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphMemcpyNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphMemcpyNodeSetParamsToSymbol": {"symbol": "sizeof(*symbol)", "src": "count"},
+    "cudaGraphMemcpyNodeSetParamsFromSymbol": {"dst": "count", "symbol": "sizeof(*symbol)"},
+    "cudaGraphMemcpyNodeSetParams1D": {"dst": "count", "src": "count"},
+    "cudaGraphAddMemsetNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "pMemsetParams": "sizeof(*pMemsetParams)"},
+    "cudaGraphMemsetNodeGetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphMemsetNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphAddHostNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphHostNodeGetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphHostNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphAddChildGraphNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "childGraph": "sizeof(*childGraph)"},
+    "cudaGraphChildGraphNodeGetGraph": {"pGraph": "sizeof(*pGraph)"},
+    "cudaGraphAddEmptyNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)"},
+    "cudaGraphAddEventRecordNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "event": "sizeof(*event)"},
+    "cudaGraphEventRecordNodeGetEvent": {"event_out": "sizeof(*event_out)"},
+    "cudaGraphEventRecordNodeSetEvent": {"event": "sizeof(*event)"},
+    "cudaGraphAddEventWaitNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "event": "sizeof(*event)"},
+    "cudaGraphEventWaitNodeGetEvent": {"event_out": "sizeof(*event_out)"},
+    "cudaGraphEventWaitNodeSetEvent": {"event": "sizeof(*event)"},
+    "cudaGraphAddExternalSemaphoresSignalNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphExternalSemaphoresSignalNodeGetParams": {"params_out": "sizeof(*params_out)"},
+    "cudaGraphExternalSemaphoresSignalNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphAddExternalSemaphoresWaitNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphExternalSemaphoresWaitNodeGetParams": {"params_out": "sizeof(*params_out)"},
+    "cudaGraphExternalSemaphoresWaitNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphAddMemAllocNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphMemAllocNodeGetParams": {"params_out": "sizeof(*params_out)"},
+    "cudaGraphAddMemFreeNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "dptr": "sizeof(*dptr)"},
+    "cudaGraphMemFreeNodeGetParams": {"dptr_out": "sizeof(*dptr_out)"},
+    "cudaDeviceGetGraphMemAttribute": {"value": "sizeof(*value)"},
+    "cudaDeviceSetGraphMemAttribute": {"value": "sizeof(*value)"},
+    "cudaGraphClone": {"pGraphClone": "sizeof(*pGraphClone)", "originalGraph": "sizeof(*originalGraph)"},
+    "cudaGraphNodeFindInClone": {"pNode": "sizeof(*pNode)", "originalNode": "sizeof(*originalNode)", "clonedGraph": "sizeof(*clonedGraph)"},
+    "cudaGraphNodeGetType": {"pType": "sizeof(*pType)"},
+    "cudaGraphGetNodes": {"nodes": "numNodes * sizeof(*nodes)", "numNodes": "sizeof(*numNodes)"},
+    "cudaGraphGetRootNodes": {"pRootNodes": "pNumRootNodes * sizeof(*pRootNodes)", "pNumRootNodes": "sizeof(*pNumRootNodes)"},
+    "cudaGraphGetEdges": {"from": "numEdges * sizeof(*from)", "to": "numEdges * sizeof(*to)", "numEdges": "sizeof(*numEdges)"},
+    "cudaGraphNodeGetDependencies": {"pDependencies": "pNumDependencies * sizeof(*pDependencies)", "pNumDependencies": "sizeof(*pNumDependencies)"},
+    "cudaGraphNodeGetDependentNodes": {"pDependentNodes": "pNumDependentNodes * sizeof(*pDependentNodes)", "pNumDependentNodes": "sizeof(*pNumDependentNodes)"},
+    "cudaGraphAddDependencies": {"from": "numDependencies * sizeof(*from)", "to": "numDependencies * sizeof(*to)"},
+    "cudaGraphRemoveDependencies": {"from": "numDependencies * sizeof(*from)", "to": "numDependencies * sizeof(*to)"},
+    "cudaGraphDestroyNode": {"node": "sizeof(*node)"},
+    "cudaGraphInstantiate": {"pGraphExec": "sizeof(*pGraphExec)", "pErrorNode": "sizeof(*pErrorNode)", "pLogBuffer": "bufferSize"},
+    "cudaGraphInstantiateWithFlags": {"pGraphExec": "sizeof(*pGraphExec)"},
+    "cudaGraphExecKernelNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphExecMemcpyNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphExecMemcpyNodeSetParamsToSymbol": {"symbol": "sizeof(*symbol)", "src": "count"},
+    "cudaGraphExecMemcpyNodeSetParamsFromSymbol": {"dst": "count", "symbol": "sizeof(*symbol)"},
+    "cudaGraphExecMemcpyNodeSetParams1D": {"dst": "count", "src": "count"},
+    "cudaGraphExecMemsetNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphExecHostNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
+    "cudaGraphExecChildGraphNodeSetParams": {"childGraph": "sizeof(*childGraph)"},
+    "cudaGraphExecEventRecordNodeSetEvent": {"event": "sizeof(*event)"},
+    "cudaGraphExecEventWaitNodeSetEvent": {"event": "sizeof(*event)"},
+    "cudaGraphExecExternalSemaphoresSignalNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphExecExternalSemaphoresWaitNodeSetParams": {"nodeParams": "sizeof(*nodeParams)"},
+    "cudaGraphExecUpdate": {"hErrorNode_out": "sizeof(*hErrorNode_out)", "updateResult_out": "sizeof(*updateResult_out)"},
+    "cudaGraphUpload": {"graphExec": "sizeof(*graphExec)", "stream": "sizeof(*stream)"},
+    "cudaGraphLaunch": {"graphExec": "sizeof(*graphExec)", "stream": "sizeof(*stream)"},
+    "cudaGraphExecDestroy": {"graphExec": "sizeof(*graphExec)"},
+    "cudaGraphDestroy": {"graph": "sizeof(*graph)"},
+    "cudaGraphDebugDotPrint": {"path": "strlen(path) + 1"},
+    "cudaUserObjectCreate": {"object_out": "sizeof(*object_out)", "ptr": "sizeof(*ptr)", "destroy": "sizeof(*destroy)"},
+    "cudaUserObjectRetain": {"object": "sizeof(*object)"},
+    "cudaUserObjectRelease": {"object": "sizeof(*object)"},
+    "cudaGraphRetainUserObject": {"object": "sizeof(*object)"},
+    "cudaGraphReleaseUserObject": {"object": "sizeof(*object)"},
+    "cudaGetDriverEntryPoint": {"symbol": "strlen(symbol) + 1", "funcPtr": "sizeof(*funcPtr)"},
+    "cudaGetExportTable": {"ppExportTable": "sizeof(*ppExportTable)", "pExportTableId": "sizeof(*pExportTableId)"},
+    "cudaGetFuncBySymbol": {"functionPtr": "sizeof(*functionPtr)", "symbolPtr": "sizeof(*symbolPtr)"},
+}
+
+
+def getScalarSize(function, param):
+    param_name = param.name
+    if param.type.ptr_to.format() == "void" or param.type.ptr_to.format() == "const void":
+        for p in function.parameters:
+            if isinstance(p.type, Type):
+                if p.type.format().endswith("cudaDataType"):
+                    p_name = p.name
+                    if p_name.endswith("Type") or p_name.endswith("type"):
+                        p_name = p_name[:-4]
+                        if param_name in p_name:
+                            return f"sizeofType({p.name})"
         return "0"
+    else:
+        return f"sizeof(*{param_name})"
 
-    param_name = target_param.name
-    base_type = None
-    if isinstance(target_param.type, Pointer):
-        if isinstance(target_param.type.ptr_to, Type):
-            base_type = target_param.type.ptr_to.format().replace('const ', '')
 
-    # 1. 处理cudaDataType类型的情况
-    type_param = find_datatype_param(function, param_name)
-    if type_param and base_type in ['void', 'const void']:
-        # 向量操作
-        if param_name in ['x', 'y', 'result'] and has_param('n', param_names):
-            inc_param = f'inc{param_name}'
-            if has_param(inc_param, param_names):
-                return f"(1 + (n - 1) * abs({inc_param})) * getSizeFromCudaDataType({type_param})"
-            return f"n * getSizeFromCudaDataType({type_param})"
-
-        # 矩阵操作
-        elif param_name in ['A', 'B', 'C']:
-            if has_param(f'ld{param_name.lower()}', param_names):
-                if has_param('n', param_names):
-                    return f"ld{param_name.lower()} * n * getSizeFromCudaDataType({type_param})"
-
-        # 批处理操作
-        if 'Batched' in function_name and not 'Strided' in function_name:
-            if has_param('batchCount', param_names):
-                if param_name.endswith('Array') or param_name.endswith('array'):
-                    return "batchCount * sizeof(void*)"
-                elif has_param(f'ld{param_name.lower()}', param_names) and has_param('n', param_names):
-                    return f"ld{param_name.lower()} * n * getSizeFromCudaDataType({type_param}) * batchCount"
-
-        # 带步长的批处理操作
-        if 'StridedBatched' in function_name:
-            if has_param('batchCount', param_names) and has_param(f'stride{param_name}', param_names):
-                if has_param(f'ld{param_name.lower()}', param_names) and has_param('n', param_names):
-                    return f"(ld{param_name.lower()} * n + (batchCount - 1) * abs(stride{param_name})) * getSizeFromCudaDataType({type_param})"
-
-    # 2. 处理字符串参数
-    if base_type == 'char':
-        return getCharParamLength(function)
-
-    # 3. 处理数组参数
-    if isinstance(target_param.type, Array):
-        return getArrayLengthParam(function, target_param)
-
-    # 4. 处理BLAS Level 1操作的参数
-    if any(op in function_name for op in ['nrm2', 'dot', 'scal', 'axpy', 'copy', 'swap', 'iamax', 'iamin', 'asum', 'rot']):
-        if param_name in ['x', 'y']:
-            inc_param = f'inc{param_name}'
-            if has_param(inc_param, param_names) and has_param('n', param_names):
-                return f"sizeof({base_type}) * n * abs({inc_param})"
-            elif has_param('n', param_names):
-                return f"sizeof({base_type}) * n"
-
-    # 5. 处理BLAS Level 2操作的参数
-    if any(op in function_name for op in ['gemv', 'gbmv', 'trmv', 'tbmv', 'tpmv', 'trsv', 'tpsv', 'tbsv']):
-        if param_name in ['A', 'B', 'C']:
-            if has_param(f'ld{param_name.lower()}', param_names) and has_param('n', param_names):
-                return f"sizeof({base_type}) * ld{param_name.lower()} * n"
-
-    # 6. 处理BLAS Level 3操作的参数
-    if any(op in function_name for op in ['gemm', 'symm', 'hemm', 'syrk', 'herk', 'syr2k', 'her2k']):
-        if param_name in ['A', 'B', 'C']:
-            if has_param(f'ld{param_name.lower()}', param_names):
-                if has_param('n', param_names):
-                    if 'transa' in param_names or 'transb' in param_names:
-                        trans_param = 'transa' if param_name == 'A' else 'transb' if param_name == 'B' else None
-                        if trans_param:
-                            return f"sizeof({base_type}) * ld{param_name.lower()} * (({trans_param} == CUBLAS_OP_N) ? k : n)"
-                    return f"sizeof({base_type}) * ld{param_name.lower()} * n"
-
-    # 默认返回0
+def getPointerSizes(function, param):
+    if function.name.format() in pointer_sizes:
+        if param.name in pointer_sizes[function.name.format()]:
+            return pointer_sizes[function.name.format()][param.name]
     return "0"
+
+
+def calculate_pointer_sizes(function, param):
+    param_name = param.name
+    pointer_vars = [
+        "a",
+        "b",
+        "c",
+        "s",
+        "x1",
+        "y1",
+        "d1",
+        "d2",
+        "x",
+        "y",
+        "A",
+        "B",
+        "C",
+        "P",
+        "AP",
+        "src",
+        "dst",
+        "srcHost",
+        "dstHost",
+        "param",
+        "result",
+        "alpha",
+    ]
+    array_vars = [
+        "A",
+        "B",
+        "C",
+        "Aarray",
+        "Barray",
+        "Carray",
+        "TauArray",
+        "Ainv",
+    ]
+    if isinstance(param.type, Pointer):
+        if param_name not in pointer_vars:
+            if param.type.ptr_to.format() == "void" or param.type.ptr_to.format() == "const void":
+                return "0"
+            else:
+                return f"sizeof(*{param.name})"
+        else:
+            if param_name in ["a", "b", "c", "s", "x1", "y1", "d1", "d2"]:
+                return getScalarSize(function, param)
+            else:
+                return getPointerSizes(function, param)
+
 
 def find_datatype_param(function, param_name):
     """
     查找参数对应的cudaDataType参数名
     """
-    type_param_candidates = [
-        param_name + "Type",
-        param_name.lower() + "Type",
-        param_name + "_type",
-        param_name.lower() + "_type"
-    ]
+    type_param_candidates = [param_name + "Type", param_name.lower() + "Type", param_name + "_type", param_name.lower() + "_type"]
     for param in function.parameters:
         if param.name in type_param_candidates and param.type.format() == "cudaDataType":
             return param.name
     return None
+
+
 # Helper function used in the implementation
 def has_param(name, param_names):
     return name in param_names
+
+
 def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_file):
     """
     生成对应头文件的 .cpp 文件，包含 Hook 的函数实现
@@ -788,7 +1601,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         f.write('extern "C" void mem2client(void *clientPtr, size_t size);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
-            f.write("int getSizeFromCudaDataType(cudaDataType type);\n")
+            f.write("int sizeofType(cudaDataType type);\n")
         # 写入被 Hook 的函数实现
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             function_map[header_file] = []

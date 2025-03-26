@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <iostream>
-#include <uuid/uuid.h>
 #include "rpc.h"
 
 RpcClient clients_pool[MAX_CONNECTIONS];
@@ -56,6 +55,7 @@ static int rpc_connect(const char *server, uint16_t port, uint16_t version_key) 
 //  线程函数，用于维护连接
 static void *rpc_thread(void *arg) {
     uint16_t version_key = *(uint16_t *)arg;
+    delete(uint16_t *)arg;
     // 获取环境变量CUDA_SERVER
     const char *cuda_server = getenv("CUDA_SERVER");
     if(!cuda_server) {
@@ -305,7 +305,8 @@ void rpc_init(uint16_t version_key) {
         clients_pool[i].sockfd = -1;
     }
     // 创建一个线程用于维护连接
-    pthread_create(&rpc_thread_id, NULL, rpc_thread, &version_key);
+    uint16_t *key = new uint16_t(version_key);
+    pthread_create(&rpc_thread_id, NULL, rpc_thread, key);
 }
 
 // 取得一个RPC客户端

@@ -111,19 +111,16 @@ void *rpc_handle_client(void *arg) {
     client.tmpbufs = new std::queue<void *>();
     handshake_request handshake_req;
     handshake_response handshake_rsp;
-    printf("Waiting for handshake request from client: %d\n", connfd);
     bytes_read = read(client.sockfd, &handshake_req, sizeof(handshake_req));
     if(bytes_read != sizeof(handshake_req)) {
         goto DONE;
     }
 
-    printf("Handshake request received from client: %d, version_key: 0x%x, client_id: %p\n", connfd, handshake_req.version_key, handshake_req.id);
     if(handshake_req.version_key != server->version_key) {
         handshake_rsp.status = 1;
     } else {
         handshake_rsp.status = 0;
     }
-    printf("Sending handshake response to client: %d, status: %d\n", connfd, handshake_rsp.status);
     bytes_write = write(client.sockfd, &handshake_rsp, sizeof(handshake_rsp));
     if(bytes_write != sizeof(handshake_rsp)) {
         goto DONE;
