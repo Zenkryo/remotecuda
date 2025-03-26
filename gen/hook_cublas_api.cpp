@@ -131,7 +131,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
 #ifdef DEBUG
     std::cout << "Hook: cublasSetWorkspace_v2 called" << std::endl;
 #endif
-    void *_0workspace = mem2server((void *)workspace, 0);
+    void *_0workspace = mem2server((void *)workspace, workspaceSizeInBytes);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -149,7 +149,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)workspace, 0);
+    mem2client((void *)workspace, workspaceSizeInBytes);
     return _result;
 }
 
@@ -469,7 +469,7 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
     std::cout << "Hook: cublasSetVector called" << std::endl;
 #endif
     void *_0x = mem2server((void *)x, n * elemSize);
-    void *_0devicePtr = mem2server((void *)devicePtr, 0);
+    void *_0devicePtr = mem2server((void *)devicePtr, n * elemSize);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -491,7 +491,7 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
     }
     rpc_free_client(client);
     mem2client((void *)x, n * elemSize);
-    mem2client((void *)devicePtr, 0);
+    mem2client((void *)devicePtr, n * elemSize);
     return _result;
 }
 
@@ -594,8 +594,8 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
 #ifdef DEBUG
     std::cout << "Hook: cublasSetVectorAsync called" << std::endl;
 #endif
-    void *_0hostPtr = mem2server((void *)hostPtr, 0);
-    void *_0devicePtr = mem2server((void *)devicePtr, 0);
+    void *_0hostPtr = mem2server((void *)hostPtr, n * elemSize);
+    void *_0devicePtr = mem2server((void *)devicePtr, n * elemSize);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -617,8 +617,8 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)hostPtr, 0);
-    mem2client((void *)devicePtr, 0);
+    mem2client((void *)hostPtr, n * elemSize);
+    mem2client((void *)devicePtr, n * elemSize);
     return _result;
 }
 
@@ -626,8 +626,8 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
 #ifdef DEBUG
     std::cout << "Hook: cublasGetVectorAsync called" << std::endl;
 #endif
-    void *_0devicePtr = mem2server((void *)devicePtr, 0);
-    void *_0hostPtr = mem2server((void *)hostPtr, 0);
+    void *_0devicePtr = mem2server((void *)devicePtr, n * elemSize);
+    void *_0hostPtr = mem2server((void *)hostPtr, n * elemSize);
     cublasStatus_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -649,8 +649,8 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)devicePtr, 0);
-    mem2client((void *)hostPtr, 0);
+    mem2client((void *)devicePtr, n * elemSize);
+    mem2client((void *)hostPtr, n * elemSize);
     return _result;
 }
 

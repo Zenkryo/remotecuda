@@ -5,36 +5,38 @@ handle在大多数时是没有*号的非指针类型参数。
 参数名为srcHost和dstHost的void *类型的参数的内存大小往往由ByteCount参数决定
 如果这个指针指向的是一个标量，那么应该返回这个标量的大小。
 如果这个指针指向的是一个数组，则应该返回这个数组的元素个数乘以每个元素的大小这样一个形式的公式。
-在指针是void*类型时，这个标量的大小由elemSize或者这个参数对应的cudaDataType类型的另一个参数决定。
+在指针是void*类型时，这个标量的大小由elemSize或者这个参数对应的cudaDataType类型的另一个参数决定, 当无法确定一个void*类型的参数所指向的标量或数组的元素的的大小时，必须忽略这个指针参数，因为使用sizeof(void)或sizeof(*a_void_star_param)是非法的操作
 注意尽量使用sizeof(*变量名)的形式。
 一个指针类型的变量如果指向的是一个数组，这个数组的元素个数由这个函数的其他一个或多个参数决定，例如side，trans，m，n，inc，ld，count等参数都可以用于决定数组里元素个数。
 指向数组的指针的内存空间大小由数组的元素个数乘以每个元素的大小决定。
 所以要充分考虑这个函数的的文档，这个函数的所有参数。例如，side，trans，lda， count等等参数往往都参与决定指针的大小。
 如果大小和side或trans有关，那么公式里要使用三元运算符kkk=bbb?ttt,mmm的形式.如果参数为char *类型或者const char *类型，则其大小为strlen(变量)+1
+cublasAsumEx的x参数类型为void *，其实际大小有条由 cudaDataType类型的参数xType确定，我之前也说了不允许sizeof(void)或sizeof(*x)在x为void *时， 正确的做法应该是调用sizeofType(xType)方法获得void*指针指向的标量或数组的成员的大小
 输出的公式后面不要加任何注解
 最后输出python格式的二层map，第一层为函数名(不要输出完整的函数声明，只要函数名），第二层为变量名，值为公式
 不要输出没必要的内容，我只要结果。
 
+
 翻译为英文，我要用于llm的提示语，要清晰有条理
 
 
-Attached is a file containing the complete declarations of some CUDA API functions, many of which have pointer-type parameters. I need the formulas to calculate the memory size of the memory space pointed to by each pointer-type parameter.
+You are provided with an attachment containing the full declarations of a subset of CUDA API functions. Many of these functions have parameters that are pointer types. Your task is to determine the formula for calculating the memory size of the space pointed to by each pointer-type parameter. Follow these rules:
 
-Only process pointer-type parameters (parameters with a * before their name).
-Do not process non-pointer-type parameters.
-The handle parameter is typically a non-pointer type without a *.
+Only process parameters that are pointer types. A pointer-type parameter is one with a * (asterisk) before its name.
+Do not process non-pointer-type parameters. For example, handle is typically a non-pointer type without a *.
 For void * parameters named srcHost or dstHost, their memory size is often determined by the ByteCount parameter.
 If a pointer points to a scalar, return the size of that scalar.
-If a pointer points to an array, return a formula in the form of "number of elements × size of each element."
-For void * pointers, the scalar size is determined by elemSize or another parameter of type cudaDataType corresponding to this parameter.
-Use the form sizeof(*variable_name) whenever possible.
+If a pointer points to an array, return a formula in the form of "number of elements multiplied by the size of each element."
+For void * pointers, the size of the scalar or array element is determined by either elemSize or another parameter of type cudaDataType corresponding to this pointer. If the size of the element cannot be determined for a void * parameter, ignore that pointer parameter, as sizeof(void) or sizeof(*a_void_star_param) is an illegal operation.
+Use the form sizeof(*variable_name) whenever possible to express the size of the dereferenced pointer.
 If a pointer points to an array, the number of elements in the array is determined by one or more other parameters of the function, such as side, trans, m, n, inc, ld, count, etc.
-The memory size of a pointer to an array is calculated as "number of elements × size of each element."
+The memory size of a pointer to an array is calculated as the number of elements multiplied by the size of each element.
 Fully consider the function's documentation and all its parameters (e.g., side, trans, lda, count, etc.), as they often contribute to determining the pointer's size.
 If the size depends on side or trans, use a ternary operator in the formula, e.g., kkk = bbb ? ttt : mmm.
 For char * or const char * parameters, their size is strlen(variable) + 1.
 Do not append any notes or explanations after the formulas.
 Output the result as a two-level Python dictionary:
-First level: function name (only the name, not the full declaration).
-Second level: parameter name, with its value being the formula.
-Do not include unnecessary content; I only want the results.
+
+The first level is the function name (do not include the full function declaration, just the name).
+The second level is the parameter name, with its value being the formula.
+Do not include any unnecessary content; I only want the resulting dictionary.

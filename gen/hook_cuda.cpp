@@ -1354,7 +1354,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
 #ifdef DEBUG
     std::cout << "Hook: cuLinkAddData_v2 called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, 0);
+    void *_0data = mem2server((void *)data, size);
     void *_0options = mem2server((void *)options, sizeof(*options));
     // PARAM void **optionValues
     CUresult _result;
@@ -1380,7 +1380,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
     }
     // PARAM void **optionValues
     rpc_free_client(client);
-    mem2client((void *)data, 0);
+    mem2client((void *)data, size);
     mem2client((void *)options, sizeof(*options));
     // PARAM void **optionValues
     return _result;
@@ -3563,7 +3563,7 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
 #ifdef DEBUG
     std::cout << "Hook: cuMemRangeGetAttribute called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, 0);
+    void *_0data = mem2server((void *)data, dataSize);
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3583,7 +3583,7 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)data, 0);
+    mem2client((void *)data, dataSize);
     return _result;
 }
 
@@ -5029,7 +5029,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
 #ifdef DEBUG
     std::cout << "Hook: cuParamSetv called" << std::endl;
 #endif
-    void *_0ptr = mem2server((void *)ptr, 0);
+    void *_0ptr = mem2server((void *)ptr, numbytes);
     CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -5048,7 +5048,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)ptr, 0);
+    mem2client((void *)ptr, numbytes);
     return _result;
 }
 

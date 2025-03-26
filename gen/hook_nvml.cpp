@@ -3907,7 +3907,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
 #ifdef DEBUG
     std::cout << "Hook: nvmlEventSetWait_v2 called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, sizeof(*data));
+    void *_0data = mem2server((void *)data, 0);
     nvmlReturn_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3925,7 +3925,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)data, sizeof(*data));
+    mem2client((void *)data, 0);
     return _result;
 }
 

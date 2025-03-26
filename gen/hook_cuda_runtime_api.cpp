@@ -1311,7 +1311,7 @@ extern "C" cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void *devPt
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamAttachMemAsync called" << std::endl;
 #endif
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, length);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -1330,7 +1330,7 @@ extern "C" cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void *devPt
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, length);
     return _result;
 }
 
@@ -2329,7 +2329,7 @@ extern "C" cudaError_t cudaHostRegister(void *ptr, size_t size, unsigned int fla
 #ifdef DEBUG
     std::cout << "Hook: cudaHostRegister called" << std::endl;
 #endif
-    void *_0ptr = mem2server((void *)ptr, 0);
+    void *_0ptr = mem2server((void *)ptr, size);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -2347,7 +2347,7 @@ extern "C" cudaError_t cudaHostRegister(void *ptr, size_t size, unsigned int fla
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)ptr, 0);
+    mem2client((void *)ptr, size);
     return _result;
 }
 
@@ -3155,7 +3155,7 @@ extern "C" cudaError_t cudaMemset2D(void *devPtr, size_t pitch, int value, size_
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset2D called" << std::endl;
 #endif
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, pitch * height);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3175,7 +3175,7 @@ extern "C" cudaError_t cudaMemset2D(void *devPtr, size_t pitch, int value, size_
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, pitch * height);
     return _result;
 }
 
@@ -3207,7 +3207,7 @@ extern "C" cudaError_t cudaMemset2DAsync(void *devPtr, size_t pitch, int value, 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset2DAsync called" << std::endl;
 #endif
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, pitch * height);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3228,7 +3228,7 @@ extern "C" cudaError_t cudaMemset2DAsync(void *devPtr, size_t pitch, int value, 
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, pitch * height);
     return _result;
 }
 
@@ -3288,7 +3288,7 @@ extern "C" cudaError_t cudaMemPrefetchAsync(const void *devPtr, size_t count, in
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPrefetchAsync called" << std::endl;
 #endif
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, count);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3307,7 +3307,7 @@ extern "C" cudaError_t cudaMemPrefetchAsync(const void *devPtr, size_t count, in
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, count);
     return _result;
 }
 
@@ -3315,7 +3315,7 @@ extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaMemAdvise called" << std::endl;
 #endif
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, count);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3334,7 +3334,7 @@ extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cuda
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, count);
     return _result;
 }
 
@@ -3342,8 +3342,8 @@ extern "C" cudaError_t cudaMemRangeGetAttribute(void *data, size_t dataSize, enu
 #ifdef DEBUG
     std::cout << "Hook: cudaMemRangeGetAttribute called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, 0);
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0data = mem2server((void *)data, dataSize);
+    void *_0devPtr = mem2server((void *)devPtr, count);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3363,8 +3363,8 @@ extern "C" cudaError_t cudaMemRangeGetAttribute(void *data, size_t dataSize, enu
         exit(1);
     }
     rpc_free_client(client);
-    mem2client((void *)data, 0);
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)data, dataSize);
+    mem2client((void *)devPtr, count);
     return _result;
 }
 
@@ -3375,7 +3375,7 @@ extern "C" cudaError_t cudaMemRangeGetAttributes(void **data, size_t *dataSizes,
     // PARAM void **data
     void *_0dataSizes = mem2server((void *)dataSizes, sizeof(*dataSizes));
     void *_0attributes = mem2server((void *)attributes, sizeof(*attributes));
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, count);
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
@@ -3400,7 +3400,7 @@ extern "C" cudaError_t cudaMemRangeGetAttributes(void **data, size_t *dataSizes,
     // PARAM void **data
     mem2client((void *)dataSizes, sizeof(*dataSizes));
     mem2client((void *)attributes, sizeof(*attributes));
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, count);
     return _result;
 }
 
@@ -4203,7 +4203,7 @@ extern "C" cudaError_t cudaBindTexture(size_t *offset, const struct textureRefer
 #endif
     void *_0offset = mem2server((void *)offset, sizeof(*offset));
     void *_0texref = mem2server((void *)texref, sizeof(*texref));
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, size);
     void *_0desc = mem2server((void *)desc, sizeof(*desc));
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
@@ -4226,7 +4226,7 @@ extern "C" cudaError_t cudaBindTexture(size_t *offset, const struct textureRefer
     rpc_free_client(client);
     mem2client((void *)offset, sizeof(*offset));
     mem2client((void *)texref, sizeof(*texref));
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, size);
     mem2client((void *)desc, sizeof(*desc));
     return _result;
 }
@@ -4237,7 +4237,7 @@ extern "C" cudaError_t cudaBindTexture2D(size_t *offset, const struct textureRef
 #endif
     void *_0offset = mem2server((void *)offset, sizeof(*offset));
     void *_0texref = mem2server((void *)texref, sizeof(*texref));
-    void *_0devPtr = mem2server((void *)devPtr, 0);
+    void *_0devPtr = mem2server((void *)devPtr, pitch * height);
     void *_0desc = mem2server((void *)desc, sizeof(*desc));
     cudaError_t _result;
     RpcClient *client = rpc_get_client();
@@ -4262,7 +4262,7 @@ extern "C" cudaError_t cudaBindTexture2D(size_t *offset, const struct textureRef
     rpc_free_client(client);
     mem2client((void *)offset, sizeof(*offset));
     mem2client((void *)texref, sizeof(*texref));
-    mem2client((void *)devPtr, 0);
+    mem2client((void *)devPtr, pitch * height);
     mem2client((void *)desc, sizeof(*desc));
     return _result;
 }
