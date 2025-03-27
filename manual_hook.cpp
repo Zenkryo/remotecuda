@@ -29,7 +29,7 @@ struct Function {
     char *name;
     void *fat_cubin;       // the fat cubin that this function is a part of.
     const char *host_func; // if registered, points at the host function.
-    ParamInfo *params;  // 改用 ParamInfo 数组替代原来的 arg_sizes
+    ParamInfo *params;     // 改用 ParamInfo 数组替代原来的 arg_sizes
     int arg_count;
 };
 
@@ -131,7 +131,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             free(name);
             exit(1);
         }
-        memset(params, 0, MAX_ARGS * sizeof(ParamInfo));  // 初始化参数数组
+        memset(params, 0, MAX_ARGS * sizeof(ParamInfo)); // 初始化参数数组
         int arg_count = 0;
 
         i += strlen(".entry");
@@ -153,35 +153,41 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             i++; // 跳过左括号
             while(i < ptx_len && ptx_string[i] != ')') {
                 // 跳过空白字符
-                while(i < ptx_len && isspace(ptx_string[i])) i++;
+                while(i < ptx_len && isspace(ptx_string[i]))
+                    i++;
 
                 // 查找 .param 标记
                 if(i + 5 >= ptx_len || strncmp(ptx_string + i, ".param", 6) != 0) {
                     // 移动到下一个参数
-                    while(i < ptx_len && ptx_string[i] != ',' && ptx_string[i] != ')') i++;
-                    if(ptx_string[i] == ',') i++;
+                    while(i < ptx_len && ptx_string[i] != ',' && ptx_string[i] != ')')
+                        i++;
+                    if(ptx_string[i] == ',')
+                        i++;
                     continue;
                 }
                 i += 6; // 跳过 .param
 
                 // 跳过空白字符
-                while(i < ptx_len && isspace(ptx_string[i])) i++;
+                while(i < ptx_len && isspace(ptx_string[i]))
+                    i++;
 
                 // 检查是否是指针类型 (.u64)
                 if(i + 3 < ptx_len && strncmp(ptx_string + i, ".u64", 4) == 0) {
                     params[arg_count].is_pointer = true;
-                    params[arg_count].size = 8;  // 指针大小为8字节
+                    params[arg_count].size = 8; // 指针大小为8字节
                     i += 4;
                 } else if(ptx_string[i] == '.') {
                     i++; // 跳过点号
                     params[arg_count].is_pointer = false;
                     params[arg_count].size = get_type_size(ptx_string + i);
                     // 跳过类型名
-                    while(i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_')) i++;
+                    while(i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_'))
+                        i++;
                 }
 
                 // 检查数组声明
-                while(i < ptx_len && ptx_string[i] != '[' && ptx_string[i] != ',' && ptx_string[i] != ')') i++;
+                while(i < ptx_len && ptx_string[i] != '[' && ptx_string[i] != ',' && ptx_string[i] != ')')
+                    i++;
                 if(ptx_string[i] == '[') {
                     i++; // 跳过 [
                     int array_size = 0;
@@ -192,14 +198,17 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
                     if(array_size > 0) {
                         params[arg_count].size *= array_size;
                     }
-                    while(i < ptx_len && ptx_string[i] != ']') i++;
-                    if(ptx_string[i] == ']') i++;
+                    while(i < ptx_len && ptx_string[i] != ']')
+                        i++;
+                    if(ptx_string[i] == ']')
+                        i++;
                 }
 
                 arg_count++;
 
                 // 跳过空白字符
-                while(i < ptx_len && isspace(ptx_string[i])) i++;
+                while(i < ptx_len && isspace(ptx_string[i]))
+                    i++;
 
                 // 检查是否还有更多参数
                 if(ptx_string[i] == ',') {
@@ -225,8 +234,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
         // 打印调试信息
         printf("Function: %s with %d arguments:\n", name, arg_count);
         for(int j = 0; j < arg_count; j++) {
-            printf("  Arg %d: size=%d, is_pointer=%d\n",
-                   j, params[j].size, params[j].is_pointer);
+            printf("  Arg %d: size=%d, is_pointer=%d\n", j, params[j].size, params[j].is_pointer);
         }
 #endif
     }
@@ -385,7 +393,7 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
         return (void *)it2->first;
     }
     for(auto &func : functions) {
-        if(func.host_func == clientPtr){
+        if(func.host_func == clientPtr) {
             return (void *)func.fat_cubin;
         }
     }
@@ -449,7 +457,7 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0) {
         return;
     }
     for(auto &func : functions) {
-        if(func.host_func == clientPtr){
+        if(func.host_func == clientPtr) {
             return;
         }
     }
@@ -687,8 +695,8 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         return cudaErrorInvalidDeviceFunction;
     }
     for(int i = 0; i < f->arg_count; i++) {
-        if(f->params[i].is_pointer){
-            f->params[i].ptr = mem2server(*((void**)args[i]));
+        if(f->params[i].is_pointer) {
+            f->params[i].ptr = mem2server(*((void **)args[i]));
         }
     }
 
@@ -706,7 +714,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_write(client, &f->arg_count, sizeof(f->arg_count));
 
     for(int i = 0; i < f->arg_count; i++) {
-        if(f->params[i].is_pointer){
+        if(f->params[i].is_pointer) {
             rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
         } else {
             rpc_write(client, args[i], f->params[i].size, true);
@@ -721,8 +729,8 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_free_client(client);
     _result = cudaDeviceSynchronize();
     for(int i = 0; i < f->arg_count; i++) {
-        if(f->params[i].is_pointer){
-            mem2client(*((void**)args[i]));
+        if(f->params[i].is_pointer) {
+            mem2client(*((void **)args[i]));
         }
     }
     return _result;
@@ -882,8 +890,6 @@ extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t widt
     rpc_free_client(client);
     return _result;
 }
-
-
 
 extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset, enum cudaMemcpyKind kind) {
 #ifdef DEBUG
@@ -1149,7 +1155,6 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
 #ifdef DEBUG
     std::cout << "Hook: __cudaRegisterFunction called" << std::endl;
 #endif
-
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;

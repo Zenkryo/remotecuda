@@ -50,7 +50,7 @@ void rpc_read(RpcClient *client, void *buffer, size_t len, bool with_len = false
 int rpc_submit_request(RpcClient *client);
 int rpc_prepare_response(RpcClient *client);
 int rpc_submit_response(RpcClient *client);
-ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count);
-ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len);
+ssize_t read_all_now(RpcClient *client, void **buffer, size_t *size, int count);
+ssize_t read_one_now(RpcClient *client, void *buffer, size_t size, bool with_len);
 void hexdump(const char *desc, void *buf, size_t len);
 int sum_group(int *group_size, int group_count);

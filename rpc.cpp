@@ -116,9 +116,9 @@ static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
         total_bytes += bytes_written;
 #ifdef DUMP
         // 调试输出（可选，仿照 read_full_iovec）
-        ssize_t bytes_remaining = bytes_written;
-        for(int i = 0; i < iovcnt && bytes_remaining > 0; i++) {
-            int len = iov[i].iov_len > bytes_remaining ? bytes_remaining : iov[i].iov_len;
+        size_t bytes_remaining = bytes_written;
+        for(size_t i = 0; i < iovcnt && bytes_remaining > 0; i++) {
+            size_t len = iov[i].iov_len > bytes_remaining ? bytes_remaining : iov[i].iov_len;
             hexdump("<== ", iov[i].iov_base, len);
             bytes_remaining -= len;
         }
@@ -193,7 +193,7 @@ static ssize_t read_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
 
 // 发送client里待发送数据，支持发送数据和长度+数据两种模式
 static ssize_t writev_all(RpcClient *client, bool with_len = false) {
-    uint32_t lengths[MAX_IOCV_COUNT];
+    size_t lengths[MAX_IOCV_COUNT];
     struct iovec iov_with_len[MAX_IOCV_COUNT * 2];
 
     struct iovec *iov2send = client->iov_send;
@@ -203,9 +203,9 @@ static ssize_t writev_all(RpcClient *client, bool with_len = false) {
         iov2send_count = client->iov_send2_count * 2;
         iov2send = iov_with_len;
         for(int i = 0; i < client->iov_send2_count; i++) {
-            lengths[i] = htonl((uint32_t)client->iov_send2[i].iov_len);
+            lengths[i] = client->iov_send2[i].iov_len;
             iov_with_len[2 * i].iov_base = &lengths[i];
-            iov_with_len[2 * i].iov_len = sizeof(uint32_t);
+            iov_with_len[2 * i].iov_len = sizeof(size_t);
             iov_with_len[2 * i + 1].iov_base = client->iov_send2[i].iov_base;
             iov_with_len[2 * i + 1].iov_len = client->iov_send2[i].iov_len;
         }
@@ -223,7 +223,7 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
         for(int i = 0; i < client->iov_read2_count; i++) {
             // 先读取长度字段
             struct iovec iov_for_len;
-            uint32_t length;
+            size_t length;
             iov_for_len.iov_base = &length;
             iov_for_len.iov_len = sizeof(length);
             bytes_read = read_full_iovec(client->sockfd, &iov_for_len, 1);
@@ -231,7 +231,6 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
                 goto ERR;
             }
             total_read += bytes_read;
-            length = ntohl(length);
             if(client->iov_read2[i].iov_len > 0 && length > client->iov_read2[i].iov_len) {
                 errno = ENOBUFS; // 缓冲区不足
                 goto ERR;
@@ -383,13 +382,13 @@ void rpc_read(RpcClient *client, void *buffer, size_t len, bool with_len) {
 }
 
 // 读取count个带长度的数据到动态分配的缓冲区
-ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
+ssize_t read_all_now(RpcClient *client, void **buffer, size_t *size, int count) {
     ssize_t total_read = 0; // 已读取的总字节数
     ssize_t bytes_read;     // 每次读取的字节数
 
     for(int i = 0; i < count; i++) {
         struct iovec iov;
-        uint32_t length;
+        size_t length;
         iov.iov_base = &length;
         iov.iov_len = sizeof(length);
         bytes_read = read_full_iovec(client->sockfd, &iov, 1);
@@ -397,7 +396,6 @@ ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
             return -1;
         }
         total_read += bytes_read;
-        length = ntohl(length);
         iov.iov_len = length;
         iov.iov_base = malloc(length);
         if(iov.iov_base == NULL) {
@@ -419,12 +417,12 @@ ssize_t read_all_now(RpcClient *client, void **buffer, int *size, int count) {
 }
 
 // 读取1数据到以分配的缓冲区
-ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len = false) {
+ssize_t read_one_now(RpcClient *client, void *buffer, size_t size, bool with_len = false) {
     ssize_t total_read = 0; // 已读取的总字节数
     ssize_t bytes_read;     // 每次读取的字节数
 
     struct iovec iov;
-    uint32_t length = size;
+    size_t length = size;
     void *tmp_buffer = nullptr;
     if(with_len) {
         iov.iov_base = &length;
@@ -434,7 +432,6 @@ ssize_t read_one_now(RpcClient *client, void *buffer, int size, bool with_len = 
             return -1;
         }
         total_read += bytes_read;
-        length = ntohl(length);
         if(size > 0 && length > size) {
             errno = ENOBUFS; // 缓冲区不足
             return -1;

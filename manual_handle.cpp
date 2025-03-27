@@ -396,7 +396,6 @@ int handle_cudaMallocPitch(void *args) {
     return 0;
 }
 
-
 int handle_cudaMemcpyFromSymbol(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaMemcpyFromSymbol called" << std::endl;
@@ -611,7 +610,7 @@ int handle___cudaRegisterFatBinary(void *args0) {
     }
     void *cubin = nullptr;
     int len;
-    read_all_now(client, &cubin, &len, 1);
+    read_one_now(client, &cubin, 0, true);
     fatCubin->text = (uint64_t)cubin;
     void **_result = __cudaRegisterFatBinary(fatCubin);
     rpc_write(client, &_result, sizeof(_result));
@@ -685,13 +684,13 @@ int handle___cudaRegisterFunction(void *args0) {
     if(mask & 1 << 4) {
         read_one_now(client, &wSize, sizeof(wSize), false);
     }
-
     __cudaRegisterFunction(fatCubinHandle, hostFun, deviceName, deviceName, thread_limit, mask & 1 << 0 ? &tid : nullptr, mask & 1 << 1 ? &bid : nullptr, mask & 1 << 2 ? &bDim : nullptr, mask & 1 << 3 ? &gDim : nullptr, mask & 1 << 4 ? &wSize : nullptr);
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
+#ifdef DEBUG
     if(mask & 1 << 0) {
         printf("tid: %u %u %u\n", tid.x, tid.y, tid.z);
     }
@@ -707,6 +706,7 @@ int handle___cudaRegisterFunction(void *args0) {
     if(mask & 1 << 4) {
         printf("wSize: %d\n", wSize);
     }
+#endif
 _RTN_:
     return rtn;
 }
