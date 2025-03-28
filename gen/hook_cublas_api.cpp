@@ -6,8 +6,8 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void *mem2server(void *clientPtr, size_t size);
-extern "C" void mem2client(void *clientPtr, size_t size);
+extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = false);
+extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);
 void *get_so_handle(const std::string &so_file);
 int sizeofType(cudaDataType type);
 extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {

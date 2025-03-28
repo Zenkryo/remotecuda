@@ -105,7 +105,7 @@ MANUAL_FUNCTIONS = [
     "cuMemMap",
     "cuMemPoolImportPointer",
     "cuMemRelease",
-    "cuMemcpyBatchAsync",
+    # "cuMemcpyBatchAsync",
     "cuModuleGetGlobal_v2",
     "cuTexRefGetAddress_v2",
     # NVML
@@ -1480,8 +1480,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write('extern "C" void *mem2server(void *clientPtr, size_t size);\n')
-        f.write('extern "C" void mem2client(void *clientPtr, size_t size);\n')
+        f.write('extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
+        f.write('extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
             f.write("int sizeofType(cudaDataType type);\n")

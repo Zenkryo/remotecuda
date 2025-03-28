@@ -41,12 +41,8 @@ std::map<void *, std::pair<void *, size_t>> cs_host_mems;
 // 映射客户端统一内存地址到服务器统一内存地址
 std::map<void *, std::pair<void *, size_t>> cs_union_mems;
 
-// Add type aliases for better clarity
-using DevicePointer = CUdeviceptr;
-using HostPointer = void *;
-using MemorySize = size_t;
-
-std::map<DevicePointer, DevicePointer> cs_dev_mems;
+// 通过cuMemMap映射的设备内存，客户端和服务器有不同的指针
+std::map<CUdeviceptr, std::pair<CUdeviceptr, size_t>> cs_dev_mems;
 
 // 设备端内存指针（不包括上面的cs_dev_mems）
 std::map<void *, size_t> server_dev_mems;
@@ -56,9 +52,6 @@ std::map<CUdeviceptr, CUdeviceptr> cs_reserve_mems;
 
 // 服务器主机内存句柄
 std::set<CUmemGenericAllocationHandle> host_handles;
-
-// Add thread safety for shared maps
-std::mutex maps_mutex;
 
 void *getHookFunc(const char *symbol);
 
@@ -79,7 +72,7 @@ void *getUnionPtr(void *ptr) {
 
 void *getServerDevPtr(void *ptr) {
     if(cs_dev_mems.find((CUdeviceptr)ptr) != cs_dev_mems.end()) {
-        return (void *)cs_dev_mems[(CUdeviceptr)ptr];
+        return (void *)cs_dev_mems[(CUdeviceptr)ptr].first;
     }
     if(server_dev_mems.find(ptr) != server_dev_mems.end()) {
         return ptr;
@@ -378,24 +371,61 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
  * @brief Synchronizes client memory to server memory
  * @param clientPtr Client memory pointer
  * @param size Memory size (optional)
+ * @param for_kernel Whether the memory is param of a kernel function
  * @return Server memory pointer
  */
-extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
+extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = false) {
 #ifdef DEBUG
     std::cout << "Hook: mem2server called " << clientPtr << " " << size << std::endl;
 #endif
+    // 设备指针，不用同步内存数据
     auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it1 != cs_dev_mems.end()) {
-        return (void *)it1->second;
+        return (void *)it1->second.first;
     }
     auto it2 = server_dev_mems.find(clientPtr);
     if(it2 != server_dev_mems.end()) {
         return (void *)it2->first;
     }
+    for(auto it = cs_dev_mems.begin(); it != cs_dev_mems.end(); it++) {
+        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+            void *serverPtr = (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+            return (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+        }
+    }
+    for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
+        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
+            void *serverPtr = (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+            return (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+        }
+    }
     for(auto &func : functions) {
         if(func.host_func == clientPtr) {
             return (void *)func.fat_cubin;
         }
+    }
+    void *serverPtr = nullptr;
+    size_t memSize = 0;
+
+    // 统一内存指针
+    auto it3 = cs_union_mems.find(clientPtr);
+    if(it3 != cs_union_mems.end()) {
+        serverPtr = it3->second.first;
+        memSize = it3->second.second;
+    }
+    if(for_kernel && serverPtr == nullptr) {
+        return clientPtr;
+    }
+    if(serverPtr == nullptr) {
+        auto it = cs_host_mems.find(clientPtr);
+        if(it != cs_host_mems.end()) {
+            serverPtr = it->second.first;
+            memSize = it->second.second;
+        }
+    }
+    if(serverPtr == nullptr && size == 0) {
+        printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
+        return clientPtr;
     }
 
     RpcClient *client = rpc_get_client();
@@ -403,31 +433,16 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-
     rpc_prepare_request(client, RPC_mem2server);
-    void *serverPtr;
-    size_t memSize;
     auto it = cs_host_mems.find(clientPtr);
-    if(it != cs_host_mems.end()) {
-        serverPtr = it->second.first;
-        memSize = it->second.second;
+    if(serverPtr != nullptr) {
         rpc_write(client, &serverPtr, sizeof(serverPtr));
         rpc_write(client, &memSize, sizeof(memSize));
         rpc_write(client, clientPtr, memSize, true);
-    } else {
-        auto it3 = cs_union_mems.find(clientPtr);
-        if(it3 != cs_union_mems.end()) {
-            serverPtr = it3->second.first;
-            memSize = it3->second.second;
-            rpc_write(client, &serverPtr, sizeof(serverPtr));
-            rpc_write(client, &memSize, sizeof(memSize));
-            rpc_write(client, clientPtr, memSize, true);
-        } else { // 这个指针应该是客户端没有调用CUDA API分配的指针
-            serverPtr = nullptr;
-            rpc_write(client, &serverPtr, sizeof(serverPtr));
-            rpc_write(client, clientPtr, size, true);
-            rpc_read(client, &serverPtr, sizeof(serverPtr));
-        }
+    } else if(!for_kernel) {
+        rpc_write(client, &serverPtr, sizeof(serverPtr));
+        rpc_write(client, clientPtr, size, true);
+        rpc_read(client, &serverPtr, sizeof(serverPtr));
     }
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -444,17 +459,27 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0) {
  * @param size 内存大小
  * @return 客户端内存指针
  */
-extern "C" void mem2client(void *clientPtr, size_t size = 0) {
+extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false) {
 #ifdef DEBUG
     std::cout << "Hook: mem2client called " << clientPtr << " " << size << std::endl;
 #endif
-    auto it3 = cs_dev_mems.find((CUdeviceptr)clientPtr);
-    if(it3 != cs_dev_mems.end()) {
+    auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
+    if(it1 != cs_dev_mems.end()) {
         return;
     }
-    auto it4 = server_dev_mems.find(clientPtr);
-    if(it4 != server_dev_mems.end()) {
+    auto it2 = server_dev_mems.find(clientPtr);
+    if(it2 != server_dev_mems.end()) {
         return;
+    }
+    for(auto it = cs_dev_mems.begin(); it != cs_dev_mems.end(); it++) {
+        if((uintptr_t)clientPtr > (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+            return;
+        }
+    }
+    for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
+        if((uintptr_t)clientPtr > (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
+            return;
+        }
     }
     for(auto &func : functions) {
         if(func.host_func == clientPtr) {
@@ -462,36 +487,45 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0) {
         }
     }
 
+    void *serverPtr = nullptr;
+    size_t memSize = 0;
+
+    // 统一内存指针
+    auto it3 = cs_union_mems.find(clientPtr);
+    if(it3 != cs_union_mems.end()) {
+        serverPtr = it3->second.first;
+        memSize = it3->second.second;
+    }
+    if(for_kernel && serverPtr == nullptr) {
+        return;
+    }
+    if(serverPtr == nullptr) {
+        auto it = cs_host_mems.find(clientPtr);
+        if(it != cs_host_mems.end()) {
+            serverPtr = it->second.first;
+            memSize = it->second.second;
+        }
+    }
+    if(serverPtr == nullptr && size == 0) {
+        printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
+        return;
+    }
+
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-
     rpc_prepare_request(client, RPC_mem2client);
-    void *serverPtr;
-    size_t memSize;
     auto it = cs_host_mems.find(clientPtr);
-    if(it != cs_host_mems.end()) {
-        serverPtr = it->second.first;
-        memSize = it->second.second;
+    if(serverPtr != nullptr) {
         rpc_write(client, &serverPtr, sizeof(serverPtr));
         rpc_write(client, &memSize, sizeof(memSize), false);
         rpc_read(client, clientPtr, memSize, true);
-    } else {
-        auto it2 = cs_union_mems.find(clientPtr);
-        if(it2 != cs_union_mems.end()) {
-            serverPtr = it2->second.first;
-            memSize = it2->second.second;
-            rpc_write(client, &serverPtr, sizeof(serverPtr));
-            rpc_write(client, &memSize, sizeof(memSize), false);
-            rpc_read(client, clientPtr, memSize, true);
-        } else { // 这个指针应该是客户端没有调用CUDA API分配的指针
-            serverPtr = nullptr;
-            rpc_write(client, &serverPtr, sizeof(serverPtr));
-            rpc_write(client, &size, sizeof(size), false);
-            rpc_read(client, clientPtr, size, true);
-        }
+    } else { // 这个指针应该是客户端没有调用CUDA API分配的指针
+        rpc_write(client, &serverPtr, sizeof(serverPtr));
+        rpc_write(client, &size, sizeof(size), false);
+        rpc_read(client, clientPtr, size, true);
     }
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -499,6 +533,7 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0) {
         exit(1);
     }
     rpc_free_client(client);
+    return;
 }
 
 // CUDA Runtime API (cuda*)
@@ -695,11 +730,8 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         return cudaErrorInvalidDeviceFunction;
     }
     for(int i = 0; i < f->arg_count; i++) {
-        if(f->params[i].is_pointer) {
-            f->params[i].ptr = mem2server(*((void **)args[i]));
-        }
+        f->params[i].ptr = mem2server(*((void **)args[i]), 0, true);
     }
-
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
@@ -714,11 +746,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_write(client, &f->arg_count, sizeof(f->arg_count));
 
     for(int i = 0; i < f->arg_count; i++) {
-        if(f->params[i].is_pointer) {
-            rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
-        } else {
-            rpc_write(client, args[i], f->params[i].size, true);
-        }
+        rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
     }
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -729,9 +757,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_free_client(client);
     _result = cudaDeviceSynchronize();
     for(int i = 0; i < f->arg_count; i++) {
-        if(f->params[i].is_pointer) {
-            mem2client(*((void **)args[i]));
-        }
+        mem2client(*((void **)args[i]), 0, true);
     }
     return _result;
 }
@@ -1975,7 +2001,7 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
         if(isHost) {
             cs_host_mems[(void *)ptr] = std::make_pair((void *)serverPtr, size);
         } else {
-            cs_dev_mems[ptr] = serverPtr;
+            cs_dev_mems[ptr] = std::make_pair(serverPtr, size);
         }
         cs_reserve_mems.erase(ptr);
     } else {
@@ -2009,9 +2035,8 @@ extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool po
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
-        if(cs_dev_mems.find((CUdeviceptr)*ptr_out) != cs_dev_mems.end()) {
-            server_dev_mems[(void *)*ptr_out] = 0;
-        }
+        // TODO 通过拦截cuMemPoolExportPointer获取size，现在先将size置0
+        server_dev_mems[(void *)*ptr_out] = 0;
     }
     rpc_free_client(client);
     return _result;
@@ -2042,69 +2067,69 @@ extern "C" CUresult cuMemRelease(CUmemGenericAllocationHandle handle) {
     return _result;
 }
 
-#if CUDA_VERSION > 11040
-extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) {
-#ifdef DEBUG
-    std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
-#endif
+// #if CUDA_VERSION > 11040
+// extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) {
+// #ifdef DEBUG
+//     std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
+// #endif
 
-    CUresult _result;
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_cuMemcpyBatchAsync);
-    CUdeviceptr *new_dsts = (CUdeviceptr *)malloc(count * sizeof(CUdeviceptr));
-    CUdeviceptr *new_srcs = (CUdeviceptr *)malloc(count * sizeof(CUdeviceptr));
-    if(new_dsts == nullptr || new_srcs == nullptr) {
-        return CUDA_ERROR_OUT_OF_MEMORY;
-    }
-    for(int i = 0; i < count; i++) {
-        if(cs_union_mems.find((void *)dsts[i]) != cs_union_mems.end()) {
-            std::pair<void *, size_t> mem = cs_union_mems[(void *)dsts[i]];
-            new_dsts[i] = (CUdeviceptr)mem.first;
-            rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
-            // 如果是拷贝到统一内存,还需要将数据读回到客户端, 服务器端需要调用cudaPointerGetAttributes来判断指针是否是统一内存
-            rpc_read(client, (void *)dsts[i], sizes[i], true);
-        } else if(cs_dev_mems.find(dsts[i]) != cs_dev_mems.end()) {
-            new_dsts[i] = (CUdeviceptr)cs_dev_mems[dsts[i]];
-            rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
-        } else {
-            rpc_write(client, (void *)&dsts[i], sizeof(dsts[i]));
-        }
-    }
-    for(int i = 0; i < count; i++) {
-        if(cs_union_mems.find((void *)srcs[i]) != cs_union_mems.end()) {
-            std::pair<void *, size_t> mem = cs_union_mems[(void *)srcs[i]];
-            new_srcs[i] = (CUdeviceptr)mem.first;
-            rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
-            // 如果是从统一内存拷贝,还需要将数据写入到服务器端
-            rpc_write(client, (void *)srcs[i], sizes[i], true);
-        } else if(cs_dev_mems.find(srcs[i]) != cs_dev_mems.end()) {
-            new_srcs[i] = (CUdeviceptr)cs_dev_mems[srcs[i]];
-            rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
-        } else {
-            rpc_write(client, (void *)&srcs[i], sizeof(srcs[i]));
-        }
-    }
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, sizes, sizeof(*sizes) * count);
-    rpc_read(client, attrs, sizeof(*attrs));
-    rpc_read(client, attrsIdxs, sizeof(*attrsIdxs));
-    rpc_write(client, &numAttrs, sizeof(numAttrs));
-    rpc_read(client, failIdx, sizeof(*failIdx));
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
-    return _result;
-}
-#endif
+//     CUresult _result;
+//     RpcClient *client = rpc_get_client();
+//     if(client == nullptr) {
+//         std::cerr << "Failed to get rpc client" << std::endl;
+//         exit(1);
+//     }
+//     rpc_prepare_request(client, RPC_cuMemcpyBatchAsync);
+//     CUdeviceptr *new_dsts = (CUdeviceptr *)malloc(count * sizeof(CUdeviceptr));
+//     CUdeviceptr *new_srcs = (CUdeviceptr *)malloc(count * sizeof(CUdeviceptr));
+//     if(new_dsts == nullptr || new_srcs == nullptr) {
+//         return CUDA_ERROR_OUT_OF_MEMORY;
+//     }
+//     for(int i = 0; i < count; i++) {
+//         if(cs_union_mems.find((void *)dsts[i]) != cs_union_mems.end()) {
+//             std::pair<void *, size_t> mem = cs_union_mems[(void *)dsts[i]];
+//             new_dsts[i] = (CUdeviceptr)mem.first;
+//             rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
+//             // 如果是拷贝到统一内存,还需要将数据读回到客户端, 服务器端需要调用cudaPointerGetAttributes来判断指针是否是统一内存
+//             rpc_read(client, (void *)dsts[i], sizes[i], true);
+//         } else if(cs_dev_mems.find(dsts[i]) != cs_dev_mems.end()) {
+//             new_dsts[i] = (CUdeviceptr)cs_dev_mems[dsts[i]];
+//             rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
+//         } else {
+//             rpc_write(client, (void *)&dsts[i], sizeof(dsts[i]));
+//         }
+//     }
+//     for(int i = 0; i < count; i++) {
+//         if(cs_union_mems.find((void *)srcs[i]) != cs_union_mems.end()) {
+//             std::pair<void *, size_t> mem = cs_union_mems[(void *)srcs[i]];
+//             new_srcs[i] = (CUdeviceptr)mem.first;
+//             rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
+//             // 如果是从统一内存拷贝,还需要将数据写入到服务器端
+//             rpc_write(client, (void *)srcs[i], sizes[i], true);
+//         } else if(cs_dev_mems.find(srcs[i]) != cs_dev_mems.end()) {
+//             new_srcs[i] = (CUdeviceptr)cs_dev_mems[srcs[i]];
+//             rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
+//         } else {
+//             rpc_write(client, (void *)&srcs[i], sizeof(srcs[i]));
+//         }
+//     }
+//     rpc_write(client, &count, sizeof(count));
+//     rpc_write(client, sizes, sizeof(*sizes) * count);
+//     rpc_read(client, attrs, sizeof(*attrs));
+//     rpc_read(client, attrsIdxs, sizeof(*attrsIdxs));
+//     rpc_write(client, &numAttrs, sizeof(numAttrs));
+//     rpc_read(client, failIdx, sizeof(*failIdx));
+//     rpc_write(client, &hStream, sizeof(hStream));
+//     rpc_read(client, &_result, sizeof(_result));
+//     if(rpc_submit_request(client) != 0) {
+//         std::cerr << "Failed to submit request" << std::endl;
+//         rpc_release_client(client);
+//         exit(1);
+//     }
+//     rpc_free_client(client);
+//     return _result;
+// }
+// #endif
 
 extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, const char *name) {
 #ifdef DEBUG
@@ -2183,9 +2208,7 @@ extern "C" CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr *
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
-        if(cs_dev_mems.find(*dptr_out) != cs_dev_mems.end()) {
-            server_dev_mems[(void *)*dptr_out] = 0;
-        }
+        server_dev_mems[(void *)*dptr_out] = 0; // TODO?
     }
     rpc_free_client(client);
     return _result;
