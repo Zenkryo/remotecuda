@@ -112,8 +112,14 @@ MANUAL_FUNCTIONS = [
     "nvmlErrorString",
 ]
 
+
 # 隐藏类型
-HIDDEN_TYPES = ["cudnnRuntimeTag_t"]
+HIDDEN_TYPES = ["cudnnRuntimeTag_t",]
+                # "cudaStream_t",
+                # "cudaEvent_t",
+                # "cudaGraphicsResource_t",
+                # "cudaExternalMemory_t", "cudaExternalSemaphore_t", "cudaGraph_t", "cudaGraphNode_t", "cudaUserObject_t", "cudaFunction_t", "cudaMemPool_t", "cudaArray_t", "cudaArray_const_t", "cudaMipmappedArray_t", "cudaMipmappedArray_const_t"]
+
 
 random.seed(time.time())
 VERSION_KEY = random.randint(0, 0xFFFF)  # 定义一个16位的随机数作为版本密钥，每次生成的值都是随机的

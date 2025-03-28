@@ -1,7 +1,7 @@
 #ifndef HOOK_API_H
 #define HOOK_API_H
 
-#define VERSION_KEY 0x20D5
+#define VERSION_KEY 0xD11A
 
 #define RPC___cudaInitModule 0x6507491C
 #define RPC___cudaPushCallConfiguration 0x0A3A0834

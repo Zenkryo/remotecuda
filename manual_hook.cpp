@@ -20,21 +20,30 @@
 #define MAX_ARGS 64
 #define MAX_REG_NAME 128
 // 参数类型枚举
-typedef enum { PARAM_B8, PARAM_U32, PARAM_U64, PARAM_UNKNOWN } ParamType;
-// struct ParamInfo {
-//     int size;
-//     void *ptr;
-//     bool is_pointer;
-//     char reg[16]; // 寄存器名字
-// };
-
-// struct Function {
-//     char name[256];
-//     void *fat_cubin;       // the fat cubin that this function is a part of.
-//     const char *host_func; // if registered, points at the host function.
-//     ParamInfo *params;     // 改用 ParamInfo 数组替代原来的 arg_sizes
-//     int arg_count;
-// };
+typedef enum {
+    PARAM_B8,     // 8-bit data
+    PARAM_B16,    // 16-bit data
+    PARAM_B32,    // 32-bit data
+    PARAM_B64,    // 64-bit data
+    PARAM_S8,     // 8-bit signed integer
+    PARAM_S16,    // 16-bit signed integer
+    PARAM_S32,    // 32-bit signed integer
+    PARAM_S64,    // 64-bit signed integer
+    PARAM_U8,     // 8-bit unsigned integer
+    PARAM_U16,    // 16-bit unsigned integer
+    PARAM_U32,    // 32-bit unsigned integer
+    PARAM_U64,    // 64-bit unsigned integer
+    PARAM_F16,    // 16-bit floating point
+    PARAM_F32,    // 32-bit floating point
+    PARAM_F64,    // 64-bit floating point
+    PARAM_F16X2,  // Two 16-bit floating points
+    PARAM_V2F32,  // 2-element vector of 32-bit floats
+    PARAM_V4F32,  // 4-element vector of 32-bit floats
+    PARAM_V2F64,  // 2-element vector of 64-bit floats
+    PARAM_V4F64,  // 4-element vector of 64-bit floats
+    PARAM_PRED,   // Predicate (boolean)
+    PARAM_UNKNOWN // Unknown type
+} ParamType;
 
 // 参数信息结构体
 typedef struct {
@@ -136,14 +145,75 @@ void freeDevPtr(void *ptr) {
 #include <stdio.h>
 #include <ctype.h>
 
+// PTX 类型总结表
+// 类型	大小（字节）	描述
+// .b8	1	8 位位数据
+// .b16	2	16 位位数据
+// .b32	4	32 位位数据
+// .b64	8	64 位位数据
+// .s8	1	8 位有符号整数
+// .s16	2	16 位有符号整数
+// .s32	4	32 位有符号整数
+// .s64	8	64 位有符号整数
+// .s32	4	32 位有符号整数
+// .s16	2	16 位有符号整数
+// .s8	1	8 位有符号整数
+// .u8	1	8 位无符号整数
+// .u16	2	16 位无符号整数
+// .u32	4	32 位无符号整数
+// .u64	8	64 位无符号整数
+// .f16	2	16 位半精度浮点数
+// .f32	4	32 位单精度浮点数
+// .f64	8	64 位双精度浮点数
+// .f16x2	4	两个 16 位浮点数
+// .v2.<type>	2x 类型大小	2 元素向量
+// .v4.<type>	4x 类型大小	4 元素向量
+// .pred	1 位	谓词（布尔值）
+
 // 获取参数类型
 static ParamType get_param_type(const char *line) {
     if(strstr(line, ".b8"))
         return PARAM_B8;
+    if(strstr(line, ".b16"))
+        return PARAM_B16;
+    if(strstr(line, ".s8"))
+        return PARAM_S8;
+    if(strstr(line, ".s16"))
+        return PARAM_S16;
+    if(strstr(line, ".s32"))
+        return PARAM_S32;
+    if(strstr(line, ".s64"))
+        return PARAM_S64;
+    if(strstr(line, ".u8"))
+        return PARAM_U8;
+    if(strstr(line, ".u16"))
+        return PARAM_U16;
+    if(strstr(line, ".f16"))
+        return PARAM_F16;
+    if(strstr(line, ".f16x2"))
+        return PARAM_F16X2;
+    if(strstr(line, ".v2.f64"))
+        return PARAM_V2F64;
+    if(strstr(line, ".v4.f64"))
+        return PARAM_V4F64;
+    if(strstr(line, ".b32"))
+        return PARAM_B32;
+    if(strstr(line, ".b64"))
+        return PARAM_B64;
     if(strstr(line, ".u64"))
         return PARAM_U64;
     if(strstr(line, ".u32"))
         return PARAM_U32;
+    if(strstr(line, ".f32"))
+        return PARAM_F32;
+    if(strstr(line, ".f64"))
+        return PARAM_F64;
+    if(strstr(line, ".v2.f32"))
+        return PARAM_V2F32;
+    if(strstr(line, ".v4.f32"))
+        return PARAM_V4F32;
+    if(strstr(line, ".pred"))
+        return PARAM_PRED;
     return PARAM_UNKNOWN;
 }
 
@@ -152,10 +222,46 @@ static int get_type_size(ParamType type) {
     switch(type) {
     case PARAM_B8:
         return 1;
+    case PARAM_B16:
+        return 2;
+    case PARAM_B32:
+        return 4;
+    case PARAM_B64:
+        return 8;
     case PARAM_U32:
         return 4;
+    case PARAM_S8:
+        return 1;
+    case PARAM_S16:
+        return 2;
+    case PARAM_S32:
+        return 4;
+    case PARAM_S64:
+        return 8;
+    case PARAM_U8:
+        return 1;
+    case PARAM_U16:
+        return 2;
+    case PARAM_F16:
+        return 2;
+    case PARAM_F16X2:
+        return 4;
+    case PARAM_PRED:
+        return 1;
     case PARAM_U64:
         return 8;
+    case PARAM_F32:
+        return 4;
+    case PARAM_F64:
+        return 8;
+    case PARAM_V2F32:
+        return 2 * sizeof(float); // 2 element vector of 32-bit floats = 8 bytes
+    case PARAM_V4F32:
+        return 4 * sizeof(float); // 4 element vector of 32-bit floats = 16 bytes
+    case PARAM_V2F64:
+        return 2 * sizeof(double); // 2 element vector of 64-bit floats = 16 bytes
+    case PARAM_V4F64:
+        return 32;
     default:
         return 0;
     }
@@ -167,6 +273,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
         ptx_string++;
         ptx_len--;
     }
+    // printf("--------------------\n\n%s-----------------\n\n", ptx_string);
 
     FuncInfo current_func = {0};
     char line[1024];
@@ -226,6 +333,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
                 param->array_size = atoi(array_start + 1);
             }
             param->size = param->is_array ? get_type_size(param->type) * param->array_size : get_type_size(param->type);
+            // printf("=========== param name: %s, type: %d, size: %d\n", param->name, param->type, param->size);
 
             current_func.param_count++;
         } else if(status == 1 && strcmp(line, "{") == 0) {
@@ -268,7 +376,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             status = 0; // 退出函数体
             if(current_func.fat_cubin != nullptr) {
                 funcinfos.push_back(current_func);
-#ifdef DEBUG
                 printf("==== function: %s\n", current_func.name);
                 for(int i = 0; i < current_func.param_count; i++) {
                     printf("  %d: name       %s\n", i, current_func.params[i].name);
@@ -279,7 +386,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
                     printf("      is pointer %d\n", current_func.params[i].is_pointer);
                     printf("      reg name   %s\n", current_func.params[i].reg_name);
                 }
-#endif
             }
         }
 
@@ -945,7 +1051,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         exit(1);
     }
     rpc_free_client(client);
-    _result = cudaDeviceSynchronize();
+    // _result = cudaDeviceSynchronize();
     for(int i = 0; i < f->param_count; i++) {
         mem2client(*((void **)args[i]), 0, true);
     }
