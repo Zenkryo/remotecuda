@@ -14,26 +14,50 @@
 #include <mutex>
 #include <memory>
 
-// Function to parse a PTX string and fill functions into a dynamically
+// Function to parse a PTX string and fill funcinfos into a dynamically
 // allocated array
-#define MAX_FUNCTION_NAME 128
-#define MAX_ARGS 32
+#define MAX_SYMBOL_NAME 2560
+#define MAX_ARGS 64
+#define MAX_REG_NAME 128
+// 参数类型枚举
+typedef enum { PARAM_B8, PARAM_U32, PARAM_U64, PARAM_UNKNOWN } ParamType;
+// struct ParamInfo {
+//     int size;
+//     void *ptr;
+//     bool is_pointer;
+//     char reg[16]; // 寄存器名字
+// };
 
-struct ParamInfo {
-    int size;
-    void *ptr;
-    bool is_pointer;
-};
+// struct Function {
+//     char name[256];
+//     void *fat_cubin;       // the fat cubin that this function is a part of.
+//     const char *host_func; // if registered, points at the host function.
+//     ParamInfo *params;     // 改用 ParamInfo 数组替代原来的 arg_sizes
+//     int arg_count;
+// };
 
-struct Function {
-    char *name;
-    void *fat_cubin;       // the fat cubin that this function is a part of.
-    const char *host_func; // if registered, points at the host function.
-    ParamInfo *params;     // 改用 ParamInfo 数组替代原来的 arg_sizes
-    int arg_count;
-};
+// 参数信息结构体
+typedef struct {
+    char name[MAX_SYMBOL_NAME];  // 参数明
+    ParamType type;              // 参数类型
+    int size;                    // 参数大小
+    int is_array;                // 是否是数组
+    int array_size;              // 数组长度
+    int is_pointer;              // 是否是指针
+    char reg_name[MAX_REG_NAME]; // 寄存器名
+    void *ptr;                   // 参数指针,指向实际传递的参数
+} ParamInfo;
 
-std::vector<Function> functions;
+// 函数信息结构体
+typedef struct {
+    void *fat_cubin;            // 函数所在的fat cubin
+    void *fun_ptr;              // 函数指针
+    char name[MAX_SYMBOL_NAME]; // 函数名
+    ParamInfo params[MAX_ARGS]; // 参数信息
+    int param_count;            // 参数个数
+} FuncInfo;
+
+std::vector<FuncInfo> funcinfos;
 
 // 映射客户端主机内存地址到服务器主机内存地址
 std::map<void *, std::pair<void *, size_t>> cs_host_mems;
@@ -91,147 +115,307 @@ void freeDevPtr(void *ptr) {
     }
 }
 
-static int get_type_size(const char *type) {
-    if(*type == 'u' || *type == 's' || *type == 'f')
-        type++;
-    else
-        return 0; // Unknown type
-    if(*type == '8')
+// static int get_type_size(const char *type) {
+//     if(*type == 'u' || *type == 's' || *type == 'f')
+//         type++;
+//     else
+//         return 0; // Unknown type
+//     if(*type == '8')
+//         return 1;
+//     if(*type == '1' && *(type + 1) == '6')
+//         return 2;
+//     if(*type == '3' && *(type + 1) == '2')
+//         return 4;
+//     if(*type == '6' && *(type + 1) == '4')
+//         return 8;
+//     return 0; // Unknown type
+// }
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+
+// 获取参数类型
+static ParamType get_param_type(const char *line) {
+    if(strstr(line, ".b8"))
+        return PARAM_B8;
+    if(strstr(line, ".u64"))
+        return PARAM_U64;
+    if(strstr(line, ".u32"))
+        return PARAM_U32;
+    return PARAM_UNKNOWN;
+}
+
+// 获取参数大小
+static int get_type_size(ParamType type) {
+    switch(type) {
+    case PARAM_B8:
         return 1;
-    if(*type == '1' && *(type + 1) == '6')
-        return 2;
-    if(*type == '3' && *(type + 1) == '2')
+    case PARAM_U32:
         return 4;
-    if(*type == '6' && *(type + 1) == '4')
+    case PARAM_U64:
         return 8;
-    return 0; // Unknown type
+    default:
+        return 0;
+    }
 }
 
 static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned long long ptx_len) {
-    for(unsigned long long i = 0; i < ptx_len; i++) {
-        if(ptx_string[i] != '.' || i + 5 >= ptx_len || strncmp(ptx_string + i + 1, "entry", strlen("entry")) != 0)
-            continue;
+    // 跳过开头的\0字符
+    while(ptx_len > 0 && *ptx_string == '\0') {
+        ptx_string++;
+        ptx_len--;
+    }
 
-        char *name = (char *)malloc(MAX_FUNCTION_NAME);
-        if(name == nullptr) {
-            std::cerr << "Failed to allocate memory" << std::endl;
-            exit(1);
-        }
+    FuncInfo current_func = {0};
+    char line[1024];
+    const char *ptr = ptx_string;
+    const char *end = ptx_string + ptx_len;
+    int status = 0;
+    while(ptr < end) {
+        // 读取一行
+        const char *line_end = strchr(ptr, '\n');
+        if(!line_end)
+            line_end = end;
+        int line_len = line_end - ptr;
+        if(line_len >= sizeof(line))
+            line_len = sizeof(line) - 1;
+        memcpy(line, ptr, line_len);
+        ptr = line_end + 1;
+        line[line_len] = '\0';
+        // printf("line: %s\n", line);
 
-        ParamInfo *params = (ParamInfo *)malloc(MAX_ARGS * sizeof(ParamInfo));
-        if(params == nullptr) {
-            std::cerr << "Failed to allocate memory" << std::endl;
-            free(name);
-            exit(1);
-        }
-        memset(params, 0, MAX_ARGS * sizeof(ParamInfo)); // 初始化参数数组
-        int arg_count = 0;
-
-        i += strlen(".entry");
-        while(i < ptx_len && !isalnum(ptx_string[i]) && ptx_string[i] != '_') {
-            i++;
-        }
-
-        int j = 0;
-        for(; j < MAX_FUNCTION_NAME - 1 && i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_');) {
-            name[j++] = ptx_string[i++];
-        }
-        name[j] = '\0';
-
-        while(i < ptx_len && ptx_string[i] != '(' && ptx_string[i] != '{') {
-            i++;
-        }
-
-        if(ptx_string[i] == '(') {
-            i++; // 跳过左括号
-            while(i < ptx_len && ptx_string[i] != ')') {
-                // 跳过空白字符
-                while(i < ptx_len && isspace(ptx_string[i]))
-                    i++;
-
-                // 查找 .param 标记
-                if(i + 5 >= ptx_len || strncmp(ptx_string + i, ".param", 6) != 0) {
-                    // 移动到下一个参数
-                    while(i < ptx_len && ptx_string[i] != ',' && ptx_string[i] != ')')
-                        i++;
-                    if(ptx_string[i] == ',')
-                        i++;
-                    continue;
-                }
-                i += 6; // 跳过 .param
-
-                // 跳过空白字符
-                while(i < ptx_len && isspace(ptx_string[i]))
-                    i++;
-
-                // 检查是否是指针类型 (.u64)
-                if(i + 3 < ptx_len && strncmp(ptx_string + i, ".u64", 4) == 0) {
-                    params[arg_count].is_pointer = true;
-                    params[arg_count].size = 8; // 指针大小为8字节
-                    i += 4;
-                } else if(ptx_string[i] == '.') {
-                    i++; // 跳过点号
-                    params[arg_count].is_pointer = false;
-                    params[arg_count].size = get_type_size(ptx_string + i);
-                    // 跳过类型名
-                    while(i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_'))
-                        i++;
-                }
-
-                // 检查数组声明
-                while(i < ptx_len && ptx_string[i] != '[' && ptx_string[i] != ',' && ptx_string[i] != ')')
-                    i++;
-                if(ptx_string[i] == '[') {
-                    i++; // 跳过 [
-                    int array_size = 0;
-                    while(i < ptx_len && isdigit(ptx_string[i])) {
-                        array_size = array_size * 10 + (ptx_string[i] - '0');
-                        i++;
-                    }
-                    if(array_size > 0) {
-                        params[arg_count].size *= array_size;
-                    }
-                    while(i < ptx_len && ptx_string[i] != ']')
-                        i++;
-                    if(ptx_string[i] == ']')
-                        i++;
-                }
-
-                arg_count++;
-
-                // 跳过空白字符
-                while(i < ptx_len && isspace(ptx_string[i]))
-                    i++;
-
-                // 检查是否还有更多参数
-                if(ptx_string[i] == ',') {
-                    i++;
-                    continue;
-                }
-                if(ptx_string[i] == ')') {
-                    break;
+        // 处理函数声明行
+        if(status == 0 && (strncmp(line, ".visible .entry", strlen(".visible .entry")) == 0 || strncmp(line, ".entry", strlen(".entry")) == 0)) {
+            // 如果已有函数信息，可以在这里处理或输出
+            memset(&current_func, 0, sizeof(FuncInfo));
+            current_func.fat_cubin = fatCubin;
+            char *name_start = strchr(line, '_');
+            if(name_start) {
+                char *name_end = strchr(name_start, '(');
+                if(name_end) {
+                    int name_len = name_end - name_start;
+                    *name_end = '\0';
+                    strncpy(current_func.name, name_start, sizeof(current_func.name) - 1);
+                    status = 1; // 进入参数声明行
                 }
             }
         }
+        // 处理参数声明行
+        else if(status == 1 && strncmp(line, ".param", strlen(".param")) == 0) {
+            ParamInfo *param = &current_func.params[current_func.param_count];
+            param->type = get_param_type(line);
+            printf("line: %s %d\n", line, param->type);
+            char *name_start = strchr(line, '_');
+            if(name_start) {
+                char *name_end = strpbrk(name_start, "[,");
+                if(name_end) {
+                    int name_len = name_end - name_start;
+                    *name_end = '\0';
+                    strncpy(param->name, name_start, sizeof(param->name) - 1);
+                } else {
+                    strncpy(param->name, name_start, sizeof(param->name) - 1);
+                }
+            }
 
-        // 添加函数到列表
-        functions.push_back(Function{
-            .name = name,
-            .fat_cubin = fatCubin,
-            .host_func = nullptr,
-            .params = params,
-            .arg_count = arg_count,
-        });
+            // 检查是否是数组
+            char *array_start = strchr(line, '[');
+            if(array_start) {
+                param->is_array = 1;
+                param->array_size = atoi(array_start + 1);
+            }
+            param->size = param->is_array ? get_type_size(param->type) * param->array_size : get_type_size(param->type);
 
-#ifdef DEBUG
-        // 打印调试信息
-        printf("Function: %s with %d arguments:\n", name, arg_count);
-        for(int j = 0; j < arg_count; j++) {
-            printf("  Arg %d: size=%d, is_pointer=%d\n", j, params[j].size, params[j].is_pointer);
+            current_func.param_count++;
+        } else if(status == 1 && strcmp(line, "{") == 0) {
+            status = 2; // 进入函数体
         }
+        // 处理参数加载行
+        else if(status == 2 && strncmp(line, "ld.param.u64", strlen("ld.param.u64")) == 0) {
+            char reg_name[MAX_REG_NAME] = {0};
+            char param_name[MAX_SYMBOL_NAME] = {0};
+            if(sscanf(line, "ld.param.u64 %[^,], [%[^]]]", reg_name, param_name) == 2) {
+                // 查找对应的参数并记录寄存器名
+                for(int i = 0; i < current_func.param_count; i++) {
+                    if(strstr(param_name, current_func.params[i].name)) {
+                        strncpy(current_func.params[i].reg_name, reg_name, sizeof(current_func.params[i].reg_name) - 1);
+                        break;
+                    }
+                }
+            }
+        }
+        // 处理指针转换行
+        else if(status == 2 && strncmp(line, "cvta.to", strlen("cvta.to")) == 0) {
+            char src_reg[MAX_REG_NAME] = {0};
+            // cvta.to.global.u64 %rd3, %rd1;
+            char *semicolon = strchr(line, ';');
+            if(semicolon) {
+                char *last_space = strrchr(line, ' ');
+                if(last_space && last_space < semicolon) {
+                    strncpy(src_reg, last_space + 1, semicolon - last_space - 1);
+                    src_reg[semicolon - last_space - 1] = '\0';
+                }
+            }
+            // 查找使用该寄存器的参数并标记为指针
+            for(int i = 0; i < current_func.param_count; i++) {
+                if(strcmp(current_func.params[i].reg_name, src_reg) == 0) {
+                    current_func.params[i].is_pointer = 1;
+                    break;
+                }
+            }
+        } else if(status == 2 && strcmp(line, "}") == 0) {
+            status = 0; // 退出函数体
+            if(current_func.fat_cubin != nullptr) {
+                funcinfos.push_back(current_func);
+#ifdef DEBUG
+                printf("==== function: %s\n", current_func.name);
+                for(int i = 0; i < current_func.param_count; i++) {
+                    printf("  %d: name       %s\n", i, current_func.params[i].name);
+                    printf("      type       %d\n", current_func.params[i].type);
+                    printf("      size       %d\n", current_func.params[i].size);
+                    printf("      is array   %d\n", current_func.params[i].is_array);
+                    printf("      array size %d\n", current_func.params[i].array_size);
+                    printf("      is pointer %d\n", current_func.params[i].is_pointer);
+                    printf("      reg name   %s\n", current_func.params[i].reg_name);
+                }
 #endif
+            }
+        }
+
+        // 移动到下一行
+        ptr = line_end + 1;
+        if(ptr >= end)
+            break;
     }
 }
+
+// static void parse_ptx_string2(void *fatCubin, const char *ptx_string, unsigned long long ptx_len) {
+//     printf("parse_ptx_string: %s\n", ptx_string + 6);
+//     for(unsigned long long i = 0; i < ptx_len; i++) {
+//         if(ptx_string[i] != '.' || i + 5 >= ptx_len || strncmp(ptx_string + i + 1, "entry", strlen("entry")) != 0)
+//             continue;
+
+//         char *name = (char *)malloc(MAX_FUNCTION_NAME);
+//         if(name == nullptr) {
+//             std::cerr << "Failed to allocate memory" << std::endl;
+//             exit(1);
+//         }
+
+//         ParamInfo *params = (ParamInfo *)malloc(MAX_ARGS * sizeof(ParamInfo));
+//         if(params == nullptr) {
+//             std::cerr << "Failed to allocate memory" << std::endl;
+//             free(name);
+//             exit(1);
+//         }
+//         memset(params, 0, MAX_ARGS * sizeof(ParamInfo)); // 初始化参数数组
+//         int arg_count = 0;
+
+//         i += strlen(".entry");
+//         while(i < ptx_len && !isalnum(ptx_string[i]) && ptx_string[i] != '_') {
+//             i++;
+//         }
+
+//         int j = 0;
+//         for(; j < MAX_FUNCTION_NAME - 1 && i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_');) {
+//             name[j++] = ptx_string[i++];
+//         }
+//         name[j] = '\0';
+
+//         while(i < ptx_len && ptx_string[i] != '(' && ptx_string[i] != '{') {
+//             i++;
+//         }
+
+//         if(ptx_string[i] == '(') {
+//             i++; // 跳过左括号
+//             while(i < ptx_len && ptx_string[i] != ')') {
+//                 // 跳过空白字符
+//                 while(i < ptx_len && isspace(ptx_string[i]))
+//                     i++;
+
+//                 // 查找 .param 标记
+//                 if(i + 5 >= ptx_len || strncmp(ptx_string + i, ".param", 6) != 0) {
+//                     // 移动到下一个参数
+//                     while(i < ptx_len && ptx_string[i] != ',' && ptx_string[i] != ')')
+//                         i++;
+//                     if(ptx_string[i] == ',')
+//                         i++;
+//                     continue;
+//                 }
+//                 i += 6; // 跳过 .param
+
+//                 // 跳过空白字符
+//                 while(i < ptx_len && isspace(ptx_string[i]))
+//                     i++;
+
+//                 // 检查是否是指针类型 (.u64)
+//                 if(i + 3 < ptx_len && strncmp(ptx_string + i, ".u64", 4) == 0) {
+//                     params[arg_count].is_pointer = true;
+//                     params[arg_count].size = 8; // 指针大小为8字节
+//                     i += 4;
+//                 } else if(ptx_string[i] == '.') {
+//                     i++; // 跳过点号
+//                     params[arg_count].is_pointer = false;
+//                     params[arg_count].size = get_type_size(ptx_string + i);
+//                     // 跳过类型名
+//                     while(i < ptx_len && (isalnum(ptx_string[i]) || ptx_string[i] == '_'))
+//                         i++;
+//                 }
+
+//                 // 检查数组声明
+//                 while(i < ptx_len && ptx_string[i] != '[' && ptx_string[i] != ',' && ptx_string[i] != ')')
+//                     i++;
+//                 if(ptx_string[i] == '[') {
+//                     i++; // 跳过 [
+//                     int array_size = 0;
+//                     while(i < ptx_len && isdigit(ptx_string[i])) {
+//                         array_size = array_size * 10 + (ptx_string[i] - '0');
+//                         i++;
+//                     }
+//                     if(array_size > 0) {
+//                         params[arg_count].size *= array_size;
+//                     }
+//                     while(i < ptx_len && ptx_string[i] != ']')
+//                         i++;
+//                     if(ptx_string[i] == ']')
+//                         i++;
+//                 }
+
+//                 arg_count++;
+
+//                 // 跳过空白字符
+//                 while(i < ptx_len && isspace(ptx_string[i]))
+//                     i++;
+
+//                 // 检查是否还有更多参数
+//                 if(ptx_string[i] == ',') {
+//                     i++;
+//                     continue;
+//                 }
+//                 if(ptx_string[i] == ')') {
+//                     break;
+//                 }
+//             }
+//         }
+
+//         // 添加函数到列表
+//         funcinfos.push_back(Function{
+//             .name = name,
+//             .fat_cubin = fatCubin,
+//             .host_func = nullptr,
+//             .params = params,
+//             .arg_count = arg_count,
+//         });
+
+// #ifdef DEBUG
+//         // 打印调试信息
+//         printf("Function: %s with %d arguments:\n", name, arg_count);
+//         for(int j = 0; j < arg_count; j++) {
+//             printf("  Arg %d: size=%d, is_pointer=%d\n", j, params[j].size, params[j].is_pointer);
+//         }
+// #endif
+//     }
+// }
 
 static size_t decompress(const uint8_t *input, size_t input_size, uint8_t *output, size_t output_size) {
     size_t ipos = 0, opos = 0;
@@ -378,6 +562,9 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = 
 #ifdef DEBUG
     std::cout << "Hook: mem2server called " << clientPtr << " " << size << std::endl;
 #endif
+    if(clientPtr == nullptr) {
+        return nullptr;
+    }
     // 设备指针，不用同步内存数据
     auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it1 != cs_dev_mems.end()) {
@@ -399,9 +586,9 @@ extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = 
             return (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
         }
     }
-    for(auto &func : functions) {
-        if(func.host_func == clientPtr) {
-            return (void *)func.fat_cubin;
+    for(auto &func : funcinfos) {
+        if(func.fun_ptr == clientPtr) {
+            return clientPtr;
         }
     }
     void *serverPtr = nullptr;
@@ -463,6 +650,9 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = f
 #ifdef DEBUG
     std::cout << "Hook: mem2client called " << clientPtr << " " << size << std::endl;
 #endif
+    if(clientPtr == nullptr) {
+        return;
+    }
     auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it1 != cs_dev_mems.end()) {
         return;
@@ -481,8 +671,8 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = f
             return;
         }
     }
-    for(auto &func : functions) {
-        if(func.host_func == clientPtr) {
+    for(auto &func : funcinfos) {
+        if(func.fun_ptr == clientPtr) {
             return;
         }
     }
@@ -718,10 +908,10 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
 #endif
 
     cudaError_t _result;
-    Function *f = nullptr;
-    for(auto &function : functions) {
-        if(function.host_func == func) {
-            f = &function;
+    FuncInfo *f = nullptr;
+    for(auto &funcinfo : funcinfos) {
+        if(funcinfo.fun_ptr == func) {
+            f = &funcinfo;
             break;
         }
     }
@@ -729,7 +919,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         std::cerr << "Failed to find function" << std::endl;
         return cudaErrorInvalidDeviceFunction;
     }
-    for(int i = 0; i < f->arg_count; i++) {
+    for(int i = 0; i < f->param_count; i++) {
         f->params[i].ptr = mem2server(*((void **)args[i]), 0, true);
     }
     RpcClient *client = rpc_get_client();
@@ -743,9 +933,9 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     rpc_write(client, &blockDim, sizeof(blockDim));
     rpc_write(client, &sharedMem, sizeof(sharedMem));
     rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &f->arg_count, sizeof(f->arg_count));
+    rpc_write(client, &f->param_count, sizeof(f->param_count));
 
-    for(int i = 0; i < f->arg_count; i++) {
+    for(int i = 0; i < f->param_count; i++) {
         rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
     }
     rpc_read(client, &_result, sizeof(_result));
@@ -756,7 +946,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     }
     rpc_free_client(client);
     _result = cudaDeviceSynchronize();
-    for(int i = 0; i < f->arg_count; i++) {
+    for(int i = 0; i < f->param_count; i++) {
         mem2client(*((void **)args[i]), 0, true);
     }
     return _result;
@@ -1225,9 +1415,9 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     }
     rpc_free_client(client);
     // also memorize the host pointer function
-    for(auto &function : functions) {
-        if(strcmp(function.name, deviceName) == 0) {
-            function.host_func = hostFun;
+    for(auto &funcinfo : funcinfos) {
+        if(strcmp(funcinfo.name, deviceName) == 0) {
+            funcinfo.fun_ptr = (void *)hostFun;
         }
     }
     rpc_free_client(client);

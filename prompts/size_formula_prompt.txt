@@ -40,3 +40,15 @@ Output the result as a two-level Python dictionary:
 The first level is the function name (do not include the full function declaration, just the name).
 The second level is the parameter name, with its value being the formula.
 Do not include any unnecessary content; I only want the resulting dictionary.
+
+
+实现c函数static void parse_ptx_string(const char *ptx_string, unsigned long long ptx_len)
+输入为ptx字符串ptx_string和字符串长度ptx_len
+字符串开头有0到多个\0需要跳过
+然后逐行解析字符串，只需要关系4种字符串，1： .visible .entry _Z20computeAngles_kernel3RayPfy(，以.visible .entry开头，后面跟函数名，函数名开头为_，函数名后面紧跟(
+    2: .param .align 8 .b8 _Z20computeAngles_kernel3RayPfy_param_0[32], 这种行以.param开头，在_字符之前可能包括1个或多个token，我们只需要判断是否包括以下的token：
+     .b8, u64, u32等等，token决定了参数的类型，_到[或,之间为变量名，如果这行有方括号，则取方括号里的数字，表示此参数为一个数组，数字为数组的长度，此参数的长度为类型对应的长度乘以数组的元素个数。
+     如果没有方括号，则参数的长度为参数的类型对应的长度。
+    3： ld.param.u64开头的行，例如ld.param.u64 %rd1, [_Z20computeAngles_kernel3RayPfy_param_1]; 表示此变量加载到了寄存器%rd1
+    4:cvta.to开头的字符串，例如cvta.to.global.u64 %rd3, %rd1; 如果最后的寄存器名和前面参数的寄存器一致，说明参数为指针类型
+    这4种行总是按持续出现，每到遇见.visible .entry表示当前函数处理完毕进入下一个函数的处理。
