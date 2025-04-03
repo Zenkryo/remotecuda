@@ -223,13 +223,14 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
         for(int i = 0; i < client->iov_read2_count; i++) {
             // 先读取长度字段
             struct iovec iov_for_len;
-            size_t length;
+            size_t length = 0;
             iov_for_len.iov_base = &length;
             iov_for_len.iov_len = sizeof(length);
             bytes_read = read_full_iovec(client->sockfd, &iov_for_len, 1);
             if(bytes_read < 0) {
                 goto ERR;
             }
+            printf("========= read %d packet bytes_read %ld, length %ld\n", i, bytes_read, length);
             total_read += bytes_read;
             if(client->iov_read2[i].iov_len > 0 && length > client->iov_read2[i].iov_len) {
                 errno = ENOBUFS; // 缓冲区不足
@@ -349,6 +350,10 @@ void rpc_release_client(RpcClient *client) {
 
 // 准备一个RPC请求
 void rpc_prepare_request(RpcClient *client, uint32_t funcId) {
+    client->iov_send_count = 0;
+    client->iov_send2_count = 0;
+    client->iov_read_count = 0;
+    client->iov_read2_count = 0;
     client->funcId = funcId;
     client->iov_send[0].iov_base = &client->funcId;
     client->iov_send[0].iov_len = sizeof(client->funcId);
@@ -416,7 +421,7 @@ ssize_t read_all_now(RpcClient *client, void **buffer, size_t *size, int count) 
     return total_read;
 }
 
-// 读取1数据到以分配的缓冲区
+// 读取1数据到已经分配的缓冲区
 ssize_t read_one_now(RpcClient *client, void *buffer, size_t size, bool with_len = false) {
     ssize_t total_read = 0; // 已读取的总字节数
     ssize_t bytes_read;     // 每次读取的字节数

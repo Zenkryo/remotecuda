@@ -25,32 +25,51 @@ int handle_mem2server(void *args0) {
     std::cout << "Handle function mem2server called" << std::endl;
 #endif
     RpcClient *client = (RpcClient *)args0;
-    void *ptr;
-    size_t memSize;
-
-    rpc_read(client, &ptr, sizeof(ptr));
-
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    if(ptr != nullptr) {
-        read_one_now(client, &memSize, sizeof(memSize), false);
-        read_one_now(client, ptr, memSize, true);
-    } else {
-        int rtn = read_one_now(client, &ptr, 0, true);
-        if(rtn == -1) {
-            std::cerr << "Failed to read ptr" << std::endl;
-            return 1;
+    void *ptrs[32];
+    size_t size;
+    int i = 0;
+    int j = 0;
+    while(i++ < 32) {
+        ptrs[i] = nullptr;
+        size = 0;
+        // 读取服务器端指针
+        if(read_one_now(client, &ptrs[i], sizeof(ptrs[i]), false) < 0) {
+            goto ERROR;
         }
-        rpc_write(client, &ptr, sizeof(ptr)); // 返回服务器侧申请的内存地址
-        client->tmpbufs->push(ptr);           // 保存临时内存地址
+        if(ptrs[i] == (void *)0xffffffff) {
+            break;
+        }
+    }
+    while(j++ < i - 1) {
+        // 读取数据大小
+        if(read_one_now(client, &size, sizeof(size), false) < 0) {
+            goto ERROR;
+        }
+        if(ptrs[j] == nullptr && size > 0) {
+            ptrs[j] = malloc(size);
+            if(ptrs[j] == nullptr) {
+                std::cerr << "Failed to malloc" << std::endl;
+                goto ERROR;
+            }
+            client->tmpbufs->push(ptrs[j]);               // 保存临时内存地址
+            rpc_write(client, &ptrs[j], sizeof(ptrs[j])); // 返回服务器侧申请的内存地址
+        }
+        if(read_one_now(client, ptrs[j], size, false) < 0) {
+            goto ERROR;
+        }
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        return 1;
+        goto ERROR;
     }
     return 0;
+ERROR:
+    while(!client->tmpbufs->empty()) {
+        void *ptr = client->tmpbufs->front();
+        client->tmpbufs->pop();
+        free(ptr);
+    }
+    return 1;
 }
 
 int handle_mem2client(void *args0) {
@@ -266,6 +285,7 @@ int handle_cudaLaunchKernel(void *args0) {
         free(args[i]);
     }
     free(args);
+    cudaDeviceSynchronize();
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -395,147 +415,6 @@ int handle_cudaMallocPitch(void *args) {
     }
     return 0;
 }
-
-int handle_cudaMemcpyFromSymbol(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemcpyFromSymbol called" << std::endl;
-#endif
-
-    RpcClient *client = (RpcClient *)args0;
-    void *dst;
-    void *symbol;
-    size_t count;
-    size_t offset;
-    enum cudaMemcpyKind kind;
-    rpc_read(client, &dst, sizeof(dst));
-    rpc_read(client, &symbol, sizeof(symbol));
-    rpc_read(client, &count, sizeof(count));
-    rpc_read(client, &offset, sizeof(offset));
-    rpc_read(client, &kind, sizeof(kind));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    bool is_malloc = false;
-    if(dst == nullptr) {
-        dst = malloc(count);
-        if(dst == nullptr) {
-            std::cerr << "Failed to allocate memory for dst" << std::endl;
-            return 1;
-        }
-        is_malloc = true;
-    }
-    cudaError_t _result = cudaMemcpyFromSymbol(dst, symbol, count, offset, kind);
-    bool dst_is_union = checkPointer(dst) == cudaMemoryTypeManaged;
-    if(dst_is_union || is_malloc) {
-        rpc_write(client, dst, count, true);
-    }
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        if(is_malloc) {
-            free(dst);
-        }
-        return 1;
-    }
-    if(is_malloc) {
-        free(dst);
-    }
-
-    return 0;
-}
-
-int handle_cudaMemcpyToSymbol(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemcpyToSymbol called" << std::endl;
-#endif
-
-    RpcClient *client = (RpcClient *)args0;
-    void *symbol;
-    void *src;
-    size_t count;
-    size_t offset;
-    enum cudaMemcpyKind kind;
-    rpc_read(client, &symbol, sizeof(symbol));
-    rpc_read(client, &count, sizeof(count));
-    rpc_read(client, &offset, sizeof(offset));
-    rpc_read(client, &kind, sizeof(kind));
-    rpc_read(client, &src, sizeof(src));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    bool is_malloc = false;
-    if(src == nullptr) {
-        src = malloc(count);
-        read_one_now(client, (uint8_t *)src, count, true);
-    }
-    cudaError_t _result = cudaMemcpyToSymbol(symbol, src, count, offset, kind);
-    if(is_malloc) {
-        free(src);
-    }
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
-int handle_cudaMemset(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemset called" << std::endl;
-#endif
-
-    RpcClient *client = (RpcClient *)args0;
-    void *devPtr;
-    int value;
-    size_t count;
-    rpc_read(client, &devPtr, sizeof(devPtr));
-    rpc_read(client, &value, sizeof(value));
-    rpc_read(client, &count, sizeof(count));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    cudaError_t _result = cudaMemset(devPtr, value, count);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
-int handle_cudaMemsetAsync(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemsetAsync called" << std::endl;
-#endif
-    RpcClient *client = (RpcClient *)args0;
-    void *devPtr;
-    int value;
-    size_t count;
-    cudaStream_t stream;
-    rpc_read(client, &devPtr, sizeof(devPtr));
-    rpc_read(client, &value, sizeof(value));
-    rpc_read(client, &count, sizeof(count));
-    rpc_read(client, &stream, sizeof(stream));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
-    }
-    cudaError_t _result = cudaMemsetAsync(devPtr, value, count, stream);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
 int handle___cudaPopCallConfiguration(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function __cudaPopCallConfiguration called" << std::endl;
@@ -964,42 +843,11 @@ int handle_cuMemAlloc_v2(void *args) {
     return 0;
 }
 
-int handle_cuMemAllocAsync(void *args) {
-#ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAllocAsync called" << std::endl;
-#endif
-
-    return 0;
-}
-
-int handle_cuMemAllocFromPoolAsync(void *args) {
-#ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAllocFromPoolAsync called" << std::endl;
-#endif
-
-    return 0;
-}
-
 int handle_cuMemAllocHost_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemAllocHost_v2 called" << std::endl;
 #endif
 
-    // RpcClient *client = (RpcClient *)args;
-    // void *pp;
-    // size_t bytesize;
-    // rpc_read(client, &bytesize, sizeof(bytesize));
-    // if(rpc_prepare_response(client) != 0) {
-    //     std::cerr << "Failed to prepare response" << std::endl;
-    //     return cudaErrorUnknown;
-    // }
-    // cudaError_t _result = cuMemAllocHost_v2(&pp, bytesize);
-    // rpc_write(client, &pp, sizeof(pp));
-    // rpc_write(client, &_result, sizeof(_result));
-    // if(_result == cudaSuccess) {
-    //     cs_host_mems[pp] = std::make_pair(pp, bytesize);
-    // }
-    // TODO: Implement the function logic
     return 0;
 }
 
@@ -1087,16 +935,6 @@ int handle_cuMemRelease(void *args) {
     // TODO: Implement the function logic
     return 0;
 }
-
-#if CUDA_VERSION > 11040
-int handle_cuMemcpyBatchAsync(void *args) {
-#ifdef DEBUG
-    std::cout << "Handle function handle_cuMemcpyBatchAsync called" << std::endl;
-#endif
-
-    return 0;
-}
-#endif
 
 int handle_cuModuleGetGlobal_v2(void *args) {
 #ifdef DEBUG

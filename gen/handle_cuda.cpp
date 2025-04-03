@@ -4249,6 +4249,40 @@ _RTN_:
     return rtn;
 }
 
+int handle_cuMemAllocAsync(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemAllocAsync called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr*dptr;
+    rpc_read(client, &dptr, sizeof(dptr));
+    size_t bytesize;
+    rpc_read(client, &bytesize, sizeof(bytesize));
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemAllocAsync(dptr, bytesize, hStream);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuMemPoolTrimTo(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuMemPoolTrimTo called" << std::endl;
@@ -4465,6 +4499,42 @@ int handle_cuMemPoolDestroy(void *args0) {
         goto _RTN_;
     }
     _result = cuMemPoolDestroy(pool);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
+int handle_cuMemAllocFromPoolAsync(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemAllocFromPoolAsync called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr*dptr;
+    rpc_read(client, &dptr, sizeof(dptr));
+    size_t bytesize;
+    rpc_read(client, &bytesize, sizeof(bytesize));
+    CUmemoryPool pool;
+    rpc_read(client, &pool, sizeof(pool));
+    CUstream hStream;
+    rpc_read(client, &hStream, sizeof(hStream));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cuMemAllocFromPoolAsync(dptr, bytesize, pool, hStream);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

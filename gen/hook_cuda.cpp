@@ -6,19 +6,29 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = false);
+extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, size_t size = 0, bool for_kernel = false);
 extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);
 void *get_so_handle(const std::string &so_file);
 extern "C" CUresult cuInit(unsigned int Flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuInit called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuInit);
     rpc_write(client, &Flags, sizeof(Flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -35,13 +45,24 @@ extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
 #ifdef DEBUG
     std::cout << "Hook: cuDriverGetVersion called" << std::endl;
 #endif
-    void *_0driverVersion = mem2server((void *)driverVersion, sizeof(*driverVersion));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0driverVersion;
+    mem2server(client, &_0driverVersion, (void *)driverVersion, sizeof(*driverVersion));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDriverGetVersion);
     rpc_write(client, &_0driverVersion, sizeof(_0driverVersion));
     rpc_read(client, &_result, sizeof(_result));
@@ -59,13 +80,24 @@ extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGet called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, sizeof(*device));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0device;
+    mem2server(client, &_0device, (void *)device, sizeof(*device));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGet);
     rpc_write(client, &_0device, sizeof(_0device));
     rpc_write(client, &ordinal, sizeof(ordinal));
@@ -84,13 +116,24 @@ extern "C" CUresult cuDeviceGetCount(int *count) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetCount called" << std::endl;
 #endif
-    void *_0count = mem2server((void *)count, sizeof(*count));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0count;
+    mem2server(client, &_0count, (void *)count, sizeof(*count));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetCount);
     rpc_write(client, &_0count, sizeof(_0count));
     rpc_read(client, &_result, sizeof(_result));
@@ -108,12 +151,22 @@ extern "C" CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetName called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetName);
     rpc_read(client, name, len, true);
     rpc_write(client, &len, sizeof(len));
@@ -132,13 +185,24 @@ extern "C" CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetUuid called" << std::endl;
 #endif
-    void *_0uuid = mem2server((void *)uuid, sizeof(*uuid));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0uuid;
+    mem2server(client, &_0uuid, (void *)uuid, sizeof(*uuid));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetUuid);
     rpc_write(client, &_0uuid, sizeof(_0uuid));
     rpc_write(client, &dev, sizeof(dev));
@@ -157,13 +221,24 @@ extern "C" CUresult cuDeviceGetUuid_v2(CUuuid *uuid, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetUuid_v2 called" << std::endl;
 #endif
-    void *_0uuid = mem2server((void *)uuid, sizeof(*uuid));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0uuid;
+    mem2server(client, &_0uuid, (void *)uuid, sizeof(*uuid));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetUuid_v2);
     rpc_write(client, &_0uuid, sizeof(_0uuid));
     rpc_write(client, &dev, sizeof(dev));
@@ -182,13 +257,24 @@ extern "C" CUresult cuDeviceGetLuid(char *luid, unsigned int *deviceNodeMask, CU
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetLuid called" << std::endl;
 #endif
-    void *_0deviceNodeMask = mem2server((void *)deviceNodeMask, sizeof(*deviceNodeMask));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0deviceNodeMask;
+    mem2server(client, &_0deviceNodeMask, (void *)deviceNodeMask, sizeof(*deviceNodeMask));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetLuid);
     rpc_read(client, luid, 32, true);
     rpc_write(client, &_0deviceNodeMask, sizeof(_0deviceNodeMask));
@@ -208,13 +294,24 @@ extern "C" CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceTotalMem_v2 called" << std::endl;
 #endif
-    void *_0bytes = mem2server((void *)bytes, sizeof(*bytes));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0bytes;
+    mem2server(client, &_0bytes, (void *)bytes, sizeof(*bytes));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceTotalMem_v2);
     rpc_write(client, &_0bytes, sizeof(_0bytes));
     rpc_write(client, &dev, sizeof(dev));
@@ -233,13 +330,24 @@ extern "C" CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInElement
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetTexture1DLinearMaxWidth called" << std::endl;
 #endif
-    void *_0maxWidthInElements = mem2server((void *)maxWidthInElements, sizeof(*maxWidthInElements));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0maxWidthInElements;
+    mem2server(client, &_0maxWidthInElements, (void *)maxWidthInElements, sizeof(*maxWidthInElements));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetTexture1DLinearMaxWidth);
     rpc_write(client, &_0maxWidthInElements, sizeof(_0maxWidthInElements));
     rpc_write(client, &format, sizeof(format));
@@ -260,13 +368,24 @@ extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUd
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetAttribute called" << std::endl;
 #endif
-    void *_0pi = mem2server((void *)pi, sizeof(*pi));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pi;
+    mem2server(client, &_0pi, (void *)pi, sizeof(*pi));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetAttribute);
     rpc_write(client, &_0pi, sizeof(_0pi));
     rpc_write(client, &attrib, sizeof(attrib));
@@ -286,13 +405,24 @@ extern "C" CUresult cuDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList, CUde
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetNvSciSyncAttributes called" << std::endl;
 #endif
-    void *_0nvSciSyncAttrList = mem2server((void *)nvSciSyncAttrList, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nvSciSyncAttrList;
+    mem2server(client, &_0nvSciSyncAttrList, (void *)nvSciSyncAttrList, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetNvSciSyncAttributes);
     rpc_write(client, &_0nvSciSyncAttrList, sizeof(_0nvSciSyncAttrList));
     rpc_write(client, &dev, sizeof(dev));
@@ -312,12 +442,22 @@ extern "C" CUresult cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceSetMemPool called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceSetMemPool);
     rpc_write(client, &dev, sizeof(dev));
     rpc_write(client, &pool, sizeof(pool));
@@ -335,13 +475,24 @@ extern "C" CUresult cuDeviceGetMemPool(CUmemoryPool *pool, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetMemPool called" << std::endl;
 #endif
-    void *_0pool = mem2server((void *)pool, sizeof(*pool));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pool;
+    mem2server(client, &_0pool, (void *)pool, sizeof(*pool));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetMemPool);
     rpc_write(client, &_0pool, sizeof(_0pool));
     rpc_write(client, &dev, sizeof(dev));
@@ -360,13 +511,24 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetDefaultMemPool called" << std::endl;
 #endif
-    void *_0pool_out = mem2server((void *)pool_out, sizeof(*pool_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pool_out;
+    mem2server(client, &_0pool_out, (void *)pool_out, sizeof(*pool_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetDefaultMemPool);
     rpc_write(client, &_0pool_out, sizeof(_0pool_out));
     rpc_write(client, &dev, sizeof(dev));
@@ -385,13 +547,24 @@ extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetProperties called" << std::endl;
 #endif
-    void *_0prop = mem2server((void *)prop, sizeof(*prop));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0prop;
+    mem2server(client, &_0prop, (void *)prop, sizeof(*prop));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetProperties);
     rpc_write(client, &_0prop, sizeof(_0prop));
     rpc_write(client, &dev, sizeof(dev));
@@ -410,14 +583,26 @@ extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice d
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceComputeCapability called" << std::endl;
 #endif
-    void *_0major = mem2server((void *)major, sizeof(*major));
-    void *_0minor = mem2server((void *)minor, sizeof(*minor));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0major;
+    mem2server(client, &_0major, (void *)major, sizeof(*major));
+    void *_0minor;
+    mem2server(client, &_0minor, (void *)minor, sizeof(*minor));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceComputeCapability);
     rpc_write(client, &_0major, sizeof(_0major));
     rpc_write(client, &_0minor, sizeof(_0minor));
@@ -438,13 +623,24 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDevicePrimaryCtxRetain called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxRetain);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
     rpc_write(client, &dev, sizeof(dev));
@@ -463,12 +659,22 @@ extern "C" CUresult cuDevicePrimaryCtxRelease_v2(CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDevicePrimaryCtxRelease_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxRelease_v2);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
@@ -485,12 +691,22 @@ extern "C" CUresult cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int fla
 #ifdef DEBUG
     std::cout << "Hook: cuDevicePrimaryCtxSetFlags_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxSetFlags_v2);
     rpc_write(client, &dev, sizeof(dev));
     rpc_write(client, &flags, sizeof(flags));
@@ -508,14 +724,26 @@ extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags
 #ifdef DEBUG
     std::cout << "Hook: cuDevicePrimaryCtxGetState called" << std::endl;
 #endif
-    void *_0flags = mem2server((void *)flags, sizeof(*flags));
-    void *_0active = mem2server((void *)active, sizeof(*active));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0flags;
+    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    void *_0active;
+    mem2server(client, &_0active, (void *)active, sizeof(*active));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxGetState);
     rpc_write(client, &dev, sizeof(dev));
     rpc_write(client, &_0flags, sizeof(_0flags));
@@ -536,12 +764,22 @@ extern "C" CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDevicePrimaryCtxReset_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxReset_v2);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
@@ -558,13 +796,24 @@ extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType t
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetExecAffinitySupport called" << std::endl;
 #endif
-    void *_0pi = mem2server((void *)pi, sizeof(*pi));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pi;
+    mem2server(client, &_0pi, (void *)pi, sizeof(*pi));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetExecAffinitySupport);
     rpc_write(client, &_0pi, sizeof(_0pi));
     rpc_write(client, &type, sizeof(type));
@@ -584,13 +833,24 @@ extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice
 #ifdef DEBUG
     std::cout << "Hook: cuCtxCreate_v2 called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxCreate_v2);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
     rpc_write(client, &flags, sizeof(flags));
@@ -610,14 +870,26 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
 #ifdef DEBUG
     std::cout << "Hook: cuCtxCreate_v3 called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    void *_0paramsArray = mem2server((void *)paramsArray, sizeof(*paramsArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *_0paramsArray;
+    mem2server(client, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxCreate_v3);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
     rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
@@ -640,12 +912,22 @@ extern "C" CUresult cuCtxDestroy_v2(CUcontext ctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxDestroy_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxDestroy_v2);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
@@ -662,12 +944,22 @@ extern "C" CUresult cuCtxPushCurrent_v2(CUcontext ctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxPushCurrent_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxPushCurrent_v2);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
@@ -684,13 +976,24 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxPopCurrent_v2 called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxPopCurrent_v2);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
     rpc_read(client, &_result, sizeof(_result));
@@ -708,12 +1011,22 @@ extern "C" CUresult cuCtxSetCurrent(CUcontext ctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxSetCurrent called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxSetCurrent);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
@@ -730,13 +1043,24 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetCurrent called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetCurrent);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
     rpc_read(client, &_result, sizeof(_result));
@@ -754,13 +1078,24 @@ extern "C" CUresult cuCtxGetDevice(CUdevice *device) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetDevice called" << std::endl;
 #endif
-    void *_0device = mem2server((void *)device, sizeof(*device));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0device;
+    mem2server(client, &_0device, (void *)device, sizeof(*device));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetDevice);
     rpc_write(client, &_0device, sizeof(_0device));
     rpc_read(client, &_result, sizeof(_result));
@@ -778,13 +1113,24 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetFlags called" << std::endl;
 #endif
-    void *_0flags = mem2server((void *)flags, sizeof(*flags));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0flags;
+    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetFlags);
     rpc_write(client, &_0flags, sizeof(_0flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -802,12 +1148,22 @@ extern "C" CUresult cuCtxSynchronize() {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxSynchronize called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxSynchronize);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -823,12 +1179,22 @@ extern "C" CUresult cuCtxSetLimit(CUlimit limit, size_t value) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxSetLimit called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxSetLimit);
     rpc_write(client, &limit, sizeof(limit));
     rpc_write(client, &value, sizeof(value));
@@ -846,13 +1212,24 @@ extern "C" CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetLimit called" << std::endl;
 #endif
-    void *_0pvalue = mem2server((void *)pvalue, sizeof(*pvalue));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pvalue;
+    mem2server(client, &_0pvalue, (void *)pvalue, sizeof(*pvalue));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetLimit);
     rpc_write(client, &_0pvalue, sizeof(_0pvalue));
     rpc_write(client, &limit, sizeof(limit));
@@ -871,13 +1248,24 @@ extern "C" CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetCacheConfig called" << std::endl;
 #endif
-    void *_0pconfig = mem2server((void *)pconfig, sizeof(*pconfig));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pconfig;
+    mem2server(client, &_0pconfig, (void *)pconfig, sizeof(*pconfig));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetCacheConfig);
     rpc_write(client, &_0pconfig, sizeof(_0pconfig));
     rpc_read(client, &_result, sizeof(_result));
@@ -895,12 +1283,22 @@ extern "C" CUresult cuCtxSetCacheConfig(CUfunc_cache config) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxSetCacheConfig called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxSetCacheConfig);
     rpc_write(client, &config, sizeof(config));
     rpc_read(client, &_result, sizeof(_result));
@@ -917,13 +1315,24 @@ extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetSharedMemConfig called" << std::endl;
 #endif
-    void *_0pConfig = mem2server((void *)pConfig, sizeof(*pConfig));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pConfig;
+    mem2server(client, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetSharedMemConfig);
     rpc_write(client, &_0pConfig, sizeof(_0pConfig));
     rpc_read(client, &_result, sizeof(_result));
@@ -941,12 +1350,22 @@ extern "C" CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxSetSharedMemConfig called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxSetSharedMemConfig);
     rpc_write(client, &config, sizeof(config));
     rpc_read(client, &_result, sizeof(_result));
@@ -963,13 +1382,24 @@ extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetApiVersion called" << std::endl;
 #endif
-    void *_0version = mem2server((void *)version, sizeof(*version));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0version;
+    mem2server(client, &_0version, (void *)version, sizeof(*version));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetApiVersion);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_write(client, &_0version, sizeof(_0version));
@@ -988,14 +1418,26 @@ extern "C" CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greates
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetStreamPriorityRange called" << std::endl;
 #endif
-    void *_0leastPriority = mem2server((void *)leastPriority, sizeof(*leastPriority));
-    void *_0greatestPriority = mem2server((void *)greatestPriority, sizeof(*greatestPriority));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0leastPriority;
+    mem2server(client, &_0leastPriority, (void *)leastPriority, sizeof(*leastPriority));
+    void *_0greatestPriority;
+    mem2server(client, &_0greatestPriority, (void *)greatestPriority, sizeof(*greatestPriority));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetStreamPriorityRange);
     rpc_write(client, &_0leastPriority, sizeof(_0leastPriority));
     rpc_write(client, &_0greatestPriority, sizeof(_0greatestPriority));
@@ -1015,12 +1457,22 @@ extern "C" CUresult cuCtxResetPersistingL2Cache() {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxResetPersistingL2Cache called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxResetPersistingL2Cache);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1036,13 +1488,24 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetExecAffinity called" << std::endl;
 #endif
-    void *_0pExecAffinity = mem2server((void *)pExecAffinity, sizeof(*pExecAffinity));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pExecAffinity;
+    mem2server(client, &_0pExecAffinity, (void *)pExecAffinity, sizeof(*pExecAffinity));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetExecAffinity);
     rpc_write(client, &_0pExecAffinity, sizeof(_0pExecAffinity));
     rpc_write(client, &type, sizeof(type));
@@ -1061,13 +1524,24 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxAttach called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxAttach);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
     rpc_write(client, &flags, sizeof(flags));
@@ -1086,12 +1560,22 @@ extern "C" CUresult cuCtxDetach(CUcontext ctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxDetach called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxDetach);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
@@ -1108,13 +1592,24 @@ extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
 #ifdef DEBUG
     std::cout << "Hook: cuModuleLoad called" << std::endl;
 #endif
-    void *_0module = mem2server((void *)module, sizeof(*module));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0module;
+    mem2server(client, &_0module, (void *)module, sizeof(*module));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoad);
     rpc_write(client, &_0module, sizeof(_0module));
     rpc_write(client, fname, strlen(fname) + 1, true);
@@ -1133,14 +1628,26 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
 #ifdef DEBUG
     std::cout << "Hook: cuModuleLoadData called" << std::endl;
 #endif
-    void *_0module = mem2server((void *)module, sizeof(*module));
-    void *_0image = mem2server((void *)image, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0module;
+    mem2server(client, &_0module, (void *)module, sizeof(*module));
+    void *_0image;
+    mem2server(client, &_0image, (void *)image, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoadData);
     rpc_write(client, &_0module, sizeof(_0module));
     rpc_write(client, &_0image, sizeof(_0image));
@@ -1160,16 +1667,29 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
 #ifdef DEBUG
     std::cout << "Hook: cuModuleLoadDataEx called" << std::endl;
 #endif
-    void *_0module = mem2server((void *)module, sizeof(*module));
-    void *_0image = mem2server((void *)image, 0);
-    void *_0options = mem2server((void *)options, sizeof(*options));
-    // PARAM void **optionValues
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0module;
+    mem2server(client, &_0module, (void *)module, sizeof(*module));
+    void *_0image;
+    mem2server(client, &_0image, (void *)image, 0);
+    void *_0options;
+    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    // PARAM void **optionValues
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoadDataEx);
     rpc_write(client, &_0module, sizeof(_0module));
     rpc_write(client, &_0image, sizeof(_0image));
@@ -1195,14 +1715,26 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
 #ifdef DEBUG
     std::cout << "Hook: cuModuleLoadFatBinary called" << std::endl;
 #endif
-    void *_0module = mem2server((void *)module, sizeof(*module));
-    void *_0fatCubin = mem2server((void *)fatCubin, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0module;
+    mem2server(client, &_0module, (void *)module, sizeof(*module));
+    void *_0fatCubin;
+    mem2server(client, &_0fatCubin, (void *)fatCubin, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoadFatBinary);
     rpc_write(client, &_0module, sizeof(_0module));
     rpc_write(client, &_0fatCubin, sizeof(_0fatCubin));
@@ -1222,12 +1754,22 @@ extern "C" CUresult cuModuleUnload(CUmodule hmod) {
 #ifdef DEBUG
     std::cout << "Hook: cuModuleUnload called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleUnload);
     rpc_write(client, &hmod, sizeof(hmod));
     rpc_read(client, &_result, sizeof(_result));
@@ -1244,13 +1786,24 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
 #ifdef DEBUG
     std::cout << "Hook: cuModuleGetFunction called" << std::endl;
 #endif
-    void *_0hfunc = mem2server((void *)hfunc, sizeof(*hfunc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0hfunc;
+    mem2server(client, &_0hfunc, (void *)hfunc, sizeof(*hfunc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleGetFunction);
     rpc_write(client, &_0hfunc, sizeof(_0hfunc));
     rpc_write(client, &hmod, sizeof(hmod));
@@ -1270,13 +1823,24 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
 #ifdef DEBUG
     std::cout << "Hook: cuModuleGetTexRef called" << std::endl;
 #endif
-    void *_0pTexRef = mem2server((void *)pTexRef, sizeof(*pTexRef));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pTexRef;
+    mem2server(client, &_0pTexRef, (void *)pTexRef, sizeof(*pTexRef));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleGetTexRef);
     rpc_write(client, &_0pTexRef, sizeof(_0pTexRef));
     rpc_write(client, &hmod, sizeof(hmod));
@@ -1296,13 +1860,24 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
 #ifdef DEBUG
     std::cout << "Hook: cuModuleGetSurfRef called" << std::endl;
 #endif
-    void *_0pSurfRef = mem2server((void *)pSurfRef, sizeof(*pSurfRef));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pSurfRef;
+    mem2server(client, &_0pSurfRef, (void *)pSurfRef, sizeof(*pSurfRef));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleGetSurfRef);
     rpc_write(client, &_0pSurfRef, sizeof(_0pSurfRef));
     rpc_write(client, &hmod, sizeof(hmod));
@@ -1322,15 +1897,27 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
 #ifdef DEBUG
     std::cout << "Hook: cuLinkCreate_v2 called" << std::endl;
 #endif
-    void *_0options = mem2server((void *)options, sizeof(*options));
-    // PARAM void **optionValues
-    void *_0stateOut = mem2server((void *)stateOut, sizeof(*stateOut));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0options;
+    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    // PARAM void **optionValues
+    void *_0stateOut;
+    mem2server(client, &_0stateOut, (void *)stateOut, sizeof(*stateOut));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLinkCreate_v2);
     rpc_write(client, &numOptions, sizeof(numOptions));
     rpc_write(client, &_0options, sizeof(_0options));
@@ -1354,15 +1941,27 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
 #ifdef DEBUG
     std::cout << "Hook: cuLinkAddData_v2 called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, size);
-    void *_0options = mem2server((void *)options, sizeof(*options));
-    // PARAM void **optionValues
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0data;
+    mem2server(client, &_0data, (void *)data, size);
+    void *_0options;
+    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    // PARAM void **optionValues
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLinkAddData_v2);
     rpc_write(client, &state, sizeof(state));
     rpc_write(client, &type, sizeof(type));
@@ -1390,14 +1989,25 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
 #ifdef DEBUG
     std::cout << "Hook: cuLinkAddFile_v2 called" << std::endl;
 #endif
-    void *_0options = mem2server((void *)options, sizeof(*options));
-    // PARAM void **optionValues
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0options;
+    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    // PARAM void **optionValues
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLinkAddFile_v2);
     rpc_write(client, &state, sizeof(state));
     rpc_write(client, &type, sizeof(type));
@@ -1422,14 +2032,25 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
 #ifdef DEBUG
     std::cout << "Hook: cuLinkComplete called" << std::endl;
 #endif
-    // PARAM void **cubinOut
-    void *_0sizeOut = mem2server((void *)sizeOut, sizeof(*sizeOut));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    // PARAM void **cubinOut
+    void *_0sizeOut;
+    mem2server(client, &_0sizeOut, (void *)sizeOut, sizeof(*sizeOut));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLinkComplete);
     rpc_write(client, &state, sizeof(state));
     // PARAM void **cubinOut
@@ -1451,12 +2072,22 @@ extern "C" CUresult cuLinkDestroy(CUlinkState state) {
 #ifdef DEBUG
     std::cout << "Hook: cuLinkDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLinkDestroy);
     rpc_write(client, &state, sizeof(state));
     rpc_read(client, &_result, sizeof(_result));
@@ -1473,14 +2104,26 @@ extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemGetInfo_v2 called" << std::endl;
 #endif
-    void *_0free = mem2server((void *)free, sizeof(*free));
-    void *_0total = mem2server((void *)total, sizeof(*total));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0free;
+    mem2server(client, &_0free, (void *)free, sizeof(*free));
+    void *_0total;
+    mem2server(client, &_0total, (void *)total, sizeof(*total));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetInfo_v2);
     rpc_write(client, &_0free, sizeof(_0free));
     rpc_write(client, &_0total, sizeof(_0total));
@@ -1500,12 +2143,22 @@ extern "C" CUresult cuMemFree_v2(CUdeviceptr dptr) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemFree_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemFree_v2);
     rpc_write(client, &dptr, sizeof(dptr));
     rpc_read(client, &_result, sizeof(_result));
@@ -1522,14 +2175,26 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemHostGetFlags called" << std::endl;
 #endif
-    void *_0pFlags = mem2server((void *)pFlags, sizeof(*pFlags));
-    void *_0p = mem2server((void *)p, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pFlags;
+    mem2server(client, &_0pFlags, (void *)pFlags, sizeof(*pFlags));
+    void *_0p;
+    mem2server(client, &_0p, (void *)p, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemHostGetFlags);
     rpc_write(client, &_0pFlags, sizeof(_0pFlags));
     rpc_write(client, &_0p, sizeof(_0p));
@@ -1549,13 +2214,24 @@ extern "C" CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetByPCIBusId called" << std::endl;
 #endif
-    void *_0dev = mem2server((void *)dev, sizeof(*dev));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dev;
+    mem2server(client, &_0dev, (void *)dev, sizeof(*dev));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetByPCIBusId);
     rpc_write(client, &_0dev, sizeof(_0dev));
     rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
@@ -1574,12 +2250,22 @@ extern "C" CUresult cuDeviceGetPCIBusId(char *pciBusId, int len, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetPCIBusId called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetPCIBusId);
     rpc_read(client, pciBusId, len, true);
     rpc_write(client, &len, sizeof(len));
@@ -1598,13 +2284,24 @@ extern "C" CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event
 #ifdef DEBUG
     std::cout << "Hook: cuIpcGetEventHandle called" << std::endl;
 #endif
-    void *_0pHandle = mem2server((void *)pHandle, sizeof(*pHandle));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pHandle;
+    mem2server(client, &_0pHandle, (void *)pHandle, sizeof(*pHandle));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcGetEventHandle);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
     rpc_write(client, &event, sizeof(event));
@@ -1623,13 +2320,24 @@ extern "C" CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle hand
 #ifdef DEBUG
     std::cout << "Hook: cuIpcOpenEventHandle called" << std::endl;
 #endif
-    void *_0phEvent = mem2server((void *)phEvent, sizeof(*phEvent));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phEvent;
+    mem2server(client, &_0phEvent, (void *)phEvent, sizeof(*phEvent));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcOpenEventHandle);
     rpc_write(client, &_0phEvent, sizeof(_0phEvent));
     rpc_write(client, &handle, sizeof(handle));
@@ -1648,13 +2356,24 @@ extern "C" CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
 #ifdef DEBUG
     std::cout << "Hook: cuIpcGetMemHandle called" << std::endl;
 #endif
-    void *_0pHandle = mem2server((void *)pHandle, sizeof(*pHandle));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pHandle;
+    mem2server(client, &_0pHandle, (void *)pHandle, sizeof(*pHandle));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcGetMemHandle);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
     rpc_write(client, &dptr, sizeof(dptr));
@@ -1673,12 +2392,22 @@ extern "C" CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) {
 #ifdef DEBUG
     std::cout << "Hook: cuIpcCloseMemHandle called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcCloseMemHandle);
     rpc_write(client, &dptr, sizeof(dptr));
     rpc_read(client, &_result, sizeof(_result));
@@ -1695,13 +2424,24 @@ extern "C" CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int 
 #ifdef DEBUG
     std::cout << "Hook: cuMemHostRegister_v2 called" << std::endl;
 #endif
-    void *_0p = mem2server((void *)p, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0p;
+    mem2server(client, &_0p, (void *)p, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemHostRegister_v2);
     rpc_write(client, &_0p, sizeof(_0p));
     rpc_write(client, &bytesize, sizeof(bytesize));
@@ -1721,13 +2461,24 @@ extern "C" CUresult cuMemHostUnregister(void *p) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemHostUnregister called" << std::endl;
 #endif
-    void *_0p = mem2server((void *)p, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0p;
+    mem2server(client, &_0p, (void *)p, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemHostUnregister);
     rpc_write(client, &_0p, sizeof(_0p));
     rpc_read(client, &_result, sizeof(_result));
@@ -1745,12 +2496,22 @@ extern "C" CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy);
     rpc_write(client, &dst, sizeof(dst));
     rpc_write(client, &src, sizeof(src));
@@ -1769,12 +2530,22 @@ extern "C" CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CU
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyPeer called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyPeer);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstContext, sizeof(dstContext));
@@ -1795,13 +2566,24 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyHtoD_v2 called" << std::endl;
 #endif
-    void *_0srcHost = mem2server((void *)srcHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0srcHost;
+    mem2server(client, &_0srcHost, (void *)srcHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyHtoD_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &_0srcHost, sizeof(_0srcHost));
@@ -1821,13 +2603,24 @@ extern "C" CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyDtoH_v2 called" << std::endl;
 #endif
-    void *_0dstHost = mem2server((void *)dstHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dstHost;
+    mem2server(client, &_0dstHost, (void *)dstHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoH_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
     rpc_write(client, &srcDevice, sizeof(srcDevice));
@@ -1847,12 +2640,22 @@ extern "C" CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyDtoD_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoD_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &srcDevice, sizeof(srcDevice));
@@ -1871,12 +2674,22 @@ extern "C" CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdevice
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyDtoA_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoA_v2);
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
@@ -1896,12 +2709,22 @@ extern "C" CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, siz
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyAtoD_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoD_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &srcArray, sizeof(srcArray));
@@ -1921,13 +2744,24 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyHtoA_v2 called" << std::endl;
 #endif
-    void *_0srcHost = mem2server((void *)srcHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0srcHost;
+    mem2server(client, &_0srcHost, (void *)srcHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyHtoA_v2);
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
@@ -1948,13 +2782,24 @@ extern "C" CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcO
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyAtoH_v2 called" << std::endl;
 #endif
-    void *_0dstHost = mem2server((void *)dstHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dstHost;
+    mem2server(client, &_0dstHost, (void *)dstHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoH_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
     rpc_write(client, &srcArray, sizeof(srcArray));
@@ -1975,12 +2820,22 @@ extern "C" CUresult cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray 
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyAtoA_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoA_v2);
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
@@ -2001,13 +2856,24 @@ extern "C" CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy2D_v2 called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy2D_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_read(client, &_result, sizeof(_result));
@@ -2025,13 +2891,24 @@ extern "C" CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy2DUnaligned_v2 called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy2DUnaligned_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_read(client, &_result, sizeof(_result));
@@ -2049,13 +2926,24 @@ extern "C" CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy3D_v2 called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3D_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_read(client, &_result, sizeof(_result));
@@ -2073,13 +2961,24 @@ extern "C" CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy3DPeer called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3DPeer);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_read(client, &_result, sizeof(_result));
@@ -2097,12 +2996,22 @@ extern "C" CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteC
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAsync);
     rpc_write(client, &dst, sizeof(dst));
     rpc_write(client, &src, sizeof(src));
@@ -2122,12 +3031,22 @@ extern "C" CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContex
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyPeerAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyPeerAsync);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstContext, sizeof(dstContext));
@@ -2149,13 +3068,24 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyHtoDAsync_v2 called" << std::endl;
 #endif
-    void *_0srcHost = mem2server((void *)srcHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0srcHost;
+    mem2server(client, &_0srcHost, (void *)srcHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyHtoDAsync_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &_0srcHost, sizeof(_0srcHost));
@@ -2176,13 +3106,24 @@ extern "C" CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, s
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyDtoHAsync_v2 called" << std::endl;
 #endif
-    void *_0dstHost = mem2server((void *)dstHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dstHost;
+    mem2server(client, &_0dstHost, (void *)dstHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoHAsync_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
     rpc_write(client, &srcDevice, sizeof(srcDevice));
@@ -2203,12 +3144,22 @@ extern "C" CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcD
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyDtoDAsync_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoDAsync_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &srcDevice, sizeof(srcDevice));
@@ -2228,13 +3179,24 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyHtoAAsync_v2 called" << std::endl;
 #endif
-    void *_0srcHost = mem2server((void *)srcHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0srcHost;
+    mem2server(client, &_0srcHost, (void *)srcHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyHtoAAsync_v2);
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
@@ -2256,13 +3218,24 @@ extern "C" CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpyAtoHAsync_v2 called" << std::endl;
 #endif
-    void *_0dstHost = mem2server((void *)dstHost, ByteCount);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dstHost;
+    mem2server(client, &_0dstHost, (void *)dstHost, ByteCount);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoHAsync_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
     rpc_write(client, &srcArray, sizeof(srcArray));
@@ -2284,13 +3257,24 @@ extern "C" CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStr
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy2DAsync_v2 called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy2DAsync_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -2309,13 +3293,24 @@ extern "C" CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStr
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy3DAsync_v2 called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3DAsync_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -2334,13 +3329,24 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
 #ifdef DEBUG
     std::cout << "Hook: cuMemcpy3DPeerAsync called" << std::endl;
 #endif
-    void *_0pCopy = mem2server((void *)pCopy, sizeof(*pCopy));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pCopy;
+    mem2server(client, &_0pCopy, (void *)pCopy, sizeof(*pCopy));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3DPeerAsync);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -2359,12 +3365,22 @@ extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD8_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD8_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &uc, sizeof(uc));
@@ -2383,12 +3399,22 @@ extern "C" CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, siz
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD16_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD16_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &us, sizeof(us));
@@ -2407,12 +3433,22 @@ extern "C" CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD32_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD32_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &ui, sizeof(ui));
@@ -2431,12 +3467,22 @@ extern "C" CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsi
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD2D8_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D8_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstPitch, sizeof(dstPitch));
@@ -2457,12 +3503,22 @@ extern "C" CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD2D16_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D16_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstPitch, sizeof(dstPitch));
@@ -2483,12 +3539,22 @@ extern "C" CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD2D32_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D32_v2);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstPitch, sizeof(dstPitch));
@@ -2509,12 +3575,22 @@ extern "C" CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, siz
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD8Async called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD8Async);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &uc, sizeof(uc));
@@ -2534,12 +3610,22 @@ extern "C" CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, s
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD16Async called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD16Async);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &us, sizeof(us));
@@ -2559,12 +3645,22 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD32Async called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD32Async);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &ui, sizeof(ui));
@@ -2584,12 +3680,22 @@ extern "C" CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, un
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD2D8Async called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D8Async);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstPitch, sizeof(dstPitch));
@@ -2611,12 +3717,22 @@ extern "C" CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, u
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD2D16Async called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D16Async);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstPitch, sizeof(dstPitch));
@@ -2638,12 +3754,22 @@ extern "C" CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, u
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD2D32Async called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D32Async);
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &dstPitch, sizeof(dstPitch));
@@ -2665,14 +3791,26 @@ extern "C" CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPT
 #ifdef DEBUG
     std::cout << "Hook: cuArrayCreate_v2 called" << std::endl;
 #endif
-    void *_0pHandle = mem2server((void *)pHandle, sizeof(*pHandle));
-    void *_0pAllocateArray = mem2server((void *)pAllocateArray, sizeof(*pAllocateArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pHandle;
+    mem2server(client, &_0pHandle, (void *)pHandle, sizeof(*pHandle));
+    void *_0pAllocateArray;
+    mem2server(client, &_0pAllocateArray, (void *)pAllocateArray, sizeof(*pAllocateArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayCreate_v2);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
     rpc_write(client, &_0pAllocateArray, sizeof(_0pAllocateArray));
@@ -2692,13 +3830,24 @@ extern "C" CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescrip
 #ifdef DEBUG
     std::cout << "Hook: cuArrayGetDescriptor_v2 called" << std::endl;
 #endif
-    void *_0pArrayDescriptor = mem2server((void *)pArrayDescriptor, sizeof(*pArrayDescriptor));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pArrayDescriptor;
+    mem2server(client, &_0pArrayDescriptor, (void *)pArrayDescriptor, sizeof(*pArrayDescriptor));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayGetDescriptor_v2);
     rpc_write(client, &_0pArrayDescriptor, sizeof(_0pArrayDescriptor));
     rpc_write(client, &hArray, sizeof(hArray));
@@ -2717,13 +3866,24 @@ extern "C" CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES *spa
 #ifdef DEBUG
     std::cout << "Hook: cuArrayGetSparseProperties called" << std::endl;
 #endif
-    void *_0sparseProperties = mem2server((void *)sparseProperties, sizeof(*sparseProperties));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0sparseProperties;
+    mem2server(client, &_0sparseProperties, (void *)sparseProperties, sizeof(*sparseProperties));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayGetSparseProperties);
     rpc_write(client, &_0sparseProperties, sizeof(_0sparseProperties));
     rpc_write(client, &array, sizeof(array));
@@ -2742,13 +3902,24 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
 #ifdef DEBUG
     std::cout << "Hook: cuMipmappedArrayGetSparseProperties called" << std::endl;
 #endif
-    void *_0sparseProperties = mem2server((void *)sparseProperties, sizeof(*sparseProperties));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0sparseProperties;
+    mem2server(client, &_0sparseProperties, (void *)sparseProperties, sizeof(*sparseProperties));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayGetSparseProperties);
     rpc_write(client, &_0sparseProperties, sizeof(_0sparseProperties));
     rpc_write(client, &mipmap, sizeof(mipmap));
@@ -2767,13 +3938,24 @@ extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsign
 #ifdef DEBUG
     std::cout << "Hook: cuArrayGetPlane called" << std::endl;
 #endif
-    void *_0pPlaneArray = mem2server((void *)pPlaneArray, sizeof(*pPlaneArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pPlaneArray;
+    mem2server(client, &_0pPlaneArray, (void *)pPlaneArray, sizeof(*pPlaneArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayGetPlane);
     rpc_write(client, &_0pPlaneArray, sizeof(_0pPlaneArray));
     rpc_write(client, &hArray, sizeof(hArray));
@@ -2793,12 +3975,22 @@ extern "C" CUresult cuArrayDestroy(CUarray hArray) {
 #ifdef DEBUG
     std::cout << "Hook: cuArrayDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayDestroy);
     rpc_write(client, &hArray, sizeof(hArray));
     rpc_read(client, &_result, sizeof(_result));
@@ -2815,14 +4007,26 @@ extern "C" CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESC
 #ifdef DEBUG
     std::cout << "Hook: cuArray3DCreate_v2 called" << std::endl;
 #endif
-    void *_0pHandle = mem2server((void *)pHandle, sizeof(*pHandle));
-    void *_0pAllocateArray = mem2server((void *)pAllocateArray, sizeof(*pAllocateArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pHandle;
+    mem2server(client, &_0pHandle, (void *)pHandle, sizeof(*pHandle));
+    void *_0pAllocateArray;
+    mem2server(client, &_0pAllocateArray, (void *)pAllocateArray, sizeof(*pAllocateArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArray3DCreate_v2);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
     rpc_write(client, &_0pAllocateArray, sizeof(_0pAllocateArray));
@@ -2842,13 +4046,24 @@ extern "C" CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDes
 #ifdef DEBUG
     std::cout << "Hook: cuArray3DGetDescriptor_v2 called" << std::endl;
 #endif
-    void *_0pArrayDescriptor = mem2server((void *)pArrayDescriptor, sizeof(*pArrayDescriptor));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pArrayDescriptor;
+    mem2server(client, &_0pArrayDescriptor, (void *)pArrayDescriptor, sizeof(*pArrayDescriptor));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuArray3DGetDescriptor_v2);
     rpc_write(client, &_0pArrayDescriptor, sizeof(_0pArrayDescriptor));
     rpc_write(client, &hArray, sizeof(hArray));
@@ -2867,14 +4082,26 @@ extern "C" CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA
 #ifdef DEBUG
     std::cout << "Hook: cuMipmappedArrayCreate called" << std::endl;
 #endif
-    void *_0pHandle = mem2server((void *)pHandle, sizeof(*pHandle));
-    void *_0pMipmappedArrayDesc = mem2server((void *)pMipmappedArrayDesc, sizeof(*pMipmappedArrayDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pHandle;
+    mem2server(client, &_0pHandle, (void *)pHandle, sizeof(*pHandle));
+    void *_0pMipmappedArrayDesc;
+    mem2server(client, &_0pMipmappedArrayDesc, (void *)pMipmappedArrayDesc, sizeof(*pMipmappedArrayDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayCreate);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
     rpc_write(client, &_0pMipmappedArrayDesc, sizeof(_0pMipmappedArrayDesc));
@@ -2895,13 +4122,24 @@ extern "C" CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedAr
 #ifdef DEBUG
     std::cout << "Hook: cuMipmappedArrayGetLevel called" << std::endl;
 #endif
-    void *_0pLevelArray = mem2server((void *)pLevelArray, sizeof(*pLevelArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pLevelArray;
+    mem2server(client, &_0pLevelArray, (void *)pLevelArray, sizeof(*pLevelArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayGetLevel);
     rpc_write(client, &_0pLevelArray, sizeof(_0pLevelArray));
     rpc_write(client, &hMipmappedArray, sizeof(hMipmappedArray));
@@ -2921,12 +4159,22 @@ extern "C" CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) {
 #ifdef DEBUG
     std::cout << "Hook: cuMipmappedArrayDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayDestroy);
     rpc_write(client, &hMipmappedArray, sizeof(hMipmappedArray));
     rpc_read(client, &_result, sizeof(_result));
@@ -2943,12 +4191,22 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemAddressFree called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemAddressFree);
     rpc_write(client, &ptr, sizeof(ptr));
     rpc_write(client, &size, sizeof(size));
@@ -2966,13 +4224,24 @@ extern "C" CUresult cuMemMapArrayAsync(CUarrayMapInfo *mapInfoList, unsigned int
 #ifdef DEBUG
     std::cout << "Hook: cuMemMapArrayAsync called" << std::endl;
 #endif
-    void *_0mapInfoList = mem2server((void *)mapInfoList, sizeof(*mapInfoList));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0mapInfoList;
+    mem2server(client, &_0mapInfoList, (void *)mapInfoList, sizeof(*mapInfoList));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemMapArrayAsync);
     rpc_write(client, &_0mapInfoList, sizeof(_0mapInfoList));
     rpc_write(client, &count, sizeof(count));
@@ -2992,12 +4261,22 @@ extern "C" CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemUnmap called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemUnmap);
     rpc_write(client, &ptr, sizeof(ptr));
     rpc_write(client, &size, sizeof(size));
@@ -3015,13 +4294,24 @@ extern "C" CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAcce
 #ifdef DEBUG
     std::cout << "Hook: cuMemSetAccess called" << std::endl;
 #endif
-    void *_0desc = mem2server((void *)desc, sizeof(*desc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0desc;
+    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemSetAccess);
     rpc_write(client, &ptr, sizeof(ptr));
     rpc_write(client, &size, sizeof(size));
@@ -3042,14 +4332,26 @@ extern "C" CUresult cuMemGetAccess(unsigned long long *flags, const CUmemLocatio
 #ifdef DEBUG
     std::cout << "Hook: cuMemGetAccess called" << std::endl;
 #endif
-    void *_0flags = mem2server((void *)flags, sizeof(*flags));
-    void *_0location = mem2server((void *)location, sizeof(*location));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0flags;
+    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    void *_0location;
+    mem2server(client, &_0location, (void *)location, sizeof(*location));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetAccess);
     rpc_write(client, &_0flags, sizeof(_0flags));
     rpc_write(client, &_0location, sizeof(_0location));
@@ -3070,13 +4372,24 @@ extern "C" CUresult cuMemExportToShareableHandle(void *shareableHandle, CUmemGen
 #ifdef DEBUG
     std::cout << "Hook: cuMemExportToShareableHandle called" << std::endl;
 #endif
-    void *_0shareableHandle = mem2server((void *)shareableHandle, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0shareableHandle;
+    mem2server(client, &_0shareableHandle, (void *)shareableHandle, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemExportToShareableHandle);
     rpc_write(client, &_0shareableHandle, sizeof(_0shareableHandle));
     rpc_write(client, &handle, sizeof(handle));
@@ -3097,14 +4410,26 @@ extern "C" CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle 
 #ifdef DEBUG
     std::cout << "Hook: cuMemImportFromShareableHandle called" << std::endl;
 #endif
-    void *_0handle = mem2server((void *)handle, sizeof(*handle));
-    void *_0osHandle = mem2server((void *)osHandle, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0handle;
+    mem2server(client, &_0handle, (void *)handle, sizeof(*handle));
+    void *_0osHandle;
+    mem2server(client, &_0osHandle, (void *)osHandle, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemImportFromShareableHandle);
     rpc_write(client, &_0handle, sizeof(_0handle));
     rpc_write(client, &_0osHandle, sizeof(_0osHandle));
@@ -3125,14 +4450,26 @@ extern "C" CUresult cuMemGetAllocationGranularity(size_t *granularity, const CUm
 #ifdef DEBUG
     std::cout << "Hook: cuMemGetAllocationGranularity called" << std::endl;
 #endif
-    void *_0granularity = mem2server((void *)granularity, sizeof(*granularity));
-    void *_0prop = mem2server((void *)prop, sizeof(*prop));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0granularity;
+    mem2server(client, &_0granularity, (void *)granularity, sizeof(*granularity));
+    void *_0prop;
+    mem2server(client, &_0prop, (void *)prop, sizeof(*prop));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetAllocationGranularity);
     rpc_write(client, &_0granularity, sizeof(_0granularity));
     rpc_write(client, &_0prop, sizeof(_0prop));
@@ -3153,13 +4490,24 @@ extern "C" CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *
 #ifdef DEBUG
     std::cout << "Hook: cuMemGetAllocationPropertiesFromHandle called" << std::endl;
 #endif
-    void *_0prop = mem2server((void *)prop, sizeof(*prop));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0prop;
+    mem2server(client, &_0prop, (void *)prop, sizeof(*prop));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetAllocationPropertiesFromHandle);
     rpc_write(client, &_0prop, sizeof(_0prop));
     rpc_write(client, &handle, sizeof(handle));
@@ -3178,14 +4526,26 @@ extern "C" CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle *ha
 #ifdef DEBUG
     std::cout << "Hook: cuMemRetainAllocationHandle called" << std::endl;
 #endif
-    void *_0handle = mem2server((void *)handle, sizeof(*handle));
-    void *_0addr = mem2server((void *)addr, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0handle;
+    mem2server(client, &_0handle, (void *)handle, sizeof(*handle));
+    void *_0addr;
+    mem2server(client, &_0addr, (void *)addr, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemRetainAllocationHandle);
     rpc_write(client, &_0handle, sizeof(_0handle));
     rpc_write(client, &_0addr, sizeof(_0addr));
@@ -3205,12 +4565,22 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemFreeAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemFreeAsync);
     rpc_write(client, &dptr, sizeof(dptr));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -3224,16 +4594,63 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
     return _result;
 }
 
-extern "C" CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) {
+extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream hStream) {
 #ifdef DEBUG
-    std::cout << "Hook: cuMemPoolTrimTo called" << std::endl;
+    std::cout << "Hook: cuMemAllocAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dptr;
+    mem2server(client, &_0dptr, (void *)dptr, sizeof(*dptr));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    rpc_prepare_request(client, RPC_cuMemAllocAsync);
+    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    rpc_write(client, &bytesize, sizeof(bytesize));
+    rpc_write(client, &hStream, sizeof(hStream));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    mem2client((void *)dptr, sizeof(*dptr));
+    return _result;
+}
+
+extern "C" CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemPoolTrimTo called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolTrimTo);
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &minBytesToKeep, sizeof(minBytesToKeep));
@@ -3251,13 +4668,24 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolSetAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolSetAttribute);
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &attr, sizeof(attr));
@@ -3277,13 +4705,24 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolGetAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolGetAttribute);
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &attr, sizeof(attr));
@@ -3303,13 +4742,24 @@ extern "C" CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc 
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolSetAccess called" << std::endl;
 #endif
-    void *_0map = mem2server((void *)map, sizeof(*map));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0map;
+    mem2server(client, &_0map, (void *)map, sizeof(*map));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolSetAccess);
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &_0map, sizeof(_0map));
@@ -3329,14 +4779,26 @@ extern "C" CUresult cuMemPoolGetAccess(CUmemAccess_flags *flags, CUmemoryPool me
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolGetAccess called" << std::endl;
 #endif
-    void *_0flags = mem2server((void *)flags, sizeof(*flags));
-    void *_0location = mem2server((void *)location, sizeof(*location));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0flags;
+    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    void *_0location;
+    mem2server(client, &_0location, (void *)location, sizeof(*location));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolGetAccess);
     rpc_write(client, &_0flags, sizeof(_0flags));
     rpc_write(client, &memPool, sizeof(memPool));
@@ -3357,14 +4819,26 @@ extern "C" CUresult cuMemPoolCreate(CUmemoryPool *pool, const CUmemPoolProps *po
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolCreate called" << std::endl;
 #endif
-    void *_0pool = mem2server((void *)pool, sizeof(*pool));
-    void *_0poolProps = mem2server((void *)poolProps, sizeof(*poolProps));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pool;
+    mem2server(client, &_0pool, (void *)pool, sizeof(*pool));
+    void *_0poolProps;
+    mem2server(client, &_0poolProps, (void *)poolProps, sizeof(*poolProps));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolCreate);
     rpc_write(client, &_0pool, sizeof(_0pool));
     rpc_write(client, &_0poolProps, sizeof(_0poolProps));
@@ -3384,12 +4858,22 @@ extern "C" CUresult cuMemPoolDestroy(CUmemoryPool pool) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolDestroy);
     rpc_write(client, &pool, sizeof(pool));
     rpc_read(client, &_result, sizeof(_result));
@@ -3402,17 +4886,66 @@ extern "C" CUresult cuMemPoolDestroy(CUmemoryPool pool) {
     return _result;
 }
 
-extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, unsigned long long flags) {
+extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, CUmemoryPool pool, CUstream hStream) {
 #ifdef DEBUG
-    std::cout << "Hook: cuMemPoolExportToShareableHandle called" << std::endl;
+    std::cout << "Hook: cuMemAllocFromPoolAsync called" << std::endl;
 #endif
-    void *_0handle_out = mem2server((void *)handle_out, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dptr;
+    mem2server(client, &_0dptr, (void *)dptr, sizeof(*dptr));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    rpc_prepare_request(client, RPC_cuMemAllocFromPoolAsync);
+    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    rpc_write(client, &bytesize, sizeof(bytesize));
+    rpc_write(client, &pool, sizeof(pool));
+    rpc_write(client, &hStream, sizeof(hStream));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    mem2client((void *)dptr, sizeof(*dptr));
+    return _result;
+}
+
+extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryPool pool, CUmemAllocationHandleType handleType, unsigned long long flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemPoolExportToShareableHandle called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0handle_out;
+    mem2server(client, &_0handle_out, (void *)handle_out, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolExportToShareableHandle);
     rpc_write(client, &_0handle_out, sizeof(_0handle_out));
     rpc_write(client, &pool, sizeof(pool));
@@ -3433,14 +4966,26 @@ extern "C" CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool *pool_out, v
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolImportFromShareableHandle called" << std::endl;
 #endif
-    void *_0pool_out = mem2server((void *)pool_out, sizeof(*pool_out));
-    void *_0handle = mem2server((void *)handle, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pool_out;
+    mem2server(client, &_0pool_out, (void *)pool_out, sizeof(*pool_out));
+    void *_0handle;
+    mem2server(client, &_0handle, (void *)handle, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolImportFromShareableHandle);
     rpc_write(client, &_0pool_out, sizeof(_0pool_out));
     rpc_write(client, &_0handle, sizeof(_0handle));
@@ -3462,13 +5007,24 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
 #ifdef DEBUG
     std::cout << "Hook: cuMemPoolExportPointer called" << std::endl;
 #endif
-    void *_0shareData_out = mem2server((void *)shareData_out, sizeof(*shareData_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0shareData_out;
+    mem2server(client, &_0shareData_out, (void *)shareData_out, sizeof(*shareData_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolExportPointer);
     rpc_write(client, &_0shareData_out, sizeof(_0shareData_out));
     rpc_write(client, &ptr, sizeof(ptr));
@@ -3487,13 +5043,24 @@ extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attrib
 #ifdef DEBUG
     std::cout << "Hook: cuPointerGetAttribute called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0data;
+    mem2server(client, &_0data, (void *)data, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuPointerGetAttribute);
     rpc_write(client, &_0data, sizeof(_0data));
     rpc_write(client, &attribute, sizeof(attribute));
@@ -3513,12 +5080,22 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
 #ifdef DEBUG
     std::cout << "Hook: cuMemPrefetchAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPrefetchAsync);
     rpc_write(client, &devPtr, sizeof(devPtr));
     rpc_write(client, &count, sizeof(count));
@@ -3538,12 +5115,22 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
 #ifdef DEBUG
     std::cout << "Hook: cuMemAdvise called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemAdvise);
     rpc_write(client, &devPtr, sizeof(devPtr));
     rpc_write(client, &count, sizeof(count));
@@ -3563,13 +5150,24 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
 #ifdef DEBUG
     std::cout << "Hook: cuMemRangeGetAttribute called" << std::endl;
 #endif
-    void *_0data = mem2server((void *)data, dataSize);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0data;
+    mem2server(client, &_0data, (void *)data, dataSize);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemRangeGetAttribute);
     rpc_write(client, &_0data, sizeof(_0data));
     rpc_write(client, &dataSize, sizeof(dataSize));
@@ -3591,15 +5189,27 @@ extern "C" CUresult cuMemRangeGetAttributes(void **data, size_t *dataSizes, CUme
 #ifdef DEBUG
     std::cout << "Hook: cuMemRangeGetAttributes called" << std::endl;
 #endif
-    // PARAM void **data
-    void *_0dataSizes = mem2server((void *)dataSizes, sizeof(*dataSizes));
-    void *_0attributes = mem2server((void *)attributes, sizeof(*attributes));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    // PARAM void **data
+    void *_0dataSizes;
+    mem2server(client, &_0dataSizes, (void *)dataSizes, sizeof(*dataSizes));
+    void *_0attributes;
+    mem2server(client, &_0attributes, (void *)attributes, sizeof(*attributes));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuMemRangeGetAttributes);
     // PARAM void **data
     rpc_write(client, &_0dataSizes, sizeof(_0dataSizes));
@@ -3625,13 +5235,24 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
 #ifdef DEBUG
     std::cout << "Hook: cuPointerSetAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuPointerSetAttribute);
     rpc_write(client, &_0value, sizeof(_0value));
     rpc_write(client, &attribute, sizeof(attribute));
@@ -3651,14 +5272,25 @@ extern "C" CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer
 #ifdef DEBUG
     std::cout << "Hook: cuPointerGetAttributes called" << std::endl;
 #endif
-    void *_0attributes = mem2server((void *)attributes, sizeof(*attributes));
-    // PARAM void **data
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0attributes;
+    mem2server(client, &_0attributes, (void *)attributes, sizeof(*attributes));
+    // PARAM void **data
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuPointerGetAttributes);
     rpc_write(client, &numAttributes, sizeof(numAttributes));
     rpc_write(client, &_0attributes, sizeof(_0attributes));
@@ -3681,13 +5313,24 @@ extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamCreate called" << std::endl;
 #endif
-    void *_0phStream = mem2server((void *)phStream, sizeof(*phStream));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phStream;
+    mem2server(client, &_0phStream, (void *)phStream, sizeof(*phStream));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamCreate);
     rpc_write(client, &_0phStream, sizeof(_0phStream));
     rpc_write(client, &Flags, sizeof(Flags));
@@ -3706,13 +5349,24 @@ extern "C" CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int 
 #ifdef DEBUG
     std::cout << "Hook: cuStreamCreateWithPriority called" << std::endl;
 #endif
-    void *_0phStream = mem2server((void *)phStream, sizeof(*phStream));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phStream;
+    mem2server(client, &_0phStream, (void *)phStream, sizeof(*phStream));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamCreateWithPriority);
     rpc_write(client, &_0phStream, sizeof(_0phStream));
     rpc_write(client, &flags, sizeof(flags));
@@ -3732,13 +5386,24 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetPriority called" << std::endl;
 #endif
-    void *_0priority = mem2server((void *)priority, sizeof(*priority));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0priority;
+    mem2server(client, &_0priority, (void *)priority, sizeof(*priority));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamGetPriority);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0priority, sizeof(_0priority));
@@ -3757,13 +5422,24 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetFlags called" << std::endl;
 #endif
-    void *_0flags = mem2server((void *)flags, sizeof(*flags));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0flags;
+    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamGetFlags);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0flags, sizeof(_0flags));
@@ -3782,13 +5458,24 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetCtx called" << std::endl;
 #endif
-    void *_0pctx = mem2server((void *)pctx, sizeof(*pctx));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pctx;
+    mem2server(client, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamGetCtx);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0pctx, sizeof(_0pctx));
@@ -3807,12 +5494,22 @@ extern "C" CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned
 #ifdef DEBUG
     std::cout << "Hook: cuStreamWaitEvent called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamWaitEvent);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &hEvent, sizeof(hEvent));
@@ -3831,13 +5528,24 @@ extern "C" CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callb
 #ifdef DEBUG
     std::cout << "Hook: cuStreamAddCallback called" << std::endl;
 #endif
-    void *_0userData = mem2server((void *)userData, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0userData;
+    mem2server(client, &_0userData, (void *)userData, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamAddCallback);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &callback, sizeof(callback));
@@ -3858,12 +5566,22 @@ extern "C" CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMod
 #ifdef DEBUG
     std::cout << "Hook: cuStreamBeginCapture_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamBeginCapture_v2);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &mode, sizeof(mode));
@@ -3881,13 +5599,24 @@ extern "C" CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
 #ifdef DEBUG
     std::cout << "Hook: cuThreadExchangeStreamCaptureMode called" << std::endl;
 #endif
-    void *_0mode = mem2server((void *)mode, sizeof(*mode));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0mode;
+    mem2server(client, &_0mode, (void *)mode, sizeof(*mode));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuThreadExchangeStreamCaptureMode);
     rpc_write(client, &_0mode, sizeof(_0mode));
     rpc_read(client, &_result, sizeof(_result));
@@ -3905,13 +5634,24 @@ extern "C" CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamEndCapture called" << std::endl;
 #endif
-    void *_0phGraph = mem2server((void *)phGraph, sizeof(*phGraph));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraph;
+    mem2server(client, &_0phGraph, (void *)phGraph, sizeof(*phGraph));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamEndCapture);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0phGraph, sizeof(_0phGraph));
@@ -3930,13 +5670,24 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
 #ifdef DEBUG
     std::cout << "Hook: cuStreamIsCapturing called" << std::endl;
 #endif
-    void *_0captureStatus = mem2server((void *)captureStatus, sizeof(*captureStatus));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0captureStatus;
+    mem2server(client, &_0captureStatus, (void *)captureStatus, sizeof(*captureStatus));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamIsCapturing);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0captureStatus, sizeof(_0captureStatus));
@@ -3955,14 +5706,26 @@ extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStat
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetCaptureInfo called" << std::endl;
 #endif
-    void *_0captureStatus_out = mem2server((void *)captureStatus_out, sizeof(*captureStatus_out));
-    void *_0id_out = mem2server((void *)id_out, sizeof(*id_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0captureStatus_out;
+    mem2server(client, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
+    void *_0id_out;
+    mem2server(client, &_0id_out, (void *)id_out, sizeof(*id_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamGetCaptureInfo);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0captureStatus_out, sizeof(_0captureStatus_out));
@@ -3983,17 +5746,31 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetCaptureInfo_v2 called" << std::endl;
 #endif
-    void *_0captureStatus_out = mem2server((void *)captureStatus_out, sizeof(*captureStatus_out));
-    void *_0id_out = mem2server((void *)id_out, sizeof(*id_out));
-    void *_0graph_out = mem2server((void *)graph_out, sizeof(*graph_out));
-    // PARAM const CUgraphNode **dependencies_out
-    void *_0numDependencies_out = mem2server((void *)numDependencies_out, sizeof(*numDependencies_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0captureStatus_out;
+    mem2server(client, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
+    void *_0id_out;
+    mem2server(client, &_0id_out, (void *)id_out, sizeof(*id_out));
+    void *_0graph_out;
+    mem2server(client, &_0graph_out, (void *)graph_out, sizeof(*graph_out));
+    // PARAM const CUgraphNode **dependencies_out
+    void *_0numDependencies_out;
+    mem2server(client, &_0numDependencies_out, (void *)numDependencies_out, sizeof(*numDependencies_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamGetCaptureInfo_v2);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0captureStatus_out, sizeof(_0captureStatus_out));
@@ -4024,13 +5801,24 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
 #ifdef DEBUG
     std::cout << "Hook: cuStreamUpdateCaptureDependencies called" << std::endl;
 #endif
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamUpdateCaptureDependencies);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
@@ -4051,12 +5839,22 @@ extern "C" CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, s
 #ifdef DEBUG
     std::cout << "Hook: cuStreamAttachMemAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamAttachMemAsync);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &dptr, sizeof(dptr));
@@ -4076,12 +5874,22 @@ extern "C" CUresult cuStreamQuery(CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamQuery called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamQuery);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -4098,12 +5906,22 @@ extern "C" CUresult cuStreamSynchronize(CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamSynchronize called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamSynchronize);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -4120,12 +5938,22 @@ extern "C" CUresult cuStreamDestroy_v2(CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamDestroy_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamDestroy_v2);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -4142,12 +5970,22 @@ extern "C" CUresult cuStreamCopyAttributes(CUstream dst, CUstream src) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamCopyAttributes called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamCopyAttributes);
     rpc_write(client, &dst, sizeof(dst));
     rpc_write(client, &src, sizeof(src));
@@ -4165,13 +6003,24 @@ extern "C" CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, 
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetAttribute called" << std::endl;
 #endif
-    void *_0value_out = mem2server((void *)value_out, sizeof(*value_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value_out;
+    mem2server(client, &_0value_out, (void *)value_out, sizeof(*value_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamGetAttribute);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &attr, sizeof(attr));
@@ -4191,13 +6040,24 @@ extern "C" CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, 
 #ifdef DEBUG
     std::cout << "Hook: cuStreamSetAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, sizeof(*value));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamSetAttribute);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &attr, sizeof(attr));
@@ -4217,13 +6077,24 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuEventCreate called" << std::endl;
 #endif
-    void *_0phEvent = mem2server((void *)phEvent, sizeof(*phEvent));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phEvent;
+    mem2server(client, &_0phEvent, (void *)phEvent, sizeof(*phEvent));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventCreate);
     rpc_write(client, &_0phEvent, sizeof(_0phEvent));
     rpc_write(client, &Flags, sizeof(Flags));
@@ -4242,12 +6113,22 @@ extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuEventRecord called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventRecord);
     rpc_write(client, &hEvent, sizeof(hEvent));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -4265,12 +6146,22 @@ extern "C" CUresult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, uns
 #ifdef DEBUG
     std::cout << "Hook: cuEventRecordWithFlags called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventRecordWithFlags);
     rpc_write(client, &hEvent, sizeof(hEvent));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -4289,12 +6180,22 @@ extern "C" CUresult cuEventQuery(CUevent hEvent) {
 #ifdef DEBUG
     std::cout << "Hook: cuEventQuery called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventQuery);
     rpc_write(client, &hEvent, sizeof(hEvent));
     rpc_read(client, &_result, sizeof(_result));
@@ -4311,12 +6212,22 @@ extern "C" CUresult cuEventSynchronize(CUevent hEvent) {
 #ifdef DEBUG
     std::cout << "Hook: cuEventSynchronize called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventSynchronize);
     rpc_write(client, &hEvent, sizeof(hEvent));
     rpc_read(client, &_result, sizeof(_result));
@@ -4333,12 +6244,22 @@ extern "C" CUresult cuEventDestroy_v2(CUevent hEvent) {
 #ifdef DEBUG
     std::cout << "Hook: cuEventDestroy_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventDestroy_v2);
     rpc_write(client, &hEvent, sizeof(hEvent));
     rpc_read(client, &_result, sizeof(_result));
@@ -4355,13 +6276,24 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
 #ifdef DEBUG
     std::cout << "Hook: cuEventElapsedTime called" << std::endl;
 #endif
-    void *_0pMilliseconds = mem2server((void *)pMilliseconds, sizeof(*pMilliseconds));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pMilliseconds;
+    mem2server(client, &_0pMilliseconds, (void *)pMilliseconds, sizeof(*pMilliseconds));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuEventElapsedTime);
     rpc_write(client, &_0pMilliseconds, sizeof(_0pMilliseconds));
     rpc_write(client, &hStart, sizeof(hStart));
@@ -4381,14 +6313,26 @@ extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mi
 #ifdef DEBUG
     std::cout << "Hook: cuExternalMemoryGetMappedMipmappedArray called" << std::endl;
 #endif
-    void *_0mipmap = mem2server((void *)mipmap, sizeof(*mipmap));
-    void *_0mipmapDesc = mem2server((void *)mipmapDesc, sizeof(*mipmapDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0mipmap;
+    mem2server(client, &_0mipmap, (void *)mipmap, sizeof(*mipmap));
+    void *_0mipmapDesc;
+    mem2server(client, &_0mipmapDesc, (void *)mipmapDesc, sizeof(*mipmapDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuExternalMemoryGetMappedMipmappedArray);
     rpc_write(client, &_0mipmap, sizeof(_0mipmap));
     rpc_write(client, &extMem, sizeof(extMem));
@@ -4409,12 +6353,22 @@ extern "C" CUresult cuDestroyExternalMemory(CUexternalMemory extMem) {
 #ifdef DEBUG
     std::cout << "Hook: cuDestroyExternalMemory called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDestroyExternalMemory);
     rpc_write(client, &extMem, sizeof(extMem));
     rpc_read(client, &_result, sizeof(_result));
@@ -4431,14 +6385,26 @@ extern "C" CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, c
 #ifdef DEBUG
     std::cout << "Hook: cuImportExternalSemaphore called" << std::endl;
 #endif
-    void *_0extSem_out = mem2server((void *)extSem_out, sizeof(*extSem_out));
-    void *_0semHandleDesc = mem2server((void *)semHandleDesc, sizeof(*semHandleDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0extSem_out;
+    mem2server(client, &_0extSem_out, (void *)extSem_out, sizeof(*extSem_out));
+    void *_0semHandleDesc;
+    mem2server(client, &_0semHandleDesc, (void *)semHandleDesc, sizeof(*semHandleDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuImportExternalSemaphore);
     rpc_write(client, &_0extSem_out, sizeof(_0extSem_out));
     rpc_write(client, &_0semHandleDesc, sizeof(_0semHandleDesc));
@@ -4458,14 +6424,26 @@ extern "C" CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *e
 #ifdef DEBUG
     std::cout << "Hook: cuSignalExternalSemaphoresAsync called" << std::endl;
 #endif
-    void *_0extSemArray = mem2server((void *)extSemArray, sizeof(*extSemArray));
-    void *_0paramsArray = mem2server((void *)paramsArray, sizeof(*paramsArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0extSemArray;
+    mem2server(client, &_0extSemArray, (void *)extSemArray, sizeof(*extSemArray));
+    void *_0paramsArray;
+    mem2server(client, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuSignalExternalSemaphoresAsync);
     rpc_write(client, &_0extSemArray, sizeof(_0extSemArray));
     rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
@@ -4487,14 +6465,26 @@ extern "C" CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *ext
 #ifdef DEBUG
     std::cout << "Hook: cuWaitExternalSemaphoresAsync called" << std::endl;
 #endif
-    void *_0extSemArray = mem2server((void *)extSemArray, sizeof(*extSemArray));
-    void *_0paramsArray = mem2server((void *)paramsArray, sizeof(*paramsArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0extSemArray;
+    mem2server(client, &_0extSemArray, (void *)extSemArray, sizeof(*extSemArray));
+    void *_0paramsArray;
+    mem2server(client, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuWaitExternalSemaphoresAsync);
     rpc_write(client, &_0extSemArray, sizeof(_0extSemArray));
     rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
@@ -4516,12 +6506,22 @@ extern "C" CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) {
 #ifdef DEBUG
     std::cout << "Hook: cuDestroyExternalSemaphore called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDestroyExternalSemaphore);
     rpc_write(client, &extSem, sizeof(extSem));
     rpc_read(client, &_result, sizeof(_result));
@@ -4538,12 +6538,22 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
 #ifdef DEBUG
     std::cout << "Hook: cuStreamWaitValue32 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamWaitValue32);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &addr, sizeof(addr));
@@ -4563,12 +6573,22 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
 #ifdef DEBUG
     std::cout << "Hook: cuStreamWaitValue64 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamWaitValue64);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &addr, sizeof(addr));
@@ -4588,12 +6608,22 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
 #ifdef DEBUG
     std::cout << "Hook: cuStreamWriteValue32 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamWriteValue32);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &addr, sizeof(addr));
@@ -4613,12 +6643,22 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
 #ifdef DEBUG
     std::cout << "Hook: cuStreamWriteValue64 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamWriteValue64);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &addr, sizeof(addr));
@@ -4638,13 +6678,24 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
 #ifdef DEBUG
     std::cout << "Hook: cuStreamBatchMemOp called" << std::endl;
 #endif
-    void *_0paramArray = mem2server((void *)paramArray, sizeof(*paramArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0paramArray;
+    mem2server(client, &_0paramArray, (void *)paramArray, sizeof(*paramArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamBatchMemOp);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &count, sizeof(count));
@@ -4665,13 +6716,24 @@ extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUf
 #ifdef DEBUG
     std::cout << "Hook: cuFuncGetAttribute called" << std::endl;
 #endif
-    void *_0pi = mem2server((void *)pi, sizeof(*pi));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pi;
+    mem2server(client, &_0pi, (void *)pi, sizeof(*pi));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncGetAttribute);
     rpc_write(client, &_0pi, sizeof(_0pi));
     rpc_write(client, &attrib, sizeof(attrib));
@@ -4691,12 +6753,22 @@ extern "C" CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute at
 #ifdef DEBUG
     std::cout << "Hook: cuFuncSetAttribute called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncSetAttribute);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &attrib, sizeof(attrib));
@@ -4715,12 +6787,22 @@ extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) 
 #ifdef DEBUG
     std::cout << "Hook: cuFuncSetCacheConfig called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncSetCacheConfig);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &config, sizeof(config));
@@ -4738,12 +6820,22 @@ extern "C" CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig co
 #ifdef DEBUG
     std::cout << "Hook: cuFuncSetSharedMemConfig called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncSetSharedMemConfig);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &config, sizeof(config));
@@ -4761,13 +6853,24 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
 #ifdef DEBUG
     std::cout << "Hook: cuFuncGetModule called" << std::endl;
 #endif
-    void *_0hmod = mem2server((void *)hmod, sizeof(*hmod));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0hmod;
+    mem2server(client, &_0hmod, (void *)hmod, sizeof(*hmod));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncGetModule);
     rpc_write(client, &_0hmod, sizeof(_0hmod));
     rpc_write(client, &hfunc, sizeof(hfunc));
@@ -4786,14 +6889,24 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchKernel called" << std::endl;
 #endif
-    // PARAM void **kernelParams
-    // PARAM void **extra
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchKernel);
     rpc_write(client, &f, sizeof(f));
     rpc_write(client, &gridDimX, sizeof(gridDimX));
@@ -4824,13 +6937,23 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDim
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchCooperativeKernel called" << std::endl;
 #endif
-    // PARAM void **kernelParams
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    // PARAM void **kernelParams
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchCooperativeKernel);
     rpc_write(client, &f, sizeof(f));
     rpc_write(client, &gridDimX, sizeof(gridDimX));
@@ -4858,13 +6981,24 @@ extern "C" CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *lau
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchCooperativeKernelMultiDevice called" << std::endl;
 #endif
-    void *_0launchParamsList = mem2server((void *)launchParamsList, sizeof(*launchParamsList));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0launchParamsList;
+    mem2server(client, &_0launchParamsList, (void *)launchParamsList, sizeof(*launchParamsList));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchCooperativeKernelMultiDevice);
     rpc_write(client, &_0launchParamsList, sizeof(_0launchParamsList));
     rpc_write(client, &numDevices, sizeof(numDevices));
@@ -4884,13 +7018,24 @@ extern "C" CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userDa
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchHostFunc called" << std::endl;
 #endif
-    void *_0userData = mem2server((void *)userData, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0userData;
+    mem2server(client, &_0userData, (void *)userData, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchHostFunc);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &fn, sizeof(fn));
@@ -4910,12 +7055,22 @@ extern "C" CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
 #ifdef DEBUG
     std::cout << "Hook: cuFuncSetBlockShape called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncSetBlockShape);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &x, sizeof(x));
@@ -4935,12 +7090,22 @@ extern "C" CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
 #ifdef DEBUG
     std::cout << "Hook: cuFuncSetSharedSize called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncSetSharedSize);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &bytes, sizeof(bytes));
@@ -4958,12 +7123,22 @@ extern "C" CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
 #ifdef DEBUG
     std::cout << "Hook: cuParamSetSize called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuParamSetSize);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &numbytes, sizeof(numbytes));
@@ -4981,12 +7156,22 @@ extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value
 #ifdef DEBUG
     std::cout << "Hook: cuParamSeti called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuParamSeti);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &offset, sizeof(offset));
@@ -5005,12 +7190,22 @@ extern "C" CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
 #ifdef DEBUG
     std::cout << "Hook: cuParamSetf called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuParamSetf);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &offset, sizeof(offset));
@@ -5029,13 +7224,24 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
 #ifdef DEBUG
     std::cout << "Hook: cuParamSetv called" << std::endl;
 #endif
-    void *_0ptr = mem2server((void *)ptr, numbytes);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0ptr;
+    mem2server(client, &_0ptr, (void *)ptr, numbytes);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuParamSetv);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &offset, sizeof(offset));
@@ -5056,12 +7262,22 @@ extern "C" CUresult cuLaunch(CUfunction f) {
 #ifdef DEBUG
     std::cout << "Hook: cuLaunch called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunch);
     rpc_write(client, &f, sizeof(f));
     rpc_read(client, &_result, sizeof(_result));
@@ -5078,12 +7294,22 @@ extern "C" CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) 
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchGrid called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchGrid);
     rpc_write(client, &f, sizeof(f));
     rpc_write(client, &grid_width, sizeof(grid_width));
@@ -5102,12 +7328,22 @@ extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_hei
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchGridAsync called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchGridAsync);
     rpc_write(client, &f, sizeof(f));
     rpc_write(client, &grid_width, sizeof(grid_width));
@@ -5127,12 +7363,22 @@ extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTe
 #ifdef DEBUG
     std::cout << "Hook: cuParamSetTexRef called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuParamSetTexRef);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &texunit, sizeof(texunit));
@@ -5151,13 +7397,24 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphCreate called" << std::endl;
 #endif
-    void *_0phGraph = mem2server((void *)phGraph, sizeof(*phGraph));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraph;
+    mem2server(client, &_0phGraph, (void *)phGraph, sizeof(*phGraph));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphCreate);
     rpc_write(client, &_0phGraph, sizeof(_0phGraph));
     rpc_write(client, &flags, sizeof(flags));
@@ -5176,15 +7433,28 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddKernelNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddKernelNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5208,13 +7478,24 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
 #ifdef DEBUG
     std::cout << "Hook: cuGraphKernelNodeGetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphKernelNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5233,13 +7514,24 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
 #ifdef DEBUG
     std::cout << "Hook: cuGraphKernelNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphKernelNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5258,15 +7550,28 @@ extern "C" CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGrap
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddMemcpyNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0copyParams = mem2server((void *)copyParams, sizeof(*copyParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0copyParams;
+    mem2server(client, &_0copyParams, (void *)copyParams, sizeof(*copyParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemcpyNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5291,13 +7596,24 @@ extern "C" CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D 
 #ifdef DEBUG
     std::cout << "Hook: cuGraphMemcpyNodeGetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphMemcpyNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5316,13 +7632,24 @@ extern "C" CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEM
 #ifdef DEBUG
     std::cout << "Hook: cuGraphMemcpyNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphMemcpyNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5341,15 +7668,28 @@ extern "C" CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGrap
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddMemsetNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0memsetParams = mem2server((void *)memsetParams, sizeof(*memsetParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0memsetParams;
+    mem2server(client, &_0memsetParams, (void *)memsetParams, sizeof(*memsetParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemsetNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5374,13 +7714,24 @@ extern "C" CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NO
 #ifdef DEBUG
     std::cout << "Hook: cuGraphMemsetNodeGetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphMemsetNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5399,13 +7750,24 @@ extern "C" CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEM
 #ifdef DEBUG
     std::cout << "Hook: cuGraphMemsetNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphMemsetNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5424,15 +7786,28 @@ extern "C" CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph,
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddHostNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddHostNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5456,13 +7831,24 @@ extern "C" CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_P
 #ifdef DEBUG
     std::cout << "Hook: cuGraphHostNodeGetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphHostNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5481,13 +7867,24 @@ extern "C" CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_
 #ifdef DEBUG
     std::cout << "Hook: cuGraphHostNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphHostNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5506,14 +7903,26 @@ extern "C" CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph h
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddChildGraphNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddChildGraphNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5536,13 +7945,24 @@ extern "C" CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *ph
 #ifdef DEBUG
     std::cout << "Hook: cuGraphChildGraphNodeGetGraph called" << std::endl;
 #endif
-    void *_0phGraph = mem2server((void *)phGraph, sizeof(*phGraph));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraph;
+    mem2server(client, &_0phGraph, (void *)phGraph, sizeof(*phGraph));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphChildGraphNodeGetGraph);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0phGraph, sizeof(_0phGraph));
@@ -5561,14 +7981,26 @@ extern "C" CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddEmptyNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddEmptyNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5590,14 +8022,26 @@ extern "C" CUresult cuGraphAddEventRecordNode(CUgraphNode *phGraphNode, CUgraph 
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddEventRecordNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddEventRecordNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5620,13 +8064,24 @@ extern "C" CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent *e
 #ifdef DEBUG
     std::cout << "Hook: cuGraphEventRecordNodeGetEvent called" << std::endl;
 #endif
-    void *_0event_out = mem2server((void *)event_out, sizeof(*event_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0event_out;
+    mem2server(client, &_0event_out, (void *)event_out, sizeof(*event_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphEventRecordNodeGetEvent);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0event_out, sizeof(_0event_out));
@@ -5645,12 +8100,22 @@ extern "C" CUresult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent ev
 #ifdef DEBUG
     std::cout << "Hook: cuGraphEventRecordNodeSetEvent called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphEventRecordNodeSetEvent);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &event, sizeof(event));
@@ -5668,14 +8133,26 @@ extern "C" CUresult cuGraphAddEventWaitNode(CUgraphNode *phGraphNode, CUgraph hG
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddEventWaitNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddEventWaitNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5698,13 +8175,24 @@ extern "C" CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent *eve
 #ifdef DEBUG
     std::cout << "Hook: cuGraphEventWaitNodeGetEvent called" << std::endl;
 #endif
-    void *_0event_out = mem2server((void *)event_out, sizeof(*event_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0event_out;
+    mem2server(client, &_0event_out, (void *)event_out, sizeof(*event_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphEventWaitNodeGetEvent);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0event_out, sizeof(_0event_out));
@@ -5723,12 +8211,22 @@ extern "C" CUresult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent even
 #ifdef DEBUG
     std::cout << "Hook: cuGraphEventWaitNodeSetEvent called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphEventWaitNodeSetEvent);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &event, sizeof(event));
@@ -5746,15 +8244,28 @@ extern "C" CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode *phGraphN
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddExternalSemaphoresSignalNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddExternalSemaphoresSignalNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5778,13 +8289,24 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNo
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExternalSemaphoresSignalNodeGetParams called" << std::endl;
 #endif
-    void *_0params_out = mem2server((void *)params_out, sizeof(*params_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0params_out;
+    mem2server(client, &_0params_out, (void *)params_out, sizeof(*params_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresSignalNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0params_out, sizeof(_0params_out));
@@ -5803,13 +8325,24 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNo
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExternalSemaphoresSignalNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresSignalNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5828,15 +8361,28 @@ extern "C" CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode *phGraphNod
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddExternalSemaphoresWaitNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddExternalSemaphoresWaitNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5860,13 +8406,24 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExternalSemaphoresWaitNodeGetParams called" << std::endl;
 #endif
-    void *_0params_out = mem2server((void *)params_out, sizeof(*params_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0params_out;
+    mem2server(client, &_0params_out, (void *)params_out, sizeof(*params_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresWaitNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0params_out, sizeof(_0params_out));
@@ -5885,13 +8442,24 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExternalSemaphoresWaitNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresWaitNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
@@ -5910,15 +8478,28 @@ extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGr
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddMemAllocNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemAllocNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5942,13 +8523,24 @@ extern "C" CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALL
 #ifdef DEBUG
     std::cout << "Hook: cuGraphMemAllocNodeGetParams called" << std::endl;
 #endif
-    void *_0params_out = mem2server((void *)params_out, sizeof(*params_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0params_out;
+    mem2server(client, &_0params_out, (void *)params_out, sizeof(*params_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphMemAllocNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0params_out, sizeof(_0params_out));
@@ -5967,14 +8559,26 @@ extern "C" CUresult cuGraphAddMemFreeNode(CUgraphNode *phGraphNode, CUgraph hGra
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddMemFreeNode called" << std::endl;
 #endif
-    void *_0phGraphNode = mem2server((void *)phGraphNode, sizeof(*phGraphNode));
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(client, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemFreeNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -5997,12 +8601,22 @@ extern "C" CUresult cuDeviceGraphMemTrim(CUdevice device) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGraphMemTrim called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGraphMemTrim);
     rpc_write(client, &device, sizeof(device));
     rpc_read(client, &_result, sizeof(_result));
@@ -6019,13 +8633,24 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetGraphMemAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetGraphMemAttribute);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &attr, sizeof(attr));
@@ -6045,13 +8670,24 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceSetGraphMemAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceSetGraphMemAttribute);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &attr, sizeof(attr));
@@ -6071,13 +8707,24 @@ extern "C" CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphClone called" << std::endl;
 #endif
-    void *_0phGraphClone = mem2server((void *)phGraphClone, sizeof(*phGraphClone));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphClone;
+    mem2server(client, &_0phGraphClone, (void *)phGraphClone, sizeof(*phGraphClone));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphClone);
     rpc_write(client, &_0phGraphClone, sizeof(_0phGraphClone));
     rpc_write(client, &originalGraph, sizeof(originalGraph));
@@ -6096,13 +8743,24 @@ extern "C" CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOri
 #ifdef DEBUG
     std::cout << "Hook: cuGraphNodeFindInClone called" << std::endl;
 #endif
-    void *_0phNode = mem2server((void *)phNode, sizeof(*phNode));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phNode;
+    mem2server(client, &_0phNode, (void *)phNode, sizeof(*phNode));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphNodeFindInClone);
     rpc_write(client, &_0phNode, sizeof(_0phNode));
     rpc_write(client, &hOriginalNode, sizeof(hOriginalNode));
@@ -6122,13 +8780,24 @@ extern "C" CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
 #ifdef DEBUG
     std::cout << "Hook: cuGraphNodeGetType called" << std::endl;
 #endif
-    void *_0type = mem2server((void *)type, sizeof(*type));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0type;
+    mem2server(client, &_0type, (void *)type, sizeof(*type));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphNodeGetType);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0type, sizeof(_0type));
@@ -6147,14 +8816,26 @@ extern "C" CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *
 #ifdef DEBUG
     std::cout << "Hook: cuGraphGetNodes called" << std::endl;
 #endif
-    void *_0nodes = mem2server((void *)nodes, sizeof(*nodes));
-    void *_0numNodes = mem2server((void *)numNodes, sizeof(*numNodes));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodes;
+    mem2server(client, &_0nodes, (void *)nodes, sizeof(*nodes));
+    void *_0numNodes;
+    mem2server(client, &_0numNodes, (void *)numNodes, sizeof(*numNodes));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphGetNodes);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0nodes, sizeof(_0nodes));
@@ -6175,14 +8856,26 @@ extern "C" CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, 
 #ifdef DEBUG
     std::cout << "Hook: cuGraphGetRootNodes called" << std::endl;
 #endif
-    void *_0rootNodes = mem2server((void *)rootNodes, sizeof(*rootNodes));
-    void *_0numRootNodes = mem2server((void *)numRootNodes, sizeof(*numRootNodes));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0rootNodes;
+    mem2server(client, &_0rootNodes, (void *)rootNodes, sizeof(*rootNodes));
+    void *_0numRootNodes;
+    mem2server(client, &_0numRootNodes, (void *)numRootNodes, sizeof(*numRootNodes));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphGetRootNodes);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0rootNodes, sizeof(_0rootNodes));
@@ -6203,15 +8896,28 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
 #ifdef DEBUG
     std::cout << "Hook: cuGraphGetEdges called" << std::endl;
 #endif
-    void *_0from = mem2server((void *)from, sizeof(*from));
-    void *_0to = mem2server((void *)to, sizeof(*to));
-    void *_0numEdges = mem2server((void *)numEdges, sizeof(*numEdges));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0from;
+    mem2server(client, &_0from, (void *)from, sizeof(*from));
+    void *_0to;
+    mem2server(client, &_0to, (void *)to, sizeof(*to));
+    void *_0numEdges;
+    mem2server(client, &_0numEdges, (void *)numEdges, sizeof(*numEdges));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphGetEdges);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0from, sizeof(_0from));
@@ -6234,14 +8940,26 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
 #ifdef DEBUG
     std::cout << "Hook: cuGraphNodeGetDependencies called" << std::endl;
 #endif
-    void *_0dependencies = mem2server((void *)dependencies, sizeof(*dependencies));
-    void *_0numDependencies = mem2server((void *)numDependencies, sizeof(*numDependencies));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dependencies;
+    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0numDependencies;
+    mem2server(client, &_0numDependencies, (void *)numDependencies, sizeof(*numDependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphNodeGetDependencies);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
@@ -6262,14 +8980,26 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
 #ifdef DEBUG
     std::cout << "Hook: cuGraphNodeGetDependentNodes called" << std::endl;
 #endif
-    void *_0dependentNodes = mem2server((void *)dependentNodes, sizeof(*dependentNodes));
-    void *_0numDependentNodes = mem2server((void *)numDependentNodes, sizeof(*numDependentNodes));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dependentNodes;
+    mem2server(client, &_0dependentNodes, (void *)dependentNodes, sizeof(*dependentNodes));
+    void *_0numDependentNodes;
+    mem2server(client, &_0numDependentNodes, (void *)numDependentNodes, sizeof(*numDependentNodes));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphNodeGetDependentNodes);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0dependentNodes, sizeof(_0dependentNodes));
@@ -6290,14 +9020,26 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddDependencies called" << std::endl;
 #endif
-    void *_0from = mem2server((void *)from, sizeof(*from));
-    void *_0to = mem2server((void *)to, sizeof(*to));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0from;
+    mem2server(client, &_0from, (void *)from, sizeof(*from));
+    void *_0to;
+    mem2server(client, &_0to, (void *)to, sizeof(*to));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddDependencies);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0from, sizeof(_0from));
@@ -6319,14 +9061,26 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
 #ifdef DEBUG
     std::cout << "Hook: cuGraphRemoveDependencies called" << std::endl;
 #endif
-    void *_0from = mem2server((void *)from, sizeof(*from));
-    void *_0to = mem2server((void *)to, sizeof(*to));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0from;
+    mem2server(client, &_0from, (void *)from, sizeof(*from));
+    void *_0to;
+    mem2server(client, &_0to, (void *)to, sizeof(*to));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphRemoveDependencies);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0from, sizeof(_0from));
@@ -6348,12 +9102,22 @@ extern "C" CUresult cuGraphDestroyNode(CUgraphNode hNode) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphDestroyNode called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphDestroyNode);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_read(client, &_result, sizeof(_result));
@@ -6370,14 +9134,26 @@ extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGra
 #ifdef DEBUG
     std::cout << "Hook: cuGraphInstantiate_v2 called" << std::endl;
 #endif
-    void *_0phGraphExec = mem2server((void *)phGraphExec, sizeof(*phGraphExec));
-    void *_0phErrorNode = mem2server((void *)phErrorNode, sizeof(*phErrorNode));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphExec;
+    mem2server(client, &_0phGraphExec, (void *)phGraphExec, sizeof(*phGraphExec));
+    void *_0phErrorNode;
+    mem2server(client, &_0phErrorNode, (void *)phErrorNode, sizeof(*phErrorNode));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphInstantiate_v2);
     rpc_write(client, &_0phGraphExec, sizeof(_0phGraphExec));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -6400,13 +9176,24 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
 #ifdef DEBUG
     std::cout << "Hook: cuGraphInstantiateWithFlags called" << std::endl;
 #endif
-    void *_0phGraphExec = mem2server((void *)phGraphExec, sizeof(*phGraphExec));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phGraphExec;
+    mem2server(client, &_0phGraphExec, (void *)phGraphExec, sizeof(*phGraphExec));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphInstantiateWithFlags);
     rpc_write(client, &_0phGraphExec, sizeof(_0phGraphExec));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -6426,13 +9213,24 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecKernelNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecKernelNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6452,13 +9250,24 @@ extern "C" CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgra
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecMemcpyNodeSetParams called" << std::endl;
 #endif
-    void *_0copyParams = mem2server((void *)copyParams, sizeof(*copyParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0copyParams;
+    mem2server(client, &_0copyParams, (void *)copyParams, sizeof(*copyParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecMemcpyNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6479,13 +9288,24 @@ extern "C" CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgra
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecMemsetNodeSetParams called" << std::endl;
 #endif
-    void *_0memsetParams = mem2server((void *)memsetParams, sizeof(*memsetParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0memsetParams;
+    mem2server(client, &_0memsetParams, (void *)memsetParams, sizeof(*memsetParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecMemsetNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6506,13 +9326,24 @@ extern "C" CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraph
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecHostNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecHostNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6532,12 +9363,22 @@ extern "C" CUresult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, C
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecChildGraphNodeSetParams called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecChildGraphNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6556,12 +9397,22 @@ extern "C" CUresult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, C
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecEventRecordNodeSetEvent called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecEventRecordNodeSetEvent);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6580,12 +9431,22 @@ extern "C" CUresult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUg
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecEventWaitNodeSetEvent called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecEventWaitNodeSetEvent);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6604,13 +9465,24 @@ extern "C" CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecExternalSemaphoresSignalNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecExternalSemaphoresSignalNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6630,13 +9502,24 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecExternalSemaphoresWaitNodeSetParams called" << std::endl;
 #endif
-    void *_0nodeParams = mem2server((void *)nodeParams, sizeof(*nodeParams));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecExternalSemaphoresWaitNodeSetParams);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
@@ -6656,12 +9539,22 @@ extern "C" CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphUpload called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphUpload);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -6679,12 +9572,22 @@ extern "C" CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphLaunch called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphLaunch);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -6702,12 +9605,22 @@ extern "C" CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecDestroy);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_read(client, &_result, sizeof(_result));
@@ -6724,12 +9637,22 @@ extern "C" CUresult cuGraphDestroy(CUgraph hGraph) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphDestroy);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_read(client, &_result, sizeof(_result));
@@ -6746,14 +9669,26 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
 #ifdef DEBUG
     std::cout << "Hook: cuGraphExecUpdate called" << std::endl;
 #endif
-    void *_0hErrorNode_out = mem2server((void *)hErrorNode_out, sizeof(*hErrorNode_out));
-    void *_0updateResult_out = mem2server((void *)updateResult_out, sizeof(*updateResult_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0hErrorNode_out;
+    mem2server(client, &_0hErrorNode_out, (void *)hErrorNode_out, sizeof(*hErrorNode_out));
+    void *_0updateResult_out;
+    mem2server(client, &_0updateResult_out, (void *)updateResult_out, sizeof(*updateResult_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphExecUpdate);
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hGraph, sizeof(hGraph));
@@ -6775,12 +9710,22 @@ extern "C" CUresult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode
 #ifdef DEBUG
     std::cout << "Hook: cuGraphKernelNodeCopyAttributes called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphKernelNodeCopyAttributes);
     rpc_write(client, &dst, sizeof(dst));
     rpc_write(client, &src, sizeof(src));
@@ -6798,13 +9743,24 @@ extern "C" CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNod
 #ifdef DEBUG
     std::cout << "Hook: cuGraphKernelNodeGetAttribute called" << std::endl;
 #endif
-    void *_0value_out = mem2server((void *)value_out, sizeof(*value_out));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value_out;
+    mem2server(client, &_0value_out, (void *)value_out, sizeof(*value_out));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphKernelNodeGetAttribute);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &attr, sizeof(attr));
@@ -6824,13 +9780,24 @@ extern "C" CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNod
 #ifdef DEBUG
     std::cout << "Hook: cuGraphKernelNodeSetAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, sizeof(*value));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphKernelNodeSetAttribute);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &attr, sizeof(attr));
@@ -6850,12 +9817,22 @@ extern "C" CUresult cuGraphDebugDotPrint(CUgraph hGraph, const char *path, unsig
 #ifdef DEBUG
     std::cout << "Hook: cuGraphDebugDotPrint called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphDebugDotPrint);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, path, strlen(path) + 1, true);
@@ -6874,14 +9851,26 @@ extern "C" CUresult cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUho
 #ifdef DEBUG
     std::cout << "Hook: cuUserObjectCreate called" << std::endl;
 #endif
-    void *_0object_out = mem2server((void *)object_out, sizeof(*object_out));
-    void *_0ptr = mem2server((void *)ptr, 0);
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0object_out;
+    mem2server(client, &_0object_out, (void *)object_out, sizeof(*object_out));
+    void *_0ptr;
+    mem2server(client, &_0ptr, (void *)ptr, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuUserObjectCreate);
     rpc_write(client, &_0object_out, sizeof(_0object_out));
     rpc_write(client, &_0ptr, sizeof(_0ptr));
@@ -6904,12 +9893,22 @@ extern "C" CUresult cuUserObjectRetain(CUuserObject object, unsigned int count) 
 #ifdef DEBUG
     std::cout << "Hook: cuUserObjectRetain called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuUserObjectRetain);
     rpc_write(client, &object, sizeof(object));
     rpc_write(client, &count, sizeof(count));
@@ -6927,12 +9926,22 @@ extern "C" CUresult cuUserObjectRelease(CUuserObject object, unsigned int count)
 #ifdef DEBUG
     std::cout << "Hook: cuUserObjectRelease called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuUserObjectRelease);
     rpc_write(client, &object, sizeof(object));
     rpc_write(client, &count, sizeof(count));
@@ -6950,12 +9959,22 @@ extern "C" CUresult cuGraphRetainUserObject(CUgraph graph, CUuserObject object, 
 #ifdef DEBUG
     std::cout << "Hook: cuGraphRetainUserObject called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphRetainUserObject);
     rpc_write(client, &graph, sizeof(graph));
     rpc_write(client, &object, sizeof(object));
@@ -6975,12 +9994,22 @@ extern "C" CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object,
 #ifdef DEBUG
     std::cout << "Hook: cuGraphReleaseUserObject called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphReleaseUserObject);
     rpc_write(client, &graph, sizeof(graph));
     rpc_write(client, &object, sizeof(object));
@@ -6999,13 +10028,24 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, 
 #ifdef DEBUG
     std::cout << "Hook: cuOccupancyMaxActiveBlocksPerMultiprocessor called" << std::endl;
 #endif
-    void *_0numBlocks = mem2server((void *)numBlocks, sizeof(*numBlocks));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0numBlocks;
+    mem2server(client, &_0numBlocks, (void *)numBlocks, sizeof(*numBlocks));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxActiveBlocksPerMultiprocessor);
     rpc_write(client, &_0numBlocks, sizeof(_0numBlocks));
     rpc_write(client, &func, sizeof(func));
@@ -7026,13 +10066,24 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *nu
 #ifdef DEBUG
     std::cout << "Hook: cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags called" << std::endl;
 #endif
-    void *_0numBlocks = mem2server((void *)numBlocks, sizeof(*numBlocks));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0numBlocks;
+    mem2server(client, &_0numBlocks, (void *)numBlocks, sizeof(*numBlocks));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
     rpc_write(client, &_0numBlocks, sizeof(_0numBlocks));
     rpc_write(client, &func, sizeof(func));
@@ -7054,14 +10105,26 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *bloc
 #ifdef DEBUG
     std::cout << "Hook: cuOccupancyMaxPotentialBlockSize called" << std::endl;
 #endif
-    void *_0minGridSize = mem2server((void *)minGridSize, sizeof(*minGridSize));
-    void *_0blockSize = mem2server((void *)blockSize, sizeof(*blockSize));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0minGridSize;
+    mem2server(client, &_0minGridSize, (void *)minGridSize, sizeof(*minGridSize));
+    void *_0blockSize;
+    mem2server(client, &_0blockSize, (void *)blockSize, sizeof(*blockSize));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxPotentialBlockSize);
     rpc_write(client, &_0minGridSize, sizeof(_0minGridSize));
     rpc_write(client, &_0blockSize, sizeof(_0blockSize));
@@ -7085,14 +10148,26 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, 
 #ifdef DEBUG
     std::cout << "Hook: cuOccupancyMaxPotentialBlockSizeWithFlags called" << std::endl;
 #endif
-    void *_0minGridSize = mem2server((void *)minGridSize, sizeof(*minGridSize));
-    void *_0blockSize = mem2server((void *)blockSize, sizeof(*blockSize));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0minGridSize;
+    mem2server(client, &_0minGridSize, (void *)minGridSize, sizeof(*minGridSize));
+    void *_0blockSize;
+    mem2server(client, &_0blockSize, (void *)blockSize, sizeof(*blockSize));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxPotentialBlockSizeWithFlags);
     rpc_write(client, &_0minGridSize, sizeof(_0minGridSize));
     rpc_write(client, &_0blockSize, sizeof(_0blockSize));
@@ -7117,13 +10192,24 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
 #ifdef DEBUG
     std::cout << "Hook: cuOccupancyAvailableDynamicSMemPerBlock called" << std::endl;
 #endif
-    void *_0dynamicSmemSize = mem2server((void *)dynamicSmemSize, sizeof(*dynamicSmemSize));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0dynamicSmemSize;
+    mem2server(client, &_0dynamicSmemSize, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyAvailableDynamicSMemPerBlock);
     rpc_write(client, &_0dynamicSmemSize, sizeof(_0dynamicSmemSize));
     rpc_write(client, &func, sizeof(func));
@@ -7144,12 +10230,22 @@ extern "C" CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned 
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetArray called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetArray);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &hArray, sizeof(hArray));
@@ -7168,12 +10264,22 @@ extern "C" CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetMipmappedArray called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetMipmappedArray);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &hMipmappedArray, sizeof(hMipmappedArray));
@@ -7192,13 +10298,24 @@ extern "C" CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, 
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetAddress_v2 called" << std::endl;
 #endif
-    void *_0ByteOffset = mem2server((void *)ByteOffset, sizeof(*ByteOffset));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0ByteOffset;
+    mem2server(client, &_0ByteOffset, (void *)ByteOffset, sizeof(*ByteOffset));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetAddress_v2);
     rpc_write(client, &_0ByteOffset, sizeof(_0ByteOffset));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7219,13 +10336,24 @@ extern "C" CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_D
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetAddress2D_v3 called" << std::endl;
 #endif
-    void *_0desc = mem2server((void *)desc, sizeof(*desc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0desc;
+    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetAddress2D_v3);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &_0desc, sizeof(_0desc));
@@ -7246,12 +10374,22 @@ extern "C" CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int 
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetFormat called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetFormat);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &fmt, sizeof(fmt));
@@ -7270,12 +10408,22 @@ extern "C" CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetAddressMode called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetAddressMode);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &dim, sizeof(dim));
@@ -7294,12 +10442,22 @@ extern "C" CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetFilterMode called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetFilterMode);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &fm, sizeof(fm));
@@ -7317,12 +10475,22 @@ extern "C" CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode 
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetMipmapFilterMode called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetMipmapFilterMode);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &fm, sizeof(fm));
@@ -7340,12 +10508,22 @@ extern "C" CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetMipmapLevelBias called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetMipmapLevelBias);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &bias, sizeof(bias));
@@ -7363,12 +10541,22 @@ extern "C" CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipma
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetMipmapLevelClamp called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetMipmapLevelClamp);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &minMipmapLevelClamp, sizeof(minMipmapLevelClamp));
@@ -7387,12 +10575,22 @@ extern "C" CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxA
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetMaxAnisotropy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetMaxAnisotropy);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &maxAniso, sizeof(maxAniso));
@@ -7410,13 +10608,24 @@ extern "C" CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetBorderColor called" << std::endl;
 #endif
-    void *_0pBorderColor = mem2server((void *)pBorderColor, sizeof(*pBorderColor));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pBorderColor;
+    mem2server(client, &_0pBorderColor, (void *)pBorderColor, sizeof(*pBorderColor));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetBorderColor);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &_0pBorderColor, sizeof(_0pBorderColor));
@@ -7435,12 +10644,22 @@ extern "C" CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefSetFlags called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetFlags);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &Flags, sizeof(Flags));
@@ -7458,13 +10677,24 @@ extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetArray called" << std::endl;
 #endif
-    void *_0phArray = mem2server((void *)phArray, sizeof(*phArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phArray;
+    mem2server(client, &_0phArray, (void *)phArray, sizeof(*phArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetArray);
     rpc_write(client, &_0phArray, sizeof(_0phArray));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7483,13 +10713,24 @@ extern "C" CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetMipmappedArray called" << std::endl;
 #endif
-    void *_0phMipmappedArray = mem2server((void *)phMipmappedArray, sizeof(*phMipmappedArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phMipmappedArray;
+    mem2server(client, &_0phMipmappedArray, (void *)phMipmappedArray, sizeof(*phMipmappedArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmappedArray);
     rpc_write(client, &_0phMipmappedArray, sizeof(_0phMipmappedArray));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7508,13 +10749,24 @@ extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetAddressMode called" << std::endl;
 #endif
-    void *_0pam = mem2server((void *)pam, sizeof(*pam));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pam;
+    mem2server(client, &_0pam, (void *)pam, sizeof(*pam));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetAddressMode);
     rpc_write(client, &_0pam, sizeof(_0pam));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7534,13 +10786,24 @@ extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) 
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetFilterMode called" << std::endl;
 #endif
-    void *_0pfm = mem2server((void *)pfm, sizeof(*pfm));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pfm;
+    mem2server(client, &_0pfm, (void *)pfm, sizeof(*pfm));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetFilterMode);
     rpc_write(client, &_0pfm, sizeof(_0pfm));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7559,14 +10822,26 @@ extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetFormat called" << std::endl;
 #endif
-    void *_0pFormat = mem2server((void *)pFormat, sizeof(*pFormat));
-    void *_0pNumChannels = mem2server((void *)pNumChannels, sizeof(*pNumChannels));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pFormat;
+    mem2server(client, &_0pFormat, (void *)pFormat, sizeof(*pFormat));
+    void *_0pNumChannels;
+    mem2server(client, &_0pNumChannels, (void *)pNumChannels, sizeof(*pNumChannels));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetFormat);
     rpc_write(client, &_0pFormat, sizeof(_0pFormat));
     rpc_write(client, &_0pNumChannels, sizeof(_0pNumChannels));
@@ -7587,13 +10862,24 @@ extern "C" CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTe
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetMipmapFilterMode called" << std::endl;
 #endif
-    void *_0pfm = mem2server((void *)pfm, sizeof(*pfm));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pfm;
+    mem2server(client, &_0pfm, (void *)pfm, sizeof(*pfm));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmapFilterMode);
     rpc_write(client, &_0pfm, sizeof(_0pfm));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7612,13 +10898,24 @@ extern "C" CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetMipmapLevelBias called" << std::endl;
 #endif
-    void *_0pbias = mem2server((void *)pbias, sizeof(*pbias));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pbias;
+    mem2server(client, &_0pbias, (void *)pbias, sizeof(*pbias));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmapLevelBias);
     rpc_write(client, &_0pbias, sizeof(_0pbias));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7637,14 +10934,26 @@ extern "C" CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, flo
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetMipmapLevelClamp called" << std::endl;
 #endif
-    void *_0pminMipmapLevelClamp = mem2server((void *)pminMipmapLevelClamp, sizeof(*pminMipmapLevelClamp));
-    void *_0pmaxMipmapLevelClamp = mem2server((void *)pmaxMipmapLevelClamp, sizeof(*pmaxMipmapLevelClamp));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pminMipmapLevelClamp;
+    mem2server(client, &_0pminMipmapLevelClamp, (void *)pminMipmapLevelClamp, sizeof(*pminMipmapLevelClamp));
+    void *_0pmaxMipmapLevelClamp;
+    mem2server(client, &_0pmaxMipmapLevelClamp, (void *)pmaxMipmapLevelClamp, sizeof(*pmaxMipmapLevelClamp));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmapLevelClamp);
     rpc_write(client, &_0pminMipmapLevelClamp, sizeof(_0pminMipmapLevelClamp));
     rpc_write(client, &_0pmaxMipmapLevelClamp, sizeof(_0pmaxMipmapLevelClamp));
@@ -7665,13 +10974,24 @@ extern "C" CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetMaxAnisotropy called" << std::endl;
 #endif
-    void *_0pmaxAniso = mem2server((void *)pmaxAniso, sizeof(*pmaxAniso));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pmaxAniso;
+    mem2server(client, &_0pmaxAniso, (void *)pmaxAniso, sizeof(*pmaxAniso));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMaxAnisotropy);
     rpc_write(client, &_0pmaxAniso, sizeof(_0pmaxAniso));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7690,13 +11010,24 @@ extern "C" CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetBorderColor called" << std::endl;
 #endif
-    void *_0pBorderColor = mem2server((void *)pBorderColor, sizeof(*pBorderColor));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pBorderColor;
+    mem2server(client, &_0pBorderColor, (void *)pBorderColor, sizeof(*pBorderColor));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetBorderColor);
     rpc_write(client, &_0pBorderColor, sizeof(_0pBorderColor));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7715,13 +11046,24 @@ extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetFlags called" << std::endl;
 #endif
-    void *_0pFlags = mem2server((void *)pFlags, sizeof(*pFlags));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pFlags;
+    mem2server(client, &_0pFlags, (void *)pFlags, sizeof(*pFlags));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetFlags);
     rpc_write(client, &_0pFlags, sizeof(_0pFlags));
     rpc_write(client, &hTexRef, sizeof(hTexRef));
@@ -7740,13 +11082,24 @@ extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefCreate called" << std::endl;
 #endif
-    void *_0pTexRef = mem2server((void *)pTexRef, sizeof(*pTexRef));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pTexRef;
+    mem2server(client, &_0pTexRef, (void *)pTexRef, sizeof(*pTexRef));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefCreate);
     rpc_write(client, &_0pTexRef, sizeof(_0pTexRef));
     rpc_read(client, &_result, sizeof(_result));
@@ -7764,12 +11117,22 @@ extern "C" CUresult cuTexRefDestroy(CUtexref hTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefDestroy);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
@@ -7786,12 +11149,22 @@ extern "C" CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsign
 #ifdef DEBUG
     std::cout << "Hook: cuSurfRefSetArray called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfRefSetArray);
     rpc_write(client, &hSurfRef, sizeof(hSurfRef));
     rpc_write(client, &hArray, sizeof(hArray));
@@ -7810,13 +11183,24 @@ extern "C" CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuSurfRefGetArray called" << std::endl;
 #endif
-    void *_0phArray = mem2server((void *)phArray, sizeof(*phArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0phArray;
+    mem2server(client, &_0phArray, (void *)phArray, sizeof(*phArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfRefGetArray);
     rpc_write(client, &_0phArray, sizeof(_0phArray));
     rpc_write(client, &hSurfRef, sizeof(hSurfRef));
@@ -7835,16 +11219,30 @@ extern "C" CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOUR
 #ifdef DEBUG
     std::cout << "Hook: cuTexObjectCreate called" << std::endl;
 #endif
-    void *_0pTexObject = mem2server((void *)pTexObject, sizeof(*pTexObject));
-    void *_0pResDesc = mem2server((void *)pResDesc, sizeof(*pResDesc));
-    void *_0pTexDesc = mem2server((void *)pTexDesc, sizeof(*pTexDesc));
-    void *_0pResViewDesc = mem2server((void *)pResViewDesc, sizeof(*pResViewDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pTexObject;
+    mem2server(client, &_0pTexObject, (void *)pTexObject, sizeof(*pTexObject));
+    void *_0pResDesc;
+    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    void *_0pTexDesc;
+    mem2server(client, &_0pTexDesc, (void *)pTexDesc, sizeof(*pTexDesc));
+    void *_0pResViewDesc;
+    mem2server(client, &_0pResViewDesc, (void *)pResViewDesc, sizeof(*pResViewDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectCreate);
     rpc_write(client, &_0pTexObject, sizeof(_0pTexObject));
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
@@ -7868,12 +11266,22 @@ extern "C" CUresult cuTexObjectDestroy(CUtexObject texObject) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexObjectDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectDestroy);
     rpc_write(client, &texObject, sizeof(texObject));
     rpc_read(client, &_result, sizeof(_result));
@@ -7890,13 +11298,24 @@ extern "C" CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUt
 #ifdef DEBUG
     std::cout << "Hook: cuTexObjectGetResourceDesc called" << std::endl;
 #endif
-    void *_0pResDesc = mem2server((void *)pResDesc, sizeof(*pResDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pResDesc;
+    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectGetResourceDesc);
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
     rpc_write(client, &texObject, sizeof(texObject));
@@ -7915,13 +11334,24 @@ extern "C" CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtex
 #ifdef DEBUG
     std::cout << "Hook: cuTexObjectGetTextureDesc called" << std::endl;
 #endif
-    void *_0pTexDesc = mem2server((void *)pTexDesc, sizeof(*pTexDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pTexDesc;
+    mem2server(client, &_0pTexDesc, (void *)pTexDesc, sizeof(*pTexDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectGetTextureDesc);
     rpc_write(client, &_0pTexDesc, sizeof(_0pTexDesc));
     rpc_write(client, &texObject, sizeof(texObject));
@@ -7940,13 +11370,24 @@ extern "C" CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pRes
 #ifdef DEBUG
     std::cout << "Hook: cuTexObjectGetResourceViewDesc called" << std::endl;
 #endif
-    void *_0pResViewDesc = mem2server((void *)pResViewDesc, sizeof(*pResViewDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pResViewDesc;
+    mem2server(client, &_0pResViewDesc, (void *)pResViewDesc, sizeof(*pResViewDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectGetResourceViewDesc);
     rpc_write(client, &_0pResViewDesc, sizeof(_0pResViewDesc));
     rpc_write(client, &texObject, sizeof(texObject));
@@ -7965,14 +11406,26 @@ extern "C" CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RES
 #ifdef DEBUG
     std::cout << "Hook: cuSurfObjectCreate called" << std::endl;
 #endif
-    void *_0pSurfObject = mem2server((void *)pSurfObject, sizeof(*pSurfObject));
-    void *_0pResDesc = mem2server((void *)pResDesc, sizeof(*pResDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pSurfObject;
+    mem2server(client, &_0pSurfObject, (void *)pSurfObject, sizeof(*pSurfObject));
+    void *_0pResDesc;
+    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfObjectCreate);
     rpc_write(client, &_0pSurfObject, sizeof(_0pSurfObject));
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
@@ -7992,12 +11445,22 @@ extern "C" CUresult cuSurfObjectDestroy(CUsurfObject surfObject) {
 #ifdef DEBUG
     std::cout << "Hook: cuSurfObjectDestroy called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfObjectDestroy);
     rpc_write(client, &surfObject, sizeof(surfObject));
     rpc_read(client, &_result, sizeof(_result));
@@ -8014,13 +11477,24 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
 #ifdef DEBUG
     std::cout << "Hook: cuSurfObjectGetResourceDesc called" << std::endl;
 #endif
-    void *_0pResDesc = mem2server((void *)pResDesc, sizeof(*pResDesc));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pResDesc;
+    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfObjectGetResourceDesc);
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
     rpc_write(client, &surfObject, sizeof(surfObject));
@@ -8039,13 +11513,24 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceCanAccessPeer called" << std::endl;
 #endif
-    void *_0canAccessPeer = mem2server((void *)canAccessPeer, sizeof(*canAccessPeer));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0canAccessPeer;
+    mem2server(client, &_0canAccessPeer, (void *)canAccessPeer, sizeof(*canAccessPeer));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceCanAccessPeer);
     rpc_write(client, &_0canAccessPeer, sizeof(_0canAccessPeer));
     rpc_write(client, &dev, sizeof(dev));
@@ -8065,12 +11550,22 @@ extern "C" CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Fl
 #ifdef DEBUG
     std::cout << "Hook: cuCtxEnablePeerAccess called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxEnablePeerAccess);
     rpc_write(client, &peerContext, sizeof(peerContext));
     rpc_write(client, &Flags, sizeof(Flags));
@@ -8088,12 +11583,22 @@ extern "C" CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxDisablePeerAccess called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxDisablePeerAccess);
     rpc_write(client, &peerContext, sizeof(peerContext));
     rpc_read(client, &_result, sizeof(_result));
@@ -8110,13 +11615,24 @@ extern "C" CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute at
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetP2PAttribute called" << std::endl;
 #endif
-    void *_0value = mem2server((void *)value, sizeof(*value));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0value;
+    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetP2PAttribute);
     rpc_write(client, &_0value, sizeof(_0value));
     rpc_write(client, &attrib, sizeof(attrib));
@@ -8137,12 +11653,22 @@ extern "C" CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsUnregisterResource called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsUnregisterResource);
     rpc_write(client, &resource, sizeof(resource));
     rpc_read(client, &_result, sizeof(_result));
@@ -8159,13 +11685,24 @@ extern "C" CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraph
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsSubResourceGetMappedArray called" << std::endl;
 #endif
-    void *_0pArray = mem2server((void *)pArray, sizeof(*pArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pArray;
+    mem2server(client, &_0pArray, (void *)pArray, sizeof(*pArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsSubResourceGetMappedArray);
     rpc_write(client, &_0pArray, sizeof(_0pArray));
     rpc_write(client, &resource, sizeof(resource));
@@ -8186,13 +11723,24 @@ extern "C" CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsResourceGetMappedMipmappedArray called" << std::endl;
 #endif
-    void *_0pMipmappedArray = mem2server((void *)pMipmappedArray, sizeof(*pMipmappedArray));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0pMipmappedArray;
+    mem2server(client, &_0pMipmappedArray, (void *)pMipmappedArray, sizeof(*pMipmappedArray));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsResourceGetMappedMipmappedArray);
     rpc_write(client, &_0pMipmappedArray, sizeof(_0pMipmappedArray));
     rpc_write(client, &resource, sizeof(resource));
@@ -8211,12 +11759,22 @@ extern "C" CUresult cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsResourceSetMapFlags_v2 called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsResourceSetMapFlags_v2);
     rpc_write(client, &resource, sizeof(resource));
     rpc_write(client, &flags, sizeof(flags));
@@ -8234,13 +11792,24 @@ extern "C" CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResourc
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsMapResources called" << std::endl;
 #endif
-    void *_0resources = mem2server((void *)resources, sizeof(*resources));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0resources;
+    mem2server(client, &_0resources, (void *)resources, sizeof(*resources));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsMapResources);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &_0resources, sizeof(_0resources));
@@ -8260,13 +11829,24 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
 #ifdef DEBUG
     std::cout << "Hook: cuGraphicsUnmapResources called" << std::endl;
 #endif
-    void *_0resources = mem2server((void *)resources, sizeof(*resources));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *_0resources;
+    mem2server(client, &_0resources, (void *)resources, sizeof(*resources));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsUnmapResources);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &_0resources, sizeof(_0resources));
@@ -8286,14 +11866,25 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
 #ifdef DEBUG
     std::cout << "Hook: cuGetExportTable called" << std::endl;
 #endif
-    // PARAM const void **ppExportTable
-    void *_0pExportTableId = mem2server((void *)pExportTableId, sizeof(*pExportTableId));
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    // PARAM const void **ppExportTable
+    void *_0pExportTableId;
+    mem2server(client, &_0pExportTableId, (void *)pExportTableId, sizeof(*pExportTableId));
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuGetExportTable);
     // PARAM const void **ppExportTable
     rpc_read(client, ppExportTable, sizeof(*ppExportTable));
@@ -8315,12 +11906,22 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
 #ifdef DEBUG
     std::cout << "Hook: cuFlushGPUDirectRDMAWrites called" << std::endl;
 #endif
-    CUresult _result;
     RpcClient *client = rpc_get_client();
     if(client == nullptr) {
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    CUresult _result;
     rpc_prepare_request(client, RPC_cuFlushGPUDirectRDMAWrites);
     rpc_write(client, &target, sizeof(target));
     rpc_write(client, &scope, sizeof(scope));

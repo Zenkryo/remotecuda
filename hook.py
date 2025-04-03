@@ -75,10 +75,10 @@ MANUAL_FUNCTIONS = [
     "cudaMallocPitch",
     # "cudaMemcpy",
     # "cudaMemcpyAsync",
-    "cudaMemcpyFromSymbol",
-    "cudaMemcpyToSymbol",
-    "cudaMemset",
-    "cudaMemsetAsync",
+    # "cudaMemcpyFromSymbol",
+    # "cudaMemcpyToSymbol",
+    # "cudaMemset",
+    # "cudaMemsetAsync",
     # CUDA Driver API
     "cuExternalMemoryGetMappedBuffer",
     "cuGetErrorName",
@@ -92,8 +92,8 @@ MANUAL_FUNCTIONS = [
     "cuLibraryGetManaged",
     "cuMemAddressReserve",
     "cuMemAlloc_v2",
-    "cuMemAllocAsync",
-    "cuMemAllocFromPoolAsync",
+    # "cuMemAllocAsync",
+    # "cuMemAllocFromPoolAsync",
     "cuMemAllocHost_v2",
     "cuMemAllocManaged",
     "cuMemAllocPitch_v2",
@@ -342,7 +342,8 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
     if is_client:
         len = calculate_pointer_sizes(function, param)
         if position == 0:
-            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
+            f.write(f"    void *_0{param.name};\n")
+            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
@@ -359,7 +360,8 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
     if is_client:
         len = calculate_pointer_sizes(function, param)
         if position == 0:
-            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
+            f.write(f"    void *_0{param.name};\n")
+            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
@@ -425,7 +427,8 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
     if is_client:
         len = calculate_pointer_sizes(function, param)
         if position == 0:
-            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
+            f.write(f"    void *_0{param.name};\n")
+            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
@@ -442,7 +445,8 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
     if is_client:
         len = calculate_pointer_sizes(function, param)
         if position == 0:
-            f.write(f"    void *_0{param.name} = mem2server((void *){param.name}, {len});\n")
+            f.write(f"    void *_0{param.name};\n")
+            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
@@ -1486,7 +1490,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write('extern "C" void *mem2server(void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
+        f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
         f.write('extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
@@ -1513,9 +1517,25 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     f.write(f'    std::cout << "Hook: {function_name} called" << std::endl;\n')
                     f.write("#endif\n")
 
+                    f.write(f"    RpcClient *client = rpc_get_client();\n")
+                    f.write(f"    if(client == nullptr) {{\n")
+                    f.write(f'        std::cerr << "Failed to get rpc client" << std::endl;\n')
+                    f.write(f"        exit(1);\n")
+                    f.write(f"    }}\n")
+                    f.write(f"    rpc_prepare_request(client, RPC_mem2server);\n")
+
                     # 在rpc_get_client前调用mem2server
                     for param in function.parameters:
                         handle_param(function, param, f, True, 0)
+                    f.write(f"    void *end_flag = (void *)0xffffffff;\n")
+                    f.write(f"    if(client->iov_send2_count > 0) {{\n")
+                    f.write(f"        rpc_write(client, &end_flag, sizeof(end_flag));\n")
+                    f.write(f"        if(rpc_submit_request(client) != 0) {{\n")
+                    f.write(f'            std::cerr << "Failed to submit request" << std::endl;\n')
+                    f.write(f"            rpc_release_client(client);\n")
+                    f.write(f"            exit(1);\n")
+                    f.write(f"        }}\n")
+                    f.write(f"    }}\n")
 
                     # 如果函数的范围类型不是void，则需要定义一个变量来保存函数的返回值
                     if return_type == "const char *":
@@ -1525,11 +1545,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                             f.write(f"    {return_type}_result = nullptr;\n")
                         else:
                             f.write(f"    {return_type} _result;\n")
-                    f.write(f"    RpcClient *client = rpc_get_client();\n")
-                    f.write(f"    if(client == nullptr) {{\n")
-                    f.write(f'        std::cerr << "Failed to get rpc client" << std::endl;\n')
-                    f.write(f"        exit(1);\n")
-                    f.write(f"    }}\n")
+
                     f.write(f"    rpc_prepare_request(client, RPC_{function_name});\n")
 
                     # 在rpc_prepare_request后,rpc_submit_request前调rpc_read/rpc_write
