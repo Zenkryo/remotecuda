@@ -275,23 +275,33 @@ ERR:
 void hexdump(const char *desc, void *buf, size_t len) {
     unsigned char *p = (unsigned char *)buf;
     printf("%s len: %lu\n", desc, len);
+    int total_lines = len / 16;
+    if(len % 16 != 0) {
+        total_lines++;
+    }
+    int printed_lines = 0;
     // 每行显示16个字节
     for(size_t i = 0; i < len; i += 16) {
-        printf("%08lx: ", i);
-        for(size_t j = 0; j < 16; j++) {
-            if(i + j < len) {
-                printf("%02x ", p[i + j]);
-            } else {
-                printf("   ");
+        if(printed_lines == 50) {
+            printf("... ... ... ...\n");
+        } else if(printed_lines < 50 || printed_lines > total_lines - 50) {
+            printf("%08lx: ", i);
+            for(size_t j = 0; j < 16; j++) {
+                if(i + j < len) {
+                    printf("%02x ", p[i + j]);
+                } else {
+                    printf("   ");
+                }
             }
-        }
-        printf(" ");
-        for(size_t j = 0; j < 16; j++) {
-            if(i + j < len) {
-                printf("%c", isprint(p[i + j]) ? p[i + j] : '.');
+            printf(" ");
+            for(size_t j = 0; j < 16; j++) {
+                if(i + j < len) {
+                    printf("%c", isprint(p[i + j]) ? p[i + j] : '.');
+                }
             }
+            printf("\n");
         }
-        printf("\n");
+        printed_lines++;
     }
 }
 

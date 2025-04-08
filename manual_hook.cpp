@@ -496,6 +496,7 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
     size_t memSize = 0;
 
     if(clientPtr == nullptr) {
+        *serverPtr = nullptr;
         return;
     }
     // 纯设备指针，不用同步内存数据
