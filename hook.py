@@ -347,7 +347,7 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
-            f.write(f"    mem2client((void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -365,7 +365,7 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
-            f.write(f"    mem2client((void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -432,7 +432,7 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
-            f.write(f"    mem2client((void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name};\n")
@@ -450,7 +450,7 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
         elif position == 3:
-            f.write(f"    mem2client((void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name}*{param.name};\n")
@@ -1129,8 +1129,8 @@ pointer_sizes = {
     "cudaDeviceGetPCIBusId": {"pciBusId": "len"},
     "cudaIpcGetEventHandle": {"handle": "sizeof(*handle)"},
     "cudaIpcOpenEventHandle": {"event": "sizeof(*event)"},
-    "cudaIpcGetMemHandle": {"handle": "sizeof(*handle)"},
-    "cudaIpcOpenMemHandle": {"devPtr": "sizeof(*devPtr)"},
+    "cudaIpcGetMemHandle": {"handle": "sizeof(*handle)", "devPtr":"-1"},
+    "cudaIpcCloseMemHandle": {"devPtr":"-1"},
     "cudaThreadGetLimit": {"pValue": "sizeof(*pValue)"},
     "cudaThreadGetCacheConfig": {"pCacheConfig": "sizeof(*pCacheConfig)"},
     "cudaGetDeviceCount": {"count": "sizeof(*count)"},
@@ -1231,13 +1231,17 @@ pointer_sizes = {
     "cudaMemcpy2DAsync": {"dst": "dpitch * height", "src": "spitch * height", "stream": "sizeof(*stream)"},
     "cudaMemcpy2DToArrayAsync": {"dst": "sizeof(*dst)", "src": "spitch * height", "stream": "sizeof(*stream)"},
     "cudaMemcpy2DFromArrayAsync": {"dst": "dpitch * height", "src": "sizeof(*src)", "stream": "sizeof(*stream)"},
-    "cudaMemcpyToSymbolAsync": {"symbol": "sizeof(*symbol)", "src": "count", "stream": "sizeof(*stream)"},
-    "cudaMemcpyFromSymbolAsync": {"dst": "count", "symbol": "sizeof(*symbol)", "stream": "sizeof(*stream)"},
+    "cudaMemcpyToSymbol": {"symbol": "-1", "src": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpyToSymbolAsync": {"symbol": "-1", "src": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpyFromSymbol": {"symbol": "-1", "dst": "count", "stream": "sizeof(*stream)"},
+    "cudaMemcpyFromSymbolAsync": {"dst": "count", "symbol": "-1", "stream": "sizeof(*stream)"},
+    "cudaMemset": {"devPtr": "count"},
+    "cudaMemsetAsync": {"devPtr": "count"},
     "cudaMemset2D": {"devPtr": "pitch * height"},
     "cudaMemset3D": {"pitchedDevPtr": "sizeof(*pitchedDevPtr)"},
     "cudaMemset2DAsync": {"devPtr": "pitch * height", "stream": "sizeof(*stream)"},
     "cudaMemset3DAsync": {"pitchedDevPtr": "sizeof(*pitchedDevPtr)", "stream": "sizeof(*stream)"},
-    "cudaGetSymbolSize": {"size": "sizeof(*size)", "symbol": "sizeof(*symbol)"},
+    "cudaGetSymbolSize": {"size": "sizeof(*size)", "symbol": "-1"},
     "cudaMemPrefetchAsync": {"devPtr": "count", "stream": "sizeof(*stream)"},
     "cudaMemAdvise": {"devPtr": "count"},
     "cudaMemRangeGetAttribute": {"data": "dataSize", "devPtr": "count"},
@@ -1248,7 +1252,7 @@ pointer_sizes = {
     "cudaMemcpyToArrayAsync": {"dst": "sizeof(*dst)", "src": "count", "stream": "sizeof(*stream)"},
     "cudaMemcpyFromArrayAsync": {"dst": "count", "src": "sizeof(*src)", "stream": "sizeof(*stream)"},
     "cudaMallocAsync": {"devPtr": "size", "hStream": "sizeof(*hStream)"},
-    "cudaFreeAsync": {"hStream": "sizeof(*hStream)"},
+    "cudaFreeAsync": {"hStream": "sizeof(*hStream)", "devPtr": "-1"},
     "cudaMemPoolTrimTo": {"memPool": "sizeof(*memPool)"},
     "cudaMemPoolSetAttribute": {"memPool": "sizeof(*memPool)", "value": "sizeof(*value)"},
     "cudaMemPoolGetAttribute": {"memPool": "sizeof(*memPool)", "value": "sizeof(*value)"},
@@ -1276,9 +1280,9 @@ pointer_sizes = {
     "cudaBindTextureToMipmappedArray": {"texref": "sizeof(*texref)", "mipmappedArray": "sizeof(*mipmappedArray)", "desc": "sizeof(*desc)"},
     "cudaUnbindTexture": {"texref": "sizeof(*texref)"},
     "cudaGetTextureAlignmentOffset": {"offset": "sizeof(*offset)", "texref": "sizeof(*texref)"},
-    "cudaGetTextureReference": {"texref": "sizeof(*texref)", "symbol": "sizeof(*symbol)"},
+    "cudaGetTextureReference": {"texref": "sizeof(*texref)", "symbol": "-1"},
     "cudaBindSurfaceToArray": {"surfref": "sizeof(*surfref)", "array": "sizeof(*array)", "desc": "sizeof(*desc)"},
-    "cudaGetSurfaceReference": {"surfref": "sizeof(*surfref)", "symbol": "sizeof(*symbol)"},
+    "cudaGetSurfaceReference": {"surfref": "sizeof(*surfref)", "symbol": "-1"},
     "cudaGetChannelDesc": {"desc": "sizeof(*desc)", "array": "sizeof(*array)"},
     "cudaCreateChannelDesc": {"desc": "sizeof(*desc)"},
     "cudaCreateTextureObject": {"pTexObject": "sizeof(*pTexObject)", "pResDesc": "sizeof(*pResDesc)", "pTexDesc": "sizeof(*pTexDesc)", "pResViewDesc": "sizeof(*pResViewDesc)"},
@@ -1299,13 +1303,13 @@ pointer_sizes = {
     "cudaGraphKernelNodeGetAttribute": {"value_out": "sizeof(*value_out)"},
     "cudaGraphKernelNodeSetAttribute": {"value": "sizeof(*value)"},
     "cudaGraphAddMemcpyNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "pCopyParams": "sizeof(*pCopyParams)"},
-    "cudaGraphAddMemcpyNodeToSymbol": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "symbol": "sizeof(*symbol)", "src": "count"},
-    "cudaGraphAddMemcpyNodeFromSymbol": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "dst": "count", "symbol": "sizeof(*symbol)"},
+    "cudaGraphAddMemcpyNodeToSymbol": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "symbol": "-1", "src": "count"},
+    "cudaGraphAddMemcpyNodeFromSymbol": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "dst": "count", "symbol": "-1"},
     "cudaGraphAddMemcpyNode1D": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "dst": "count", "src": "count"},
     "cudaGraphMemcpyNodeGetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
     "cudaGraphMemcpyNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
-    "cudaGraphMemcpyNodeSetParamsToSymbol": {"symbol": "sizeof(*symbol)", "src": "count"},
-    "cudaGraphMemcpyNodeSetParamsFromSymbol": {"dst": "count", "symbol": "sizeof(*symbol)"},
+    "cudaGraphMemcpyNodeSetParamsToSymbol": {"symbol": "-1", "src": "count"},
+    "cudaGraphMemcpyNodeSetParamsFromSymbol": {"dst": "count", "symbol": "-1"},
     "cudaGraphMemcpyNodeSetParams1D": {"dst": "count", "src": "count"},
     "cudaGraphAddMemsetNode": {"pGraphNode": "sizeof(*pGraphNode)", "pDependencies": "numDependencies * sizeof(*pDependencies)", "pMemsetParams": "sizeof(*pMemsetParams)"},
     "cudaGraphMemsetNodeGetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
@@ -1349,8 +1353,8 @@ pointer_sizes = {
     "cudaGraphInstantiateWithFlags": {"pGraphExec": "sizeof(*pGraphExec)"},
     "cudaGraphExecKernelNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
     "cudaGraphExecMemcpyNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
-    "cudaGraphExecMemcpyNodeSetParamsToSymbol": {"symbol": "sizeof(*symbol)", "src": "count"},
-    "cudaGraphExecMemcpyNodeSetParamsFromSymbol": {"dst": "count", "symbol": "sizeof(*symbol)"},
+    "cudaGraphExecMemcpyNodeSetParamsToSymbol": {"symbol": "-1", "src": "count"},
+    "cudaGraphExecMemcpyNodeSetParamsFromSymbol": {"dst": "count", "symbol": "-1"},
     "cudaGraphExecMemcpyNodeSetParams1D": {"dst": "count", "src": "count"},
     "cudaGraphExecMemsetNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
     "cudaGraphExecHostNodeSetParams": {"pNodeParams": "sizeof(*pNodeParams)"},
@@ -1430,6 +1434,7 @@ def calculate_pointer_sizes(function, param):
         "hostPtr",
         "devPtr",
         "data",
+        "symbol",
     ]
     array_vars = [
         "A",
@@ -1490,8 +1495,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
-        f.write('extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);\n')
+        f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);\n')
+        f.write('extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
             f.write("int sizeofType(cudaDataType type);\n")
@@ -1566,11 +1571,20 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     for param in function.parameters:
                         handle_param(function, param, f, True, 2)
 
-                    f.write(f"    rpc_free_client(client);\n")
-
-                    # 在rpc_get_client后调用mem2client
+                    f.write(f"    rpc_prepare_request(client, RPC_mem2client);\n")
                     for param in function.parameters:
                         handle_param(function, param, f, True, 3)
+
+                    f.write(f"    if(client->iov_read2_count > 0) {{\n")
+                    f.write(f"        rpc_write(client, &end_flag, sizeof(end_flag));\n")
+                    f.write(f"        if(rpc_submit_request(client) != 0) {{\n")
+                    f.write(f'            std::cerr << "Failed to submit request" << std::endl;\n')
+                    f.write(f"            rpc_release_client(client);\n")
+                    f.write(f"            exit(1);\n")
+                    f.write(f"        }}\n")
+                    f.write(f"    }}\n")
+
+                    f.write(f"    rpc_free_client(client);\n")
 
                     if return_type == "const char *":
                         f.write(f"    return _{function_name}_result;\n")

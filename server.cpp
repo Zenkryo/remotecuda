@@ -106,9 +106,11 @@ void *rpc_handle_client(void *arg) {
     // 接收客户端连接
 
     RpcClient client;
-    memset(&client, 0, sizeof(RpcClient));
+    client.iov_read_count = 0;
+    client.iov_read2_count = 0;
+    client.iov_send_count = 0;
+    client.iov_send2_count = 0;
     client.sockfd = connfd;
-    client.tmpbufs = new std::queue<void *>();
     handshake_request handshake_req;
     handshake_response handshake_rsp;
     bytes_read = read(client.sockfd, &handshake_req, sizeof(handshake_req));
@@ -162,7 +164,6 @@ void *rpc_handle_client(void *arg) {
         client.iov_send2_count = 0;
     }
 DONE:
-    delete client.tmpbufs;
     close(connfd);
 
     // 线程完成任务，标记为未使用

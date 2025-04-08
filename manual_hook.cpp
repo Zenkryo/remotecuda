@@ -231,7 +231,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
         ptx_string++;
         ptx_len--;
     }
-    // printf("--------------------\n\n%s-----------------\n\n", ptx_string);
 
     FuncInfo current_func = {0};
     char line[1024];
@@ -249,7 +248,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
         memcpy(line, ptr, line_len);
         ptr = line_end + 1;
         line[line_len] = '\0';
-        // printf("line: %s\n", line);
 
         // 处理函数声明行
         if(status == 0 && (strncmp(line, ".visible .entry", strlen(".visible .entry")) == 0 || strncmp(line, ".entry", strlen(".entry")) == 0)) {
@@ -271,7 +269,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
         else if(status == 1 && strncmp(line, ".param", strlen(".param")) == 0) {
             ParamInfo *param = &current_func.params[current_func.param_count];
             param->type = get_param_type(line);
-            printf("line: %s %d\n", line, param->type);
             char *name_start = strchr(line, '_');
             if(name_start) {
                 char *name_end = strpbrk(name_start, "[,");
@@ -291,7 +288,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
                 param->array_size = atoi(array_start + 1);
             }
             param->size = param->is_array ? get_type_size(param->type) * param->array_size : get_type_size(param->type);
-            // printf("=========== param name: %s, type: %d, size: %d\n", param->name, param->type, param->size);
 
             current_func.param_count++;
         } else if(status == 1 && strcmp(line, "{") == 0) {
@@ -334,6 +330,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             status = 0; // 退出函数体
             if(current_func.fat_cubin != nullptr) {
                 funcinfos.push_back(current_func);
+#ifdef DEBUG
                 printf("==== function: %s\n", current_func.name);
                 for(int i = 0; i < current_func.param_count; i++) {
                     printf("  %d: name       %s\n", i, current_func.params[i].name);
@@ -344,6 +341,7 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
                     printf("      is pointer %d\n", current_func.params[i].is_pointer);
                     printf("      reg name   %s\n", current_func.params[i].reg_name);
                 }
+#endif
             }
         }
 
@@ -488,15 +486,19 @@ static void parseFatBinary(void *fatCubin, __cudaFatCudaBinary2Header *header) {
     }
 }
 
-// 准备同步内存，不进行实际同步
-extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, size_t size = 0, bool for_kernel = false) {
+// 准备从客户端向服务器端同步内存
+// 返回服务器端内存指针
+extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size) {
 #ifdef DEBUG
     std::cout << "Hook: mem2server called " << clientPtr << " " << size << std::endl;
 #endif
+    void *ptr = nullptr; // 服务器端内存指针(起始位置)
+    size_t memSize = 0;
+
     if(clientPtr == nullptr) {
         return;
     }
-    // 设备指针，不用同步内存数据
+    // 纯设备指针，不用同步内存数据
     auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it1 != cs_dev_mems.end()) {
         *serverPtr = (void *)it1->second.first;
@@ -509,78 +511,105 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
     }
     for(auto it = cs_dev_mems.begin(); it != cs_dev_mems.end(); it++) {
         if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
-            *serverPtr = (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+            *serverPtr = (void *)((uintptr_t)it->second.first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
             return;
         }
     }
     for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
         if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
-            *serverPtr = (void *)((uintptr_t)it->first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+            *serverPtr = clientPtr;
             return;
         }
     }
+    // 函数指针，直接返回
     for(auto &func : funcinfos) {
         if(func.fun_ptr == clientPtr) {
             *serverPtr = clientPtr;
             return;
         }
     }
-    void *ptr = nullptr;
-    size_t memSize = 0;
-
     // 统一内存指针
     auto it3 = cs_union_mems.find(clientPtr);
     if(it3 != cs_union_mems.end()) {
+        *serverPtr = it3->second.first;
         ptr = it3->second.first;
         memSize = it3->second.second;
-    }
-    if(for_kernel && ptr == nullptr) {
-        *serverPtr = clientPtr;
-        return;
-    }
-    if(ptr == nullptr) {
-        auto it = cs_host_mems.find(clientPtr);
-        if(it != cs_host_mems.end()) {
-            ptr = it->second.first;
-            memSize = it->second.second;
+    } else {
+        for(auto it = cs_union_mems.begin(); it != cs_union_mems.end(); it++) {
+            if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+                *serverPtr = (void *)((uintptr_t)it->second.first + ((uintptr_t)clientPtr - (uintptr_t)it->first)); // 返回的指针是带偏移的
+                ptr = (void *)(uintptr_t)it->second.first;                                                          // 同步的指针是无偏移的
+                memSize = it->second.second;
+                break;
+            }
         }
     }
-    if(ptr == nullptr && size == 0) {
-        printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
-        *serverPtr = clientPtr;
-        return;
+    // ptr为空，表示clientPtr不是已知的设备指针，也不是统一内存指针，其可能是未知的设备内存指针，也可能是主机内存指针
+    if(ptr == nullptr) {
+        if(size == -1) { // size为 - 1, 表示clientPtr是设备指针，无需同步数据
+            *serverPtr = clientPtr;
+            return;
+        }
+        // 主机内存指针
+        auto it = cs_host_mems.find(clientPtr);
+        if(it != cs_host_mems.end()) {
+            *serverPtr = it->second.first;
+            ptr = it->second.first;
+            memSize = it->second.second;
+        } else {
+            for(auto it = cs_host_mems.begin(); it != cs_host_mems.end(); it++) {
+                if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+                    *serverPtr = (void *)((uintptr_t)it->second.first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
+                    ptr = (void *)(uintptr_t)it->second.first;
+                    memSize = it->second.second;
+                    break;
+                }
+            }
+        }
     }
-    auto it = cs_host_mems.find(clientPtr);
-    if(ptr != nullptr) {
-        *serverPtr = ptr;
-        // 写入服务器端内存指针
-        rpc_write(client, &ptr, sizeof(ptr));
-        // 写入客户端内存数据
-        rpc_write(client, clientPtr, memSize, true);
-    } else if(!for_kernel) {
+    // ptr为空表示clientPtr是未知的主机内存
+    if(ptr == nullptr) {
+        if(size == 0) { // 大小不知道，无法同步数据
+            printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
+            *serverPtr = clientPtr;
+            return;
+        }
         // 写入null指针
-        rpc_write(client, &ptr, sizeof(ptr));
+        void **tmp_ptr = (void **)malloc(sizeof(ptr));
+        *tmp_ptr = ptr;
+        client->tmps4iov.insert(tmp_ptr);
+        rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
+
         // 写入客户端内存数据
         rpc_write(client, clientPtr, size, true);
+
         // 读取服务器端内存指针
         rpc_read(client, serverPtr, sizeof(*serverPtr));
+    } else {
+        // 写入服务器端内存指针
+        void **tmp_ptr = (void **)malloc(sizeof(ptr));
+        *tmp_ptr = ptr;
+        client->tmps4iov.insert(tmp_ptr);
+        rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
+
+        // 写入客户端内存数据
+        rpc_write(client, clientPtr, memSize, true);
     }
     return;
 }
 
-/**
- * @brief 同步服务器端内存到客户端内存
- * @param clientPtr 客户端内存指针
- * @param size 内存大小
- * @return 客户端内存指针
- */
-extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false) {
+// 准备从服务器向客户端同步内存
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size) {
 #ifdef DEBUG
     std::cout << "Hook: mem2client called " << clientPtr << " " << size << std::endl;
 #endif
+    void *ptr = nullptr; // 服务器端内存指针(起始位置)
+    size_t memSize = 0;
+
     if(clientPtr == nullptr) {
         return;
     }
+    // 纯设备指针，不用同步内存数据
     auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
     if(it1 != cs_dev_mems.end()) {
         return;
@@ -590,71 +619,95 @@ extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = f
         return;
     }
     for(auto it = cs_dev_mems.begin(); it != cs_dev_mems.end(); it++) {
-        if((uintptr_t)clientPtr > (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
             return;
         }
     }
     for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
-        if((uintptr_t)clientPtr > (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
+        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
             return;
         }
     }
+    // 函数指针，直接返回
     for(auto &func : funcinfos) {
         if(func.fun_ptr == clientPtr) {
             return;
         }
     }
-
-    void *serverPtr = nullptr;
-    size_t memSize = 0;
-
     // 统一内存指针
     auto it3 = cs_union_mems.find(clientPtr);
     if(it3 != cs_union_mems.end()) {
-        serverPtr = it3->second.first;
+        ptr = it3->second.first;
         memSize = it3->second.second;
-    }
-    if(for_kernel && serverPtr == nullptr) {
-        return;
-    }
-    if(serverPtr == nullptr) {
-        auto it = cs_host_mems.find(clientPtr);
-        if(it != cs_host_mems.end()) {
-            serverPtr = it->second.first;
-            memSize = it->second.second;
+    } else {
+        for(auto it = cs_union_mems.begin(); it != cs_union_mems.end(); it++) {
+            if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+                clientPtr = (void *)(uintptr_t)it->first;  // 修改clientPtr到内存的起始位置
+                ptr = (void *)(uintptr_t)it->second.first; // 同步的指针是无偏移的
+                memSize = it->second.second;
+                break;
+            }
         }
     }
-    if(serverPtr == nullptr && size == 0) {
-        printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
-        return;
+    // ptr为空，表示clientPtr不是已知的设备指针，也不是统一内存指针，其可能是未知的设备内存指针，也可能是主机内存指针
+    if(ptr == nullptr) {
+        if(size == -1) { // size为 - 1, 表示clientPtr是设备指针，无需同步数据
+            return;
+        }
+        // 主机内存指针
+        auto it = cs_host_mems.find(clientPtr);
+        if(it != cs_host_mems.end()) {
+            ptr = it->second.first;
+            memSize = it->second.second;
+        } else {
+            for(auto it = cs_host_mems.begin(); it != cs_host_mems.end(); it++) {
+                if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+                    clientPtr = (void *)(uintptr_t)it->first; // 修改clientPtr到内存的起始位置
+                    ptr = (void *)(uintptr_t)it->second.first;
+                    memSize = it->second.second;
+                    break;
+                }
+            }
+        }
     }
+    // ptr为空表示clientPtr是未知的主机内存
+    if(ptr == nullptr) {
+        if(size <= 0) { // 大小不知道，无法同步数据
+            printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
+            return;
+        }
+        // 写入null指针
+        void **tmp_ptr = (void **)malloc(sizeof(ptr));
+        *tmp_ptr = ptr;
+        client->tmps4iov.insert(tmp_ptr);
+        rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
 
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_mem2client);
-    auto it = cs_host_mems.find(clientPtr);
-    if(serverPtr != nullptr) {
-        rpc_write(client, &serverPtr, sizeof(serverPtr));
-        rpc_write(client, &memSize, sizeof(memSize), false);
-        rpc_read(client, clientPtr, memSize, true);
-    } else { // 这个指针应该是客户端没有调用CUDA API分配的指针
-        rpc_write(client, &serverPtr, sizeof(serverPtr));
-        rpc_write(client, &size, sizeof(size), false);
+        // 写入大小
+        ssize_t *tmp_size = (ssize_t *)malloc(sizeof(size));
+        *tmp_size = size;
+        client->tmps4iov.insert(tmp_size);
+        rpc_write(client, tmp_size, sizeof(*tmp_size));
+
+        // 读取数据到客户端内存
         rpc_read(client, clientPtr, size, true);
+    } else if(memSize > 0) {
+        // 写入服务器端内存指针
+        void **tmp_ptr = (void **)malloc(sizeof(ptr));
+        *tmp_ptr = ptr;
+        client->tmps4iov.insert(tmp_ptr);
+        rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
+
+        // 写入大小
+        ssize_t *tmp_size = (ssize_t *)malloc(sizeof(size));
+        *tmp_size = memSize;
+        client->tmps4iov.insert(tmp_size);
+        rpc_write(client, tmp_size, sizeof(*tmp_size));
+
+        // 读取数据到客户端内存
+        rpc_read(client, clientPtr, memSize, true);
     }
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    rpc_free_client(client);
     return;
 }
-
-// CUDA Runtime API (cuda*)
 
 extern "C" cudaError_t cudaFree(void *devPtr) {
 #ifdef DEBUG
@@ -854,7 +907,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     }
     rpc_prepare_request(client, RPC_mem2server);
     for(int i = 0; i < f->param_count; i++) {
-        mem2server(client, &f->params[i].ptr, *((void **)args[i]), 0, true);
+        mem2server(client, &f->params[i].ptr, *((void **)args[i]), -1);
     }
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
@@ -883,11 +936,20 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         rpc_release_client(client);
         exit(1);
     }
-    rpc_free_client(client);
     // _result = cudaDeviceSynchronize();
+    rpc_prepare_request(client, RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(*((void **)args[i]), 0, true);
+        mem2client(client, *((void **)args[i]), -1);
     }
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    rpc_free_client(client);
     return _result;
 }
 

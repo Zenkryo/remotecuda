@@ -60,8 +60,8 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
 
 extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun, char *deviceFun, const char *deviceName, int thread_limit, uint3 *tid, uint3 *bid, dim3 *bDim, dim3 *gDim, int *wSize);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, size_t size, bool for_kernel);
+extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
 
-extern "C" void mem2client(void *clientPtr, size_t size, bool for_kernel);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
 
 #endif

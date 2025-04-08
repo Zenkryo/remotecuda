@@ -6,8 +6,8 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, size_t size = 0, bool for_kernel = false);
-extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);
+extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
 void *get_so_handle(const std::string &so_file);
 int sizeofType(cudaDataType type);
 extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
@@ -40,8 +40,17 @@ extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)handle, sizeof(*handle));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)handle, sizeof(*handle));
     return _result;
 }
 
@@ -72,6 +81,15 @@ extern "C" cublasStatus_t cublasDestroy_v2(cublasHandle_t handle) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -108,8 +126,17 @@ extern "C" cublasStatus_t cublasGetVersion_v2(cublasHandle_t handle, int *versio
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)version, sizeof(*version));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)version, sizeof(*version));
     return _result;
 }
 
@@ -144,8 +171,17 @@ extern "C" cublasStatus_t cublasGetProperty(libraryPropertyType type, int *value
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)value, sizeof(*value));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)value, sizeof(*value));
     return _result;
 }
 
@@ -175,6 +211,15 @@ extern "C" size_t cublasGetCudartVersion() {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -212,8 +257,17 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)workspace, workspaceSizeInBytes);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)workspace, workspaceSizeInBytes);
     return _result;
 }
 
@@ -245,6 +299,15 @@ extern "C" cublasStatus_t cublasSetStream_v2(cublasHandle_t handle, cudaStream_t
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -281,8 +344,17 @@ extern "C" cublasStatus_t cublasGetStream_v2(cublasHandle_t handle, cudaStream_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)streamId, sizeof(*streamId));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)streamId, sizeof(*streamId));
     return _result;
 }
 
@@ -317,8 +389,17 @@ extern "C" cublasStatus_t cublasGetPointerMode_v2(cublasHandle_t handle, cublasP
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -350,6 +431,15 @@ extern "C" cublasStatus_t cublasSetPointerMode_v2(cublasHandle_t handle, cublasP
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -386,8 +476,17 @@ extern "C" cublasStatus_t cublasGetAtomicsMode(cublasHandle_t handle, cublasAtom
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -419,6 +518,15 @@ extern "C" cublasStatus_t cublasSetAtomicsMode(cublasHandle_t handle, cublasAtom
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -455,8 +563,17 @@ extern "C" cublasStatus_t cublasGetMathMode(cublasHandle_t handle, cublasMath_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -488,6 +605,15 @@ extern "C" cublasStatus_t cublasSetMathMode(cublasHandle_t handle, cublasMath_t 
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -524,8 +650,17 @@ extern "C" cublasStatus_t cublasGetSmCountTarget(cublasHandle_t handle, int *smC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)smCountTarget, sizeof(*smCountTarget));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)smCountTarget, sizeof(*smCountTarget));
     return _result;
 }
 
@@ -557,6 +692,15 @@ extern "C" cublasStatus_t cublasSetSmCountTarget(cublasHandle_t handle, int smCo
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -593,6 +737,15 @@ extern "C" cublasStatus_t cublasLoggerConfigure(int logIsOn, int logToStdOut, in
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -624,6 +777,15 @@ extern "C" cublasStatus_t cublasSetLoggerCallback(cublasLogCallback userCallback
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -659,8 +821,17 @@ extern "C" cublasStatus_t cublasGetLoggerCallback(cublasLogCallback *userCallbac
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)userCallback, sizeof(*userCallback));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)userCallback, sizeof(*userCallback));
     return _result;
 }
 
@@ -701,9 +872,18 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * elemSize);
+    mem2client(client, (void *)devicePtr, n * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * elemSize);
-    mem2client((void *)devicePtr, n * elemSize);
     return _result;
 }
 
@@ -744,9 +924,18 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * elemSize);
+    mem2client(client, (void *)y, n * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * elemSize);
-    mem2client((void *)y, n * elemSize);
     return _result;
 }
 
@@ -788,9 +977,18 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, rows * cols * elemSize);
+    mem2client(client, (void *)B, rows * cols * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, rows * cols * elemSize);
-    mem2client((void *)B, rows * cols * elemSize);
     return _result;
 }
 
@@ -832,9 +1030,18 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, rows * cols * elemSize);
+    mem2client(client, (void *)B, rows * cols * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, rows * cols * elemSize);
-    mem2client((void *)B, rows * cols * elemSize);
     return _result;
 }
 
@@ -876,9 +1083,18 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)hostPtr, n * elemSize);
+    mem2client(client, (void *)devicePtr, n * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)hostPtr, n * elemSize);
-    mem2client((void *)devicePtr, n * elemSize);
     return _result;
 }
 
@@ -920,9 +1136,18 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)devicePtr, n * elemSize);
+    mem2client(client, (void *)hostPtr, n * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)devicePtr, n * elemSize);
-    mem2client((void *)hostPtr, n * elemSize);
     return _result;
 }
 
@@ -965,9 +1190,18 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, rows * cols * elemSize);
+    mem2client(client, (void *)B, rows * cols * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, rows * cols * elemSize);
-    mem2client((void *)B, rows * cols * elemSize);
     return _result;
 }
 
@@ -1010,9 +1244,18 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, rows * cols * elemSize);
+    mem2client(client, (void *)B, rows * cols * elemSize);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, rows * cols * elemSize);
-    mem2client((void *)B, rows * cols * elemSize);
     return _result;
 }
 
@@ -1042,6 +1285,15 @@ extern "C" void cublasXerbla(const char *srName, int info) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return;
@@ -1086,9 +1338,18 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)result, sizeofType(resultType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)result, sizeofType(resultType));
     return _result;
 }
 
@@ -1128,9 +1389,18 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1170,9 +1440,18 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1212,9 +1491,18 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1254,9 +1542,18 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1304,10 +1601,19 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)result, sizeofType(resultType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
-    mem2client((void *)result, sizeofType(resultType));
     return _result;
 }
 
@@ -1355,10 +1661,19 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)result, sizeofType(resultType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
-    mem2client((void *)result, sizeofType(resultType));
     return _result;
 }
 
@@ -1402,10 +1717,19 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1449,10 +1773,19 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1496,10 +1829,19 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1543,10 +1885,19 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1590,10 +1941,19 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1637,10 +1997,19 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -1683,9 +2052,18 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeofType(alphaType));
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeofType(alphaType));
-    mem2client((void *)x, n * sizeofType(xType));
     return _result;
 }
 
@@ -1725,9 +2103,18 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -1767,9 +2154,18 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -1809,9 +2205,18 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -1851,9 +2256,18 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -1893,9 +2307,18 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -1935,9 +2358,18 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -1985,10 +2417,19 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeofType(alphaType));
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeofType(alphaType));
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
     return _result;
 }
 
@@ -2032,10 +2473,19 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2079,10 +2529,19 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2126,10 +2585,19 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2173,10 +2641,19 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2219,9 +2696,18 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
     return _result;
 }
 
@@ -2262,9 +2748,18 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2305,9 +2800,18 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2348,9 +2852,18 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2391,9 +2904,18 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2434,9 +2956,18 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2477,9 +3008,18 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2520,9 +3060,18 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2563,9 +3112,18 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -2608,9 +3166,18 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
     return _result;
 }
 
@@ -2650,9 +3217,18 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2692,9 +3268,18 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2734,9 +3319,18 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2776,9 +3370,18 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2819,9 +3422,18 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2861,9 +3473,18 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2903,9 +3524,18 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2945,9 +3575,18 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -2987,9 +3626,18 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -3030,9 +3678,18 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -3075,9 +3732,18 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)result, sizeofType(resultType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)result, sizeofType(resultType));
     return _result;
 }
 
@@ -3117,9 +3783,18 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -3159,9 +3834,18 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -3201,9 +3885,18 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -3243,9 +3936,18 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)result, sizeof(*result));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)result, sizeof(*result));
     return _result;
 }
 
@@ -3292,11 +3994,20 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3343,11 +4054,20 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3394,11 +4114,20 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3445,11 +4174,20 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3496,11 +4234,20 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3547,11 +4294,20 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3602,11 +4358,20 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)c, sizeofType(csType));
+    mem2client(client, (void *)s, sizeofType(csType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
-    mem2client((void *)c, sizeofType(csType));
-    mem2client((void *)s, sizeofType(csType));
     return _result;
 }
 
@@ -3650,11 +4415,20 @@ extern "C" cublasStatus_t cublasSrotg_v2(cublasHandle_t handle, float *a, float 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)a, sizeof(*a));
+    mem2client(client, (void *)b, sizeof(*b));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)a, sizeof(*a));
-    mem2client((void *)b, sizeof(*b));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3698,11 +4472,20 @@ extern "C" cublasStatus_t cublasDrotg_v2(cublasHandle_t handle, double *a, doubl
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)a, sizeof(*a));
+    mem2client(client, (void *)b, sizeof(*b));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)a, sizeof(*a));
-    mem2client((void *)b, sizeof(*b));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3746,11 +4529,20 @@ extern "C" cublasStatus_t cublasCrotg_v2(cublasHandle_t handle, cuComplex *a, cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)a, sizeof(*a));
+    mem2client(client, (void *)b, sizeof(*b));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)a, sizeof(*a));
-    mem2client((void *)b, sizeof(*b));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3794,11 +4586,20 @@ extern "C" cublasStatus_t cublasZrotg_v2(cublasHandle_t handle, cuDoubleComplex 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)a, sizeof(*a));
+    mem2client(client, (void *)b, sizeof(*b));
+    mem2client(client, (void *)c, sizeof(*c));
+    mem2client(client, (void *)s, sizeof(*s));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)a, sizeof(*a));
-    mem2client((void *)b, sizeof(*b));
-    mem2client((void *)c, sizeof(*c));
-    mem2client((void *)s, sizeof(*s));
     return _result;
 }
 
@@ -3845,11 +4646,20 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)a, sizeofType(abType));
+    mem2client(client, (void *)b, sizeofType(abType));
+    mem2client(client, (void *)c, sizeofType(csType));
+    mem2client(client, (void *)s, sizeofType(csType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)a, sizeofType(abType));
-    mem2client((void *)b, sizeofType(abType));
-    mem2client((void *)c, sizeofType(csType));
-    mem2client((void *)s, sizeofType(csType));
     return _result;
 }
 
@@ -3893,10 +4703,19 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)param, 5 * sizeof(*param));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)param, 5 * sizeof(*param));
     return _result;
 }
 
@@ -3940,10 +4759,19 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)param, 5 * sizeof(*param));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)param, 5 * sizeof(*param));
     return _result;
 }
 
@@ -3991,10 +4819,19 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)param, 5 * sizeofType(paramType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)x, n * sizeofType(xType));
-    mem2client((void *)y, n * sizeofType(yType));
-    mem2client((void *)param, 5 * sizeofType(paramType));
     return _result;
 }
 
@@ -4041,12 +4878,21 @@ extern "C" cublasStatus_t cublasSrotmg_v2(cublasHandle_t handle, float *d1, floa
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)d1, sizeof(*d1));
+    mem2client(client, (void *)d2, sizeof(*d2));
+    mem2client(client, (void *)x1, sizeof(*x1));
+    mem2client(client, (void *)y1, sizeof(*y1));
+    mem2client(client, (void *)param, 5 * sizeof(*param));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)d1, sizeof(*d1));
-    mem2client((void *)d2, sizeof(*d2));
-    mem2client((void *)x1, sizeof(*x1));
-    mem2client((void *)y1, sizeof(*y1));
-    mem2client((void *)param, 5 * sizeof(*param));
     return _result;
 }
 
@@ -4093,12 +4939,21 @@ extern "C" cublasStatus_t cublasDrotmg_v2(cublasHandle_t handle, double *d1, dou
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)d1, sizeof(*d1));
+    mem2client(client, (void *)d2, sizeof(*d2));
+    mem2client(client, (void *)x1, sizeof(*x1));
+    mem2client(client, (void *)y1, sizeof(*y1));
+    mem2client(client, (void *)param, 5 * sizeof(*param));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)d1, sizeof(*d1));
-    mem2client((void *)d2, sizeof(*d2));
-    mem2client((void *)x1, sizeof(*x1));
-    mem2client((void *)y1, sizeof(*y1));
-    mem2client((void *)param, 5 * sizeof(*param));
     return _result;
 }
 
@@ -4151,12 +5006,21 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)d1, sizeofType(d1Type));
+    mem2client(client, (void *)d2, sizeofType(d2Type));
+    mem2client(client, (void *)x1, sizeofType(x1Type));
+    mem2client(client, (void *)y1, sizeofType(y1Type));
+    mem2client(client, (void *)param, 5 * sizeofType(paramType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)d1, sizeofType(d1Type));
-    mem2client((void *)d2, sizeofType(d2Type));
-    mem2client((void *)x1, sizeofType(x1Type));
-    mem2client((void *)y1, sizeofType(y1Type));
-    mem2client((void *)param, 5 * sizeofType(paramType));
     return _result;
 }
 
@@ -4209,12 +5073,21 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
     return _result;
 }
 
@@ -4267,12 +5140,21 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
     return _result;
 }
 
@@ -4325,12 +5207,21 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
     return _result;
 }
 
@@ -4383,12 +5274,21 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
     return _result;
 }
 
@@ -4443,12 +5343,21 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, m * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, m * sizeof(*y));
     return _result;
 }
 
@@ -4503,12 +5412,21 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, m * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, m * sizeof(*y));
     return _result;
 }
 
@@ -4563,12 +5481,21 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, m * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, m * sizeof(*y));
     return _result;
 }
 
@@ -4623,12 +5550,21 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, m * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, m * sizeof(*y));
     return _result;
 }
 
@@ -4672,9 +5608,18 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4718,9 +5663,18 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4764,9 +5718,18 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4810,9 +5773,18 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4857,9 +5829,18 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4904,9 +5885,18 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4951,9 +5941,18 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -4998,9 +5997,18 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5043,9 +6051,18 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5088,9 +6105,18 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5133,9 +6159,18 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5178,9 +6213,18 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5224,9 +6268,18 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5270,9 +6323,18 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5316,9 +6378,18 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5362,9 +6433,18 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5407,9 +6487,18 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5452,9 +6541,18 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5497,9 +6595,18 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5542,9 +6649,18 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5589,9 +6705,18 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5636,9 +6761,18 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5683,9 +6817,18 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5730,9 +6873,18 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
     return _result;
 }
 
@@ -5784,12 +6936,21 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -5841,12 +7002,21 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -5898,12 +7068,21 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -5955,12 +7134,21 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6012,12 +7200,21 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6069,12 +7266,21 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6127,12 +7333,21 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6185,12 +7400,21 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6243,12 +7467,21 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6301,12 +7534,21 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6357,12 +7599,21 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6413,12 +7664,21 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6469,12 +7729,21 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6525,12 +7794,21 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)y, n * sizeof(*y));
     return _result;
 }
 
@@ -6579,11 +7857,20 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, m * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, m * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, m * n * sizeof(*A));
     return _result;
 }
 
@@ -6632,11 +7919,20 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, m * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, m * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, m * n * sizeof(*A));
     return _result;
 }
 
@@ -6685,11 +7981,20 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, m * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, m * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, m * n * sizeof(*A));
     return _result;
 }
 
@@ -6738,11 +8043,20 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, m * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, m * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, m * n * sizeof(*A));
     return _result;
 }
 
@@ -6791,11 +8105,20 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, m * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, m * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, m * n * sizeof(*A));
     return _result;
 }
 
@@ -6844,11 +8167,20 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, m * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, m * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, m * n * sizeof(*A));
     return _result;
 }
 
@@ -6893,10 +8225,19 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -6941,10 +8282,19 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -6989,10 +8339,19 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7037,10 +8396,19 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7085,10 +8453,19 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7133,10 +8510,19 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7180,10 +8566,19 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7227,10 +8622,19 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7274,10 +8678,19 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7321,10 +8734,19 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7373,11 +8795,20 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7426,11 +8857,20 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7479,11 +8919,20 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7532,11 +8981,20 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7585,11 +9043,20 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7638,11 +9105,20 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -7690,11 +9166,20 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7742,11 +9227,20 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7794,11 +9288,20 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7846,11 +9349,20 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)x, n * sizeof(*x));
-    mem2client((void *)y, n * sizeof(*y));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -7905,12 +9417,21 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -7965,12 +9486,21 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8025,12 +9555,21 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8085,12 +9624,21 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8148,12 +9696,21 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -8208,12 +9765,21 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8268,12 +9834,21 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8328,12 +9903,21 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8391,12 +9975,21 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -8454,12 +10047,21 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -8514,10 +10116,19 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client((void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -8567,11 +10178,20 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -8621,11 +10241,20 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -8675,11 +10304,20 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -8729,11 +10367,20 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -8785,11 +10432,20 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -8841,11 +10497,20 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -8895,11 +10560,20 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -8949,11 +10623,20 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9005,11 +10688,20 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -9061,11 +10753,20 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeofType(Ctype));
     return _result;
 }
 
@@ -9119,12 +10820,21 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9178,12 +10888,21 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9237,12 +10956,21 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9296,12 +11024,21 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9355,12 +11092,21 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9414,12 +11160,21 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9473,12 +11228,21 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9532,12 +11296,21 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9591,12 +11364,21 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9650,12 +11432,21 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9709,12 +11500,21 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client((void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9768,12 +11568,21 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, n * k * sizeof(*A));
+    mem2client(client, (void *)B, n * k * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, n * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, n * k * sizeof(*A));
-    mem2client((void *)B, n * k * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, n * n * sizeof(*C));
     return _result;
 }
 
@@ -9827,12 +11636,21 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -9886,12 +11704,21 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -9945,12 +11772,21 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10004,12 +11840,21 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10063,12 +11908,21 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10122,12 +11976,21 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10176,10 +12039,19 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
     return _result;
 }
 
@@ -10228,10 +12100,19 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
     return _result;
 }
 
@@ -10280,10 +12161,19 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
     return _result;
 }
 
@@ -10332,10 +12222,19 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
     return _result;
 }
 
@@ -10388,11 +12287,20 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10445,11 +12353,20 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10502,11 +12419,20 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10559,11 +12485,20 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10613,9 +12548,18 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)beta, sizeof(*beta));
     return _result;
 }
 
@@ -10665,9 +12609,18 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)beta, sizeof(*beta));
     return _result;
 }
 
@@ -10717,9 +12670,18 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)beta, sizeof(*beta));
     return _result;
 }
 
@@ -10769,9 +12731,18 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)beta, sizeof(*beta));
     return _result;
 }
 
@@ -10821,9 +12792,18 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)beta, sizeof(*beta));
     return _result;
 }
 
@@ -10873,9 +12853,18 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)beta, sizeof(*beta));
     return _result;
 }
 
@@ -10934,12 +12923,21 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * k * sizeof(*A));
+    mem2client(client, (void *)B, k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * k * sizeof(*A));
-    mem2client((void *)B, k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -10998,12 +12996,21 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * k * sizeof(*A));
+    mem2client(client, (void *)B, k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * k * sizeof(*A));
-    mem2client((void *)B, k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11062,12 +13069,21 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * k * sizeof(*A));
+    mem2client(client, (void *)B, k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * k * sizeof(*A));
-    mem2client((void *)B, k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11126,12 +13142,21 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * k * sizeof(*A));
+    mem2client(client, (void *)B, k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * k * sizeof(*A));
-    mem2client((void *)B, k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11190,12 +13215,21 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * k * sizeof(*A));
+    mem2client(client, (void *)B, k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * k * sizeof(*A));
-    mem2client((void *)B, k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11254,12 +13288,21 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * k * sizeof(*A));
+    mem2client(client, (void *)B, k * n * sizeof(*B));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * k * sizeof(*A));
-    mem2client((void *)B, k * n * sizeof(*B));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11313,12 +13356,21 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11372,12 +13424,21 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11431,12 +13492,21 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11490,12 +13560,21 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)beta, sizeof(*beta));
-    mem2client((void *)B, m * n * sizeof(*B));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -11537,9 +13616,18 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11581,9 +13669,18 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11625,9 +13722,18 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11669,9 +13775,18 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11715,9 +13830,18 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11761,9 +13885,18 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11807,9 +13940,18 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11853,9 +13995,18 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)P, n * sizeof(*P));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)P, n * sizeof(*P));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11901,9 +14052,18 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)devIpiv, sizeof(*devIpiv));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11949,9 +14109,18 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)devIpiv, sizeof(*devIpiv));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -11997,9 +14166,18 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)devIpiv, sizeof(*devIpiv));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12045,9 +14223,18 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)devIpiv, sizeof(*devIpiv));
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12093,8 +14280,17 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
     return _result;
 }
 
@@ -12140,8 +14336,17 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
     return _result;
 }
 
@@ -12187,8 +14392,17 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
     return _result;
 }
 
@@ -12234,8 +14448,17 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)alpha, sizeof(*alpha));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)alpha, sizeof(*alpha));
     return _result;
 }
 
@@ -12276,8 +14499,17 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12318,8 +14550,17 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12360,8 +14601,17 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12402,8 +14652,17 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12444,8 +14703,17 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12486,8 +14754,17 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12528,8 +14805,17 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12570,8 +14856,17 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -12618,9 +14913,18 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
-    mem2client((void *)devInfoArray, sizeof(*devInfoArray));
     return _result;
 }
 
@@ -12667,9 +14971,18 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
-    mem2client((void *)devInfoArray, sizeof(*devInfoArray));
     return _result;
 }
 
@@ -12716,9 +15029,18 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
-    mem2client((void *)devInfoArray, sizeof(*devInfoArray));
     return _result;
 }
 
@@ -12765,9 +15087,18 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
-    mem2client((void *)devInfoArray, sizeof(*devInfoArray));
     return _result;
 }
 
@@ -12814,10 +15145,19 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -12864,10 +15204,19 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -12914,10 +15263,19 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -12964,10 +15322,19 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    mem2client(client, (void *)C, m * n * sizeof(*C));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, m * n * sizeof(*A));
-    mem2client((void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client((void *)C, m * n * sizeof(*C));
     return _result;
 }
 
@@ -13008,9 +15375,18 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -13051,9 +15427,18 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -13094,9 +15479,18 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -13137,9 +15531,18 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client((void *)A, n * n * sizeof(*A));
     return _result;
 }
 
@@ -13180,9 +15583,18 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -13223,9 +15635,18 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -13266,9 +15687,18 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 
@@ -13309,9 +15739,18 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)A, n * n * sizeof(*A));
-    mem2client((void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
     return _result;
 }
 

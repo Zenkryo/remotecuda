@@ -31,7 +31,6 @@ int handle_mem2server(void *args0) {
     int j = 0;
     while(i++ < 32) {
         ptrs[i] = nullptr;
-        size = 0;
         // 读取服务器端指针
         if(read_one_now(client, &ptrs[i], sizeof(ptrs[i]), false) < 0) {
             goto ERROR;
@@ -42,6 +41,7 @@ int handle_mem2server(void *args0) {
     }
     while(j++ < i - 1) {
         // 读取数据大小
+        size = 0;
         if(read_one_now(client, &size, sizeof(size), false) < 0) {
             goto ERROR;
         }
@@ -51,7 +51,7 @@ int handle_mem2server(void *args0) {
                 std::cerr << "Failed to malloc" << std::endl;
                 goto ERROR;
             }
-            client->tmpbufs->push(ptrs[j]);               // 保存临时内存地址
+            client->tmpbufs.push(ptrs[j]);                // 保存临时内存地址
             rpc_write(client, &ptrs[j], sizeof(ptrs[j])); // 返回服务器侧申请的内存地址
         }
         if(read_one_now(client, ptrs[j], size, false) < 0) {
@@ -64,9 +64,9 @@ int handle_mem2server(void *args0) {
     }
     return 0;
 ERROR:
-    while(!client->tmpbufs->empty()) {
-        void *ptr = client->tmpbufs->front();
-        client->tmpbufs->pop();
+    while(!client->tmpbufs.empty()) {
+        void *ptr = client->tmpbufs.front();
+        client->tmpbufs.pop();
         free(ptr);
     }
     return 1;
@@ -77,37 +77,48 @@ int handle_mem2client(void *args0) {
     std::cout << "Handle function mem2client called" << std::endl;
 #endif
     RpcClient *client = (RpcClient *)args0;
-    void *ptr;
-    size_t memSize, size;
-    bool to_free = false;
-    rpc_read(client, &ptr, sizeof(ptr));
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        return 1;
+    void *ptrs[32];
+    size_t sizes[32];
+    std::vector<void *> ptrs2free;
+    int i = 0;
+    int j = 0;
+    while(i++ < 32) {
+        ptrs[i] = nullptr;
+        sizes[i] = 0;
+        // 读取服务器端指针
+        if(read_one_now(client, &ptrs[i], sizeof(ptrs[i]), false) < 0) {
+            goto ERROR;
+        }
+        if(ptrs[i] == (void *)0xffffffff) {
+            break;
+        }
+        if(read_one_now(client, &sizes[i], sizeof(sizes[i]), false) < 0) {
+            goto ERROR;
+        }
     }
-    if(ptr != nullptr) {
-        read_one_now(client, &memSize, sizeof(memSize), false);
-        rpc_write(client, ptr, memSize, true);
-    } else {
-        read_one_now(client, &size, sizeof(size), false);
-        // TODO 这里有个问题，当mem2server和mem2client调用次数不一致时，会导致问题
-        // 获取第一个元素
-        ptr = client->tmpbufs->front();
-        client->tmpbufs->pop();
-        rpc_write(client, ptr, size, true);
-        to_free = true;
+    while(j++ < i - 1) {
+        if(sizes[j] <= 0) {
+            continue;
+        }
+        if(ptrs[j] == nullptr) {
+            void *ptr = client->tmpbufs.front();
+            client->tmpbufs.pop();
+            rpc_write(client, ptr, sizes[j], true);
+            ptrs2free.push_back(ptr);
+        } else {
+            rpc_write(client, ptrs[j], sizes[j], true);
+        }
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        if(to_free) {
-            free(ptr);
-        }
-        return 1;
-    }
-    if(to_free) {
-        free(ptr);
+        goto ERROR;
     }
     return 0;
+ERROR:
+    for(auto ptr : ptrs2free) {
+        free(ptr);
+    }
+    return 1;
 }
 
 // #region CUDA Runtime API (cuda*)

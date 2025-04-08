@@ -6,6 +6,6 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, size_t size = 0, bool for_kernel = false);
-extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);
+extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
 void *get_so_handle(const std::string &so_file);

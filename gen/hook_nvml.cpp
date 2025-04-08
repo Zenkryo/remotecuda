@@ -6,8 +6,8 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, size_t size = 0, bool for_kernel = false);
-extern "C" void mem2client(void *clientPtr, size_t size = 0, bool for_kernel = false);
+extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
 void *get_so_handle(const std::string &so_file);
 extern "C" nvmlReturn_t nvmlInit_v2() {
 #ifdef DEBUG
@@ -35,6 +35,15 @@ extern "C" nvmlReturn_t nvmlInit_v2() {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -68,6 +77,15 @@ extern "C" nvmlReturn_t nvmlInitWithFlags(unsigned int flags) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -98,6 +116,15 @@ extern "C" nvmlReturn_t nvmlShutdown() {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -132,6 +159,15 @@ extern "C" nvmlReturn_t nvmlSystemGetDriverVersion(char *version, unsigned int l
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -164,6 +200,15 @@ extern "C" nvmlReturn_t nvmlSystemGetNVMLVersion(char *version, unsigned int len
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -199,8 +244,17 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion(int *cudaDriverVersion) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
     return _result;
 }
 
@@ -234,8 +288,17 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int *cudaDriverVersion
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)cudaDriverVersion, sizeof(*cudaDriverVersion));
     return _result;
 }
 
@@ -268,6 +331,15 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -303,8 +375,17 @@ extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)unitCount, sizeof(*unitCount));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)unitCount, sizeof(*unitCount));
     return _result;
 }
 
@@ -339,8 +420,17 @@ extern "C" nvmlReturn_t nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)unit, sizeof(*unit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)unit, sizeof(*unit));
     return _result;
 }
 
@@ -375,8 +465,17 @@ extern "C" nvmlReturn_t nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t *inf
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -411,8 +510,17 @@ extern "C" nvmlReturn_t nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t *sta
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)state, sizeof(*state));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)state, sizeof(*state));
     return _result;
 }
 
@@ -447,8 +555,17 @@ extern "C" nvmlReturn_t nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t *psu) 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)psu, sizeof(*psu));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)psu, sizeof(*psu));
     return _result;
 }
 
@@ -484,8 +601,17 @@ extern "C" nvmlReturn_t nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int typ
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)temp, sizeof(*temp));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -520,8 +646,17 @@ extern "C" nvmlReturn_t nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpee
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)fanSpeeds, sizeof(*fanSpeeds));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)fanSpeeds, sizeof(*fanSpeeds));
     return _result;
 }
 
@@ -559,9 +694,18 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)deviceCount, sizeof(*deviceCount));
+    mem2client(client, (void *)devices, sizeof(*devices));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)deviceCount, sizeof(*deviceCount));
-    mem2client((void *)devices, sizeof(*devices));
     return _result;
 }
 
@@ -598,9 +742,18 @@ extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwb
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)hwbcCount, sizeof(*hwbcCount));
+    mem2client(client, (void *)hwbcEntries, sizeof(*hwbcEntries));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)hwbcCount, sizeof(*hwbcCount));
-    mem2client((void *)hwbcEntries, sizeof(*hwbcEntries));
     return _result;
 }
 
@@ -634,8 +787,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)deviceCount, sizeof(*deviceCount));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)deviceCount, sizeof(*deviceCount));
     return _result;
 }
 
@@ -670,8 +832,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDevi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)attributes, sizeof(*attributes));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)attributes, sizeof(*attributes));
     return _result;
 }
 
@@ -706,8 +877,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDe
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)device, sizeof(*device));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -742,8 +922,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleBySerial(const char *serial, nvmlDevi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)device, sizeof(*device));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -778,8 +967,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)device, sizeof(*device));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -814,8 +1012,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByPciBusId_v2(const char *pciBusId, n
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)device, sizeof(*device));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 
@@ -848,6 +1055,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetName(nvmlDevice_t device, char *name, unsig
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -884,8 +1100,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)type, sizeof(*type));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)type, sizeof(*type));
     return _result;
 }
 
@@ -920,8 +1145,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *in
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)index, sizeof(*index));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)index, sizeof(*index));
     return _result;
 }
 
@@ -954,6 +1188,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -992,8 +1235,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigne
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)nodeSet, sizeof(*nodeSet));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)nodeSet, sizeof(*nodeSet));
     return _result;
 }
 
@@ -1030,8 +1282,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)cpuSet, sizeof(*cpuSet));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)cpuSet, sizeof(*cpuSet));
     return _result;
 }
 
@@ -1067,8 +1328,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned i
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)cpuSet, sizeof(*cpuSet));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)cpuSet, sizeof(*cpuSet));
     return _result;
 }
 
@@ -1099,6 +1369,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetCpuAffinity(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1131,6 +1410,15 @@ extern "C" nvmlReturn_t nvmlDeviceClearCpuAffinity(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1168,8 +1456,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pathInfo, sizeof(*pathInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pathInfo, sizeof(*pathInfo));
     return _result;
 }
 
@@ -1208,9 +1505,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)deviceArray, sizeof(*deviceArray));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
-    mem2client((void *)deviceArray, sizeof(*deviceArray));
     return _result;
 }
 
@@ -1248,9 +1554,18 @@ extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)deviceArray, sizeof(*deviceArray));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
-    mem2client((void *)deviceArray, sizeof(*deviceArray));
     return _result;
 }
 
@@ -1287,8 +1602,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)p2pStatus, sizeof(*p2pStatus));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)p2pStatus, sizeof(*p2pStatus));
     return _result;
 }
 
@@ -1321,6 +1645,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1355,6 +1688,15 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInsta
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1391,8 +1733,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned i
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)minorNumber, sizeof(*minorNumber));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)minorNumber, sizeof(*minorNumber));
     return _result;
 }
 
@@ -1425,6 +1776,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char *
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1461,6 +1821,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInf
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -1494,6 +1863,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, ch
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1530,8 +1908,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t d
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)checksum, sizeof(*checksum));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)checksum, sizeof(*checksum));
     return _result;
 }
 
@@ -1562,6 +1949,15 @@ extern "C" nvmlReturn_t nvmlDeviceValidateInforom(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -1598,8 +1994,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnable
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)display, sizeof(*display));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)display, sizeof(*display));
     return _result;
 }
 
@@ -1634,8 +2039,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnab
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)isActive, sizeof(*isActive));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)isActive, sizeof(*isActive));
     return _result;
 }
 
@@ -1670,8 +2084,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -1706,8 +2129,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pci, sizeof(*pci));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pci, sizeof(*pci));
     return _result;
 }
 
@@ -1742,8 +2174,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)maxLinkGen, sizeof(*maxLinkGen));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)maxLinkGen, sizeof(*maxLinkGen));
     return _result;
 }
 
@@ -1778,8 +2219,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsig
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)maxLinkWidth, sizeof(*maxLinkWidth));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)maxLinkWidth, sizeof(*maxLinkWidth));
     return _result;
 }
 
@@ -1814,8 +2264,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)currLinkGen, sizeof(*currLinkGen));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)currLinkGen, sizeof(*currLinkGen));
     return _result;
 }
 
@@ -1850,8 +2309,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)currLinkWidth, sizeof(*currLinkWidth));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)currLinkWidth, sizeof(*currLinkWidth));
     return _result;
 }
 
@@ -1887,8 +2355,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPci
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)value, sizeof(*value));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)value, sizeof(*value));
     return _result;
 }
 
@@ -1923,8 +2400,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)value, sizeof(*value));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)value, sizeof(*value));
     return _result;
 }
 
@@ -1960,8 +2446,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockTyp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clock, sizeof(*clock));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clock, sizeof(*clock));
     return _result;
 }
 
@@ -1997,8 +2492,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clock, sizeof(*clock));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clock, sizeof(*clock));
     return _result;
 }
 
@@ -2034,8 +2538,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvml
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clockMHz, sizeof(*clockMHz));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -2071,8 +2584,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clockMHz, sizeof(*clockMHz));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -2103,6 +2625,15 @@ extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -2141,8 +2672,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clockMHz, sizeof(*clockMHz));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -2178,8 +2718,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clockMHz, sizeof(*clockMHz));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clockMHz, sizeof(*clockMHz));
     return _result;
 }
 
@@ -2217,9 +2766,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)clocksMHz, sizeof(*clocksMHz));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
-    mem2client((void *)clocksMHz, sizeof(*clocksMHz));
     return _result;
 }
 
@@ -2258,9 +2816,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)clocksMHz, sizeof(*clocksMHz));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
-    mem2client((void *)clocksMHz, sizeof(*clocksMHz));
     return _result;
 }
 
@@ -2298,9 +2865,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)isEnabled, sizeof(*isEnabled));
+    mem2client(client, (void *)defaultIsEnabled, sizeof(*defaultIsEnabled));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)isEnabled, sizeof(*isEnabled));
-    mem2client((void *)defaultIsEnabled, sizeof(*defaultIsEnabled));
     return _result;
 }
 
@@ -2332,6 +2908,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t devic
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -2366,6 +2951,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -2402,8 +2996,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)speed, sizeof(*speed));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)speed, sizeof(*speed));
     return _result;
 }
 
@@ -2439,8 +3042,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)speed, sizeof(*speed));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)speed, sizeof(*speed));
     return _result;
 }
 
@@ -2476,8 +3088,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)temp, sizeof(*temp));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -2513,8 +3134,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)temp, sizeof(*temp));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -2550,8 +3180,17 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)temp, sizeof(*temp));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)temp, sizeof(*temp));
     return _result;
 }
 
@@ -2586,8 +3225,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pState, sizeof(*pState));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pState, sizeof(*pState));
     return _result;
 }
 
@@ -2622,8 +3270,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)clocksThrottleReasons, sizeof(*clocksThrottleReasons));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)clocksThrottleReasons, sizeof(*clocksThrottleReasons));
     return _result;
 }
 
@@ -2658,8 +3315,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksThrottleReasons(nvmlDevice_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)supportedClocksThrottleReasons, sizeof(*supportedClocksThrottleReasons));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)supportedClocksThrottleReasons, sizeof(*supportedClocksThrottleReasons));
     return _result;
 }
 
@@ -2694,8 +3360,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pState, sizeof(*pState));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pState, sizeof(*pState));
     return _result;
 }
 
@@ -2730,8 +3405,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementMode(nvmlDevice_t device, nv
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -2766,8 +3450,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)limit, sizeof(*limit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)limit, sizeof(*limit));
     return _result;
 }
 
@@ -2805,9 +3498,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)minLimit, sizeof(*minLimit));
+    mem2client(client, (void *)maxLimit, sizeof(*maxLimit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)minLimit, sizeof(*minLimit));
-    mem2client((void *)maxLimit, sizeof(*maxLimit));
     return _result;
 }
 
@@ -2842,8 +3544,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t de
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)defaultLimit, sizeof(*defaultLimit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)defaultLimit, sizeof(*defaultLimit));
     return _result;
 }
 
@@ -2878,8 +3589,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned in
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)power, sizeof(*power));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)power, sizeof(*power));
     return _result;
 }
 
@@ -2914,8 +3634,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)energy, sizeof(*energy));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)energy, sizeof(*energy));
     return _result;
 }
 
@@ -2950,8 +3679,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, uns
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)limit, sizeof(*limit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)limit, sizeof(*limit));
     return _result;
 }
 
@@ -2989,9 +3727,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlG
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)current, sizeof(*current));
+    mem2client(client, (void *)pending, sizeof(*pending));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)current, sizeof(*current));
-    mem2client((void *)pending, sizeof(*pending));
     return _result;
 }
 
@@ -3026,8 +3773,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)memory, sizeof(*memory));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)memory, sizeof(*memory));
     return _result;
 }
 
@@ -3062,8 +3818,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComput
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -3101,9 +3866,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)major, sizeof(*major));
+    mem2client(client, (void *)minor, sizeof(*minor));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)major, sizeof(*major));
-    mem2client((void *)minor, sizeof(*minor));
     return _result;
 }
 
@@ -3141,9 +3915,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)current, sizeof(*current));
+    mem2client(client, (void *)pending, sizeof(*pending));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)current, sizeof(*current));
-    mem2client((void *)pending, sizeof(*pending));
     return _result;
 }
 
@@ -3178,8 +3961,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int *
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)boardId, sizeof(*boardId));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)boardId, sizeof(*boardId));
     return _result;
 }
 
@@ -3214,8 +4006,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)multiGpuBool, sizeof(*multiGpuBool));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)multiGpuBool, sizeof(*multiGpuBool));
     return _result;
 }
 
@@ -3252,8 +4053,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMem
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)eccCounts, sizeof(*eccCounts));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)eccCounts, sizeof(*eccCounts));
     return _result;
 }
 
@@ -3290,8 +4100,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetDetailedEccErrors(nvmlDevice_t device, nvml
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)eccCounts, sizeof(*eccCounts));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)eccCounts, sizeof(*eccCounts));
     return _result;
 }
 
@@ -3329,8 +4148,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvm
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -3365,8 +4193,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlU
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)utilization, sizeof(*utilization));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)utilization, sizeof(*utilization));
     return _result;
 }
 
@@ -3404,9 +4241,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, uns
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)utilization, sizeof(*utilization));
+    mem2client(client, (void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)utilization, sizeof(*utilization));
-    mem2client((void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
     return _result;
 }
 
@@ -3442,8 +4288,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEn
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)encoderCapacity, sizeof(*encoderCapacity));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)encoderCapacity, sizeof(*encoderCapacity));
     return _result;
 }
 
@@ -3484,10 +4339,19 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sessionCount, sizeof(*sessionCount));
+    mem2client(client, (void *)averageFps, sizeof(*averageFps));
+    mem2client(client, (void *)averageLatency, sizeof(*averageLatency));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, sizeof(*sessionCount));
-    mem2client((void *)averageFps, sizeof(*averageFps));
-    mem2client((void *)averageLatency, sizeof(*averageLatency));
     return _result;
 }
 
@@ -3525,9 +4389,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsign
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sessionCount, sizeof(*sessionCount));
+    mem2client(client, (void *)sessionInfos, sizeof(*sessionInfos));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, sizeof(*sessionCount));
-    mem2client((void *)sessionInfos, sizeof(*sessionInfos));
     return _result;
 }
 
@@ -3565,9 +4438,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)utilization, sizeof(*utilization));
+    mem2client(client, (void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)utilization, sizeof(*utilization));
-    mem2client((void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
     return _result;
 }
 
@@ -3602,8 +4484,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)fbcStats, sizeof(*fbcStats));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)fbcStats, sizeof(*fbcStats));
     return _result;
 }
 
@@ -3641,9 +4532,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sessionCount, sizeof(*sessionCount));
+    mem2client(client, (void *)sessionInfo, sizeof(*sessionInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, sizeof(*sessionCount));
-    mem2client((void *)sessionInfo, sizeof(*sessionInfo));
     return _result;
 }
 
@@ -3681,9 +4581,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriver
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)current, sizeof(*current));
+    mem2client(client, (void *)pending, sizeof(*pending));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)current, sizeof(*current));
-    mem2client((void *)pending, sizeof(*pending));
     return _result;
 }
 
@@ -3716,6 +4625,15 @@ extern "C" nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char *ver
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -3752,8 +4670,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)bridgeHierarchy, sizeof(*bridgeHierarchy));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)bridgeHierarchy, sizeof(*bridgeHierarchy));
     return _result;
 }
 
@@ -3791,9 +4718,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t dev
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)infoCount, sizeof(*infoCount));
+    mem2client(client, (void *)infos, sizeof(*infos));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)infoCount, sizeof(*infoCount));
-    mem2client((void *)infos, sizeof(*infos));
     return _result;
 }
 
@@ -3831,9 +4767,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t de
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)infoCount, sizeof(*infoCount));
+    mem2client(client, (void *)infos, sizeof(*infos));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)infoCount, sizeof(*infoCount));
-    mem2client((void *)infos, sizeof(*infos));
     return _result;
 }
 
@@ -3871,9 +4816,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)infoCount, sizeof(*infoCount));
+    mem2client(client, (void *)infos, sizeof(*infos));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)infoCount, sizeof(*infoCount));
-    mem2client((void *)infos, sizeof(*infos));
     return _result;
 }
 
@@ -3909,8 +4863,17 @@ extern "C" nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)onSameBoard, sizeof(*onSameBoard));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)onSameBoard, sizeof(*onSameBoard));
     return _result;
 }
 
@@ -3946,8 +4909,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRes
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)isRestricted, sizeof(*isRestricted));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)isRestricted, sizeof(*isRestricted));
     return _result;
 }
 
@@ -3990,10 +4962,19 @@ extern "C" nvmlReturn_t nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingTy
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sampleValType, sizeof(*sampleValType));
+    mem2client(client, (void *)sampleCount, sizeof(*sampleCount));
+    mem2client(client, (void *)samples, sizeof(*samples));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sampleValType, sizeof(*sampleValType));
-    mem2client((void *)sampleCount, sizeof(*sampleCount));
-    mem2client((void *)samples, sizeof(*samples));
     return _result;
 }
 
@@ -4028,8 +5009,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)bar1Memory, sizeof(*bar1Memory));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)bar1Memory, sizeof(*bar1Memory));
     return _result;
 }
 
@@ -4065,8 +5055,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)violTime, sizeof(*violTime));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)violTime, sizeof(*violTime));
     return _result;
 }
 
@@ -4101,8 +5100,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEna
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -4138,8 +5146,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsign
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)stats, sizeof(*stats));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)stats, sizeof(*stats));
     return _result;
 }
 
@@ -4177,9 +5194,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigne
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)pids, sizeof(*pids));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
-    mem2client((void *)pids, sizeof(*pids));
     return _result;
 }
 
@@ -4214,8 +5240,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)bufferSize, sizeof(*bufferSize));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -4254,9 +5289,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageR
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pageCount, sizeof(*pageCount));
+    mem2client(client, (void *)addresses, sizeof(*addresses));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pageCount, sizeof(*pageCount));
-    mem2client((void *)addresses, sizeof(*addresses));
     return _result;
 }
 
@@ -4298,10 +5342,19 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPa
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pageCount, sizeof(*pageCount));
+    mem2client(client, (void *)addresses, sizeof(*addresses));
+    mem2client(client, (void *)timestamps, sizeof(*timestamps));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pageCount, sizeof(*pageCount));
-    mem2client((void *)addresses, sizeof(*addresses));
-    mem2client((void *)timestamps, sizeof(*timestamps));
     return _result;
 }
 
@@ -4336,8 +5389,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t devi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)isPending, sizeof(*isPending));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)isPending, sizeof(*isPending));
     return _result;
 }
 
@@ -4381,11 +5443,20 @@ extern "C" nvmlReturn_t nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)corrRows, sizeof(*corrRows));
+    mem2client(client, (void *)uncRows, sizeof(*uncRows));
+    mem2client(client, (void *)isPending, sizeof(*isPending));
+    mem2client(client, (void *)failureOccurred, sizeof(*failureOccurred));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)corrRows, sizeof(*corrRows));
-    mem2client((void *)uncRows, sizeof(*uncRows));
-    mem2client((void *)isPending, sizeof(*isPending));
-    mem2client((void *)failureOccurred, sizeof(*failureOccurred));
     return _result;
 }
 
@@ -4420,8 +5491,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, n
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)values, sizeof(*values));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)values, sizeof(*values));
     return _result;
 }
 
@@ -4456,8 +5536,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)arch, sizeof(*arch));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)arch, sizeof(*arch));
     return _result;
 }
 
@@ -4489,6 +5578,15 @@ extern "C" nvmlReturn_t nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t colo
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4523,6 +5621,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEn
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -4555,6 +5662,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComput
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4589,6 +5705,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableStat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -4621,6 +5746,15 @@ extern "C" nvmlReturn_t nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlE
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4656,6 +5790,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriver
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -4690,6 +5833,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsign
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -4721,6 +5873,15 @@ extern "C" nvmlReturn_t nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4756,6 +5917,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, uns
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -4787,6 +5957,15 @@ extern "C" nvmlReturn_t nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4821,6 +6000,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetApplicationsClocks(nvmlDevice_t device, uns
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4857,8 +6045,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)status, sizeof(*status));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)status, sizeof(*status));
     return _result;
 }
 
@@ -4890,6 +6087,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetPowerManagementLimit(nvmlDevice_t device, u
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4923,6 +6129,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlG
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -4958,6 +6173,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRes
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -4991,6 +6215,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEna
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -5022,6 +6255,15 @@ extern "C" nvmlReturn_t nvmlDeviceClearAccountingPids(nvmlDevice_t device) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -5059,8 +6301,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned i
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)isActive, sizeof(*isActive));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)isActive, sizeof(*isActive));
     return _result;
 }
 
@@ -5096,8 +6347,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)version, sizeof(*version));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)version, sizeof(*version));
     return _result;
 }
 
@@ -5134,8 +6394,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsig
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)capResult, sizeof(*capResult));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)capResult, sizeof(*capResult));
     return _result;
 }
 
@@ -5171,8 +6440,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pci, sizeof(*pci));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pci, sizeof(*pci));
     return _result;
 }
 
@@ -5209,8 +6487,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, uns
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)counterValue, sizeof(*counterValue));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)counterValue, sizeof(*counterValue));
     return _result;
 }
 
@@ -5242,6 +6529,15 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, 
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -5281,8 +6577,17 @@ extern "C" nvmlReturn_t nvmlDeviceSetNvLinkUtilizationControl(nvmlDevice_t devic
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)control, sizeof(*control));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)control, sizeof(*control));
     return _result;
 }
 
@@ -5319,8 +6624,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationControl(nvmlDevice_t devic
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)control, sizeof(*control));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)control, sizeof(*control));
     return _result;
 }
 
@@ -5360,9 +6674,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationCounter(nvmlDevice_t devic
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)rxcounter, sizeof(*rxcounter));
+    mem2client(client, (void *)txcounter, sizeof(*txcounter));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)rxcounter, sizeof(*rxcounter));
-    mem2client((void *)txcounter, sizeof(*txcounter));
     return _result;
 }
 
@@ -5397,6 +6720,15 @@ extern "C" nvmlReturn_t nvmlDeviceFreezeNvLinkUtilizationCounter(nvmlDevice_t de
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
     return _result;
 }
@@ -5430,6 +6762,15 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkUtilizationCounter(nvmlDevice_t dev
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -5467,8 +6808,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pNvLinkDeviceType, sizeof(*pNvLinkDeviceType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pNvLinkDeviceType, sizeof(*pNvLinkDeviceType));
     return _result;
 }
 
@@ -5502,8 +6852,17 @@ extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)set, sizeof(*set));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)set, sizeof(*set));
     return _result;
 }
 
@@ -5536,6 +6895,15 @@ extern "C" nvmlReturn_t nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned l
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -5572,8 +6940,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, un
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)eventTypes, sizeof(*eventTypes));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)eventTypes, sizeof(*eventTypes));
     return _result;
 }
 
@@ -5609,8 +6986,17 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)data, 0);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)data, 0);
     return _result;
 }
 
@@ -5641,6 +7027,15 @@ extern "C" nvmlReturn_t nvmlEventSetFree(nvmlEventSet_t set) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -5677,8 +7072,17 @@ extern "C" nvmlReturn_t nvmlDeviceModifyDrainState(nvmlPciInfo_t *pciInfo, nvmlE
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pciInfo, sizeof(*pciInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, sizeof(*pciInfo));
     return _result;
 }
 
@@ -5715,9 +7119,18 @@ extern "C" nvmlReturn_t nvmlDeviceQueryDrainState(nvmlPciInfo_t *pciInfo, nvmlEn
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pciInfo, sizeof(*pciInfo));
+    mem2client(client, (void *)currentState, sizeof(*currentState));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, sizeof(*pciInfo));
-    mem2client((void *)currentState, sizeof(*currentState));
     return _result;
 }
 
@@ -5753,8 +7166,17 @@ extern "C" nvmlReturn_t nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t *pciInfo, nvmlDetac
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pciInfo, sizeof(*pciInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, sizeof(*pciInfo));
     return _result;
 }
 
@@ -5788,8 +7210,17 @@ extern "C" nvmlReturn_t nvmlDeviceDiscoverGpus(nvmlPciInfo_t *pciInfo) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pciInfo, sizeof(*pciInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pciInfo, sizeof(*pciInfo));
     return _result;
 }
 
@@ -5825,8 +7256,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)values, sizeof(*values));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)values, sizeof(*values));
     return _result;
 }
 
@@ -5861,8 +7301,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvm
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pVirtualMode, sizeof(*pVirtualMode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pVirtualMode, sizeof(*pVirtualMode));
     return _result;
 }
 
@@ -5897,8 +7346,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostV
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pHostVgpuMode, sizeof(*pHostVgpuMode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pHostVgpuMode, sizeof(*pHostVgpuMode));
     return _result;
 }
 
@@ -5930,6 +7388,15 @@ extern "C" nvmlReturn_t nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvm
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -5966,8 +7433,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t devi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pGridLicensableFeatures, sizeof(*pGridLicensableFeatures));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pGridLicensableFeatures, sizeof(*pGridLicensableFeatures));
     return _result;
 }
 
@@ -6006,9 +7482,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)utilization, sizeof(*utilization));
+    mem2client(client, (void *)processSamplesCount, sizeof(*processSamplesCount));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)utilization, sizeof(*utilization));
-    mem2client((void *)processSamplesCount, sizeof(*processSamplesCount));
     return _result;
 }
 
@@ -6046,9 +7531,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigne
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuCount, sizeof(*vgpuCount));
+    mem2client(client, (void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuCount, sizeof(*vgpuCount));
-    mem2client((void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
     return _result;
 }
 
@@ -6086,9 +7580,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigne
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuCount, sizeof(*vgpuCount));
+    mem2client(client, (void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuCount, sizeof(*vgpuCount));
-    mem2client((void *)vgpuTypeIds, sizeof(*vgpuTypeIds));
     return _result;
 }
 
@@ -6124,8 +7627,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)size, sizeof(*size));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)size, sizeof(*size));
     return _result;
 }
 
@@ -6161,8 +7673,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)size, sizeof(*size));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)size, sizeof(*size));
     return _result;
 }
 
@@ -6197,8 +7718,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)gpuInstanceProfileId, sizeof(*gpuInstanceProfileId));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)gpuInstanceProfileId, sizeof(*gpuInstanceProfileId));
     return _result;
 }
 
@@ -6236,9 +7766,18 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, uns
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)deviceID, sizeof(*deviceID));
+    mem2client(client, (void *)subsystemID, sizeof(*subsystemID));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)deviceID, sizeof(*deviceID));
-    mem2client((void *)subsystemID, sizeof(*subsystemID));
     return _result;
 }
 
@@ -6273,8 +7812,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuType
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)fbSize, sizeof(*fbSize));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)fbSize, sizeof(*fbSize));
     return _result;
 }
 
@@ -6309,8 +7857,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuType
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)numDisplayHeads, sizeof(*numDisplayHeads));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)numDisplayHeads, sizeof(*numDisplayHeads));
     return _result;
 }
 
@@ -6349,9 +7906,18 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, u
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)xdim, sizeof(*xdim));
+    mem2client(client, (void *)ydim, sizeof(*ydim));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)xdim, sizeof(*xdim));
-    mem2client((void *)ydim, sizeof(*ydim));
     return _result;
 }
 
@@ -6384,6 +7950,15 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -6420,8 +7995,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeI
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)frameRateLimit, sizeof(*frameRateLimit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)frameRateLimit, sizeof(*frameRateLimit));
     return _result;
 }
 
@@ -6457,8 +8041,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuInstanceCount, sizeof(*vgpuInstanceCount));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuInstanceCount, sizeof(*vgpuInstanceCount));
     return _result;
 }
 
@@ -6493,8 +8086,17 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuInstanceCountPerVm, sizeof(*vgpuInstanceCountPerVm));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuInstanceCountPerVm, sizeof(*vgpuInstanceCountPerVm));
     return _result;
 }
 
@@ -6532,9 +8134,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned i
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuCount, sizeof(*vgpuCount));
+    mem2client(client, (void *)vgpuInstances, sizeof(*vgpuInstances));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuCount, sizeof(*vgpuCount));
-    mem2client((void *)vgpuInstances, sizeof(*vgpuInstances));
     return _result;
 }
 
@@ -6571,8 +8182,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vmIdType, sizeof(*vmIdType));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vmIdType, sizeof(*vmIdType));
     return _result;
 }
 
@@ -6605,6 +8225,15 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance,
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -6639,6 +8268,15 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vg
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -6675,8 +8313,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstan
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)fbUsage, sizeof(*fbUsage));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)fbUsage, sizeof(*fbUsage));
     return _result;
 }
 
@@ -6711,8 +8358,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)licensed, sizeof(*licensed));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)licensed, sizeof(*licensed));
     return _result;
 }
 
@@ -6747,8 +8403,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuTypeId, sizeof(*vgpuTypeId));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuTypeId, sizeof(*vgpuTypeId));
     return _result;
 }
 
@@ -6783,8 +8448,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)frameRateLimit, sizeof(*frameRateLimit));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)frameRateLimit, sizeof(*frameRateLimit));
     return _result;
 }
 
@@ -6819,8 +8493,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstan
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)eccMode, sizeof(*eccMode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)eccMode, sizeof(*eccMode));
     return _result;
 }
 
@@ -6855,8 +8538,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vg
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)encoderCapacity, sizeof(*encoderCapacity));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)encoderCapacity, sizeof(*encoderCapacity));
     return _result;
 }
 
@@ -6888,6 +8580,15 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vg
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -6930,10 +8631,19 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuI
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sessionCount, sizeof(*sessionCount));
+    mem2client(client, (void *)averageFps, sizeof(*averageFps));
+    mem2client(client, (void *)averageLatency, sizeof(*averageLatency));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, sizeof(*sessionCount));
-    mem2client((void *)averageFps, sizeof(*averageFps));
-    mem2client((void *)averageLatency, sizeof(*averageLatency));
     return _result;
 }
 
@@ -6971,9 +8681,18 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vg
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sessionCount, sizeof(*sessionCount));
+    mem2client(client, (void *)sessionInfo, sizeof(*sessionInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, sizeof(*sessionCount));
-    mem2client((void *)sessionInfo, sizeof(*sessionInfo));
     return _result;
 }
 
@@ -7008,8 +8727,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInsta
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)fbcStats, sizeof(*fbcStats));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)fbcStats, sizeof(*fbcStats));
     return _result;
 }
 
@@ -7047,9 +8775,18 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuIn
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sessionCount, sizeof(*sessionCount));
+    mem2client(client, (void *)sessionInfo, sizeof(*sessionInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sessionCount, sizeof(*sessionCount));
-    mem2client((void *)sessionInfo, sizeof(*sessionInfo));
     return _result;
 }
 
@@ -7084,8 +8821,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)gpuInstanceId, sizeof(*gpuInstanceId));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)gpuInstanceId, sizeof(*gpuInstanceId));
     return _result;
 }
 
@@ -7123,9 +8869,18 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInsta
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuMetadata, sizeof(*vgpuMetadata));
+    mem2client(client, (void *)bufferSize, sizeof(*bufferSize));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuMetadata, sizeof(*vgpuMetadata));
-    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -7163,9 +8918,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuP
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)pgpuMetadata, sizeof(*pgpuMetadata));
+    mem2client(client, (void *)bufferSize, sizeof(*bufferSize));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)pgpuMetadata, sizeof(*pgpuMetadata));
-    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -7205,10 +8969,19 @@ extern "C" nvmlReturn_t nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t *vgpuMetadat
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuMetadata, sizeof(*vgpuMetadata));
+    mem2client(client, (void *)pgpuMetadata, sizeof(*pgpuMetadata));
+    mem2client(client, (void *)compatibilityInfo, sizeof(*compatibilityInfo));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuMetadata, sizeof(*vgpuMetadata));
-    mem2client((void *)pgpuMetadata, sizeof(*pgpuMetadata));
-    mem2client((void *)compatibilityInfo, sizeof(*compatibilityInfo));
     return _result;
 }
 
@@ -7244,8 +9017,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)bufferSize, sizeof(*bufferSize));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)bufferSize, sizeof(*bufferSize));
     return _result;
 }
 
@@ -7282,9 +9064,18 @@ extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)supported, sizeof(*supported));
+    mem2client(client, (void *)current, sizeof(*current));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)supported, sizeof(*supported));
-    mem2client((void *)current, sizeof(*current));
     return _result;
 }
 
@@ -7318,8 +9109,17 @@ extern "C" nvmlReturn_t nvmlSetVgpuVersion(nvmlVgpuVersion_t *vgpuVersion) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuVersion, sizeof(*vgpuVersion));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuVersion, sizeof(*vgpuVersion));
     return _result;
 }
 
@@ -7361,10 +9161,19 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)sampleValType, sizeof(*sampleValType));
+    mem2client(client, (void *)vgpuInstanceSamplesCount, sizeof(*vgpuInstanceSamplesCount));
+    mem2client(client, (void *)utilizationSamples, sizeof(*utilizationSamples));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)sampleValType, sizeof(*sampleValType));
-    mem2client((void *)vgpuInstanceSamplesCount, sizeof(*vgpuInstanceSamplesCount));
-    mem2client((void *)utilizationSamples, sizeof(*utilizationSamples));
     return _result;
 }
 
@@ -7403,9 +9212,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)vgpuProcessSamplesCount, sizeof(*vgpuProcessSamplesCount));
+    mem2client(client, (void *)utilizationSamples, sizeof(*utilizationSamples));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)vgpuProcessSamplesCount, sizeof(*vgpuProcessSamplesCount));
-    mem2client((void *)utilizationSamples, sizeof(*utilizationSamples));
     return _result;
 }
 
@@ -7440,8 +9258,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)mode, sizeof(*mode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)mode, sizeof(*mode));
     return _result;
 }
 
@@ -7479,9 +9306,18 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)pids, sizeof(*pids));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
-    mem2client((void *)pids, sizeof(*pids));
     return _result;
 }
 
@@ -7517,8 +9353,17 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vg
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)stats, sizeof(*stats));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)stats, sizeof(*stats));
     return _result;
 }
 
@@ -7549,6 +9394,15 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t v
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -7584,8 +9438,17 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceCount(unsigned int *deviceCount) {
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)deviceCount, sizeof(*deviceCount));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)deviceCount, sizeof(*deviceCount));
     return _result;
 }
 
@@ -7620,8 +9483,17 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvm
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -7657,8 +9529,17 @@ extern "C" nvmlReturn_t nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int m
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)activationStatus, sizeof(*activationStatus));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)activationStatus, sizeof(*activationStatus));
     return _result;
 }
 
@@ -7696,9 +9577,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)currentMode, sizeof(*currentMode));
+    mem2client(client, (void *)pendingMode, sizeof(*pendingMode));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)currentMode, sizeof(*currentMode));
-    mem2client((void *)pendingMode, sizeof(*pendingMode));
     return _result;
 }
 
@@ -7734,8 +9624,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -7774,9 +9673,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)placements, sizeof(*placements));
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)placements, sizeof(*placements));
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -7812,8 +9720,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t d
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -7849,8 +9766,17 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigne
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)gpuInstance, sizeof(*gpuInstance));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)gpuInstance, sizeof(*gpuInstance));
     return _result;
 }
 
@@ -7889,9 +9815,18 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t de
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)placement, sizeof(*placement));
+    mem2client(client, (void *)gpuInstance, sizeof(*gpuInstance));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)placement, sizeof(*placement));
-    mem2client((void *)gpuInstance, sizeof(*gpuInstance));
     return _result;
 }
 
@@ -7922,6 +9857,15 @@ extern "C" nvmlReturn_t nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -7962,9 +9906,18 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)gpuInstances, sizeof(*gpuInstances));
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)gpuInstances, sizeof(*gpuInstances));
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8000,8 +9953,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsign
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)gpuInstance, sizeof(*gpuInstance));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)gpuInstance, sizeof(*gpuInstance));
     return _result;
 }
 
@@ -8036,8 +9998,17 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nv
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -8074,8 +10045,17 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -8111,8 +10091,17 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8148,8 +10137,17 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)computeInstance, sizeof(*computeInstance));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)computeInstance, sizeof(*computeInstance));
     return _result;
 }
 
@@ -8180,6 +10178,15 @@ extern "C" nvmlReturn_t nvmlComputeInstanceDestroy(nvmlComputeInstance_t compute
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_client(client);
         exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -8220,9 +10227,18 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpu
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)computeInstances, sizeof(*computeInstances));
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)computeInstances, sizeof(*computeInstances));
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8258,8 +10274,17 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t 
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)computeInstance, sizeof(*computeInstance));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)computeInstance, sizeof(*computeInstance));
     return _result;
 }
 
@@ -8294,8 +10319,17 @@ extern "C" nvmlReturn_t nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t comp
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)info, sizeof(*info));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)info, sizeof(*info));
     return _result;
 }
 
@@ -8330,8 +10364,17 @@ extern "C" nvmlReturn_t nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigne
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)isMigDevice, sizeof(*isMigDevice));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)isMigDevice, sizeof(*isMigDevice));
     return _result;
 }
 
@@ -8366,8 +10409,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)id, sizeof(*id));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)id, sizeof(*id));
     return _result;
 }
 
@@ -8402,8 +10454,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)id, sizeof(*id));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)id, sizeof(*id));
     return _result;
 }
 
@@ -8438,8 +10499,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsi
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)count, sizeof(*count));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)count, sizeof(*count));
     return _result;
 }
 
@@ -8475,8 +10545,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device,
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)migDevice, sizeof(*migDevice));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)migDevice, sizeof(*migDevice));
     return _result;
 }
 
@@ -8511,8 +10590,17 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
         rpc_release_client(client);
         exit(1);
     }
+    rpc_prepare_request(client, RPC_mem2client);
+    mem2client(client, (void *)device, sizeof(*device));
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
     rpc_free_client(client);
-    mem2client((void *)device, sizeof(*device));
     return _result;
 }
 

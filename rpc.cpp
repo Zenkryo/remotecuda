@@ -230,7 +230,6 @@ static ssize_t readv_all(RpcClient *client, bool with_len = false) {
             if(bytes_read < 0) {
                 goto ERR;
             }
-            printf("========= read %d packet bytes_read %ld, length %ld\n", i, bytes_read, length);
             total_read += bytes_read;
             if(client->iov_read2[i].iov_len > 0 && length > client->iov_read2[i].iov_len) {
                 errno = ENOBUFS; // 缓冲区不足
@@ -301,7 +300,10 @@ void rpc_init(uint16_t version_key) {
     uuid_generate(client_id);
     pthread_mutex_init(&pool_lock, NULL);
     for(int i = 0; i < MAX_CONNECTIONS; i++) {
-        memset(&clients_pool[i], 0, sizeof(RpcClient));
+        clients_pool[i].iov_read_count = 0;
+        clients_pool[i].iov_read2_count = 0;
+        clients_pool[i].iov_send_count = 0;
+        clients_pool[i].iov_send2_count = 0;
         clients_pool[i].sockfd = -1;
     }
     // 创建一个线程用于维护连接
@@ -339,6 +341,12 @@ void rpc_free_client(RpcClient *client) {
     client->iov_send2_count = 0;
     client->iov_read_count = 0;
     client->iov_read2_count = 0;
+    for(auto it = client->tmps4iov.begin(); it != client->tmps4iov.end(); it++) {
+        if(*it != nullptr) {
+            free(*it);
+        }
+    }
+    client->tmps4iov.clear();
     pthread_mutex_unlock(&pool_lock);
 }
 
@@ -358,6 +366,12 @@ void rpc_prepare_request(RpcClient *client, uint32_t funcId) {
     client->iov_send[0].iov_base = &client->funcId;
     client->iov_send[0].iov_len = sizeof(client->funcId);
     client->iov_send_count = 1;
+    for(auto it = client->tmps4iov.begin(); it != client->tmps4iov.end(); it++) {
+        if(*it != nullptr) {
+            free(*it);
+        }
+    }
+    client->tmps4iov.clear();
 }
 
 // 准备要发送的数据
