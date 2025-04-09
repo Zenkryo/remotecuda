@@ -3072,7 +3072,6 @@ int handle_cudaHostGetDevicePointer(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **pDevice
     void *pDevice;
     void *pHost;
     rpc_read(client, &pHost, sizeof(pHost));
@@ -3084,9 +3083,8 @@ int handle_cudaHostGetDevicePointer(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **pDevice
     _result = cudaHostGetDevicePointer(&pDevice, pHost, flags);
-    // PARAM void **pDevice
+    rpc_write(client, &pDevice, sizeof(pDevice));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3098,7 +3096,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **pDevice
     return rtn;
 }
 
@@ -9193,4 +9190,3 @@ _RTN_:
     }
     return rtn;
 }
-

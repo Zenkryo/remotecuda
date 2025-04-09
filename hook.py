@@ -114,11 +114,13 @@ MANUAL_FUNCTIONS = [
 
 
 # 隐藏类型
-HIDDEN_TYPES = ["cudnnRuntimeTag_t",]
-                # "cudaStream_t",
-                # "cudaEvent_t",
-                # "cudaGraphicsResource_t",
-                # "cudaExternalMemory_t", "cudaExternalSemaphore_t", "cudaGraph_t", "cudaGraphNode_t", "cudaUserObject_t", "cudaFunction_t", "cudaMemPool_t", "cudaArray_t", "cudaArray_const_t", "cudaMipmappedArray_t", "cudaMipmappedArray_const_t"]
+HIDDEN_TYPES = [
+    "cudnnRuntimeTag_t",
+]
+# "cudaStream_t",
+# "cudaEvent_t",
+# "cudaGraphicsResource_t",
+# "cudaExternalMemory_t", "cudaExternalSemaphore_t", "cudaGraph_t", "cudaGraphNode_t", "cudaUserObject_t", "cudaFunction_t", "cudaMemPool_t", "cudaArray_t", "cudaArray_const_t", "cudaMipmappedArray_t", "cudaMipmappedArray_const_t"]
 
 
 random.seed(time.time())
@@ -461,13 +463,13 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
 # 处理void **类型的参数
 def handle_param_ppvoid(function, param, f, is_client=True, position=0):
     if is_client:
-        if param.name == "devPtr":
+        if param.name in ["devPtr", "pDevice"]:
             if position == 1:
                 f.write(f"    rpc_read(client, {param.name}, sizeof(void *));\n")
         else:
             f.write(f"    // PARAM void **{param.name}\n")
     else:
-        if param.name == "devPtr":
+        if param.name in ["devPtr", "pDevice"]:
             if position == 2:
                 f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
         else:
@@ -1137,8 +1139,8 @@ pointer_sizes = {
     "cudaDeviceGetPCIBusId": {"pciBusId": "len"},
     "cudaIpcGetEventHandle": {"handle": "sizeof(*handle)"},
     "cudaIpcOpenEventHandle": {"event": "sizeof(*event)"},
-    "cudaIpcGetMemHandle": {"handle": "sizeof(*handle)", "devPtr":"-1"},
-    "cudaIpcCloseMemHandle": {"devPtr":"-1"},
+    "cudaIpcGetMemHandle": {"handle": "sizeof(*handle)", "devPtr": "-1"},
+    "cudaIpcCloseMemHandle": {"devPtr": "-1"},
     "cudaThreadGetLimit": {"pValue": "sizeof(*pValue)"},
     "cudaThreadGetCacheConfig": {"pCacheConfig": "sizeof(*pCacheConfig)"},
     "cudaGetDeviceCount": {"count": "sizeof(*count)"},

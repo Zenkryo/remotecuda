@@ -4264,7 +4264,6 @@ extern "C" cudaError_t cudaHostGetDevicePointer(void **pDevice, void *pHost, uns
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **pDevice
     void *_0pHost;
     mem2server(client, &_0pHost, (void *)pHost, 0);
     void *end_flag = (void *)0xffffffff;
@@ -4278,7 +4277,7 @@ extern "C" cudaError_t cudaHostGetDevicePointer(void **pDevice, void *pHost, uns
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaHostGetDevicePointer);
-    // PARAM void **pDevice
+    rpc_read(client, pDevice, sizeof(void *));
     rpc_write(client, &_0pHost, sizeof(_0pHost));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -4287,9 +4286,7 @@ extern "C" cudaError_t cudaHostGetDevicePointer(void **pDevice, void *pHost, uns
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **pDevice
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **pDevice
     mem2client(client, (void *)pHost, 0);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -12539,4 +12536,3 @@ extern "C" cudaError_t cudaGetFuncBySymbol(cudaFunction_t *functionPtr, const vo
     rpc_free_client(client);
     return _result;
 }
-
