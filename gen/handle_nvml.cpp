@@ -162,7 +162,7 @@ int handle_nvmlSystemGetCudaDriverVersion(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    int*cudaDriverVersion;
+    int *cudaDriverVersion;
     rpc_read(client, &cudaDriverVersion, sizeof(cudaDriverVersion));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -192,7 +192,7 @@ int handle_nvmlSystemGetCudaDriverVersion_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    int*cudaDriverVersion;
+    int *cudaDriverVersion;
     rpc_read(client, &cudaDriverVersion, sizeof(cudaDriverVersion));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -256,7 +256,7 @@ int handle_nvmlUnitGetCount(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    unsigned int*unitCount;
+    unsigned int *unitCount;
     rpc_read(client, &unitCount, sizeof(unitCount));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -288,7 +288,7 @@ int handle_nvmlUnitGetHandleByIndex(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     unsigned int index;
     rpc_read(client, &index, sizeof(index));
-    nvmlUnit_t*unit;
+    nvmlUnit_t *unit;
     rpc_read(client, &unit, sizeof(unit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -320,7 +320,7 @@ int handle_nvmlUnitGetUnitInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlUnit_t unit;
     rpc_read(client, &unit, sizeof(unit));
-    nvmlUnitInfo_t*info;
+    nvmlUnitInfo_t *info;
     rpc_read(client, &info, sizeof(info));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -352,7 +352,7 @@ int handle_nvmlUnitGetLedState(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlUnit_t unit;
     rpc_read(client, &unit, sizeof(unit));
-    nvmlLedState_t*state;
+    nvmlLedState_t *state;
     rpc_read(client, &state, sizeof(state));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -384,7 +384,7 @@ int handle_nvmlUnitGetPsuInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlUnit_t unit;
     rpc_read(client, &unit, sizeof(unit));
-    nvmlPSUInfo_t*psu;
+    nvmlPSUInfo_t *psu;
     rpc_read(client, &psu, sizeof(psu));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -418,7 +418,7 @@ int handle_nvmlUnitGetTemperature(void *args0) {
     rpc_read(client, &unit, sizeof(unit));
     unsigned int type;
     rpc_read(client, &type, sizeof(type));
-    unsigned int*temp;
+    unsigned int *temp;
     rpc_read(client, &temp, sizeof(temp));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -450,7 +450,7 @@ int handle_nvmlUnitGetFanSpeedInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlUnit_t unit;
     rpc_read(client, &unit, sizeof(unit));
-    nvmlUnitFanSpeeds_t*fanSpeeds;
+    nvmlUnitFanSpeeds_t *fanSpeeds;
     rpc_read(client, &fanSpeeds, sizeof(fanSpeeds));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -482,9 +482,9 @@ int handle_nvmlUnitGetDevices(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlUnit_t unit;
     rpc_read(client, &unit, sizeof(unit));
-    unsigned int*deviceCount;
+    unsigned int *deviceCount;
     rpc_read(client, &deviceCount, sizeof(deviceCount));
-    nvmlDevice_t*devices;
+    nvmlDevice_t *devices;
     rpc_read(client, &devices, sizeof(devices));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -514,9 +514,9 @@ int handle_nvmlSystemGetHicVersion(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    unsigned int*hwbcCount;
+    unsigned int *hwbcCount;
     rpc_read(client, &hwbcCount, sizeof(hwbcCount));
-    nvmlHwbcEntry_t*hwbcEntries;
+    nvmlHwbcEntry_t *hwbcEntries;
     rpc_read(client, &hwbcEntries, sizeof(hwbcEntries));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -546,7 +546,7 @@ int handle_nvmlDeviceGetCount_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    unsigned int*deviceCount;
+    unsigned int *deviceCount;
     rpc_read(client, &deviceCount, sizeof(deviceCount));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -578,7 +578,7 @@ int handle_nvmlDeviceGetAttributes_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlDeviceAttributes_t*attributes;
+    nvmlDeviceAttributes_t *attributes;
     rpc_read(client, &attributes, sizeof(attributes));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -610,7 +610,7 @@ int handle_nvmlDeviceGetHandleByIndex_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     unsigned int index;
     rpc_read(client, &index, sizeof(index));
-    nvmlDevice_t*device;
+    nvmlDevice_t *device;
     rpc_read(client, &device, sizeof(device));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -642,7 +642,7 @@ int handle_nvmlDeviceGetHandleBySerial(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     char *serial = nullptr;
     rpc_read(client, &serial, 0, true);
-    nvmlDevice_t*device;
+    nvmlDevice_t *device;
     rpc_read(client, &device, sizeof(device));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -675,7 +675,7 @@ int handle_nvmlDeviceGetHandleByUUID(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     char *uuid = nullptr;
     rpc_read(client, &uuid, 0, true);
-    nvmlDevice_t*device;
+    nvmlDevice_t *device;
     rpc_read(client, &device, sizeof(device));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -708,7 +708,7 @@ int handle_nvmlDeviceGetHandleByPciBusId_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     char *pciBusId = nullptr;
     rpc_read(client, &pciBusId, 0, true);
-    nvmlDevice_t*device;
+    nvmlDevice_t *device;
     rpc_read(client, &device, sizeof(device));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -775,7 +775,7 @@ int handle_nvmlDeviceGetBrand(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlBrandType_t*type;
+    nvmlBrandType_t *type;
     rpc_read(client, &type, sizeof(type));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -807,7 +807,7 @@ int handle_nvmlDeviceGetIndex(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*index;
+    unsigned int *index;
     rpc_read(client, &index, sizeof(index));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -875,7 +875,7 @@ int handle_nvmlDeviceGetMemoryAffinity(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int nodeSetSize;
     rpc_read(client, &nodeSetSize, sizeof(nodeSetSize));
-    unsigned long*nodeSet;
+    unsigned long *nodeSet;
     rpc_read(client, &nodeSet, sizeof(nodeSet));
     nvmlAffinityScope_t scope;
     rpc_read(client, &scope, sizeof(scope));
@@ -911,7 +911,7 @@ int handle_nvmlDeviceGetCpuAffinityWithinScope(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int cpuSetSize;
     rpc_read(client, &cpuSetSize, sizeof(cpuSetSize));
-    unsigned long*cpuSet;
+    unsigned long *cpuSet;
     rpc_read(client, &cpuSet, sizeof(cpuSet));
     nvmlAffinityScope_t scope;
     rpc_read(client, &scope, sizeof(scope));
@@ -947,7 +947,7 @@ int handle_nvmlDeviceGetCpuAffinity(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int cpuSetSize;
     rpc_read(client, &cpuSetSize, sizeof(cpuSetSize));
-    unsigned long*cpuSet;
+    unsigned long *cpuSet;
     rpc_read(client, &cpuSet, sizeof(cpuSet));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1041,7 +1041,7 @@ int handle_nvmlDeviceGetTopologyCommonAncestor(void *args0) {
     rpc_read(client, &device1, sizeof(device1));
     nvmlDevice_t device2;
     rpc_read(client, &device2, sizeof(device2));
-    nvmlGpuTopologyLevel_t*pathInfo;
+    nvmlGpuTopologyLevel_t *pathInfo;
     rpc_read(client, &pathInfo, sizeof(pathInfo));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1075,9 +1075,9 @@ int handle_nvmlDeviceGetTopologyNearestGpus(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlGpuTopologyLevel_t level;
     rpc_read(client, &level, sizeof(level));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
-    nvmlDevice_t*deviceArray;
+    nvmlDevice_t *deviceArray;
     rpc_read(client, &deviceArray, sizeof(deviceArray));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1109,9 +1109,9 @@ int handle_nvmlSystemGetTopologyGpuSet(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     unsigned int cpuNumber;
     rpc_read(client, &cpuNumber, sizeof(cpuNumber));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
-    nvmlDevice_t*deviceArray;
+    nvmlDevice_t *deviceArray;
     rpc_read(client, &deviceArray, sizeof(deviceArray));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1147,7 +1147,7 @@ int handle_nvmlDeviceGetP2PStatus(void *args0) {
     rpc_read(client, &device2, sizeof(device2));
     nvmlGpuP2PCapsIndex_t p2pIndex;
     rpc_read(client, &p2pIndex, sizeof(p2pIndex));
-    nvmlGpuP2PStatus_t*p2pStatus;
+    nvmlGpuP2PStatus_t *p2pStatus;
     rpc_read(client, &p2pStatus, sizeof(p2pStatus));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1247,7 +1247,7 @@ int handle_nvmlDeviceGetMinorNumber(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*minorNumber;
+    unsigned int *minorNumber;
     rpc_read(client, &minorNumber, sizeof(minorNumber));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1383,7 +1383,7 @@ int handle_nvmlDeviceGetInforomConfigurationChecksum(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*checksum;
+    unsigned int *checksum;
     rpc_read(client, &checksum, sizeof(checksum));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1445,7 +1445,7 @@ int handle_nvmlDeviceGetDisplayMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*display;
+    nvmlEnableState_t *display;
     rpc_read(client, &display, sizeof(display));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1477,7 +1477,7 @@ int handle_nvmlDeviceGetDisplayActive(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*isActive;
+    nvmlEnableState_t *isActive;
     rpc_read(client, &isActive, sizeof(isActive));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1509,7 +1509,7 @@ int handle_nvmlDeviceGetPersistenceMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*mode;
+    nvmlEnableState_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1541,7 +1541,7 @@ int handle_nvmlDeviceGetPciInfo_v3(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlPciInfo_t*pci;
+    nvmlPciInfo_t *pci;
     rpc_read(client, &pci, sizeof(pci));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1573,7 +1573,7 @@ int handle_nvmlDeviceGetMaxPcieLinkGeneration(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*maxLinkGen;
+    unsigned int *maxLinkGen;
     rpc_read(client, &maxLinkGen, sizeof(maxLinkGen));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1605,7 +1605,7 @@ int handle_nvmlDeviceGetMaxPcieLinkWidth(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*maxLinkWidth;
+    unsigned int *maxLinkWidth;
     rpc_read(client, &maxLinkWidth, sizeof(maxLinkWidth));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1637,7 +1637,7 @@ int handle_nvmlDeviceGetCurrPcieLinkGeneration(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*currLinkGen;
+    unsigned int *currLinkGen;
     rpc_read(client, &currLinkGen, sizeof(currLinkGen));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1669,7 +1669,7 @@ int handle_nvmlDeviceGetCurrPcieLinkWidth(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*currLinkWidth;
+    unsigned int *currLinkWidth;
     rpc_read(client, &currLinkWidth, sizeof(currLinkWidth));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1703,7 +1703,7 @@ int handle_nvmlDeviceGetPcieThroughput(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlPcieUtilCounter_t counter;
     rpc_read(client, &counter, sizeof(counter));
-    unsigned int*value;
+    unsigned int *value;
     rpc_read(client, &value, sizeof(value));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1735,7 +1735,7 @@ int handle_nvmlDeviceGetPcieReplayCounter(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*value;
+    unsigned int *value;
     rpc_read(client, &value, sizeof(value));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1769,7 +1769,7 @@ int handle_nvmlDeviceGetClockInfo(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlClockType_t type;
     rpc_read(client, &type, sizeof(type));
-    unsigned int*clock;
+    unsigned int *clock;
     rpc_read(client, &clock, sizeof(clock));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1803,7 +1803,7 @@ int handle_nvmlDeviceGetMaxClockInfo(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlClockType_t type;
     rpc_read(client, &type, sizeof(type));
-    unsigned int*clock;
+    unsigned int *clock;
     rpc_read(client, &clock, sizeof(clock));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1837,7 +1837,7 @@ int handle_nvmlDeviceGetApplicationsClock(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlClockType_t clockType;
     rpc_read(client, &clockType, sizeof(clockType));
-    unsigned int*clockMHz;
+    unsigned int *clockMHz;
     rpc_read(client, &clockMHz, sizeof(clockMHz));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1871,7 +1871,7 @@ int handle_nvmlDeviceGetDefaultApplicationsClock(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlClockType_t clockType;
     rpc_read(client, &clockType, sizeof(clockType));
-    unsigned int*clockMHz;
+    unsigned int *clockMHz;
     rpc_read(client, &clockMHz, sizeof(clockMHz));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1937,7 +1937,7 @@ int handle_nvmlDeviceGetClock(void *args0) {
     rpc_read(client, &clockType, sizeof(clockType));
     nvmlClockId_t clockId;
     rpc_read(client, &clockId, sizeof(clockId));
-    unsigned int*clockMHz;
+    unsigned int *clockMHz;
     rpc_read(client, &clockMHz, sizeof(clockMHz));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1971,7 +1971,7 @@ int handle_nvmlDeviceGetMaxCustomerBoostClock(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlClockType_t clockType;
     rpc_read(client, &clockType, sizeof(clockType));
-    unsigned int*clockMHz;
+    unsigned int *clockMHz;
     rpc_read(client, &clockMHz, sizeof(clockMHz));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2003,9 +2003,9 @@ int handle_nvmlDeviceGetSupportedMemoryClocks(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
-    unsigned int*clocksMHz;
+    unsigned int *clocksMHz;
     rpc_read(client, &clocksMHz, sizeof(clocksMHz));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2039,9 +2039,9 @@ int handle_nvmlDeviceGetSupportedGraphicsClocks(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int memoryClockMHz;
     rpc_read(client, &memoryClockMHz, sizeof(memoryClockMHz));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
-    unsigned int*clocksMHz;
+    unsigned int *clocksMHz;
     rpc_read(client, &clocksMHz, sizeof(clocksMHz));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2073,9 +2073,9 @@ int handle_nvmlDeviceGetAutoBoostedClocksEnabled(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*isEnabled;
+    nvmlEnableState_t *isEnabled;
     rpc_read(client, &isEnabled, sizeof(isEnabled));
-    nvmlEnableState_t*defaultIsEnabled;
+    nvmlEnableState_t *defaultIsEnabled;
     rpc_read(client, &defaultIsEnabled, sizeof(defaultIsEnabled));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2173,7 +2173,7 @@ int handle_nvmlDeviceGetFanSpeed(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*speed;
+    unsigned int *speed;
     rpc_read(client, &speed, sizeof(speed));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2207,7 +2207,7 @@ int handle_nvmlDeviceGetFanSpeed_v2(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int fan;
     rpc_read(client, &fan, sizeof(fan));
-    unsigned int*speed;
+    unsigned int *speed;
     rpc_read(client, &speed, sizeof(speed));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2241,7 +2241,7 @@ int handle_nvmlDeviceGetTemperature(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlTemperatureSensors_t sensorType;
     rpc_read(client, &sensorType, sizeof(sensorType));
-    unsigned int*temp;
+    unsigned int *temp;
     rpc_read(client, &temp, sizeof(temp));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2275,7 +2275,7 @@ int handle_nvmlDeviceGetTemperatureThreshold(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlTemperatureThresholds_t thresholdType;
     rpc_read(client, &thresholdType, sizeof(thresholdType));
-    unsigned int*temp;
+    unsigned int *temp;
     rpc_read(client, &temp, sizeof(temp));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2309,7 +2309,7 @@ int handle_nvmlDeviceSetTemperatureThreshold(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlTemperatureThresholds_t thresholdType;
     rpc_read(client, &thresholdType, sizeof(thresholdType));
-    int*temp;
+    int *temp;
     rpc_read(client, &temp, sizeof(temp));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2341,7 +2341,7 @@ int handle_nvmlDeviceGetPerformanceState(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlPstates_t*pState;
+    nvmlPstates_t *pState;
     rpc_read(client, &pState, sizeof(pState));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2373,7 +2373,7 @@ int handle_nvmlDeviceGetCurrentClocksThrottleReasons(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned long long*clocksThrottleReasons;
+    unsigned long long *clocksThrottleReasons;
     rpc_read(client, &clocksThrottleReasons, sizeof(clocksThrottleReasons));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2405,7 +2405,7 @@ int handle_nvmlDeviceGetSupportedClocksThrottleReasons(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned long long*supportedClocksThrottleReasons;
+    unsigned long long *supportedClocksThrottleReasons;
     rpc_read(client, &supportedClocksThrottleReasons, sizeof(supportedClocksThrottleReasons));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2437,7 +2437,7 @@ int handle_nvmlDeviceGetPowerState(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlPstates_t*pState;
+    nvmlPstates_t *pState;
     rpc_read(client, &pState, sizeof(pState));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2469,7 +2469,7 @@ int handle_nvmlDeviceGetPowerManagementMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*mode;
+    nvmlEnableState_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2501,7 +2501,7 @@ int handle_nvmlDeviceGetPowerManagementLimit(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*limit;
+    unsigned int *limit;
     rpc_read(client, &limit, sizeof(limit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2533,9 +2533,9 @@ int handle_nvmlDeviceGetPowerManagementLimitConstraints(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*minLimit;
+    unsigned int *minLimit;
     rpc_read(client, &minLimit, sizeof(minLimit));
-    unsigned int*maxLimit;
+    unsigned int *maxLimit;
     rpc_read(client, &maxLimit, sizeof(maxLimit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2567,7 +2567,7 @@ int handle_nvmlDeviceGetPowerManagementDefaultLimit(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*defaultLimit;
+    unsigned int *defaultLimit;
     rpc_read(client, &defaultLimit, sizeof(defaultLimit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2599,7 +2599,7 @@ int handle_nvmlDeviceGetPowerUsage(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*power;
+    unsigned int *power;
     rpc_read(client, &power, sizeof(power));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2631,7 +2631,7 @@ int handle_nvmlDeviceGetTotalEnergyConsumption(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned long long*energy;
+    unsigned long long *energy;
     rpc_read(client, &energy, sizeof(energy));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2663,7 +2663,7 @@ int handle_nvmlDeviceGetEnforcedPowerLimit(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*limit;
+    unsigned int *limit;
     rpc_read(client, &limit, sizeof(limit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2695,9 +2695,9 @@ int handle_nvmlDeviceGetGpuOperationMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlGpuOperationMode_t*current;
+    nvmlGpuOperationMode_t *current;
     rpc_read(client, &current, sizeof(current));
-    nvmlGpuOperationMode_t*pending;
+    nvmlGpuOperationMode_t *pending;
     rpc_read(client, &pending, sizeof(pending));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2729,7 +2729,7 @@ int handle_nvmlDeviceGetMemoryInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlMemory_t*memory;
+    nvmlMemory_t *memory;
     rpc_read(client, &memory, sizeof(memory));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2761,7 +2761,7 @@ int handle_nvmlDeviceGetComputeMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlComputeMode_t*mode;
+    nvmlComputeMode_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2793,9 +2793,9 @@ int handle_nvmlDeviceGetCudaComputeCapability(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    int*major;
+    int *major;
     rpc_read(client, &major, sizeof(major));
-    int*minor;
+    int *minor;
     rpc_read(client, &minor, sizeof(minor));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2827,9 +2827,9 @@ int handle_nvmlDeviceGetEccMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*current;
+    nvmlEnableState_t *current;
     rpc_read(client, &current, sizeof(current));
-    nvmlEnableState_t*pending;
+    nvmlEnableState_t *pending;
     rpc_read(client, &pending, sizeof(pending));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2861,7 +2861,7 @@ int handle_nvmlDeviceGetBoardId(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*boardId;
+    unsigned int *boardId;
     rpc_read(client, &boardId, sizeof(boardId));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2893,7 +2893,7 @@ int handle_nvmlDeviceGetMultiGpuBoard(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*multiGpuBool;
+    unsigned int *multiGpuBool;
     rpc_read(client, &multiGpuBool, sizeof(multiGpuBool));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2929,7 +2929,7 @@ int handle_nvmlDeviceGetTotalEccErrors(void *args0) {
     rpc_read(client, &errorType, sizeof(errorType));
     nvmlEccCounterType_t counterType;
     rpc_read(client, &counterType, sizeof(counterType));
-    unsigned long long*eccCounts;
+    unsigned long long *eccCounts;
     rpc_read(client, &eccCounts, sizeof(eccCounts));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2965,7 +2965,7 @@ int handle_nvmlDeviceGetDetailedEccErrors(void *args0) {
     rpc_read(client, &errorType, sizeof(errorType));
     nvmlEccCounterType_t counterType;
     rpc_read(client, &counterType, sizeof(counterType));
-    nvmlEccErrorCounts_t*eccCounts;
+    nvmlEccErrorCounts_t *eccCounts;
     rpc_read(client, &eccCounts, sizeof(eccCounts));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3003,7 +3003,7 @@ int handle_nvmlDeviceGetMemoryErrorCounter(void *args0) {
     rpc_read(client, &counterType, sizeof(counterType));
     nvmlMemoryLocation_t locationType;
     rpc_read(client, &locationType, sizeof(locationType));
-    unsigned long long*count;
+    unsigned long long *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3035,7 +3035,7 @@ int handle_nvmlDeviceGetUtilizationRates(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlUtilization_t*utilization;
+    nvmlUtilization_t *utilization;
     rpc_read(client, &utilization, sizeof(utilization));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3067,9 +3067,9 @@ int handle_nvmlDeviceGetEncoderUtilization(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*utilization;
+    unsigned int *utilization;
     rpc_read(client, &utilization, sizeof(utilization));
-    unsigned int*samplingPeriodUs;
+    unsigned int *samplingPeriodUs;
     rpc_read(client, &samplingPeriodUs, sizeof(samplingPeriodUs));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3103,7 +3103,7 @@ int handle_nvmlDeviceGetEncoderCapacity(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlEncoderType_t encoderQueryType;
     rpc_read(client, &encoderQueryType, sizeof(encoderQueryType));
-    unsigned int*encoderCapacity;
+    unsigned int *encoderCapacity;
     rpc_read(client, &encoderCapacity, sizeof(encoderCapacity));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3135,11 +3135,11 @@ int handle_nvmlDeviceGetEncoderStats(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*sessionCount;
+    unsigned int *sessionCount;
     rpc_read(client, &sessionCount, sizeof(sessionCount));
-    unsigned int*averageFps;
+    unsigned int *averageFps;
     rpc_read(client, &averageFps, sizeof(averageFps));
-    unsigned int*averageLatency;
+    unsigned int *averageLatency;
     rpc_read(client, &averageLatency, sizeof(averageLatency));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3171,9 +3171,9 @@ int handle_nvmlDeviceGetEncoderSessions(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*sessionCount;
+    unsigned int *sessionCount;
     rpc_read(client, &sessionCount, sizeof(sessionCount));
-    nvmlEncoderSessionInfo_t*sessionInfos;
+    nvmlEncoderSessionInfo_t *sessionInfos;
     rpc_read(client, &sessionInfos, sizeof(sessionInfos));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3205,9 +3205,9 @@ int handle_nvmlDeviceGetDecoderUtilization(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*utilization;
+    unsigned int *utilization;
     rpc_read(client, &utilization, sizeof(utilization));
-    unsigned int*samplingPeriodUs;
+    unsigned int *samplingPeriodUs;
     rpc_read(client, &samplingPeriodUs, sizeof(samplingPeriodUs));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3239,7 +3239,7 @@ int handle_nvmlDeviceGetFBCStats(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlFBCStats_t*fbcStats;
+    nvmlFBCStats_t *fbcStats;
     rpc_read(client, &fbcStats, sizeof(fbcStats));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3271,9 +3271,9 @@ int handle_nvmlDeviceGetFBCSessions(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*sessionCount;
+    unsigned int *sessionCount;
     rpc_read(client, &sessionCount, sizeof(sessionCount));
-    nvmlFBCSessionInfo_t*sessionInfo;
+    nvmlFBCSessionInfo_t *sessionInfo;
     rpc_read(client, &sessionInfo, sizeof(sessionInfo));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3305,9 +3305,9 @@ int handle_nvmlDeviceGetDriverModel(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlDriverModel_t*current;
+    nvmlDriverModel_t *current;
     rpc_read(client, &current, sizeof(current));
-    nvmlDriverModel_t*pending;
+    nvmlDriverModel_t *pending;
     rpc_read(client, &pending, sizeof(pending));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3373,7 +3373,7 @@ int handle_nvmlDeviceGetBridgeChipInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlBridgeChipHierarchy_t*bridgeHierarchy;
+    nvmlBridgeChipHierarchy_t *bridgeHierarchy;
     rpc_read(client, &bridgeHierarchy, sizeof(bridgeHierarchy));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3405,9 +3405,9 @@ int handle_nvmlDeviceGetComputeRunningProcesses_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*infoCount;
+    unsigned int *infoCount;
     rpc_read(client, &infoCount, sizeof(infoCount));
-    nvmlProcessInfo_t*infos;
+    nvmlProcessInfo_t *infos;
     rpc_read(client, &infos, sizeof(infos));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3439,9 +3439,9 @@ int handle_nvmlDeviceGetGraphicsRunningProcesses_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*infoCount;
+    unsigned int *infoCount;
     rpc_read(client, &infoCount, sizeof(infoCount));
-    nvmlProcessInfo_t*infos;
+    nvmlProcessInfo_t *infos;
     rpc_read(client, &infos, sizeof(infos));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3473,9 +3473,9 @@ int handle_nvmlDeviceGetMPSComputeRunningProcesses_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*infoCount;
+    unsigned int *infoCount;
     rpc_read(client, &infoCount, sizeof(infoCount));
-    nvmlProcessInfo_t*infos;
+    nvmlProcessInfo_t *infos;
     rpc_read(client, &infos, sizeof(infos));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3509,7 +3509,7 @@ int handle_nvmlDeviceOnSameBoard(void *args0) {
     rpc_read(client, &device1, sizeof(device1));
     nvmlDevice_t device2;
     rpc_read(client, &device2, sizeof(device2));
-    int*onSameBoard;
+    int *onSameBoard;
     rpc_read(client, &onSameBoard, sizeof(onSameBoard));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3543,7 +3543,7 @@ int handle_nvmlDeviceGetAPIRestriction(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlRestrictedAPI_t apiType;
     rpc_read(client, &apiType, sizeof(apiType));
-    nvmlEnableState_t*isRestricted;
+    nvmlEnableState_t *isRestricted;
     rpc_read(client, &isRestricted, sizeof(isRestricted));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3579,11 +3579,11 @@ int handle_nvmlDeviceGetSamples(void *args0) {
     rpc_read(client, &type, sizeof(type));
     unsigned long long lastSeenTimeStamp;
     rpc_read(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
-    nvmlValueType_t*sampleValType;
+    nvmlValueType_t *sampleValType;
     rpc_read(client, &sampleValType, sizeof(sampleValType));
-    unsigned int*sampleCount;
+    unsigned int *sampleCount;
     rpc_read(client, &sampleCount, sizeof(sampleCount));
-    nvmlSample_t*samples;
+    nvmlSample_t *samples;
     rpc_read(client, &samples, sizeof(samples));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3615,7 +3615,7 @@ int handle_nvmlDeviceGetBAR1MemoryInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlBAR1Memory_t*bar1Memory;
+    nvmlBAR1Memory_t *bar1Memory;
     rpc_read(client, &bar1Memory, sizeof(bar1Memory));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3649,7 +3649,7 @@ int handle_nvmlDeviceGetViolationStatus(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlPerfPolicyType_t perfPolicyType;
     rpc_read(client, &perfPolicyType, sizeof(perfPolicyType));
-    nvmlViolationTime_t*violTime;
+    nvmlViolationTime_t *violTime;
     rpc_read(client, &violTime, sizeof(violTime));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3681,7 +3681,7 @@ int handle_nvmlDeviceGetAccountingMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*mode;
+    nvmlEnableState_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3715,7 +3715,7 @@ int handle_nvmlDeviceGetAccountingStats(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int pid;
     rpc_read(client, &pid, sizeof(pid));
-    nvmlAccountingStats_t*stats;
+    nvmlAccountingStats_t *stats;
     rpc_read(client, &stats, sizeof(stats));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3747,9 +3747,9 @@ int handle_nvmlDeviceGetAccountingPids(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
-    unsigned int*pids;
+    unsigned int *pids;
     rpc_read(client, &pids, sizeof(pids));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3781,7 +3781,7 @@ int handle_nvmlDeviceGetAccountingBufferSize(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*bufferSize;
+    unsigned int *bufferSize;
     rpc_read(client, &bufferSize, sizeof(bufferSize));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3815,9 +3815,9 @@ int handle_nvmlDeviceGetRetiredPages(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlPageRetirementCause_t cause;
     rpc_read(client, &cause, sizeof(cause));
-    unsigned int*pageCount;
+    unsigned int *pageCount;
     rpc_read(client, &pageCount, sizeof(pageCount));
-    unsigned long long*addresses;
+    unsigned long long *addresses;
     rpc_read(client, &addresses, sizeof(addresses));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3851,11 +3851,11 @@ int handle_nvmlDeviceGetRetiredPages_v2(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlPageRetirementCause_t cause;
     rpc_read(client, &cause, sizeof(cause));
-    unsigned int*pageCount;
+    unsigned int *pageCount;
     rpc_read(client, &pageCount, sizeof(pageCount));
-    unsigned long long*addresses;
+    unsigned long long *addresses;
     rpc_read(client, &addresses, sizeof(addresses));
-    unsigned long long*timestamps;
+    unsigned long long *timestamps;
     rpc_read(client, &timestamps, sizeof(timestamps));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3887,7 +3887,7 @@ int handle_nvmlDeviceGetRetiredPagesPendingStatus(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlEnableState_t*isPending;
+    nvmlEnableState_t *isPending;
     rpc_read(client, &isPending, sizeof(isPending));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3919,13 +3919,13 @@ int handle_nvmlDeviceGetRemappedRows(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*corrRows;
+    unsigned int *corrRows;
     rpc_read(client, &corrRows, sizeof(corrRows));
-    unsigned int*uncRows;
+    unsigned int *uncRows;
     rpc_read(client, &uncRows, sizeof(uncRows));
-    unsigned int*isPending;
+    unsigned int *isPending;
     rpc_read(client, &isPending, sizeof(isPending));
-    unsigned int*failureOccurred;
+    unsigned int *failureOccurred;
     rpc_read(client, &failureOccurred, sizeof(failureOccurred));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3957,7 +3957,7 @@ int handle_nvmlDeviceGetRowRemapperHistogram(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlRowRemapperHistogramValues_t*values;
+    nvmlRowRemapperHistogramValues_t *values;
     rpc_read(client, &values, sizeof(values));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3989,7 +3989,7 @@ int handle_nvmlDeviceGetArchitecture(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlDeviceArchitecture_t*arch;
+    nvmlDeviceArchitecture_t *arch;
     rpc_read(client, &arch, sizeof(arch));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4377,7 +4377,7 @@ int handle_nvmlDeviceGetClkMonStatus(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlClkMonStatus_t*status;
+    nvmlClkMonStatus_t *status;
     rpc_read(client, &status, sizeof(status));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4571,7 +4571,7 @@ int handle_nvmlDeviceGetNvLinkState(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int link;
     rpc_read(client, &link, sizeof(link));
-    nvmlEnableState_t*isActive;
+    nvmlEnableState_t *isActive;
     rpc_read(client, &isActive, sizeof(isActive));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4605,7 +4605,7 @@ int handle_nvmlDeviceGetNvLinkVersion(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int link;
     rpc_read(client, &link, sizeof(link));
-    unsigned int*version;
+    unsigned int *version;
     rpc_read(client, &version, sizeof(version));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4641,7 +4641,7 @@ int handle_nvmlDeviceGetNvLinkCapability(void *args0) {
     rpc_read(client, &link, sizeof(link));
     nvmlNvLinkCapability_t capability;
     rpc_read(client, &capability, sizeof(capability));
-    unsigned int*capResult;
+    unsigned int *capResult;
     rpc_read(client, &capResult, sizeof(capResult));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4675,7 +4675,7 @@ int handle_nvmlDeviceGetNvLinkRemotePciInfo_v2(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int link;
     rpc_read(client, &link, sizeof(link));
-    nvmlPciInfo_t*pci;
+    nvmlPciInfo_t *pci;
     rpc_read(client, &pci, sizeof(pci));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4711,7 +4711,7 @@ int handle_nvmlDeviceGetNvLinkErrorCounter(void *args0) {
     rpc_read(client, &link, sizeof(link));
     nvmlNvLinkErrorCounter_t counter;
     rpc_read(client, &counter, sizeof(counter));
-    unsigned long long*counterValue;
+    unsigned long long *counterValue;
     rpc_read(client, &counterValue, sizeof(counterValue));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4779,7 +4779,7 @@ int handle_nvmlDeviceSetNvLinkUtilizationControl(void *args0) {
     rpc_read(client, &link, sizeof(link));
     unsigned int counter;
     rpc_read(client, &counter, sizeof(counter));
-    nvmlNvLinkUtilizationControl_t*control;
+    nvmlNvLinkUtilizationControl_t *control;
     rpc_read(client, &control, sizeof(control));
     unsigned int reset;
     rpc_read(client, &reset, sizeof(reset));
@@ -4817,7 +4817,7 @@ int handle_nvmlDeviceGetNvLinkUtilizationControl(void *args0) {
     rpc_read(client, &link, sizeof(link));
     unsigned int counter;
     rpc_read(client, &counter, sizeof(counter));
-    nvmlNvLinkUtilizationControl_t*control;
+    nvmlNvLinkUtilizationControl_t *control;
     rpc_read(client, &control, sizeof(control));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4853,9 +4853,9 @@ int handle_nvmlDeviceGetNvLinkUtilizationCounter(void *args0) {
     rpc_read(client, &link, sizeof(link));
     unsigned int counter;
     rpc_read(client, &counter, sizeof(counter));
-    unsigned long long*rxcounter;
+    unsigned long long *rxcounter;
     rpc_read(client, &rxcounter, sizeof(rxcounter));
-    unsigned long long*txcounter;
+    unsigned long long *txcounter;
     rpc_read(client, &txcounter, sizeof(txcounter));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4959,7 +4959,7 @@ int handle_nvmlDeviceGetNvLinkRemoteDeviceType(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int link;
     rpc_read(client, &link, sizeof(link));
-    nvmlIntNvLinkDeviceType_t*pNvLinkDeviceType;
+    nvmlIntNvLinkDeviceType_t *pNvLinkDeviceType;
     rpc_read(client, &pNvLinkDeviceType, sizeof(pNvLinkDeviceType));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -4989,7 +4989,7 @@ int handle_nvmlEventSetCreate(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlEventSet_t*set;
+    nvmlEventSet_t *set;
     rpc_read(client, &set, sizeof(set));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5055,7 +5055,7 @@ int handle_nvmlDeviceGetSupportedEventTypes(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned long long*eventTypes;
+    unsigned long long *eventTypes;
     rpc_read(client, &eventTypes, sizeof(eventTypes));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5087,7 +5087,7 @@ int handle_nvmlEventSetWait_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlEventSet_t set;
     rpc_read(client, &set, sizeof(set));
-    nvmlEventData_t*data;
+    nvmlEventData_t *data;
     rpc_read(client, &data, sizeof(data));
     unsigned int timeoutms;
     rpc_read(client, &timeoutms, sizeof(timeoutms));
@@ -5149,7 +5149,7 @@ int handle_nvmlDeviceModifyDrainState(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlPciInfo_t*pciInfo;
+    nvmlPciInfo_t *pciInfo;
     rpc_read(client, &pciInfo, sizeof(pciInfo));
     nvmlEnableState_t newState;
     rpc_read(client, &newState, sizeof(newState));
@@ -5181,9 +5181,9 @@ int handle_nvmlDeviceQueryDrainState(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlPciInfo_t*pciInfo;
+    nvmlPciInfo_t *pciInfo;
     rpc_read(client, &pciInfo, sizeof(pciInfo));
-    nvmlEnableState_t*currentState;
+    nvmlEnableState_t *currentState;
     rpc_read(client, &currentState, sizeof(currentState));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5213,7 +5213,7 @@ int handle_nvmlDeviceRemoveGpu_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlPciInfo_t*pciInfo;
+    nvmlPciInfo_t *pciInfo;
     rpc_read(client, &pciInfo, sizeof(pciInfo));
     nvmlDetachGpuState_t gpuState;
     rpc_read(client, &gpuState, sizeof(gpuState));
@@ -5247,7 +5247,7 @@ int handle_nvmlDeviceDiscoverGpus(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlPciInfo_t*pciInfo;
+    nvmlPciInfo_t *pciInfo;
     rpc_read(client, &pciInfo, sizeof(pciInfo));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5281,7 +5281,7 @@ int handle_nvmlDeviceGetFieldValues(void *args0) {
     rpc_read(client, &device, sizeof(device));
     int valuesCount;
     rpc_read(client, &valuesCount, sizeof(valuesCount));
-    nvmlFieldValue_t*values;
+    nvmlFieldValue_t *values;
     rpc_read(client, &values, sizeof(values));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5313,7 +5313,7 @@ int handle_nvmlDeviceGetVirtualizationMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlGpuVirtualizationMode_t*pVirtualMode;
+    nvmlGpuVirtualizationMode_t *pVirtualMode;
     rpc_read(client, &pVirtualMode, sizeof(pVirtualMode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5345,7 +5345,7 @@ int handle_nvmlDeviceGetHostVgpuMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlHostVgpuMode_t*pHostVgpuMode;
+    nvmlHostVgpuMode_t *pHostVgpuMode;
     rpc_read(client, &pHostVgpuMode, sizeof(pHostVgpuMode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5409,7 +5409,7 @@ int handle_nvmlDeviceGetGridLicensableFeatures_v3(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlGridLicensableFeatures_t*pGridLicensableFeatures;
+    nvmlGridLicensableFeatures_t *pGridLicensableFeatures;
     rpc_read(client, &pGridLicensableFeatures, sizeof(pGridLicensableFeatures));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5441,9 +5441,9 @@ int handle_nvmlDeviceGetProcessUtilization(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlProcessUtilizationSample_t*utilization;
+    nvmlProcessUtilizationSample_t *utilization;
     rpc_read(client, &utilization, sizeof(utilization));
-    unsigned int*processSamplesCount;
+    unsigned int *processSamplesCount;
     rpc_read(client, &processSamplesCount, sizeof(processSamplesCount));
     unsigned long long lastSeenTimeStamp;
     rpc_read(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
@@ -5477,9 +5477,9 @@ int handle_nvmlDeviceGetSupportedVgpus(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*vgpuCount;
+    unsigned int *vgpuCount;
     rpc_read(client, &vgpuCount, sizeof(vgpuCount));
-    nvmlVgpuTypeId_t*vgpuTypeIds;
+    nvmlVgpuTypeId_t *vgpuTypeIds;
     rpc_read(client, &vgpuTypeIds, sizeof(vgpuTypeIds));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5511,9 +5511,9 @@ int handle_nvmlDeviceGetCreatableVgpus(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*vgpuCount;
+    unsigned int *vgpuCount;
     rpc_read(client, &vgpuCount, sizeof(vgpuCount));
-    nvmlVgpuTypeId_t*vgpuTypeIds;
+    nvmlVgpuTypeId_t *vgpuTypeIds;
     rpc_read(client, &vgpuTypeIds, sizeof(vgpuTypeIds));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5546,7 +5546,7 @@ int handle_nvmlVgpuTypeGetClass(void *args0) {
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
     char vgpuTypeClass[1024];
-    unsigned int*size;
+    unsigned int *size;
     rpc_read(client, &size, sizeof(size));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5580,7 +5580,7 @@ int handle_nvmlVgpuTypeGetName(void *args0) {
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
     char vgpuTypeName[1024];
-    unsigned int*size;
+    unsigned int *size;
     rpc_read(client, &size, sizeof(size));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5613,7 +5613,7 @@ int handle_nvmlVgpuTypeGetGpuInstanceProfileId(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned int*gpuInstanceProfileId;
+    unsigned int *gpuInstanceProfileId;
     rpc_read(client, &gpuInstanceProfileId, sizeof(gpuInstanceProfileId));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5645,9 +5645,9 @@ int handle_nvmlVgpuTypeGetDeviceID(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned long long*deviceID;
+    unsigned long long *deviceID;
     rpc_read(client, &deviceID, sizeof(deviceID));
-    unsigned long long*subsystemID;
+    unsigned long long *subsystemID;
     rpc_read(client, &subsystemID, sizeof(subsystemID));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5679,7 +5679,7 @@ int handle_nvmlVgpuTypeGetFramebufferSize(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned long long*fbSize;
+    unsigned long long *fbSize;
     rpc_read(client, &fbSize, sizeof(fbSize));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5711,7 +5711,7 @@ int handle_nvmlVgpuTypeGetNumDisplayHeads(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned int*numDisplayHeads;
+    unsigned int *numDisplayHeads;
     rpc_read(client, &numDisplayHeads, sizeof(numDisplayHeads));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5745,9 +5745,9 @@ int handle_nvmlVgpuTypeGetResolution(void *args0) {
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
     unsigned int displayIndex;
     rpc_read(client, &displayIndex, sizeof(displayIndex));
-    unsigned int*xdim;
+    unsigned int *xdim;
     rpc_read(client, &xdim, sizeof(xdim));
-    unsigned int*ydim;
+    unsigned int *ydim;
     rpc_read(client, &ydim, sizeof(ydim));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5813,7 +5813,7 @@ int handle_nvmlVgpuTypeGetFrameRateLimit(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned int*frameRateLimit;
+    unsigned int *frameRateLimit;
     rpc_read(client, &frameRateLimit, sizeof(frameRateLimit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5847,7 +5847,7 @@ int handle_nvmlVgpuTypeGetMaxInstances(void *args0) {
     rpc_read(client, &device, sizeof(device));
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned int*vgpuInstanceCount;
+    unsigned int *vgpuInstanceCount;
     rpc_read(client, &vgpuInstanceCount, sizeof(vgpuInstanceCount));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5879,7 +5879,7 @@ int handle_nvmlVgpuTypeGetMaxInstancesPerVm(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuTypeId_t vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    unsigned int*vgpuInstanceCountPerVm;
+    unsigned int *vgpuInstanceCountPerVm;
     rpc_read(client, &vgpuInstanceCountPerVm, sizeof(vgpuInstanceCountPerVm));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5911,9 +5911,9 @@ int handle_nvmlDeviceGetActiveVgpus(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*vgpuCount;
+    unsigned int *vgpuCount;
     rpc_read(client, &vgpuCount, sizeof(vgpuCount));
-    nvmlVgpuInstance_t*vgpuInstances;
+    nvmlVgpuInstance_t *vgpuInstances;
     rpc_read(client, &vgpuInstances, sizeof(vgpuInstances));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5948,7 +5948,7 @@ int handle_nvmlVgpuInstanceGetVmID(void *args0) {
     char vmId[1024];
     unsigned int size;
     rpc_read(client, &size, sizeof(size));
-    nvmlVgpuVmIdType_t*vmIdType;
+    nvmlVgpuVmIdType_t *vmIdType;
     rpc_read(client, &vmIdType, sizeof(vmIdType));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6049,7 +6049,7 @@ int handle_nvmlVgpuInstanceGetFbUsage(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned long long*fbUsage;
+    unsigned long long *fbUsage;
     rpc_read(client, &fbUsage, sizeof(fbUsage));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6081,7 +6081,7 @@ int handle_nvmlVgpuInstanceGetLicenseStatus(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*licensed;
+    unsigned int *licensed;
     rpc_read(client, &licensed, sizeof(licensed));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6113,7 +6113,7 @@ int handle_nvmlVgpuInstanceGetType(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlVgpuTypeId_t*vgpuTypeId;
+    nvmlVgpuTypeId_t *vgpuTypeId;
     rpc_read(client, &vgpuTypeId, sizeof(vgpuTypeId));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6145,7 +6145,7 @@ int handle_nvmlVgpuInstanceGetFrameRateLimit(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*frameRateLimit;
+    unsigned int *frameRateLimit;
     rpc_read(client, &frameRateLimit, sizeof(frameRateLimit));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6177,7 +6177,7 @@ int handle_nvmlVgpuInstanceGetEccMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlEnableState_t*eccMode;
+    nvmlEnableState_t *eccMode;
     rpc_read(client, &eccMode, sizeof(eccMode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6209,7 +6209,7 @@ int handle_nvmlVgpuInstanceGetEncoderCapacity(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*encoderCapacity;
+    unsigned int *encoderCapacity;
     rpc_read(client, &encoderCapacity, sizeof(encoderCapacity));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6273,11 +6273,11 @@ int handle_nvmlVgpuInstanceGetEncoderStats(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*sessionCount;
+    unsigned int *sessionCount;
     rpc_read(client, &sessionCount, sizeof(sessionCount));
-    unsigned int*averageFps;
+    unsigned int *averageFps;
     rpc_read(client, &averageFps, sizeof(averageFps));
-    unsigned int*averageLatency;
+    unsigned int *averageLatency;
     rpc_read(client, &averageLatency, sizeof(averageLatency));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6309,9 +6309,9 @@ int handle_nvmlVgpuInstanceGetEncoderSessions(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*sessionCount;
+    unsigned int *sessionCount;
     rpc_read(client, &sessionCount, sizeof(sessionCount));
-    nvmlEncoderSessionInfo_t*sessionInfo;
+    nvmlEncoderSessionInfo_t *sessionInfo;
     rpc_read(client, &sessionInfo, sizeof(sessionInfo));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6343,7 +6343,7 @@ int handle_nvmlVgpuInstanceGetFBCStats(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlFBCStats_t*fbcStats;
+    nvmlFBCStats_t *fbcStats;
     rpc_read(client, &fbcStats, sizeof(fbcStats));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6375,9 +6375,9 @@ int handle_nvmlVgpuInstanceGetFBCSessions(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*sessionCount;
+    unsigned int *sessionCount;
     rpc_read(client, &sessionCount, sizeof(sessionCount));
-    nvmlFBCSessionInfo_t*sessionInfo;
+    nvmlFBCSessionInfo_t *sessionInfo;
     rpc_read(client, &sessionInfo, sizeof(sessionInfo));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6409,7 +6409,7 @@ int handle_nvmlVgpuInstanceGetGpuInstanceId(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*gpuInstanceId;
+    unsigned int *gpuInstanceId;
     rpc_read(client, &gpuInstanceId, sizeof(gpuInstanceId));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6441,9 +6441,9 @@ int handle_nvmlVgpuInstanceGetMetadata(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlVgpuMetadata_t*vgpuMetadata;
+    nvmlVgpuMetadata_t *vgpuMetadata;
     rpc_read(client, &vgpuMetadata, sizeof(vgpuMetadata));
-    unsigned int*bufferSize;
+    unsigned int *bufferSize;
     rpc_read(client, &bufferSize, sizeof(bufferSize));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6475,9 +6475,9 @@ int handle_nvmlDeviceGetVgpuMetadata(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    nvmlVgpuPgpuMetadata_t*pgpuMetadata;
+    nvmlVgpuPgpuMetadata_t *pgpuMetadata;
     rpc_read(client, &pgpuMetadata, sizeof(pgpuMetadata));
-    unsigned int*bufferSize;
+    unsigned int *bufferSize;
     rpc_read(client, &bufferSize, sizeof(bufferSize));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6507,11 +6507,11 @@ int handle_nvmlGetVgpuCompatibility(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuMetadata_t*vgpuMetadata;
+    nvmlVgpuMetadata_t *vgpuMetadata;
     rpc_read(client, &vgpuMetadata, sizeof(vgpuMetadata));
-    nvmlVgpuPgpuMetadata_t*pgpuMetadata;
+    nvmlVgpuPgpuMetadata_t *pgpuMetadata;
     rpc_read(client, &pgpuMetadata, sizeof(pgpuMetadata));
-    nvmlVgpuPgpuCompatibility_t*compatibilityInfo;
+    nvmlVgpuPgpuCompatibility_t *compatibilityInfo;
     rpc_read(client, &compatibilityInfo, sizeof(compatibilityInfo));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6544,7 +6544,7 @@ int handle_nvmlDeviceGetPgpuMetadataString(void *args0) {
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
     char pgpuMetadata[1024];
-    unsigned int*bufferSize;
+    unsigned int *bufferSize;
     rpc_read(client, &bufferSize, sizeof(bufferSize));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6575,9 +6575,9 @@ int handle_nvmlGetVgpuVersion(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuVersion_t*supported;
+    nvmlVgpuVersion_t *supported;
     rpc_read(client, &supported, sizeof(supported));
-    nvmlVgpuVersion_t*current;
+    nvmlVgpuVersion_t *current;
     rpc_read(client, &current, sizeof(current));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6607,7 +6607,7 @@ int handle_nvmlSetVgpuVersion(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    nvmlVgpuVersion_t*vgpuVersion;
+    nvmlVgpuVersion_t *vgpuVersion;
     rpc_read(client, &vgpuVersion, sizeof(vgpuVersion));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6641,11 +6641,11 @@ int handle_nvmlDeviceGetVgpuUtilization(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned long long lastSeenTimeStamp;
     rpc_read(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
-    nvmlValueType_t*sampleValType;
+    nvmlValueType_t *sampleValType;
     rpc_read(client, &sampleValType, sizeof(sampleValType));
-    unsigned int*vgpuInstanceSamplesCount;
+    unsigned int *vgpuInstanceSamplesCount;
     rpc_read(client, &vgpuInstanceSamplesCount, sizeof(vgpuInstanceSamplesCount));
-    nvmlVgpuInstanceUtilizationSample_t*utilizationSamples;
+    nvmlVgpuInstanceUtilizationSample_t *utilizationSamples;
     rpc_read(client, &utilizationSamples, sizeof(utilizationSamples));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6679,9 +6679,9 @@ int handle_nvmlDeviceGetVgpuProcessUtilization(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned long long lastSeenTimeStamp;
     rpc_read(client, &lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
-    unsigned int*vgpuProcessSamplesCount;
+    unsigned int *vgpuProcessSamplesCount;
     rpc_read(client, &vgpuProcessSamplesCount, sizeof(vgpuProcessSamplesCount));
-    nvmlVgpuProcessUtilizationSample_t*utilizationSamples;
+    nvmlVgpuProcessUtilizationSample_t *utilizationSamples;
     rpc_read(client, &utilizationSamples, sizeof(utilizationSamples));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6713,7 +6713,7 @@ int handle_nvmlVgpuInstanceGetAccountingMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    nvmlEnableState_t*mode;
+    nvmlEnableState_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6745,9 +6745,9 @@ int handle_nvmlVgpuInstanceGetAccountingPids(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlVgpuInstance_t vgpuInstance;
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
-    unsigned int*pids;
+    unsigned int *pids;
     rpc_read(client, &pids, sizeof(pids));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6781,7 +6781,7 @@ int handle_nvmlVgpuInstanceGetAccountingStats(void *args0) {
     rpc_read(client, &vgpuInstance, sizeof(vgpuInstance));
     unsigned int pid;
     rpc_read(client, &pid, sizeof(pid));
-    nvmlAccountingStats_t*stats;
+    nvmlAccountingStats_t *stats;
     rpc_read(client, &stats, sizeof(stats));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6841,7 +6841,7 @@ int handle_nvmlGetExcludedDeviceCount(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    unsigned int*deviceCount;
+    unsigned int *deviceCount;
     rpc_read(client, &deviceCount, sizeof(deviceCount));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6873,7 +6873,7 @@ int handle_nvmlGetExcludedDeviceInfoByIndex(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     unsigned int index;
     rpc_read(client, &index, sizeof(index));
-    nvmlExcludedDeviceInfo_t*info;
+    nvmlExcludedDeviceInfo_t *info;
     rpc_read(client, &info, sizeof(info));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6907,7 +6907,7 @@ int handle_nvmlDeviceSetMigMode(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int mode;
     rpc_read(client, &mode, sizeof(mode));
-    nvmlReturn_t*activationStatus;
+    nvmlReturn_t *activationStatus;
     rpc_read(client, &activationStatus, sizeof(activationStatus));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6939,9 +6939,9 @@ int handle_nvmlDeviceGetMigMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*currentMode;
+    unsigned int *currentMode;
     rpc_read(client, &currentMode, sizeof(currentMode));
-    unsigned int*pendingMode;
+    unsigned int *pendingMode;
     rpc_read(client, &pendingMode, sizeof(pendingMode));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6975,7 +6975,7 @@ int handle_nvmlDeviceGetGpuInstanceProfileInfo(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int profile;
     rpc_read(client, &profile, sizeof(profile));
-    nvmlGpuInstanceProfileInfo_t*info;
+    nvmlGpuInstanceProfileInfo_t *info;
     rpc_read(client, &info, sizeof(info));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7009,9 +7009,9 @@ int handle_nvmlDeviceGetGpuInstancePossiblePlacements_v2(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    nvmlGpuInstancePlacement_t*placements;
+    nvmlGpuInstancePlacement_t *placements;
     rpc_read(client, &placements, sizeof(placements));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7045,7 +7045,7 @@ int handle_nvmlDeviceGetGpuInstanceRemainingCapacity(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7079,7 +7079,7 @@ int handle_nvmlDeviceCreateGpuInstance(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    nvmlGpuInstance_t*gpuInstance;
+    nvmlGpuInstance_t *gpuInstance;
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7115,7 +7115,7 @@ int handle_nvmlDeviceCreateGpuInstanceWithPlacement(void *args0) {
     rpc_read(client, &profileId, sizeof(profileId));
     nvmlGpuInstancePlacement_t *placement;
     rpc_read(client, &placement, sizeof(placement));
-    nvmlGpuInstance_t*gpuInstance;
+    nvmlGpuInstance_t *gpuInstance;
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7179,9 +7179,9 @@ int handle_nvmlDeviceGetGpuInstances(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    nvmlGpuInstance_t*gpuInstances;
+    nvmlGpuInstance_t *gpuInstances;
     rpc_read(client, &gpuInstances, sizeof(gpuInstances));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7215,7 +7215,7 @@ int handle_nvmlDeviceGetGpuInstanceById(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int id;
     rpc_read(client, &id, sizeof(id));
-    nvmlGpuInstance_t*gpuInstance;
+    nvmlGpuInstance_t *gpuInstance;
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7247,7 +7247,7 @@ int handle_nvmlGpuInstanceGetInfo(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlGpuInstance_t gpuInstance;
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
-    nvmlGpuInstanceInfo_t*info;
+    nvmlGpuInstanceInfo_t *info;
     rpc_read(client, &info, sizeof(info));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7283,7 +7283,7 @@ int handle_nvmlGpuInstanceGetComputeInstanceProfileInfo(void *args0) {
     rpc_read(client, &profile, sizeof(profile));
     unsigned int engProfile;
     rpc_read(client, &engProfile, sizeof(engProfile));
-    nvmlComputeInstanceProfileInfo_t*info;
+    nvmlComputeInstanceProfileInfo_t *info;
     rpc_read(client, &info, sizeof(info));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7317,7 +7317,7 @@ int handle_nvmlGpuInstanceGetComputeInstanceRemainingCapacity(void *args0) {
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7351,7 +7351,7 @@ int handle_nvmlGpuInstanceCreateComputeInstance(void *args0) {
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    nvmlComputeInstance_t*computeInstance;
+    nvmlComputeInstance_t *computeInstance;
     rpc_read(client, &computeInstance, sizeof(computeInstance));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7415,9 +7415,9 @@ int handle_nvmlGpuInstanceGetComputeInstances(void *args0) {
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    nvmlComputeInstance_t*computeInstances;
+    nvmlComputeInstance_t *computeInstances;
     rpc_read(client, &computeInstances, sizeof(computeInstances));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7451,7 +7451,7 @@ int handle_nvmlGpuInstanceGetComputeInstanceById(void *args0) {
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));
     unsigned int id;
     rpc_read(client, &id, sizeof(id));
-    nvmlComputeInstance_t*computeInstance;
+    nvmlComputeInstance_t *computeInstance;
     rpc_read(client, &computeInstance, sizeof(computeInstance));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7483,7 +7483,7 @@ int handle_nvmlComputeInstanceGetInfo_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlComputeInstance_t computeInstance;
     rpc_read(client, &computeInstance, sizeof(computeInstance));
-    nvmlComputeInstanceInfo_t*info;
+    nvmlComputeInstanceInfo_t *info;
     rpc_read(client, &info, sizeof(info));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7515,7 +7515,7 @@ int handle_nvmlDeviceIsMigDeviceHandle(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*isMigDevice;
+    unsigned int *isMigDevice;
     rpc_read(client, &isMigDevice, sizeof(isMigDevice));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7547,7 +7547,7 @@ int handle_nvmlDeviceGetGpuInstanceId(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*id;
+    unsigned int *id;
     rpc_read(client, &id, sizeof(id));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7579,7 +7579,7 @@ int handle_nvmlDeviceGetComputeInstanceId(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*id;
+    unsigned int *id;
     rpc_read(client, &id, sizeof(id));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7611,7 +7611,7 @@ int handle_nvmlDeviceGetMaxMigDeviceCount(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t device;
     rpc_read(client, &device, sizeof(device));
-    unsigned int*count;
+    unsigned int *count;
     rpc_read(client, &count, sizeof(count));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7645,7 +7645,7 @@ int handle_nvmlDeviceGetMigDeviceHandleByIndex(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int index;
     rpc_read(client, &index, sizeof(index));
-    nvmlDevice_t*migDevice;
+    nvmlDevice_t *migDevice;
     rpc_read(client, &migDevice, sizeof(migDevice));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7677,7 +7677,7 @@ int handle_nvmlDeviceGetDeviceHandleFromMigDeviceHandle(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     nvmlDevice_t migDevice;
     rpc_read(client, &migDevice, sizeof(migDevice));
-    nvmlDevice_t*device;
+    nvmlDevice_t *device;
     rpc_read(client, &device, sizeof(device));
     nvmlReturn_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7699,4 +7699,3 @@ _RTN_:
     }
     return rtn;
 }
-

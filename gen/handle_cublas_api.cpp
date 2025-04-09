@@ -12,7 +12,7 @@ int handle_cublasCreate_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    cublasHandle_t*handle;
+    cublasHandle_t *handle;
     rpc_read(client, &handle, sizeof(handle));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -74,7 +74,7 @@ int handle_cublasGetVersion_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    int*version;
+    int *version;
     rpc_read(client, &version, sizeof(version));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -106,7 +106,7 @@ int handle_cublasGetProperty(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     libraryPropertyType type;
     rpc_read(client, &type, sizeof(type));
-    int*value;
+    int *value;
     rpc_read(client, &value, sizeof(value));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -232,7 +232,7 @@ int handle_cublasGetStream_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cudaStream_t*streamId;
+    cudaStream_t *streamId;
     rpc_read(client, &streamId, sizeof(streamId));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -264,7 +264,7 @@ int handle_cublasGetPointerMode_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cublasPointerMode_t*mode;
+    cublasPointerMode_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -328,7 +328,7 @@ int handle_cublasGetAtomicsMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cublasAtomicsMode_t*mode;
+    cublasAtomicsMode_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -392,7 +392,7 @@ int handle_cublasGetMathMode(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cublasMath_t*mode;
+    cublasMath_t *mode;
     rpc_read(client, &mode, sizeof(mode));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -456,7 +456,7 @@ int handle_cublasGetSmCountTarget(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    int*smCountTarget;
+    int *smCountTarget;
     rpc_read(client, &smCountTarget, sizeof(smCountTarget));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -585,7 +585,7 @@ int handle_cublasGetLoggerCallback(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    cublasLogCallback*userCallback;
+    cublasLogCallback *userCallback;
     rpc_read(client, &userCallback, sizeof(userCallback));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1034,7 +1034,7 @@ int handle_cublasSnrm2_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*result;
+    float *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1072,7 +1072,7 @@ int handle_cublasDnrm2_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*result;
+    double *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1110,7 +1110,7 @@ int handle_cublasScnrm2_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*result;
+    float *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1148,7 +1148,7 @@ int handle_cublasDznrm2_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*result;
+    double *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1290,7 +1290,7 @@ int handle_cublasSdot_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    float*result;
+    float *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1332,7 +1332,7 @@ int handle_cublasDdot_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    double*result;
+    double *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1374,7 +1374,7 @@ int handle_cublasCdotu_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*result;
+    cuComplex *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1416,7 +1416,7 @@ int handle_cublasCdotc_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*result;
+    cuComplex *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1458,7 +1458,7 @@ int handle_cublasZdotu_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*result;
+    cuDoubleComplex *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1500,7 +1500,7 @@ int handle_cublasZdotc_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*result;
+    cuDoubleComplex *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1580,7 +1580,7 @@ int handle_cublasSscal_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     float *alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -1618,7 +1618,7 @@ int handle_cublasDscal_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     double *alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -1656,7 +1656,7 @@ int handle_cublasCscal_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuComplex *alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -1694,7 +1694,7 @@ int handle_cublasCsscal_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     float *alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -1732,7 +1732,7 @@ int handle_cublasZscal_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuDoubleComplex *alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -1770,7 +1770,7 @@ int handle_cublasZdscal_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     double *alpha;
     rpc_read(client, &alpha, sizeof(alpha));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -1862,7 +1862,7 @@ int handle_cublasSaxpy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -1904,7 +1904,7 @@ int handle_cublasDaxpy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -1946,7 +1946,7 @@ int handle_cublasCaxpy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -1988,7 +1988,7 @@ int handle_cublasZaxpy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2072,7 +2072,7 @@ int handle_cublasScopy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2112,7 +2112,7 @@ int handle_cublasDcopy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2152,7 +2152,7 @@ int handle_cublasCcopy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2192,7 +2192,7 @@ int handle_cublasZcopy_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2228,11 +2228,11 @@ int handle_cublasSswap_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2268,11 +2268,11 @@ int handle_cublasDswap_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2308,11 +2308,11 @@ int handle_cublasCswap_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2348,11 +2348,11 @@ int handle_cublasZswap_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -2436,7 +2436,7 @@ int handle_cublasIsamax_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2474,7 +2474,7 @@ int handle_cublasIdamax_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2512,7 +2512,7 @@ int handle_cublasIcamax_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2550,7 +2550,7 @@ int handle_cublasIzamax_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2590,7 +2590,7 @@ int handle_cublasIamaxEx(void *args0) {
     rpc_read(client, &xType, sizeof(xType));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2628,7 +2628,7 @@ int handle_cublasIsamin_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2666,7 +2666,7 @@ int handle_cublasIdamin_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2704,7 +2704,7 @@ int handle_cublasIcamin_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2742,7 +2742,7 @@ int handle_cublasIzamin_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2782,7 +2782,7 @@ int handle_cublasIaminEx(void *args0) {
     rpc_read(client, &xType, sizeof(xType));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    int*result;
+    int *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2864,7 +2864,7 @@ int handle_cublasSasum_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*result;
+    float *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2902,7 +2902,7 @@ int handle_cublasDasum_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*result;
+    double *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2940,7 +2940,7 @@ int handle_cublasScasum_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*result;
+    float *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2978,7 +2978,7 @@ int handle_cublasDzasum_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*result;
+    double *result;
     rpc_read(client, &result, sizeof(result));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3012,11 +3012,11 @@ int handle_cublasSrot_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3056,11 +3056,11 @@ int handle_cublasDrot_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3100,11 +3100,11 @@ int handle_cublasCrot_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3144,11 +3144,11 @@ int handle_cublasCsrot_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3188,11 +3188,11 @@ int handle_cublasZrot_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3232,11 +3232,11 @@ int handle_cublasZdrot_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3326,13 +3326,13 @@ int handle_cublasSrotg_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    float*a;
+    float *a;
     rpc_read(client, &a, sizeof(a));
-    float*b;
+    float *b;
     rpc_read(client, &b, sizeof(b));
-    float*c;
+    float *c;
     rpc_read(client, &c, sizeof(c));
-    float*s;
+    float *s;
     rpc_read(client, &s, sizeof(s));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3364,13 +3364,13 @@ int handle_cublasDrotg_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    double*a;
+    double *a;
     rpc_read(client, &a, sizeof(a));
-    double*b;
+    double *b;
     rpc_read(client, &b, sizeof(b));
-    double*c;
+    double *c;
     rpc_read(client, &c, sizeof(c));
-    double*s;
+    double *s;
     rpc_read(client, &s, sizeof(s));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3402,13 +3402,13 @@ int handle_cublasCrotg_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cuComplex*a;
+    cuComplex *a;
     rpc_read(client, &a, sizeof(a));
-    cuComplex*b;
+    cuComplex *b;
     rpc_read(client, &b, sizeof(b));
-    float*c;
+    float *c;
     rpc_read(client, &c, sizeof(c));
-    cuComplex*s;
+    cuComplex *s;
     rpc_read(client, &s, sizeof(s));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3440,13 +3440,13 @@ int handle_cublasZrotg_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    cuDoubleComplex*a;
+    cuDoubleComplex *a;
     rpc_read(client, &a, sizeof(a));
-    cuDoubleComplex*b;
+    cuDoubleComplex *b;
     rpc_read(client, &b, sizeof(b));
-    double*c;
+    double *c;
     rpc_read(client, &c, sizeof(c));
-    cuDoubleComplex*s;
+    cuDoubleComplex *s;
     rpc_read(client, &s, sizeof(s));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3524,11 +3524,11 @@ int handle_cublasSrotm_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3566,11 +3566,11 @@ int handle_cublasDrotm_v2(void *args0) {
     rpc_read(client, &handle, sizeof(handle));
     int n;
     rpc_read(client, &n, sizeof(n));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3656,15 +3656,15 @@ int handle_cublasSrotmg_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    float*d1;
+    float *d1;
     rpc_read(client, &d1, sizeof(d1));
-    float*d2;
+    float *d2;
     rpc_read(client, &d2, sizeof(d2));
-    float*x1;
+    float *x1;
     rpc_read(client, &x1, sizeof(x1));
     float *y1;
     rpc_read(client, &y1, sizeof(y1));
-    float*param;
+    float *param;
     rpc_read(client, &param, sizeof(param));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3696,15 +3696,15 @@ int handle_cublasDrotmg_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cublasHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
-    double*d1;
+    double *d1;
     rpc_read(client, &d1, sizeof(d1));
-    double*d2;
+    double *d2;
     rpc_read(client, &d2, sizeof(d2));
-    double*x1;
+    double *x1;
     rpc_read(client, &x1, sizeof(x1));
     double *y1;
     rpc_read(client, &y1, sizeof(y1));
-    double*param;
+    double *param;
     rpc_read(client, &param, sizeof(param));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3806,7 +3806,7 @@ int handle_cublasSgemv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3858,7 +3858,7 @@ int handle_cublasDgemv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3910,7 +3910,7 @@ int handle_cublasCgemv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -3962,7 +3962,7 @@ int handle_cublasZgemv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -4018,7 +4018,7 @@ int handle_cublasSgbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -4074,7 +4074,7 @@ int handle_cublasDgbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -4130,7 +4130,7 @@ int handle_cublasCgbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -4186,7 +4186,7 @@ int handle_cublasZgbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -4232,7 +4232,7 @@ int handle_cublasStrmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4278,7 +4278,7 @@ int handle_cublasDtrmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4324,7 +4324,7 @@ int handle_cublasCtrmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4370,7 +4370,7 @@ int handle_cublasZtrmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4418,7 +4418,7 @@ int handle_cublasStbmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4466,7 +4466,7 @@ int handle_cublasDtbmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4514,7 +4514,7 @@ int handle_cublasCtbmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4562,7 +4562,7 @@ int handle_cublasZtbmv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4606,7 +4606,7 @@ int handle_cublasStpmv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     float *AP;
     rpc_read(client, &AP, sizeof(AP));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4650,7 +4650,7 @@ int handle_cublasDtpmv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     double *AP;
     rpc_read(client, &AP, sizeof(AP));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4694,7 +4694,7 @@ int handle_cublasCtpmv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4738,7 +4738,7 @@ int handle_cublasZtpmv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuDoubleComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4784,7 +4784,7 @@ int handle_cublasStrsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4830,7 +4830,7 @@ int handle_cublasDtrsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4876,7 +4876,7 @@ int handle_cublasCtrsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4922,7 +4922,7 @@ int handle_cublasZtrsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -4966,7 +4966,7 @@ int handle_cublasStpsv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     float *AP;
     rpc_read(client, &AP, sizeof(AP));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5010,7 +5010,7 @@ int handle_cublasDtpsv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     double *AP;
     rpc_read(client, &AP, sizeof(AP));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5054,7 +5054,7 @@ int handle_cublasCtpsv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5098,7 +5098,7 @@ int handle_cublasZtpsv_v2(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuDoubleComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5146,7 +5146,7 @@ int handle_cublasStbsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float*x;
+    float *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5194,7 +5194,7 @@ int handle_cublasDtbsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    double*x;
+    double *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5242,7 +5242,7 @@ int handle_cublasCtbsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuComplex*x;
+    cuComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5290,7 +5290,7 @@ int handle_cublasZtbsv_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex*x;
+    cuDoubleComplex *x;
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
@@ -5340,7 +5340,7 @@ int handle_cublasSsymv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5390,7 +5390,7 @@ int handle_cublasDsymv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5440,7 +5440,7 @@ int handle_cublasCsymv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5490,7 +5490,7 @@ int handle_cublasZsymv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5540,7 +5540,7 @@ int handle_cublasChemv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5590,7 +5590,7 @@ int handle_cublasZhemv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5642,7 +5642,7 @@ int handle_cublasSsbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5694,7 +5694,7 @@ int handle_cublasDsbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5746,7 +5746,7 @@ int handle_cublasChbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5798,7 +5798,7 @@ int handle_cublasZhbmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5846,7 +5846,7 @@ int handle_cublasSspmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*y;
+    float *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5894,7 +5894,7 @@ int handle_cublasDspmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*y;
+    double *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5942,7 +5942,7 @@ int handle_cublasChpmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*y;
+    cuComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -5990,7 +5990,7 @@ int handle_cublasZhpmv_v2(void *args0) {
     rpc_read(client, &incx, sizeof(incx));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*y;
+    cuDoubleComplex *y;
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
@@ -6038,7 +6038,7 @@ int handle_cublasSger_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    float*A;
+    float *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6086,7 +6086,7 @@ int handle_cublasDger_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    double*A;
+    double *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6134,7 +6134,7 @@ int handle_cublasCgeru_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6182,7 +6182,7 @@ int handle_cublasCgerc_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6230,7 +6230,7 @@ int handle_cublasZgeru_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6278,7 +6278,7 @@ int handle_cublasZgerc_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6322,7 +6322,7 @@ int handle_cublasSsyr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*A;
+    float *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6366,7 +6366,7 @@ int handle_cublasDsyr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*A;
+    double *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6410,7 +6410,7 @@ int handle_cublasCsyr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6454,7 +6454,7 @@ int handle_cublasZsyr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6498,7 +6498,7 @@ int handle_cublasCher_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6542,7 +6542,7 @@ int handle_cublasZher_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6586,7 +6586,7 @@ int handle_cublasSspr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*AP;
+    float *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6628,7 +6628,7 @@ int handle_cublasDspr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*AP;
+    double *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6670,7 +6670,7 @@ int handle_cublasChpr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*AP;
+    cuComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6712,7 +6712,7 @@ int handle_cublasZhpr_v2(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*AP;
+    cuDoubleComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6758,7 +6758,7 @@ int handle_cublasSsyr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    float*A;
+    float *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6806,7 +6806,7 @@ int handle_cublasDsyr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    double*A;
+    double *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6854,7 +6854,7 @@ int handle_cublasCsyr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6902,7 +6902,7 @@ int handle_cublasZsyr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6950,7 +6950,7 @@ int handle_cublasCher2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -6998,7 +6998,7 @@ int handle_cublasZher2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -7046,7 +7046,7 @@ int handle_cublasSspr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    float*AP;
+    float *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7092,7 +7092,7 @@ int handle_cublasDspr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    double*AP;
+    double *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7138,7 +7138,7 @@ int handle_cublasChpr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuComplex*AP;
+    cuComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7184,7 +7184,7 @@ int handle_cublasZhpr2_v2(void *args0) {
     rpc_read(client, &y, sizeof(y));
     int incy;
     rpc_read(client, &incy, sizeof(incy));
-    cuDoubleComplex*AP;
+    cuDoubleComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7238,7 +7238,7 @@ int handle_cublasSgemm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7294,7 +7294,7 @@ int handle_cublasDgemm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7350,7 +7350,7 @@ int handle_cublasCgemm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7406,7 +7406,7 @@ int handle_cublasCgemm3m(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7524,7 +7524,7 @@ int handle_cublasZgemm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7580,7 +7580,7 @@ int handle_cublasZgemm3m(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7636,7 +7636,7 @@ int handle_cublasHgemm(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     __half *beta;
     rpc_read(client, &beta, sizeof(beta));
-    __half*C;
+    __half *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7818,7 +7818,7 @@ int handle_cublasUint8gemmBias(void *args0) {
     rpc_read(client, &B_bias, sizeof(B_bias));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    unsigned char*C;
+    unsigned char *C;
     rpc_read(client, &C, sizeof(C));
     int C_bias;
     rpc_read(client, &C_bias, sizeof(C_bias));
@@ -7874,7 +7874,7 @@ int handle_cublasSsyrk_v2(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7924,7 +7924,7 @@ int handle_cublasDsyrk_v2(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -7974,7 +7974,7 @@ int handle_cublasCsyrk_v2(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8024,7 +8024,7 @@ int handle_cublasZsyrk_v2(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8182,7 +8182,7 @@ int handle_cublasCherk_v2(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8232,7 +8232,7 @@ int handle_cublasZherk_v2(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8394,7 +8394,7 @@ int handle_cublasSsyr2k_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8448,7 +8448,7 @@ int handle_cublasDsyr2k_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8502,7 +8502,7 @@ int handle_cublasCsyr2k_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8556,7 +8556,7 @@ int handle_cublasZsyr2k_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8610,7 +8610,7 @@ int handle_cublasCher2k_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8664,7 +8664,7 @@ int handle_cublasZher2k_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8718,7 +8718,7 @@ int handle_cublasSsyrkx(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8772,7 +8772,7 @@ int handle_cublasDsyrkx(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8826,7 +8826,7 @@ int handle_cublasCsyrkx(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8880,7 +8880,7 @@ int handle_cublasZsyrkx(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8934,7 +8934,7 @@ int handle_cublasCherkx(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -8988,7 +8988,7 @@ int handle_cublasZherkx(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9042,7 +9042,7 @@ int handle_cublasSsymm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9096,7 +9096,7 @@ int handle_cublasDsymm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9150,7 +9150,7 @@ int handle_cublasCsymm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9204,7 +9204,7 @@ int handle_cublasZsymm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9258,7 +9258,7 @@ int handle_cublasChemm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9312,7 +9312,7 @@ int handle_cublasZhemm_v2(void *args0) {
     rpc_read(client, &ldb, sizeof(ldb));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9364,7 +9364,7 @@ int handle_cublasStrsm_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float*B;
+    float *B;
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
@@ -9416,7 +9416,7 @@ int handle_cublasDtrsm_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    double*B;
+    double *B;
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
@@ -9468,7 +9468,7 @@ int handle_cublasCtrsm_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuComplex*B;
+    cuComplex *B;
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
@@ -9520,7 +9520,7 @@ int handle_cublasZtrsm_v2(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex*B;
+    cuDoubleComplex *B;
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
@@ -9576,7 +9576,7 @@ int handle_cublasStrmm_v2(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9632,7 +9632,7 @@ int handle_cublasDtrmm_v2(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9688,7 +9688,7 @@ int handle_cublasCtrmm_v2(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9744,7 +9744,7 @@ int handle_cublasZtrmm_v2(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -9812,7 +9812,7 @@ int handle_cublasHgemmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasHgemmBatched(handle, transa, transb, m, n, k, alpha, (const __half * const *)Aarray, lda, (const __half * const *)Barray, ldb, beta, (__half * const *)Carray, ldc, batchCount);
+    _result = cublasHgemmBatched(handle, transa, transb, m, n, k, alpha, (const __half *const *)Aarray, lda, (const __half *const *)Barray, ldb, beta, (__half *const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9870,7 +9870,7 @@ int handle_cublasSgemmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgemmBatched(handle, transa, transb, m, n, k, alpha, (const float * const *)Aarray, lda, (const float * const *)Barray, ldb, beta, (float * const *)Carray, ldc, batchCount);
+    _result = cublasSgemmBatched(handle, transa, transb, m, n, k, alpha, (const float *const *)Aarray, lda, (const float *const *)Barray, ldb, beta, (float *const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9928,7 +9928,7 @@ int handle_cublasDgemmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDgemmBatched(handle, transa, transb, m, n, k, alpha, (const double * const *)Aarray, lda, (const double * const *)Barray, ldb, beta, (double * const *)Carray, ldc, batchCount);
+    _result = cublasDgemmBatched(handle, transa, transb, m, n, k, alpha, (const double *const *)Aarray, lda, (const double *const *)Barray, ldb, beta, (double *const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9986,7 +9986,7 @@ int handle_cublasCgemmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgemmBatched(handle, transa, transb, m, n, k, alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)Barray, ldb, beta, (cuComplex * const *)Carray, ldc, batchCount);
+    _result = cublasCgemmBatched(handle, transa, transb, m, n, k, alpha, (const cuComplex *const *)Aarray, lda, (const cuComplex *const *)Barray, ldb, beta, (cuComplex *const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10044,7 +10044,7 @@ int handle_cublasCgemm3mBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgemm3mBatched(handle, transa, transb, m, n, k, alpha, (const cuComplex * const *)Aarray, lda, (const cuComplex * const *)Barray, ldb, beta, (cuComplex * const *)Carray, ldc, batchCount);
+    _result = cublasCgemm3mBatched(handle, transa, transb, m, n, k, alpha, (const cuComplex *const *)Aarray, lda, (const cuComplex *const *)Barray, ldb, beta, (cuComplex *const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10102,7 +10102,7 @@ int handle_cublasZgemmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgemmBatched(handle, transa, transb, m, n, k, alpha, (const cuDoubleComplex * const *)Aarray, lda, (const cuDoubleComplex * const *)Barray, ldb, beta, (cuDoubleComplex * const *)Carray, ldc, batchCount);
+    _result = cublasZgemmBatched(handle, transa, transb, m, n, k, alpha, (const cuDoubleComplex *const *)Aarray, lda, (const cuDoubleComplex *const *)Barray, ldb, beta, (cuDoubleComplex *const *)Carray, ldc, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10152,7 +10152,7 @@ int handle_cublasSgemmStridedBatched(void *args0) {
     rpc_read(client, &strideB, sizeof(strideB));
     float *beta;
     rpc_read(client, &beta, sizeof(beta));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10216,7 +10216,7 @@ int handle_cublasDgemmStridedBatched(void *args0) {
     rpc_read(client, &strideB, sizeof(strideB));
     double *beta;
     rpc_read(client, &beta, sizeof(beta));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10280,7 +10280,7 @@ int handle_cublasCgemmStridedBatched(void *args0) {
     rpc_read(client, &strideB, sizeof(strideB));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10344,7 +10344,7 @@ int handle_cublasCgemm3mStridedBatched(void *args0) {
     rpc_read(client, &strideB, sizeof(strideB));
     cuComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10408,7 +10408,7 @@ int handle_cublasZgemmStridedBatched(void *args0) {
     rpc_read(client, &strideB, sizeof(strideB));
     cuDoubleComplex *beta;
     rpc_read(client, &beta, sizeof(beta));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10472,7 +10472,7 @@ int handle_cublasHgemmStridedBatched(void *args0) {
     rpc_read(client, &strideB, sizeof(strideB));
     __half *beta;
     rpc_read(client, &beta, sizeof(beta));
-    __half*C;
+    __half *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10530,7 +10530,7 @@ int handle_cublasSgeam(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10584,7 +10584,7 @@ int handle_cublasDgeam(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10638,7 +10638,7 @@ int handle_cublasCgeam(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10692,7 +10692,7 @@ int handle_cublasZgeam(void *args0) {
     rpc_read(client, &B, sizeof(B));
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -10732,9 +10732,9 @@ int handle_cublasSgetrfBatched(void *args0) {
     rpc_read(client, &A, 0, true);
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    int*P;
+    int *P;
     rpc_read(client, &P, sizeof(P));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -10744,7 +10744,7 @@ int handle_cublasSgetrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgetrfBatched(handle, n, (float * const *)A, lda, P, info, batchSize);
+    _result = cublasSgetrfBatched(handle, n, (float *const *)A, lda, P, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10774,9 +10774,9 @@ int handle_cublasDgetrfBatched(void *args0) {
     rpc_read(client, &A, 0, true);
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    int*P;
+    int *P;
     rpc_read(client, &P, sizeof(P));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -10786,7 +10786,7 @@ int handle_cublasDgetrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDgetrfBatched(handle, n, (double * const *)A, lda, P, info, batchSize);
+    _result = cublasDgetrfBatched(handle, n, (double *const *)A, lda, P, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10816,9 +10816,9 @@ int handle_cublasCgetrfBatched(void *args0) {
     rpc_read(client, &A, 0, true);
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    int*P;
+    int *P;
     rpc_read(client, &P, sizeof(P));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -10828,7 +10828,7 @@ int handle_cublasCgetrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgetrfBatched(handle, n, (cuComplex * const *)A, lda, P, info, batchSize);
+    _result = cublasCgetrfBatched(handle, n, (cuComplex *const *)A, lda, P, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10858,9 +10858,9 @@ int handle_cublasZgetrfBatched(void *args0) {
     rpc_read(client, &A, 0, true);
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    int*P;
+    int *P;
     rpc_read(client, &P, sizeof(P));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -10870,7 +10870,7 @@ int handle_cublasZgetrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgetrfBatched(handle, n, (cuDoubleComplex * const *)A, lda, P, info, batchSize);
+    _result = cublasZgetrfBatched(handle, n, (cuDoubleComplex *const *)A, lda, P, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10906,7 +10906,7 @@ int handle_cublasSgetriBatched(void *args0) {
     rpc_read(client, &C, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -10916,7 +10916,7 @@ int handle_cublasSgetriBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgetriBatched(handle, n, (const float * const *)A, lda, P, (float * const *)C, ldc, info, batchSize);
+    _result = cublasSgetriBatched(handle, n, (const float *const *)A, lda, P, (float *const *)C, ldc, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10952,7 +10952,7 @@ int handle_cublasDgetriBatched(void *args0) {
     rpc_read(client, &C, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -10962,7 +10962,7 @@ int handle_cublasDgetriBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDgetriBatched(handle, n, (const double * const *)A, lda, P, (double * const *)C, ldc, info, batchSize);
+    _result = cublasDgetriBatched(handle, n, (const double *const *)A, lda, P, (double *const *)C, ldc, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -10998,7 +10998,7 @@ int handle_cublasCgetriBatched(void *args0) {
     rpc_read(client, &C, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11008,7 +11008,7 @@ int handle_cublasCgetriBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgetriBatched(handle, n, (const cuComplex * const *)A, lda, P, (cuComplex * const *)C, ldc, info, batchSize);
+    _result = cublasCgetriBatched(handle, n, (const cuComplex *const *)A, lda, P, (cuComplex *const *)C, ldc, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11044,7 +11044,7 @@ int handle_cublasZgetriBatched(void *args0) {
     rpc_read(client, &C, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11054,7 +11054,7 @@ int handle_cublasZgetriBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgetriBatched(handle, n, (const cuDoubleComplex * const *)A, lda, P, (cuDoubleComplex * const *)C, ldc, info, batchSize);
+    _result = cublasZgetriBatched(handle, n, (const cuDoubleComplex *const *)A, lda, P, (cuDoubleComplex *const *)C, ldc, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11094,7 +11094,7 @@ int handle_cublasSgetrsBatched(void *args0) {
     rpc_read(client, &Barray, 0, true);
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11104,7 +11104,7 @@ int handle_cublasSgetrsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgetrsBatched(handle, trans, n, nrhs, (const float * const *)Aarray, lda, devIpiv, (float * const *)Barray, ldb, info, batchSize);
+    _result = cublasSgetrsBatched(handle, trans, n, nrhs, (const float *const *)Aarray, lda, devIpiv, (float *const *)Barray, ldb, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11144,7 +11144,7 @@ int handle_cublasDgetrsBatched(void *args0) {
     rpc_read(client, &Barray, 0, true);
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11154,7 +11154,7 @@ int handle_cublasDgetrsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDgetrsBatched(handle, trans, n, nrhs, (const double * const *)Aarray, lda, devIpiv, (double * const *)Barray, ldb, info, batchSize);
+    _result = cublasDgetrsBatched(handle, trans, n, nrhs, (const double *const *)Aarray, lda, devIpiv, (double *const *)Barray, ldb, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11194,7 +11194,7 @@ int handle_cublasCgetrsBatched(void *args0) {
     rpc_read(client, &Barray, 0, true);
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11204,7 +11204,7 @@ int handle_cublasCgetrsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgetrsBatched(handle, trans, n, nrhs, (const cuComplex * const *)Aarray, lda, devIpiv, (cuComplex * const *)Barray, ldb, info, batchSize);
+    _result = cublasCgetrsBatched(handle, trans, n, nrhs, (const cuComplex *const *)Aarray, lda, devIpiv, (cuComplex *const *)Barray, ldb, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11244,7 +11244,7 @@ int handle_cublasZgetrsBatched(void *args0) {
     rpc_read(client, &Barray, 0, true);
     int ldb;
     rpc_read(client, &ldb, sizeof(ldb));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11254,7 +11254,7 @@ int handle_cublasZgetrsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgetrsBatched(handle, trans, n, nrhs, (const cuDoubleComplex * const *)Aarray, lda, devIpiv, (cuDoubleComplex * const *)Barray, ldb, info, batchSize);
+    _result = cublasZgetrsBatched(handle, trans, n, nrhs, (const cuDoubleComplex *const *)Aarray, lda, devIpiv, (cuDoubleComplex *const *)Barray, ldb, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11308,7 +11308,7 @@ int handle_cublasStrsmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasStrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const float * const *)A, lda, (float * const *)B, ldb, batchCount);
+    _result = cublasStrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const float *const *)A, lda, (float *const *)B, ldb, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11362,7 +11362,7 @@ int handle_cublasDtrsmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDtrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const double * const *)A, lda, (double * const *)B, ldb, batchCount);
+    _result = cublasDtrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const double *const *)A, lda, (double *const *)B, ldb, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11416,7 +11416,7 @@ int handle_cublasCtrsmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCtrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const cuComplex * const *)A, lda, (cuComplex * const *)B, ldb, batchCount);
+    _result = cublasCtrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const cuComplex *const *)A, lda, (cuComplex *const *)B, ldb, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11470,7 +11470,7 @@ int handle_cublasZtrsmBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZtrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const cuDoubleComplex * const *)A, lda, (cuDoubleComplex * const *)B, ldb, batchCount);
+    _result = cublasZtrsmBatched(handle, side, uplo, trans, diag, m, n, alpha, (const cuDoubleComplex *const *)A, lda, (cuDoubleComplex *const *)B, ldb, batchCount);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11504,7 +11504,7 @@ int handle_cublasSmatinvBatched(void *args0) {
     rpc_read(client, &Ainv, 0, true);
     int lda_inv;
     rpc_read(client, &lda_inv, sizeof(lda_inv));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11514,7 +11514,7 @@ int handle_cublasSmatinvBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSmatinvBatched(handle, n, (const float * const *)A, lda, (float * const *)Ainv, lda_inv, info, batchSize);
+    _result = cublasSmatinvBatched(handle, n, (const float *const *)A, lda, (float *const *)Ainv, lda_inv, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11548,7 +11548,7 @@ int handle_cublasDmatinvBatched(void *args0) {
     rpc_read(client, &Ainv, 0, true);
     int lda_inv;
     rpc_read(client, &lda_inv, sizeof(lda_inv));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11558,7 +11558,7 @@ int handle_cublasDmatinvBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDmatinvBatched(handle, n, (const double * const *)A, lda, (double * const *)Ainv, lda_inv, info, batchSize);
+    _result = cublasDmatinvBatched(handle, n, (const double *const *)A, lda, (double *const *)Ainv, lda_inv, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11592,7 +11592,7 @@ int handle_cublasCmatinvBatched(void *args0) {
     rpc_read(client, &Ainv, 0, true);
     int lda_inv;
     rpc_read(client, &lda_inv, sizeof(lda_inv));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11602,7 +11602,7 @@ int handle_cublasCmatinvBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCmatinvBatched(handle, n, (const cuComplex * const *)A, lda, (cuComplex * const *)Ainv, lda_inv, info, batchSize);
+    _result = cublasCmatinvBatched(handle, n, (const cuComplex *const *)A, lda, (cuComplex *const *)Ainv, lda_inv, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11636,7 +11636,7 @@ int handle_cublasZmatinvBatched(void *args0) {
     rpc_read(client, &Ainv, 0, true);
     int lda_inv;
     rpc_read(client, &lda_inv, sizeof(lda_inv));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11646,7 +11646,7 @@ int handle_cublasZmatinvBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZmatinvBatched(handle, n, (const cuDoubleComplex * const *)A, lda, (cuDoubleComplex * const *)Ainv, lda_inv, info, batchSize);
+    _result = cublasZmatinvBatched(handle, n, (const cuDoubleComplex *const *)A, lda, (cuDoubleComplex *const *)Ainv, lda_inv, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11680,7 +11680,7 @@ int handle_cublasSgeqrfBatched(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     float *TauArray = nullptr;
     rpc_read(client, &TauArray, 0, true);
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11690,7 +11690,7 @@ int handle_cublasSgeqrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgeqrfBatched(handle, m, n, (float * const *)Aarray, lda, (float * const *)TauArray, info, batchSize);
+    _result = cublasSgeqrfBatched(handle, m, n, (float *const *)Aarray, lda, (float *const *)TauArray, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11724,7 +11724,7 @@ int handle_cublasDgeqrfBatched(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     double *TauArray = nullptr;
     rpc_read(client, &TauArray, 0, true);
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11734,7 +11734,7 @@ int handle_cublasDgeqrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDgeqrfBatched(handle, m, n, (double * const *)Aarray, lda, (double * const *)TauArray, info, batchSize);
+    _result = cublasDgeqrfBatched(handle, m, n, (double *const *)Aarray, lda, (double *const *)TauArray, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11768,7 +11768,7 @@ int handle_cublasCgeqrfBatched(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     cuComplex *TauArray = nullptr;
     rpc_read(client, &TauArray, 0, true);
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11778,7 +11778,7 @@ int handle_cublasCgeqrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgeqrfBatched(handle, m, n, (cuComplex * const *)Aarray, lda, (cuComplex * const *)TauArray, info, batchSize);
+    _result = cublasCgeqrfBatched(handle, m, n, (cuComplex *const *)Aarray, lda, (cuComplex *const *)TauArray, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11812,7 +11812,7 @@ int handle_cublasZgeqrfBatched(void *args0) {
     rpc_read(client, &lda, sizeof(lda));
     cuDoubleComplex *TauArray = nullptr;
     rpc_read(client, &TauArray, 0, true);
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11822,7 +11822,7 @@ int handle_cublasZgeqrfBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgeqrfBatched(handle, m, n, (cuDoubleComplex * const *)Aarray, lda, (cuDoubleComplex * const *)TauArray, info, batchSize);
+    _result = cublasZgeqrfBatched(handle, m, n, (cuDoubleComplex *const *)Aarray, lda, (cuDoubleComplex *const *)TauArray, info, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11862,9 +11862,9 @@ int handle_cublasSgelsBatched(void *args0) {
     rpc_read(client, &Carray, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
-    int*devInfoArray;
+    int *devInfoArray;
     rpc_read(client, &devInfoArray, sizeof(devInfoArray));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11874,7 +11874,7 @@ int handle_cublasSgelsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasSgelsBatched(handle, trans, m, n, nrhs, (float * const *)Aarray, lda, (float * const *)Carray, ldc, info, devInfoArray, batchSize);
+    _result = cublasSgelsBatched(handle, trans, m, n, nrhs, (float *const *)Aarray, lda, (float *const *)Carray, ldc, info, devInfoArray, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11914,9 +11914,9 @@ int handle_cublasDgelsBatched(void *args0) {
     rpc_read(client, &Carray, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
-    int*devInfoArray;
+    int *devInfoArray;
     rpc_read(client, &devInfoArray, sizeof(devInfoArray));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11926,7 +11926,7 @@ int handle_cublasDgelsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasDgelsBatched(handle, trans, m, n, nrhs, (double * const *)Aarray, lda, (double * const *)Carray, ldc, info, devInfoArray, batchSize);
+    _result = cublasDgelsBatched(handle, trans, m, n, nrhs, (double *const *)Aarray, lda, (double *const *)Carray, ldc, info, devInfoArray, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -11966,9 +11966,9 @@ int handle_cublasCgelsBatched(void *args0) {
     rpc_read(client, &Carray, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
-    int*devInfoArray;
+    int *devInfoArray;
     rpc_read(client, &devInfoArray, sizeof(devInfoArray));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -11978,7 +11978,7 @@ int handle_cublasCgelsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasCgelsBatched(handle, trans, m, n, nrhs, (cuComplex * const *)Aarray, lda, (cuComplex * const *)Carray, ldc, info, devInfoArray, batchSize);
+    _result = cublasCgelsBatched(handle, trans, m, n, nrhs, (cuComplex *const *)Aarray, lda, (cuComplex *const *)Carray, ldc, info, devInfoArray, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -12018,9 +12018,9 @@ int handle_cublasZgelsBatched(void *args0) {
     rpc_read(client, &Carray, 0, true);
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
-    int*info;
+    int *info;
     rpc_read(client, &info, sizeof(info));
-    int*devInfoArray;
+    int *devInfoArray;
     rpc_read(client, &devInfoArray, sizeof(devInfoArray));
     int batchSize;
     rpc_read(client, &batchSize, sizeof(batchSize));
@@ -12030,7 +12030,7 @@ int handle_cublasZgelsBatched(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    _result = cublasZgelsBatched(handle, trans, m, n, nrhs, (cuDoubleComplex * const *)Aarray, lda, (cuDoubleComplex * const *)Carray, ldc, info, devInfoArray, batchSize);
+    _result = cublasZgelsBatched(handle, trans, m, n, nrhs, (cuDoubleComplex *const *)Aarray, lda, (cuDoubleComplex *const *)Carray, ldc, info, devInfoArray, batchSize);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -12068,7 +12068,7 @@ int handle_cublasSdgmm(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    float*C;
+    float *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -12116,7 +12116,7 @@ int handle_cublasDdgmm(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    double*C;
+    double *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -12164,7 +12164,7 @@ int handle_cublasCdgmm(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuComplex*C;
+    cuComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -12212,7 +12212,7 @@ int handle_cublasZdgmm(void *args0) {
     rpc_read(client, &x, sizeof(x));
     int incx;
     rpc_read(client, &incx, sizeof(incx));
-    cuDoubleComplex*C;
+    cuDoubleComplex *C;
     rpc_read(client, &C, sizeof(C));
     int ldc;
     rpc_read(client, &ldc, sizeof(ldc));
@@ -12252,7 +12252,7 @@ int handle_cublasStpttr(void *args0) {
     rpc_read(client, &n, sizeof(n));
     float *AP;
     rpc_read(client, &AP, sizeof(AP));
-    float*A;
+    float *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -12292,7 +12292,7 @@ int handle_cublasDtpttr(void *args0) {
     rpc_read(client, &n, sizeof(n));
     double *AP;
     rpc_read(client, &AP, sizeof(AP));
-    double*A;
+    double *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -12332,7 +12332,7 @@ int handle_cublasCtpttr(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
-    cuComplex*A;
+    cuComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -12372,7 +12372,7 @@ int handle_cublasZtpttr(void *args0) {
     rpc_read(client, &n, sizeof(n));
     cuDoubleComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
-    cuDoubleComplex*A;
+    cuDoubleComplex *A;
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
@@ -12414,7 +12414,7 @@ int handle_cublasStrttp(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    float*AP;
+    float *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -12454,7 +12454,7 @@ int handle_cublasDtrttp(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    double*AP;
+    double *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -12494,7 +12494,7 @@ int handle_cublasCtrttp(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuComplex*AP;
+    cuComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -12534,7 +12534,7 @@ int handle_cublasZtrttp(void *args0) {
     rpc_read(client, &A, sizeof(A));
     int lda;
     rpc_read(client, &lda, sizeof(lda));
-    cuDoubleComplex*AP;
+    cuDoubleComplex *AP;
     rpc_read(client, &AP, sizeof(AP));
     cublasStatus_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -12556,4 +12556,3 @@ _RTN_:
     }
     return rtn;
 }
-
