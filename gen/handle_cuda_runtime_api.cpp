@@ -5063,7 +5063,6 @@ int handle_cudaMallocFromPoolAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **ptr
     void *ptr;
     size_t size;
     rpc_read(client, &size, sizeof(size));
@@ -5077,9 +5076,8 @@ int handle_cudaMallocFromPoolAsync(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **ptr
     _result = cudaMallocFromPoolAsync(&ptr, size, memPool, stream);
-    // PARAM void **ptr
+    rpc_write(client, &ptr, sizeof(ptr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5091,7 +5089,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **ptr
     return rtn;
 }
 
@@ -5206,7 +5203,6 @@ int handle_cudaMemPoolImportPointer(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **ptr
     void *ptr;
     cudaMemPool_t memPool;
     rpc_read(client, &memPool, sizeof(memPool));
@@ -5218,9 +5214,8 @@ int handle_cudaMemPoolImportPointer(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **ptr
     _result = cudaMemPoolImportPointer(&ptr, memPool, exportData);
-    // PARAM void **ptr
+    rpc_write(client, &ptr, sizeof(ptr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5232,7 +5227,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **ptr
     return rtn;
 }
 
@@ -9094,7 +9088,6 @@ int handle_cudaGetDriverEntryPoint(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     char *symbol = nullptr;
     rpc_read(client, &symbol, 0, true);
-    // PARAM void **funcPtr
     void *funcPtr;
     unsigned long long flags;
     rpc_read(client, &flags, sizeof(flags));
@@ -9105,9 +9098,8 @@ int handle_cudaGetDriverEntryPoint(void *args0) {
         goto _RTN_;
     }
     buffers.insert(symbol);
-    // PARAM void **funcPtr
     _result = cudaGetDriverEntryPoint(symbol, &funcPtr, flags);
-    // PARAM void **funcPtr
+    rpc_write(client, &funcPtr, sizeof(funcPtr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -9119,7 +9111,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **funcPtr
     return rtn;
 }
 

@@ -463,13 +463,13 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
 # 处理void **类型的参数
 def handle_param_ppvoid(function, param, f, is_client=True, position=0):
     if is_client:
-        if param.name in ["devPtr", "pDevice"]:
+        if param.name in ["devPtr", "pDevice", "ptr", "funcPtr"]:
             if position == 1:
                 f.write(f"    rpc_read(client, {param.name}, sizeof(void *));\n")
         else:
             f.write(f"    // PARAM void **{param.name}\n")
     else:
-        if param.name in ["devPtr", "pDevice"]:
+        if param.name in ["devPtr", "pDevice", "ptr", "funcPtr"]:
             if position == 2:
                 f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
         else:

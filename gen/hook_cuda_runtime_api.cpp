@@ -6872,7 +6872,6 @@ extern "C" cudaError_t cudaMallocFromPoolAsync(void **ptr, size_t size, cudaMemP
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **ptr
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -6884,7 +6883,7 @@ extern "C" cudaError_t cudaMallocFromPoolAsync(void **ptr, size_t size, cudaMemP
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaMallocFromPoolAsync);
-    // PARAM void **ptr
+    rpc_read(client, ptr, sizeof(void *));
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &memPool, sizeof(memPool));
     rpc_write(client, &stream, sizeof(stream));
@@ -6894,9 +6893,7 @@ extern "C" cudaError_t cudaMallocFromPoolAsync(void **ptr, size_t size, cudaMemP
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **ptr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **ptr
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7064,7 +7061,6 @@ extern "C" cudaError_t cudaMemPoolImportPointer(void **ptr, cudaMemPool_t memPoo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **ptr
     void *_0exportData;
     mem2server(client, &_0exportData, (void *)exportData, sizeof(*exportData));
     void *end_flag = (void *)0xffffffff;
@@ -7078,7 +7074,7 @@ extern "C" cudaError_t cudaMemPoolImportPointer(void **ptr, cudaMemPool_t memPoo
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaMemPoolImportPointer);
-    // PARAM void **ptr
+    rpc_read(client, ptr, sizeof(void *));
     rpc_write(client, &memPool, sizeof(memPool));
     rpc_write(client, &_0exportData, sizeof(_0exportData));
     rpc_read(client, &_result, sizeof(_result));
@@ -7087,9 +7083,7 @@ extern "C" cudaError_t cudaMemPoolImportPointer(void **ptr, cudaMemPool_t memPoo
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **ptr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **ptr
     mem2client(client, (void *)exportData, sizeof(*exportData));
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -12404,7 +12398,6 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **funcPtr
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -12417,7 +12410,7 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaGetDriverEntryPoint);
     rpc_write(client, symbol, strlen(symbol) + 1, true);
-    // PARAM void **funcPtr
+    rpc_read(client, funcPtr, sizeof(void *));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12425,9 +12418,7 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **funcPtr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **funcPtr
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
