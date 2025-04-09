@@ -1510,6 +1510,7 @@ int handle_cuModuleLoadDataEx(void *args0) {
     CUjit_option *options;
     rpc_read(client, &options, sizeof(options));
     // PARAM void **optionValues
+    void *optionValues;
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -1517,7 +1518,7 @@ int handle_cuModuleLoadDataEx(void *args0) {
         goto _RTN_;
     }
     // PARAM void **optionValues
-    _result = cuModuleLoadDataEx(module, image, numOptions, options);
+    _result = cuModuleLoadDataEx(module, image, numOptions, options, &optionValues);
     // PARAM void **optionValues
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1713,6 +1714,7 @@ int handle_cuLinkCreate_v2(void *args0) {
     CUjit_option *options;
     rpc_read(client, &options, sizeof(options));
     // PARAM void **optionValues
+    void *optionValues;
     CUlinkState *stateOut;
     rpc_read(client, &stateOut, sizeof(stateOut));
     CUresult _result;
@@ -1722,7 +1724,7 @@ int handle_cuLinkCreate_v2(void *args0) {
         goto _RTN_;
     }
     // PARAM void **optionValues
-    _result = cuLinkCreate_v2(numOptions, options, stateOut);
+    _result = cuLinkCreate_v2(numOptions, options, &optionValues, stateOut);
     // PARAM void **optionValues
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1761,6 +1763,7 @@ int handle_cuLinkAddData_v2(void *args0) {
     CUjit_option *options;
     rpc_read(client, &options, sizeof(options));
     // PARAM void **optionValues
+    void *optionValues;
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -1769,7 +1772,7 @@ int handle_cuLinkAddData_v2(void *args0) {
     }
     buffers.insert(name);
     // PARAM void **optionValues
-    _result = cuLinkAddData_v2(state, type, data, size, name, numOptions, options);
+    _result = cuLinkAddData_v2(state, type, data, size, name, numOptions, options, &optionValues);
     // PARAM void **optionValues
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1804,6 +1807,7 @@ int handle_cuLinkAddFile_v2(void *args0) {
     CUjit_option *options;
     rpc_read(client, &options, sizeof(options));
     // PARAM void **optionValues
+    void *optionValues;
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -1812,7 +1816,7 @@ int handle_cuLinkAddFile_v2(void *args0) {
     }
     buffers.insert(path);
     // PARAM void **optionValues
-    _result = cuLinkAddFile_v2(state, type, path, numOptions, options);
+    _result = cuLinkAddFile_v2(state, type, path, numOptions, options, &optionValues);
     // PARAM void **optionValues
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1839,6 +1843,7 @@ int handle_cuLinkComplete(void *args0) {
     CUlinkState state;
     rpc_read(client, &state, sizeof(state));
     // PARAM void **cubinOut
+    void *cubinOut;
     size_t *sizeOut;
     rpc_read(client, &sizeOut, sizeof(sizeOut));
     CUresult _result;
@@ -1848,7 +1853,7 @@ int handle_cuLinkComplete(void *args0) {
         goto _RTN_;
     }
     // PARAM void **cubinOut
-    _result = cuLinkComplete(state, sizeOut);
+    _result = cuLinkComplete(state, &cubinOut, sizeOut);
     // PARAM void **cubinOut
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4800,6 +4805,7 @@ int handle_cuMemRangeGetAttributes(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **data
+    void *data;
     size_t *dataSizes;
     rpc_read(client, &dataSizes, sizeof(dataSizes));
     CUmem_range_attribute *attributes;
@@ -4817,7 +4823,7 @@ int handle_cuMemRangeGetAttributes(void *args0) {
         goto _RTN_;
     }
     // PARAM void **data
-    _result = cuMemRangeGetAttributes(dataSizes, attributes, numAttributes, devPtr, count);
+    _result = cuMemRangeGetAttributes(&data, dataSizes, attributes, numAttributes, devPtr, count);
     // PARAM void **data
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4880,6 +4886,7 @@ int handle_cuPointerGetAttributes(void *args0) {
     CUpointer_attribute *attributes;
     rpc_read(client, &attributes, sizeof(attributes));
     // PARAM void **data
+    void *data;
     CUdeviceptr ptr;
     rpc_read(client, &ptr, sizeof(ptr));
     CUresult _result;
@@ -4889,7 +4896,7 @@ int handle_cuPointerGetAttributes(void *args0) {
         goto _RTN_;
     }
     // PARAM void **data
-    _result = cuPointerGetAttributes(numAttributes, attributes, ptr);
+    _result = cuPointerGetAttributes(numAttributes, attributes, &data, ptr);
     // PARAM void **data
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -6394,7 +6401,9 @@ int handle_cuLaunchKernel(void *args0) {
     CUstream hStream;
     rpc_read(client, &hStream, sizeof(hStream));
     // PARAM void **kernelParams
+    void *kernelParams;
     // PARAM void **extra
+    void *extra;
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -6403,7 +6412,7 @@ int handle_cuLaunchKernel(void *args0) {
     }
     // PARAM void **kernelParams
     // PARAM void **extra
-    _result = cuLaunchKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream);
+    _result = cuLaunchKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, &kernelParams, &extra);
     // PARAM void **kernelParams
     // PARAM void **extra
     rpc_write(client, &_result, sizeof(_result));
@@ -6448,6 +6457,7 @@ int handle_cuLaunchCooperativeKernel(void *args0) {
     CUstream hStream;
     rpc_read(client, &hStream, sizeof(hStream));
     // PARAM void **kernelParams
+    void *kernelParams;
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
@@ -6455,7 +6465,7 @@ int handle_cuLaunchCooperativeKernel(void *args0) {
         goto _RTN_;
     }
     // PARAM void **kernelParams
-    _result = cuLaunchCooperativeKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream);
+    _result = cuLaunchCooperativeKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, &kernelParams);
     // PARAM void **kernelParams
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {

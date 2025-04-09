@@ -6,7 +6,7 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);
+extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
 extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
 void *get_so_handle(const std::string &so_file);
 extern "C" CUresult cuInit(unsigned int Flags) {
@@ -14877,4 +14877,3 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
     rpc_free_client(client);
     return _result;
 }
-

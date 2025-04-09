@@ -453,17 +453,25 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
             f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
     else:
         if position == 0:
-            f.write(f"    {param_type_name}*{param.name};\n")
+            f.write(f"    {param_type_name} *{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             return param.name
 
 
 # 处理void **类型的参数
 def handle_param_ppvoid(function, param, f, is_client=True, position=0):
-    f.write(f"    // PARAM void **{param.name}\n")
     if is_client:
-        pass
+        if param.name == "devPtr":
+            if position == 1:
+                f.write(f"    rpc_read(client, {param.name}, sizeof(void *));\n")
+        else:
+            f.write(f"    // PARAM void **{param.name}\n")
     else:
+        if param.name == "devPtr":
+            if position == 2:
+                f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+        else:
+            f.write(f"    // PARAM void **{param.name}\n")
         if position == 0:
             f.write(f"    void *{param.name};\n")
             return "&" + param.name
@@ -541,9 +549,9 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
             f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
             if param.type.array_of.const and param.type.array_of.ptr_to.const:
-                return f"(const {param_type_name} * const *){param.name}"
+                return f"(const {param_type_name} *const *){param.name}"
             elif param.type.array_of.const:
-                return f"({param_type_name} * const *){param.name}"
+                return f"({param_type_name} *const *){param.name}"
             elif param.type.array_of.ptr_to.const:
                 return f"(const {param_type_name} **){param.name}"
             else:
@@ -1495,7 +1503,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);\n')
+        f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);\n')
         f.write('extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):

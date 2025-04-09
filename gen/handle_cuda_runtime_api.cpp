@@ -481,7 +481,7 @@ int handle_cudaIpcOpenMemHandle(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **devPtr
+    void *devPtr;
     cudaIpcMemHandle_t handle;
     rpc_read(client, &handle, sizeof(handle));
     unsigned int flags;
@@ -492,9 +492,8 @@ int handle_cudaIpcOpenMemHandle(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **devPtr
-    _result = cudaIpcOpenMemHandle(handle, flags);
-    // PARAM void **devPtr
+    _result = cudaIpcOpenMemHandle(&devPtr, handle, flags);
+    rpc_write(client, &devPtr, sizeof(devPtr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -506,7 +505,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **devPtr
     return rtn;
 }
 
@@ -2269,7 +2267,7 @@ int handle_cudaExternalMemoryGetMappedBuffer(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **devPtr
+    void *devPtr;
     cudaExternalMemory_t extMem;
     rpc_read(client, &extMem, sizeof(extMem));
     struct cudaExternalMemoryBufferDesc *bufferDesc;
@@ -2280,9 +2278,8 @@ int handle_cudaExternalMemoryGetMappedBuffer(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **devPtr
-    _result = cudaExternalMemoryGetMappedBuffer(extMem, bufferDesc);
-    // PARAM void **devPtr
+    _result = cudaExternalMemoryGetMappedBuffer(&devPtr, extMem, bufferDesc);
+    rpc_write(client, &devPtr, sizeof(devPtr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2294,7 +2291,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **devPtr
     return rtn;
 }
 
@@ -2510,6 +2506,7 @@ int handle_cudaLaunchCooperativeKernel(void *args0) {
     dim3 blockDim;
     rpc_read(client, &blockDim, sizeof(blockDim));
     // PARAM void **args
+    void *args;
     size_t sharedMem;
     rpc_read(client, &sharedMem, sizeof(sharedMem));
     cudaStream_t stream;
@@ -2521,7 +2518,7 @@ int handle_cudaLaunchCooperativeKernel(void *args0) {
         goto _RTN_;
     }
     // PARAM void **args
-    _result = cudaLaunchCooperativeKernel(func, gridDim, blockDim, sharedMem, stream);
+    _result = cudaLaunchCooperativeKernel(func, gridDim, blockDim, &args, sharedMem, stream);
     // PARAM void **args
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -3076,6 +3073,7 @@ int handle_cudaHostGetDevicePointer(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **pDevice
+    void *pDevice;
     void *pHost;
     rpc_read(client, &pHost, sizeof(pHost));
     unsigned int flags;
@@ -3087,7 +3085,7 @@ int handle_cudaHostGetDevicePointer(void *args0) {
         goto _RTN_;
     }
     // PARAM void **pDevice
-    _result = cudaHostGetDevicePointer(pHost, flags);
+    _result = cudaHostGetDevicePointer(&pDevice, pHost, flags);
     // PARAM void **pDevice
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4522,6 +4520,7 @@ int handle_cudaMemRangeGetAttributes(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **data
+    void *data;
     size_t *dataSizes;
     rpc_read(client, &dataSizes, sizeof(dataSizes));
     enum cudaMemRangeAttribute *attributes;
@@ -4539,7 +4538,7 @@ int handle_cudaMemRangeGetAttributes(void *args0) {
         goto _RTN_;
     }
     // PARAM void **data
-    _result = cudaMemRangeGetAttributes(dataSizes, attributes, numAttributes, devPtr, count);
+    _result = cudaMemRangeGetAttributes(&data, dataSizes, attributes, numAttributes, devPtr, count);
     // PARAM void **data
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -4771,7 +4770,7 @@ int handle_cudaMallocAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **devPtr
+    void *devPtr;
     size_t size;
     rpc_read(client, &size, sizeof(size));
     cudaStream_t hStream;
@@ -4782,9 +4781,8 @@ int handle_cudaMallocAsync(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **devPtr
-    _result = cudaMallocAsync(size, hStream);
-    // PARAM void **devPtr
+    _result = cudaMallocAsync(&devPtr, size, hStream);
+    rpc_write(client, &devPtr, sizeof(devPtr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -4796,7 +4794,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **devPtr
     return rtn;
 }
 
@@ -5070,6 +5067,7 @@ int handle_cudaMallocFromPoolAsync(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **ptr
+    void *ptr;
     size_t size;
     rpc_read(client, &size, sizeof(size));
     cudaMemPool_t memPool;
@@ -5083,7 +5081,7 @@ int handle_cudaMallocFromPoolAsync(void *args0) {
         goto _RTN_;
     }
     // PARAM void **ptr
-    _result = cudaMallocFromPoolAsync(size, memPool, stream);
+    _result = cudaMallocFromPoolAsync(&ptr, size, memPool, stream);
     // PARAM void **ptr
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5212,6 +5210,7 @@ int handle_cudaMemPoolImportPointer(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     // PARAM void **ptr
+    void *ptr;
     cudaMemPool_t memPool;
     rpc_read(client, &memPool, sizeof(memPool));
     struct cudaMemPoolPtrExportData *exportData;
@@ -5223,7 +5222,7 @@ int handle_cudaMemPoolImportPointer(void *args0) {
         goto _RTN_;
     }
     // PARAM void **ptr
-    _result = cudaMemPoolImportPointer(memPool, exportData);
+    _result = cudaMemPoolImportPointer(&ptr, memPool, exportData);
     // PARAM void **ptr
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5505,7 +5504,7 @@ int handle_cudaGraphicsResourceGetMappedPointer(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM void **devPtr
+    void *devPtr;
     size_t *size;
     rpc_read(client, &size, sizeof(size));
     cudaGraphicsResource_t resource;
@@ -5516,9 +5515,8 @@ int handle_cudaGraphicsResourceGetMappedPointer(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM void **devPtr
-    _result = cudaGraphicsResourceGetMappedPointer(size, resource);
-    // PARAM void **devPtr
+    _result = cudaGraphicsResourceGetMappedPointer(&devPtr, size, resource);
+    rpc_write(client, &devPtr, sizeof(devPtr));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5530,7 +5528,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM void **devPtr
     return rtn;
 }
 
@@ -9101,6 +9098,7 @@ int handle_cudaGetDriverEntryPoint(void *args0) {
     char *symbol = nullptr;
     rpc_read(client, &symbol, 0, true);
     // PARAM void **funcPtr
+    void *funcPtr;
     unsigned long long flags;
     rpc_read(client, &flags, sizeof(flags));
     cudaError_t _result;
@@ -9111,7 +9109,7 @@ int handle_cudaGetDriverEntryPoint(void *args0) {
     }
     buffers.insert(symbol);
     // PARAM void **funcPtr
-    _result = cudaGetDriverEntryPoint(symbol, flags);
+    _result = cudaGetDriverEntryPoint(symbol, &funcPtr, flags);
     // PARAM void **funcPtr
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9195,3 +9193,4 @@ _RTN_:
     }
     return rtn;
 }
+

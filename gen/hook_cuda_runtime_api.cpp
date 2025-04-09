@@ -6,7 +6,7 @@
 #include "../rpc.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr,void *clientPtr, ssize_t size);
+extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
 extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
 void *get_so_handle(const std::string &so_file);
 extern "C" cudaError_t cudaDeviceReset() {
@@ -679,7 +679,6 @@ extern "C" cudaError_t cudaIpcOpenMemHandle(void **devPtr, cudaIpcMemHandle_t ha
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **devPtr
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -691,7 +690,7 @@ extern "C" cudaError_t cudaIpcOpenMemHandle(void **devPtr, cudaIpcMemHandle_t ha
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaIpcOpenMemHandle);
-    // PARAM void **devPtr
+    rpc_read(client, devPtr, sizeof(void *));
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -700,9 +699,7 @@ extern "C" cudaError_t cudaIpcOpenMemHandle(void **devPtr, cudaIpcMemHandle_t ha
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **devPtr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **devPtr
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3152,7 +3149,6 @@ extern "C" cudaError_t cudaExternalMemoryGetMappedBuffer(void **devPtr, cudaExte
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **devPtr
     void *_0bufferDesc;
     mem2server(client, &_0bufferDesc, (void *)bufferDesc, sizeof(*bufferDesc));
     void *end_flag = (void *)0xffffffff;
@@ -3166,7 +3162,7 @@ extern "C" cudaError_t cudaExternalMemoryGetMappedBuffer(void **devPtr, cudaExte
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaExternalMemoryGetMappedBuffer);
-    // PARAM void **devPtr
+    rpc_read(client, devPtr, sizeof(void *));
     rpc_write(client, &extMem, sizeof(extMem));
     rpc_write(client, &_0bufferDesc, sizeof(_0bufferDesc));
     rpc_read(client, &_result, sizeof(_result));
@@ -3175,9 +3171,7 @@ extern "C" cudaError_t cudaExternalMemoryGetMappedBuffer(void **devPtr, cudaExte
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **devPtr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **devPtr
     mem2client(client, (void *)bufferDesc, sizeof(*bufferDesc));
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -6475,7 +6469,6 @@ extern "C" cudaError_t cudaMallocAsync(void **devPtr, size_t size, cudaStream_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **devPtr
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -6487,7 +6480,7 @@ extern "C" cudaError_t cudaMallocAsync(void **devPtr, size_t size, cudaStream_t 
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaMallocAsync);
-    // PARAM void **devPtr
+    rpc_read(client, devPtr, sizeof(void *));
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -6496,9 +6489,7 @@ extern "C" cudaError_t cudaMallocAsync(void **devPtr, size_t size, cudaStream_t 
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **devPtr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **devPtr
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7477,7 +7468,6 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedPointer(void **devPtr, size_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **devPtr
     void *_0size;
     mem2server(client, &_0size, (void *)size, sizeof(*size));
     void *end_flag = (void *)0xffffffff;
@@ -7491,7 +7481,7 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedPointer(void **devPtr, size_
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaGraphicsResourceGetMappedPointer);
-    // PARAM void **devPtr
+    rpc_read(client, devPtr, sizeof(void *));
     rpc_write(client, &_0size, sizeof(_0size));
     rpc_write(client, &resource, sizeof(resource));
     rpc_read(client, &_result, sizeof(_result));
@@ -7500,9 +7490,7 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedPointer(void **devPtr, size_
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM void **devPtr
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **devPtr
     mem2client(client, (void *)size, sizeof(*size));
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
