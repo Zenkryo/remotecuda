@@ -474,6 +474,73 @@ int handle_cudaMallocPitch(void *args) {
     }
     return 0;
 }
+
+int handle_cudaMemRangeGetAttributes(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaMemRangeGetAttributes called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t *dataSizes;
+    enum cudaMemRangeAttribute *attributes;
+    void **data;
+    size_t numAttributes;
+    rpc_read(client, &numAttributes, sizeof(numAttributes));
+    void *devPtr;
+    rpc_read(client, &devPtr, sizeof(devPtr));
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    dataSizes = (size_t *)malloc(sizeof(size_t) * numAttributes);
+    if(dataSizes == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(dataSizes);
+    read_one_now(client, dataSizes, sizeof(size_t) * numAttributes, false);
+
+    attributes = (enum cudaMemRangeAttribute *)malloc(sizeof(enum cudaMemRangeAttribute) * numAttributes);
+    if(attributes == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(attributes);
+    read_one_now(client, attributes, sizeof(enum cudaMemRangeAttribute) * numAttributes, false);
+
+    data = (void **)malloc(sizeof(void *) * numAttributes);
+    if(data == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(data);
+    for(size_t i = 0; i < numAttributes; i++) {
+        data[i] = malloc(dataSizes[i]);
+        if(data[i] == nullptr) {
+            goto _RTN_;
+        }
+        buffers.insert(data[i]);
+    }
+    _result = cudaMemRangeGetAttributes(data, dataSizes, attributes, numAttributes, devPtr, count);
+    for(size_t i = 0; i < numAttributes; i++) {
+        rpc_write(client, data[i], dataSizes[i], false);
+    }
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle___cudaPopCallConfiguration(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function __cudaPopCallConfiguration called" << std::endl;
@@ -950,6 +1017,72 @@ int handle_cuMemGetAddressRange_v2(void *args) {
 #endif
 
     return 0;
+}
+
+int handle_cuMemRangeGetAttributes(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuMemRangeGetAttributes called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    size_t *dataSizes;
+    CUmem_range_attribute *attributes;
+    void **data;
+    size_t numAttributes;
+    rpc_read(client, &numAttributes, sizeof(numAttributes));
+    CUdeviceptr devPtr;
+    rpc_read(client, &devPtr, sizeof(devPtr));
+    size_t count;
+    rpc_read(client, &count, sizeof(count));
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    dataSizes = (size_t *)malloc(sizeof(size_t) * numAttributes);
+    if(dataSizes == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(dataSizes);
+    read_one_now(client, dataSizes, sizeof(size_t) * numAttributes, false);
+
+    attributes = (CUmem_range_attribute *)malloc(sizeof(CUmem_range_attribute) * numAttributes);
+    if(attributes == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(attributes);
+    read_one_now(client, attributes, sizeof(enum cudaMemRangeAttribute) * numAttributes, false);
+
+    data = (void **)malloc(sizeof(void *) * numAttributes);
+    if(data == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(data);
+    for(size_t i = 0; i < numAttributes; i++) {
+        data[i] = malloc(dataSizes[i]);
+        if(data[i] == nullptr) {
+            goto _RTN_;
+        }
+        buffers.insert(data[i]);
+    }
+    _result = cuMemRangeGetAttributes(data, dataSizes, attributes, numAttributes, devPtr, count);
+    for(size_t i = 0; i < numAttributes; i++) {
+        rpc_write(client, data[i], dataSizes[i], false);
+    }
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
 }
 
 int handle_cuMemHostAlloc(void *args) {

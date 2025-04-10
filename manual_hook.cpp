@@ -1108,6 +1108,39 @@ extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t widt
     return _result;
 }
 
+extern "C" cudaError_t cudaMemRangeGetAttributes(void **data, size_t *dataSizes, enum cudaMemRangeAttribute *attributes, size_t numAttributes, const void *devPtr, size_t count) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaMemRangeGetAttributes called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+
+    void *_0devPtr;
+    mem2server(client, &_0devPtr, (void *)devPtr, -1);
+    cudaError_t _result;
+    rpc_prepare_request(client, RPC_cudaMemRangeGetAttributes);
+    rpc_write(client, &numAttributes, sizeof(numAttributes));
+    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, dataSizes, sizeof(*dataSizes) * numAttributes);
+    rpc_write(client, attributes, sizeof(*attributes) * numAttributes);
+    for(size_t i = 0; i < numAttributes; i++) {
+        rpc_read(client, data[i], dataSizes[i]);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim, size_t *sharedMem, void *stream) {
 #ifdef DEBUG
     std::cout << "Hook: __cudaPopCallConfiguration called" << std::endl;
@@ -1868,6 +1901,39 @@ extern "C" CUresult cuMemGetAddressRange_v2(CUdeviceptr *pbase, size_t *psize, C
     if(_result == CUDA_SUCCESS) {
         server_dev_mems[(void *)*pbase] = *psize;
     }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" CUresult cuMemRangeGetAttributes(void **data, size_t *dataSizes, CUmem_range_attribute *attributes, size_t numAttributes, CUdeviceptr devPtr, size_t count) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemRangeGetAttributes called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+
+    void *_0devPtr;
+    mem2server(client, &_0devPtr, (void *)devPtr, -1);
+    CUresult _result;
+    rpc_prepare_request(client, RPC_cuMemRangeGetAttributes);
+    rpc_write(client, &numAttributes, sizeof(numAttributes));
+    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    rpc_write(client, &count, sizeof(count));
+    rpc_write(client, dataSizes, sizeof(*dataSizes) * numAttributes);
+    rpc_write(client, attributes, sizeof(*attributes) * numAttributes);
+    for(size_t i = 0; i < numAttributes; i++) {
+        rpc_read(client, data[i], dataSizes[i]);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+
     rpc_free_client(client);
     return _result;
 }

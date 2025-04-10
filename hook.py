@@ -74,6 +74,7 @@ MANUAL_FUNCTIONS = [
     "cudaMallocHost",
     "cudaMallocManaged",
     "cudaMallocPitch",
+    "cudaMemRangeGetAttributes",
     # "cudaMemcpy",
     # "cudaMemcpyAsync",
     # "cudaMemcpyFromSymbol",
@@ -101,6 +102,7 @@ MANUAL_FUNCTIONS = [
     "cuMemCreate",
     "cuMemFreeHost",
     "cuMemGetAddressRange_v2",
+    "cuMemRangeGetAttributes",
     "cuMemHostAlloc",
     "cuMemHostGetDevicePointer_v2",
     "cuMemMap",
@@ -1005,7 +1007,6 @@ pointer_sizes = {
     "cuMemPoolImportFromShareableHandle": {"pool_out": "sizeof(*pool_out)", "handle": "sizeof(*handle)"},
     "cuMemPoolExportPointer": {"shareData_out": "sizeof(*shareData_out)"},
     "cuMemRangeGetAttribute": {"data": "dataSize"},
-    "cuMemRangeGetAttributes": {"data": "numAttributes * dataSizes[0]", "dataSizes": "numAttributes * sizeof(*dataSizes)", "attributes": "numAttributes * sizeof(*attributes)"},
     "cuPointerSetAttribute": {"value": "sizeof(*value)"},
     "cuPointerGetAttributes": {"attributes": "numAttributes * sizeof(*attributes)", "data": "numAttributes * sizeof(*data)"},
     "cuStreamCreate": {"phStream": "sizeof(*phStream)"},
@@ -1388,6 +1389,8 @@ pointer_sizes = {
     "cudaGetDriverEntryPoint": {"symbol": "strlen(symbol) + 1", "funcPtr": "sizeof(*funcPtr)"},
     "cudaGetExportTable": {"ppExportTable": "sizeof(*ppExportTable)", "pExportTableId": "sizeof(*pExportTableId)"},
     "cudaGetFuncBySymbol": {"functionPtr": "sizeof(*functionPtr)", "symbolPtr": "sizeof(*symbolPtr)"},
+    # cuda nvml api
+    "nvmlDeviceGetAttributes_v2": {"attributes": "sizeof(*attributes)"},
 }
 
 
@@ -1446,6 +1449,8 @@ def calculate_pointer_sizes(function, param):
         "devPtr",
         "data",
         "symbol",
+        "dataSizes",
+        "attributes",
     ]
     array_vars = [
         "A",

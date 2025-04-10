@@ -4462,49 +4462,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaMemRangeGetAttributes(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaMemRangeGetAttributes called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    // PARAM void **data
-    void *data;
-    size_t *dataSizes;
-    rpc_read(client, &dataSizes, sizeof(dataSizes));
-    enum cudaMemRangeAttribute *attributes;
-    rpc_read(client, &attributes, sizeof(attributes));
-    size_t numAttributes;
-    rpc_read(client, &numAttributes, sizeof(numAttributes));
-    void *devPtr;
-    rpc_read(client, &devPtr, sizeof(devPtr));
-    size_t count;
-    rpc_read(client, &count, sizeof(count));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **data
-    _result = cudaMemRangeGetAttributes(&data, dataSizes, attributes, numAttributes, devPtr, count);
-    // PARAM void **data
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **data
-    return rtn;
-}
-
 int handle_cudaMemcpyToArray(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaMemcpyToArray called" << std::endl;

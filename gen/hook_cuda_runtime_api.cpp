@@ -6096,64 +6096,6 @@ extern "C" cudaError_t cudaMemRangeGetAttribute(void *data, size_t dataSize, enu
     return _result;
 }
 
-extern "C" cudaError_t cudaMemRangeGetAttributes(void **data, size_t *dataSizes, enum cudaMemRangeAttribute *attributes, size_t numAttributes, const void *devPtr, size_t count) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemRangeGetAttributes called" << std::endl;
-#endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **data
-    void *_0dataSizes;
-    mem2server(client, &_0dataSizes, (void *)dataSizes, sizeof(*dataSizes));
-    void *_0attributes;
-    mem2server(client, &_0attributes, (void *)attributes, sizeof(*attributes));
-    void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, count);
-    void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemRangeGetAttributes);
-    // PARAM void **data
-    rpc_write(client, &_0dataSizes, sizeof(_0dataSizes));
-    rpc_write(client, &_0attributes, sizeof(_0attributes));
-    rpc_write(client, &numAttributes, sizeof(numAttributes));
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **data
-    rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **data
-    mem2client(client, (void *)dataSizes, sizeof(*dataSizes));
-    mem2client(client, (void *)attributes, sizeof(*attributes));
-    mem2client(client, (void *)devPtr, count);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaMemcpyToArray(cudaArray_t dst, size_t wOffset, size_t hOffset, const void *src, size_t count, enum cudaMemcpyKind kind) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyToArray called" << std::endl;
