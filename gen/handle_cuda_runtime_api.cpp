@@ -1911,7 +1911,6 @@ int handle_cudaStreamGetCaptureInfo_v2(void *args0) {
     rpc_read(client, &id_out, sizeof(id_out));
     cudaGraph_t *graph_out;
     rpc_read(client, &graph_out, sizeof(graph_out));
-    // PARAM const cudaGraphNode_t **dependencies_out
     const cudaGraphNode_t *dependencies_out;
     size_t *numDependencies_out;
     rpc_read(client, &numDependencies_out, sizeof(numDependencies_out));
@@ -1921,9 +1920,7 @@ int handle_cudaStreamGetCaptureInfo_v2(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM const cudaGraphNode_t **dependencies_out
     _result = cudaStreamGetCaptureInfo_v2(stream, captureStatus_out, id_out, graph_out, &dependencies_out, numDependencies_out);
-    // PARAM const cudaGraphNode_t **dependencies_out
     rpc_write(client, dependencies_out, sizeof(cudaGraphNode_t));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1936,7 +1933,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM const cudaGraphNode_t **dependencies_out
     return rtn;
 }
 
@@ -5807,7 +5803,6 @@ int handle_cudaGetTextureReference(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM const struct textureReference **texref
     const struct textureReference *texref;
     void *symbol;
     rpc_read(client, &symbol, sizeof(symbol));
@@ -5817,9 +5812,7 @@ int handle_cudaGetTextureReference(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM const struct textureReference **texref
     _result = cudaGetTextureReference(&texref, symbol);
-    // PARAM const struct textureReference **texref
     rpc_write(client, texref, sizeof(struct textureReference));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5832,7 +5825,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM const struct textureReference **texref
     return rtn;
 }
 
@@ -5877,7 +5869,6 @@ int handle_cudaGetSurfaceReference(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM const struct surfaceReference **surfref
     const struct surfaceReference *surfref;
     void *symbol;
     rpc_read(client, &symbol, sizeof(symbol));
@@ -5887,9 +5878,7 @@ int handle_cudaGetSurfaceReference(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM const struct surfaceReference **surfref
     _result = cudaGetSurfaceReference(&surfref, symbol);
-    // PARAM const struct surfaceReference **surfref
     rpc_write(client, surfref, sizeof(struct surfaceReference));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5902,7 +5891,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM const struct surfaceReference **surfref
     return rtn;
 }
 
@@ -9121,7 +9109,6 @@ int handle_cudaGetExportTable(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM const void **ppExportTable
     const void *ppExportTable;
     cudaUUID_t *pExportTableId;
     rpc_read(client, &pExportTableId, sizeof(pExportTableId));
@@ -9131,9 +9118,7 @@ int handle_cudaGetExportTable(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM const void **ppExportTable
     _result = cudaGetExportTable(&ppExportTable, pExportTableId);
-    // PARAM const void **ppExportTable
     rpc_write(client, &ppExportTable, sizeof(ppExportTable));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -9146,7 +9131,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM const void **ppExportTable
     return rtn;
 }
 

@@ -481,7 +481,8 @@ def handle_param_ppvoid(function, param, f, is_client=True, position=0):
 
 # 处理const void **类型的参数
 def handle_param_ppconstvoid(function, param, f, is_client=True, position=0):
-    f.write(f"    // PARAM const void **{param.name}\n")
+    if param.name not in ["ppExportTable"]:
+        f.write(f"    // PARAM const void **{param.name}\n")
     if is_client:
         if position == 1:
             f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
@@ -520,7 +521,6 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
 def handle_param_ppconsttype(function, param, f, is_client=True, position=0):
     param_type_name = param.type.ptr_to.ptr_to.format()
     param_type_name = param_type_name[6:]
-    f.write(f"    // PARAM const {param_type_name} **{param.name}\n")
     if is_client:
         function_name = function.name.format()
         if position == 1:

@@ -7180,7 +7180,6 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
     mem2server(client, &_0id_out, (void *)id_out, sizeof(*id_out));
     void *_0graph_out;
     mem2server(client, &_0graph_out, (void *)graph_out, sizeof(*graph_out));
-    // PARAM const CUgraphNode **dependencies_out
     void *_0numDependencies_out;
     mem2server(client, &_0numDependencies_out, (void *)numDependencies_out, sizeof(*numDependencies_out));
     void *end_flag = (void *)0xffffffff;
@@ -7198,7 +7197,6 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
     rpc_write(client, &_0captureStatus_out, sizeof(_0captureStatus_out));
     rpc_write(client, &_0id_out, sizeof(_0id_out));
     rpc_write(client, &_0graph_out, sizeof(_0graph_out));
-    // PARAM const CUgraphNode **dependencies_out
     static CUgraphNode _cuStreamGetCaptureInfo_v2_dependencies_out;
     rpc_read(client, &_cuStreamGetCaptureInfo_v2_dependencies_out, sizeof(CUgraphNode));
     rpc_write(client, &_0numDependencies_out, sizeof(_0numDependencies_out));
@@ -7208,13 +7206,11 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM const CUgraphNode **dependencies_out
     *dependencies_out = &_cuStreamGetCaptureInfo_v2_dependencies_out;
     rpc_prepare_request(client, RPC_mem2client);
     mem2client(client, (void *)captureStatus_out, sizeof(*captureStatus_out));
     mem2client(client, (void *)id_out, sizeof(*id_out));
     mem2client(client, (void *)graph_out, sizeof(*graph_out));
-    // PARAM const CUgraphNode **dependencies_out
     mem2client(client, (void *)numDependencies_out, sizeof(*numDependencies_out));
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -14797,7 +14793,6 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2server);
-    // PARAM const void **ppExportTable
     void *_0pExportTableId;
     mem2server(client, &_0pExportTableId, (void *)pExportTableId, sizeof(*pExportTableId));
     void *end_flag = (void *)0xffffffff;
@@ -14811,7 +14806,6 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
     }
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGetExportTable);
-    // PARAM const void **ppExportTable
     rpc_read(client, ppExportTable, sizeof(*ppExportTable));
     rpc_write(client, &_0pExportTableId, sizeof(_0pExportTableId));
     rpc_read(client, &_result, sizeof(_result));
@@ -14820,9 +14814,7 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
         rpc_release_client(client);
         exit(1);
     }
-    // PARAM const void **ppExportTable
     rpc_prepare_request(client, RPC_mem2client);
-    // PARAM const void **ppExportTable
     mem2client(client, (void *)pExportTableId, sizeof(*pExportTableId));
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));

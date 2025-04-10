@@ -5320,7 +5320,6 @@ int handle_cuStreamGetCaptureInfo_v2(void *args0) {
     rpc_read(client, &id_out, sizeof(id_out));
     CUgraph *graph_out;
     rpc_read(client, &graph_out, sizeof(graph_out));
-    // PARAM const CUgraphNode **dependencies_out
     const CUgraphNode *dependencies_out;
     size_t *numDependencies_out;
     rpc_read(client, &numDependencies_out, sizeof(numDependencies_out));
@@ -5330,9 +5329,7 @@ int handle_cuStreamGetCaptureInfo_v2(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM const CUgraphNode **dependencies_out
     _result = cuStreamGetCaptureInfo_v2(hStream, captureStatus_out, id_out, graph_out, &dependencies_out, numDependencies_out);
-    // PARAM const CUgraphNode **dependencies_out
     rpc_write(client, dependencies_out, sizeof(CUgraphNode));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -5345,7 +5342,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM const CUgraphNode **dependencies_out
     return rtn;
 }
 
@@ -10976,7 +10972,6 @@ int handle_cuGetExportTable(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    // PARAM const void **ppExportTable
     const void *ppExportTable;
     CUuuid *pExportTableId;
     rpc_read(client, &pExportTableId, sizeof(pExportTableId));
@@ -10986,9 +10981,7 @@ int handle_cuGetExportTable(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    // PARAM const void **ppExportTable
     _result = cuGetExportTable(&ppExportTable, pExportTableId);
-    // PARAM const void **ppExportTable
     rpc_write(client, &ppExportTable, sizeof(ppExportTable));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -11001,7 +10994,6 @@ _RTN_:
     for(auto it = buffers.begin(); it != buffers.end(); it++) {
         ::free(*it);
     }
-    // PARAM const void **ppExportTable
     return rtn;
 }
 
