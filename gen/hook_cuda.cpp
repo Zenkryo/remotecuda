@@ -2101,7 +2101,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
     void *_0image;
     mem2server(client, &_0image, (void *)image, 0);
     void *_0options;
-    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    mem2server(client, &_0options, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
@@ -2129,7 +2129,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
     rpc_prepare_request(client, RPC_mem2client);
     mem2client(client, (void *)module, sizeof(*module));
     mem2client(client, (void *)image, 0);
-    mem2client(client, (void *)options, sizeof(*options));
+    mem2client(client, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -2381,7 +2381,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
     }
     rpc_prepare_request(client, RPC_mem2server);
     void *_0options;
-    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    mem2server(client, &_0options, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     void *_0stateOut;
     mem2server(client, &_0stateOut, (void *)stateOut, sizeof(*stateOut));
@@ -2408,7 +2408,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
     }
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)options, sizeof(*options));
+    mem2client(client, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     mem2client(client, (void *)stateOut, sizeof(*stateOut));
     if(client->iov_read2_count > 0) {
@@ -2436,7 +2436,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
     void *_0data;
     mem2server(client, &_0data, (void *)data, size);
     void *_0options;
-    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    mem2server(client, &_0options, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
@@ -2466,7 +2466,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
     mem2client(client, (void *)data, size);
-    mem2client(client, (void *)options, sizeof(*options));
+    mem2client(client, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -2491,7 +2491,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
     }
     rpc_prepare_request(client, RPC_mem2server);
     void *_0options;
-    mem2server(client, &_0options, (void *)options, sizeof(*options));
+    mem2server(client, &_0options, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
@@ -2518,7 +2518,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
     }
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)options, sizeof(*options));
+    mem2client(client, (void *)options, numOptions * sizeof(*options));
     // PARAM void **optionValues
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -8581,59 +8581,6 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
     rpc_prepare_request(client, RPC_mem2client);
     // PARAM void **kernelParams
     // PARAM void **extra
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
-extern "C" CUresult cuLaunchCooperativeKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void **kernelParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cuLaunchCooperativeKernel called" << std::endl;
-#endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_mem2server);
-    // PARAM void **kernelParams
-    void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    rpc_prepare_request(client, RPC_cuLaunchCooperativeKernel);
-    rpc_write(client, &f, sizeof(f));
-    rpc_write(client, &gridDimX, sizeof(gridDimX));
-    rpc_write(client, &gridDimY, sizeof(gridDimY));
-    rpc_write(client, &gridDimZ, sizeof(gridDimZ));
-    rpc_write(client, &blockDimX, sizeof(blockDimX));
-    rpc_write(client, &blockDimY, sizeof(blockDimY));
-    rpc_write(client, &blockDimZ, sizeof(blockDimZ));
-    rpc_write(client, &sharedMemBytes, sizeof(sharedMemBytes));
-    rpc_write(client, &hStream, sizeof(hStream));
-    // PARAM void **kernelParams
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **kernelParams
-    rpc_prepare_request(client, RPC_mem2client);
-    // PARAM void **kernelParams
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {

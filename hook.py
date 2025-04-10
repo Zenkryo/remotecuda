@@ -89,6 +89,7 @@ MANUAL_FUNCTIONS = [
     "cuGraphMemFreeNodeGetParams",
     "cuGraphicsResourceGetMappedPointer_v2",
     "cuImportExternalMemory",
+    "cuLaunchCooperativeKernel",
     "cuIpcOpenMemHandle_v2",
     "cuLibraryGetGlobal",
     "cuLibraryGetManaged",
@@ -1451,6 +1452,7 @@ def calculate_pointer_sizes(function, param):
         "symbol",
         "dataSizes",
         "attributes",
+        "options",
     ]
     array_vars = [
         "A",
@@ -1519,6 +1521,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         # 写入被 Hook 的函数实现
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             function_map[header_file] = []
+            is_first_function = True
             for function in parsed_header.namespace.functions:
                 if function.inline:
                     continue
@@ -1526,6 +1529,9 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 if function_name in INLINE_FUNCTIONS:
                     continue
                 if function_name not in MANUAL_FUNCTIONS:
+                    if not is_first_function:
+                        f.write("\n")
+                    is_first_function = False
                     return_type = format_return_type_name(function.return_type)
                     # 函数参数列表
                     params = ", ".join([format_parameter(param) for param in function.parameters])
@@ -1608,10 +1614,11 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                         f.write(f"    return _result;\n")
                     else:
                         f.write(f"    return;\n")
-                    f.write("}\n\n")
+                    f.write("}\n")
 
                 # 将函数名和函数原型添加到 function_map 中
                 function_map[header_file].append(function)
+    f.close()
     # 生成每个头文件对应的服务器端handle_.cpp文件
     output_file = os.path.join(output_dir, "handle_" + basename + ".cpp")
     with open(output_file, "w") as f:
@@ -1626,6 +1633,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         else:
             f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
+            is_first_function = True
             for function in parsed_header.namespace.functions:
                 if function.inline:
                     continue
@@ -1639,7 +1647,9 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 # 函数参数列表
                 params = ", ".join([format_parameter(param) for param in function.parameters])
                 param_names = ""
-
+                if not is_first_function:
+                    f.write("\n")
+                is_first_function = False
                 f.write(f"int handle_{function_name}(void *args0) {{\n")
                 f.write("#ifdef DEBUG\n")
                 f.write(f'    std::cout << "Handle function {function_name} called" << std::endl;\n')
@@ -1692,7 +1702,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 for param in function.parameters:
                     handle_param(function, param, f, False, 3)  # 释放内存
                 f.write("    return rtn;\n")
-                f.write("}\n\n")
+                f.write("}\n")
 
 
 def generate_makefile(output_dir, hook_files, handle_files, include_dirs):

@@ -903,6 +903,61 @@ int handle_cuGraphicsResourceGetMappedPointer_v2(void *args) {
     return 0;
 }
 
+int handle_cuLaunchCooperativeKernel(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuLaunchCooperativeKernel called" << std::endl;
+#endif
+    RpcClient *client = (RpcClient *)args0;
+    CUfunction func;
+    unsigned int gridDimX;
+    unsigned int gridDimY;
+    unsigned int gridDimZ;
+    unsigned int blockDimX;
+    unsigned int blockDimY;
+    unsigned int blockDimZ;
+    unsigned int sharedMemBytes;
+    CUstream hStream;
+    void **kernelParams;
+    int arg_count;
+    rpc_read(client, &func, sizeof(func));
+    rpc_read(client, &gridDimX, sizeof(gridDimX));
+    rpc_read(client, &gridDimY, sizeof(gridDimY));
+    rpc_read(client, &gridDimZ, sizeof(gridDimZ));
+    rpc_read(client, &blockDimX, sizeof(blockDimX));
+    rpc_read(client, &blockDimY, sizeof(blockDimY));
+    rpc_read(client, &blockDimZ, sizeof(blockDimZ));
+    rpc_read(client, &sharedMemBytes, sizeof(sharedMemBytes));
+    rpc_read(client, &hStream, sizeof(hStream));
+    rpc_read(client, &arg_count, sizeof(arg_count));
+
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    kernelParams = (void **)malloc(sizeof(void *) * arg_count);
+    if(kernelParams == nullptr) {
+        std::cerr << "Failed to allocate args" << std::endl;
+        return 1;
+    }
+    if(read_all_now(client, kernelParams, nullptr, arg_count) == -1) {
+        std::cerr << "Failed to read args" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuLaunchCooperativeKernel(func, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, kernelParams);
+    for(int i = 0; i < arg_count; i++) {
+        free(kernelParams[i]);
+    }
+    free(kernelParams);
+    cudaDeviceSynchronize();
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 int handle_cuImportExternalMemory(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuImportExternalMemory called" << std::endl;

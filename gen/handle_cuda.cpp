@@ -6384,57 +6384,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuLaunchCooperativeKernel(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuLaunchCooperativeKernel called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    CUfunction f;
-    rpc_read(client, &f, sizeof(f));
-    unsigned int gridDimX;
-    rpc_read(client, &gridDimX, sizeof(gridDimX));
-    unsigned int gridDimY;
-    rpc_read(client, &gridDimY, sizeof(gridDimY));
-    unsigned int gridDimZ;
-    rpc_read(client, &gridDimZ, sizeof(gridDimZ));
-    unsigned int blockDimX;
-    rpc_read(client, &blockDimX, sizeof(blockDimX));
-    unsigned int blockDimY;
-    rpc_read(client, &blockDimY, sizeof(blockDimY));
-    unsigned int blockDimZ;
-    rpc_read(client, &blockDimZ, sizeof(blockDimZ));
-    unsigned int sharedMemBytes;
-    rpc_read(client, &sharedMemBytes, sizeof(sharedMemBytes));
-    CUstream hStream;
-    rpc_read(client, &hStream, sizeof(hStream));
-    // PARAM void **kernelParams
-    void *kernelParams;
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **kernelParams
-    _result = cuLaunchCooperativeKernel(f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ, sharedMemBytes, hStream, &kernelParams);
-    // PARAM void **kernelParams
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **kernelParams
-    return rtn;
-}
-
 int handle_cuLaunchCooperativeKernelMultiDevice(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuLaunchCooperativeKernelMultiDevice called" << std::endl;

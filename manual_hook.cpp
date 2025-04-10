@@ -953,6 +953,75 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     return _result;
 }
 
+extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDim, dim3 blockDim, void **args, size_t sharedMem, cudaStream_t stream) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaLaunchCooperativeKernel called" << std::endl;
+#endif
+
+    cudaError_t _result;
+    FuncInfo *f = nullptr;
+    for(auto &funcinfo : funcinfos) {
+        if(funcinfo.fun_ptr == func) {
+            f = &funcinfo;
+            break;
+        }
+    }
+    if(f == nullptr) {
+        std::cerr << "Failed to find function" << std::endl;
+        return cudaErrorInvalidDeviceFunction;
+    }
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2server);
+    for(int i = 0; i < f->param_count; i++) {
+        mem2server(client, &f->params[i].ptr, *((void **)args[i]), -1);
+    }
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+
+    rpc_prepare_request(client, RPC_cudaLaunchCooperativeKernel);
+    rpc_write(client, &func, sizeof(func));
+    rpc_write(client, &gridDim, sizeof(gridDim));
+    rpc_write(client, &blockDim, sizeof(blockDim));
+    rpc_write(client, &sharedMem, sizeof(sharedMem));
+    rpc_write(client, &stream, sizeof(stream));
+    rpc_write(client, &f->param_count, sizeof(f->param_count));
+
+    for(int i = 0; i < f->param_count; i++) {
+        rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    for(int i = 0; i < f->param_count; i++) {
+        mem2client(client, *((void **)args[i]), -1);
+    }
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" cudaError_t cudaMalloc(void **devPtr, size_t size) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMalloc called" << std::endl;
@@ -1645,6 +1714,79 @@ extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibr
     return _result;
 }
 #endif
+
+extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hStream, void **kernelParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLaunchCooperativeKernel called" << std::endl;
+#endif
+
+    CUresult _result;
+    FuncInfo *f = nullptr;
+    for(auto &funcinfo : funcinfos) {
+        if(funcinfo.fun_ptr == func) {
+            f = &funcinfo;
+            break;
+        }
+    }
+    if(f == nullptr) {
+        std::cerr << "Failed to find function" << std::endl;
+        return CUDA_ERROR_LAUNCH_FAILED;
+    }
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2server);
+    for(int i = 0; i < f->param_count; i++) {
+        mem2server(client, &f->params[i].ptr, *((void **)kernelParams[i]), -1);
+    }
+    void *end_flag = (void *)0xffffffff;
+    if(client->iov_send2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+
+    rpc_prepare_request(client, RPC_cuLaunchCooperativeKernel);
+    rpc_write(client, &func, sizeof(func));
+    rpc_write(client, &gridDimX, sizeof(gridDimX));
+    rpc_write(client, &gridDimY, sizeof(gridDimY));
+    rpc_write(client, &gridDimZ, sizeof(gridDimZ));
+    rpc_write(client, &blockDimX, sizeof(blockDimX));
+    rpc_write(client, &blockDimY, sizeof(blockDimY));
+    rpc_write(client, &blockDimZ, sizeof(blockDimZ));
+    rpc_write(client, &sharedMemBytes, sizeof(sharedMemBytes));
+    rpc_write(client, &hStream, sizeof(hStream));
+    rpc_write(client, &f->param_count, sizeof(f->param_count));
+
+    for(int i = 0; i < f->param_count; i++) {
+        rpc_write(client, &f->params[i].ptr, f->params[i].size, true);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    for(int i = 0; i < f->param_count; i++) {
+        mem2client(client, *((void **)kernelParams[i]), -1);
+    }
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
+    }
+    rpc_free_client(client);
+    return _result;
+}
 
 // 此函数用于保留一段连续的虚拟地址空间，供后续的内存映射操作使用
 extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t alignment, CUdeviceptr addr, unsigned long long flags) {

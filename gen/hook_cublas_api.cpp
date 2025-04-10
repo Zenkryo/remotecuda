@@ -12502,7 +12502,7 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const __half *alpha, const __half* const Aarray[], int lda, const __half* const Barray[], int ldb, const __half *beta, __half* const Carray[], int ldc, int batchCount) {
+extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const __half *alpha, const __half *const Aarray[], int lda, const __half *const Barray[], int ldb, const __half *beta, __half *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasHgemmBatched called" << std::endl;
 #endif
@@ -12534,12 +12534,12 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, Aarray, sizeof(__half *)*batchCount, true);
+    rpc_write(client, Aarray, sizeof(__half *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Barray, sizeof(__half *)*batchCount, true);
+    rpc_write(client, Barray, sizeof(__half *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
-    rpc_write(client, Carray, sizeof(__half *)*batchCount, true);
+    rpc_write(client, Carray, sizeof(__half *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -12563,7 +12563,7 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const float *alpha, const float* const Aarray[], int lda, const float* const Barray[], int ldb, const float *beta, float* const Carray[], int ldc, int batchCount) {
+extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const float *alpha, const float *const Aarray[], int lda, const float *const Barray[], int ldb, const float *beta, float *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgemmBatched called" << std::endl;
 #endif
@@ -12595,12 +12595,12 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, Aarray, sizeof(float *)*batchCount, true);
+    rpc_write(client, Aarray, sizeof(float *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Barray, sizeof(float *)*batchCount, true);
+    rpc_write(client, Barray, sizeof(float *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
-    rpc_write(client, Carray, sizeof(float *)*batchCount, true);
+    rpc_write(client, Carray, sizeof(float *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -12624,7 +12624,7 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const double *alpha, const double* const Aarray[], int lda, const double* const Barray[], int ldb, const double *beta, double* const Carray[], int ldc, int batchCount) {
+extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const double *alpha, const double *const Aarray[], int lda, const double *const Barray[], int ldb, const double *beta, double *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgemmBatched called" << std::endl;
 #endif
@@ -12656,12 +12656,12 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, Aarray, sizeof(double *)*batchCount, true);
+    rpc_write(client, Aarray, sizeof(double *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Barray, sizeof(double *)*batchCount, true);
+    rpc_write(client, Barray, sizeof(double *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
-    rpc_write(client, Carray, sizeof(double *)*batchCount, true);
+    rpc_write(client, Carray, sizeof(double *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -12685,7 +12685,7 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex* const Aarray[], int lda, const cuComplex* const Barray[], int ldb, const cuComplex *beta, cuComplex* const Carray[], int ldc, int batchCount) {
+extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex *const Aarray[], int lda, const cuComplex *const Barray[], int ldb, const cuComplex *beta, cuComplex *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgemmBatched called" << std::endl;
 #endif
@@ -12717,12 +12717,12 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, Aarray, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, Aarray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Barray, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, Barray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
-    rpc_write(client, Carray, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, Carray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -12746,7 +12746,7 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex* const Aarray[], int lda, const cuComplex* const Barray[], int ldb, const cuComplex *beta, cuComplex* const Carray[], int ldc, int batchCount) {
+extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex *const Aarray[], int lda, const cuComplex *const Barray[], int ldb, const cuComplex *beta, cuComplex *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgemm3mBatched called" << std::endl;
 #endif
@@ -12778,12 +12778,12 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, Aarray, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, Aarray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Barray, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, Barray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
-    rpc_write(client, Carray, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, Carray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -12807,7 +12807,7 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex* const Aarray[], int lda, const cuDoubleComplex* const Barray[], int ldb, const cuDoubleComplex *beta, cuDoubleComplex* const Carray[], int ldc, int batchCount) {
+extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *const Aarray[], int lda, const cuDoubleComplex *const Barray[], int ldb, const cuDoubleComplex *beta, cuDoubleComplex *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgemmBatched called" << std::endl;
 #endif
@@ -12839,12 +12839,12 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, Aarray, sizeof(cuDoubleComplex *)*batchCount, true);
+    rpc_write(client, Aarray, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Barray, sizeof(cuDoubleComplex *)*batchCount, true);
+    rpc_write(client, Barray, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
-    rpc_write(client, Carray, sizeof(cuDoubleComplex *)*batchCount, true);
+    rpc_write(client, Carray, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -13578,7 +13578,7 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, float* const A[], int lda, int *P, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, float *const A[], int lda, int *P, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgetrfBatched called" << std::endl;
 #endif
@@ -13605,7 +13605,7 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
     rpc_prepare_request(client, RPC_cublasSgetrfBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(float *)*batchSize, true);
+    rpc_write(client, A, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
     rpc_write(client, &_0info, sizeof(_0info));
@@ -13631,7 +13631,7 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, double* const A[], int lda, int *P, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, double *const A[], int lda, int *P, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgetrfBatched called" << std::endl;
 #endif
@@ -13658,7 +13658,7 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
     rpc_prepare_request(client, RPC_cublasDgetrfBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(double *)*batchSize, true);
+    rpc_write(client, A, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
     rpc_write(client, &_0info, sizeof(_0info));
@@ -13684,7 +13684,7 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuComplex* const A[], int lda, int *P, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuComplex *const A[], int lda, int *P, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgetrfBatched called" << std::endl;
 #endif
@@ -13711,7 +13711,7 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
     rpc_prepare_request(client, RPC_cublasCgetrfBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, A, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
     rpc_write(client, &_0info, sizeof(_0info));
@@ -13737,7 +13737,7 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDoubleComplex* const A[], int lda, int *P, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDoubleComplex *const A[], int lda, int *P, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgetrfBatched called" << std::endl;
 #endif
@@ -13764,7 +13764,7 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
     rpc_prepare_request(client, RPC_cublasZgetrfBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, A, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
     rpc_write(client, &_0info, sizeof(_0info));
@@ -13790,7 +13790,7 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, const float* const A[], int lda, const int *P, float* const C[], int ldc, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, const float *const A[], int lda, const int *P, float *const C[], int ldc, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgetriBatched called" << std::endl;
 #endif
@@ -13817,10 +13817,10 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
     rpc_prepare_request(client, RPC_cublasSgetriBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(float *)*batchSize, true);
+    rpc_write(client, A, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
-    rpc_write(client, C, sizeof(float *)*batchSize, true);
+    rpc_write(client, C, sizeof(float *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -13845,7 +13845,7 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, const double* const A[], int lda, const int *P, double* const C[], int ldc, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, const double *const A[], int lda, const int *P, double *const C[], int ldc, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgetriBatched called" << std::endl;
 #endif
@@ -13872,10 +13872,10 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
     rpc_prepare_request(client, RPC_cublasDgetriBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(double *)*batchSize, true);
+    rpc_write(client, A, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
-    rpc_write(client, C, sizeof(double *)*batchSize, true);
+    rpc_write(client, C, sizeof(double *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -13900,7 +13900,7 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, const cuComplex* const A[], int lda, const int *P, cuComplex* const C[], int ldc, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, const cuComplex *const A[], int lda, const int *P, cuComplex *const C[], int ldc, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgetriBatched called" << std::endl;
 #endif
@@ -13927,10 +13927,10 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
     rpc_prepare_request(client, RPC_cublasCgetriBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, A, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
-    rpc_write(client, C, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, C, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -13955,7 +13955,7 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, const cuDoubleComplex* const A[], int lda, const int *P, cuDoubleComplex* const C[], int ldc, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, const cuDoubleComplex *const A[], int lda, const int *P, cuDoubleComplex *const C[], int ldc, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgetriBatched called" << std::endl;
 #endif
@@ -13982,10 +13982,10 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
     rpc_prepare_request(client, RPC_cublasZgetriBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, A, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
-    rpc_write(client, C, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, C, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14010,7 +14010,7 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const float* const Aarray[], int lda, const int *devIpiv, float* const Barray[], int ldb, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const float *const Aarray[], int lda, const int *devIpiv, float *const Barray[], int ldb, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgetrsBatched called" << std::endl;
 #endif
@@ -14039,10 +14039,10 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, &trans, sizeof(trans));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(float *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
-    rpc_write(client, Barray, sizeof(float *)*batchSize, true);
+    rpc_write(client, Barray, sizeof(float *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14067,7 +14067,7 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const double* const Aarray[], int lda, const int *devIpiv, double* const Barray[], int ldb, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const double *const Aarray[], int lda, const int *devIpiv, double *const Barray[], int ldb, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgetrsBatched called" << std::endl;
 #endif
@@ -14096,10 +14096,10 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, &trans, sizeof(trans));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(double *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
-    rpc_write(client, Barray, sizeof(double *)*batchSize, true);
+    rpc_write(client, Barray, sizeof(double *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14124,7 +14124,7 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const cuComplex* const Aarray[], int lda, const int *devIpiv, cuComplex* const Barray[], int ldb, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const cuComplex *const Aarray[], int lda, const int *devIpiv, cuComplex *const Barray[], int ldb, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgetrsBatched called" << std::endl;
 #endif
@@ -14153,10 +14153,10 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, &trans, sizeof(trans));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
-    rpc_write(client, Barray, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, Barray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14181,7 +14181,7 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const cuDoubleComplex* const Aarray[], int lda, const int *devIpiv, cuDoubleComplex* const Barray[], int ldb, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const cuDoubleComplex *const Aarray[], int lda, const int *devIpiv, cuDoubleComplex *const Barray[], int ldb, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgetrsBatched called" << std::endl;
 #endif
@@ -14210,10 +14210,10 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, &trans, sizeof(trans));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
-    rpc_write(client, Barray, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, Barray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14238,7 +14238,7 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const float *alpha, const float* const A[], int lda, float* const B[], int ldb, int batchCount) {
+extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const float *alpha, const float *const A[], int lda, float *const B[], int ldb, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasStrsmBatched called" << std::endl;
 #endif
@@ -14269,9 +14269,9 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, A, sizeof(float *)*batchCount, true);
+    rpc_write(client, A, sizeof(float *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, B, sizeof(float *)*batchCount, true);
+    rpc_write(client, B, sizeof(float *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -14294,7 +14294,7 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const double *alpha, const double* const A[], int lda, double* const B[], int ldb, int batchCount) {
+extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const double *alpha, const double *const A[], int lda, double *const B[], int ldb, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrsmBatched called" << std::endl;
 #endif
@@ -14325,9 +14325,9 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, A, sizeof(double *)*batchCount, true);
+    rpc_write(client, A, sizeof(double *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, B, sizeof(double *)*batchCount, true);
+    rpc_write(client, B, sizeof(double *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -14350,7 +14350,7 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuComplex *alpha, const cuComplex* const A[], int lda, cuComplex* const B[], int ldb, int batchCount) {
+extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuComplex *alpha, const cuComplex *const A[], int lda, cuComplex *const B[], int ldb, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrsmBatched called" << std::endl;
 #endif
@@ -14381,9 +14381,9 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, A, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, A, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, B, sizeof(cuComplex *)*batchCount, true);
+    rpc_write(client, B, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -14406,7 +14406,7 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex* const A[], int lda, cuDoubleComplex* const B[], int ldb, int batchCount) {
+extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *const A[], int lda, cuDoubleComplex *const B[], int ldb, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrsmBatched called" << std::endl;
 #endif
@@ -14437,9 +14437,9 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
-    rpc_write(client, A, sizeof(cuDoubleComplex *)*batchCount, true);
+    rpc_write(client, A, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, B, sizeof(cuDoubleComplex *)*batchCount, true);
+    rpc_write(client, B, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &batchCount, sizeof(batchCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -14462,7 +14462,7 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, const float* const A[], int lda, float* const Ainv[], int lda_inv, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, const float *const A[], int lda, float *const Ainv[], int lda_inv, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSmatinvBatched called" << std::endl;
 #endif
@@ -14487,9 +14487,9 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
     rpc_prepare_request(client, RPC_cublasSmatinvBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(float *)*batchSize, true);
+    rpc_write(client, A, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Ainv, sizeof(float *)*batchSize, true);
+    rpc_write(client, Ainv, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14513,7 +14513,7 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, const double* const A[], int lda, double* const Ainv[], int lda_inv, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, const double *const A[], int lda, double *const Ainv[], int lda_inv, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDmatinvBatched called" << std::endl;
 #endif
@@ -14538,9 +14538,9 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
     rpc_prepare_request(client, RPC_cublasDmatinvBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(double *)*batchSize, true);
+    rpc_write(client, A, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Ainv, sizeof(double *)*batchSize, true);
+    rpc_write(client, Ainv, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14564,7 +14564,7 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, const cuComplex* const A[], int lda, cuComplex* const Ainv[], int lda_inv, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, const cuComplex *const A[], int lda, cuComplex *const Ainv[], int lda_inv, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCmatinvBatched called" << std::endl;
 #endif
@@ -14589,9 +14589,9 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
     rpc_prepare_request(client, RPC_cublasCmatinvBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, A, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Ainv, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, Ainv, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14615,7 +14615,7 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, const cuDoubleComplex* const A[], int lda, cuDoubleComplex* const Ainv[], int lda_inv, int *info, int batchSize) {
+extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, const cuDoubleComplex *const A[], int lda, cuDoubleComplex *const Ainv[], int lda_inv, int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZmatinvBatched called" << std::endl;
 #endif
@@ -14640,9 +14640,9 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
     rpc_prepare_request(client, RPC_cublasZmatinvBatched);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, A, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, A, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Ainv, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, Ainv, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
@@ -14666,7 +14666,7 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int n, float* const Aarray[], int lda, float* const TauArray[], int *info, int batchSize) {
+extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int n, float *const Aarray[], int lda, float *const TauArray[], int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgeqrfBatched called" << std::endl;
 #endif
@@ -14692,9 +14692,9 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, Aarray, sizeof(float *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, TauArray, sizeof(float *)*batchSize, true);
+    rpc_write(client, TauArray, sizeof(float *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
@@ -14717,7 +14717,7 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int n, double* const Aarray[], int lda, double* const TauArray[], int *info, int batchSize) {
+extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int n, double *const Aarray[], int lda, double *const TauArray[], int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgeqrfBatched called" << std::endl;
 #endif
@@ -14743,9 +14743,9 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, Aarray, sizeof(double *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, TauArray, sizeof(double *)*batchSize, true);
+    rpc_write(client, TauArray, sizeof(double *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
@@ -14768,7 +14768,7 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int n, cuComplex* const Aarray[], int lda, cuComplex* const TauArray[], int *info, int batchSize) {
+extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int n, cuComplex *const Aarray[], int lda, cuComplex *const TauArray[], int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgeqrfBatched called" << std::endl;
 #endif
@@ -14794,9 +14794,9 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, Aarray, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, TauArray, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, TauArray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
@@ -14819,7 +14819,7 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int n, cuDoubleComplex* const Aarray[], int lda, cuDoubleComplex* const TauArray[], int *info, int batchSize) {
+extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int n, cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const TauArray[], int *info, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgeqrfBatched called" << std::endl;
 #endif
@@ -14845,9 +14845,9 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
-    rpc_write(client, Aarray, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, TauArray, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, TauArray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
@@ -14870,7 +14870,7 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, float* const Aarray[], int lda, float* const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, float *const Aarray[], int lda, float *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSgelsBatched called" << std::endl;
 #endif
@@ -14900,9 +14900,9 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(float *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Carray, sizeof(float *)*batchSize, true);
+    rpc_write(client, Carray, sizeof(float *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
@@ -14928,7 +14928,7 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, double* const Aarray[], int lda, double* const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, double *const Aarray[], int lda, double *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgelsBatched called" << std::endl;
 #endif
@@ -14958,9 +14958,9 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(double *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Carray, sizeof(double *)*batchSize, true);
+    rpc_write(client, Carray, sizeof(double *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
@@ -14986,7 +14986,7 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuComplex* const Aarray[], int lda, cuComplex* const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuComplex *const Aarray[], int lda, cuComplex *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgelsBatched called" << std::endl;
 #endif
@@ -15016,9 +15016,9 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Carray, sizeof(cuComplex *)*batchSize, true);
+    rpc_write(client, Carray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
@@ -15044,7 +15044,7 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuDoubleComplex* const Aarray[], int lda, cuDoubleComplex* const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgelsBatched called" << std::endl;
 #endif
@@ -15074,9 +15074,9 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &nrhs, sizeof(nrhs));
-    rpc_write(client, Aarray, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
-    rpc_write(client, Carray, sizeof(cuDoubleComplex *)*batchSize, true);
+    rpc_write(client, Carray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
@@ -15753,4 +15753,3 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
     rpc_free_client(client);
     return _result;
 }
-
