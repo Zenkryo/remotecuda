@@ -306,6 +306,54 @@ int handle_cudaLaunchKernel(void *args0) {
     return 0;
 }
 
+int handle_cudaLaunchCooperativeKernel(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaLaunchCooperativeKernel called" << std::endl;
+#endif
+    RpcClient *client = (RpcClient *)args0;
+    const void *func;
+    dim3 gridDim;
+    dim3 blockDim;
+    void **args;
+    size_t sharedMem;
+    cudaStream_t stream;
+    int arg_count;
+    rpc_read(client, &func, sizeof(func));
+    rpc_read(client, &gridDim, sizeof(gridDim));
+    rpc_read(client, &blockDim, sizeof(blockDim));
+    rpc_read(client, &sharedMem, sizeof(sharedMem));
+    rpc_read(client, &stream, sizeof(stream));
+    rpc_read(client, &arg_count, sizeof(arg_count));
+
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    args = (void **)malloc(sizeof(void *) * arg_count);
+    if(args == nullptr) {
+        std::cerr << "Failed to allocate args" << std::endl;
+        return 1;
+    }
+    if(read_all_now(client, args, nullptr, arg_count) == -1) {
+        std::cerr << "Failed to read args" << std::endl;
+        return 1;
+    }
+
+    cudaError_t _result = cudaLaunchCooperativeKernel(func, gridDim, blockDim, args, sharedMem, stream);
+    for(int i = 0; i < arg_count; i++) {
+        free(args[i]);
+    }
+    free(args);
+    cudaDeviceSynchronize();
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 int handle_cudaMalloc(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cudaMalloc called" << std::endl;

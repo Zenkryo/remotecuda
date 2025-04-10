@@ -68,6 +68,7 @@ MANUAL_FUNCTIONS = [
     "cudaGetSymbolAddress",
     "cudaHostAlloc",
     "cudaLaunchKernel",
+    "cudaLaunchCooperativeKernel",
     "cudaMalloc",
     "cudaMalloc3D",
     "cudaMallocHost",

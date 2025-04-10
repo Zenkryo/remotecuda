@@ -2488,49 +2488,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaLaunchCooperativeKernel(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaLaunchCooperativeKernel called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    void *func;
-    rpc_read(client, &func, sizeof(func));
-    dim3 gridDim;
-    rpc_read(client, &gridDim, sizeof(gridDim));
-    dim3 blockDim;
-    rpc_read(client, &blockDim, sizeof(blockDim));
-    // PARAM void **args
-    void *args;
-    size_t sharedMem;
-    rpc_read(client, &sharedMem, sizeof(sharedMem));
-    cudaStream_t stream;
-    rpc_read(client, &stream, sizeof(stream));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **args
-    _result = cudaLaunchCooperativeKernel(func, gridDim, blockDim, &args, sharedMem, stream);
-    // PARAM void **args
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **args
-    return rtn;
-}
-
 int handle_cudaLaunchCooperativeKernelMultiDevice(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaLaunchCooperativeKernelMultiDevice called" << std::endl;

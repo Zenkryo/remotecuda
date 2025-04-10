@@ -3460,58 +3460,6 @@ extern "C" cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extS
     return _result;
 }
 
-extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDim, dim3 blockDim, void **args, size_t sharedMem, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLaunchCooperativeKernel called" << std::endl;
-#endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_mem2server);
-    void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
-    // PARAM void **args
-    void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaLaunchCooperativeKernel);
-    rpc_write(client, &_0func, sizeof(_0func));
-    rpc_write(client, &gridDim, sizeof(gridDim));
-    rpc_write(client, &blockDim, sizeof(blockDim));
-    // PARAM void **args
-    rpc_write(client, &sharedMem, sizeof(sharedMem));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **args
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)func, 0);
-    // PARAM void **args
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" cudaError_t cudaLaunchCooperativeKernelMultiDevice(struct cudaLaunchParams *launchParamsList, unsigned int numDevices, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaLaunchCooperativeKernelMultiDevice called" << std::endl;

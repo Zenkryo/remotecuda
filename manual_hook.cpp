@@ -937,7 +937,6 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         rpc_release_client(client);
         exit(1);
     }
-    // _result = cudaDeviceSynchronize();
     rpc_prepare_request(client, RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
         mem2client(client, *((void **)args[i]), -1);
