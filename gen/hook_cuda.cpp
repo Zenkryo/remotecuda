@@ -6518,56 +6518,6 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
     return _result;
 }
 
-extern "C" CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute *attributes, void **data, CUdeviceptr ptr) {
-#ifdef DEBUG
-    std::cout << "Hook: cuPointerGetAttributes called" << std::endl;
-#endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
-        exit(1);
-    }
-    rpc_prepare_request(client, RPC_mem2server);
-    void *_0attributes;
-    mem2server(client, &_0attributes, (void *)attributes, numAttributes * sizeof(*attributes));
-    // PARAM void **data
-    void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    rpc_prepare_request(client, RPC_cuPointerGetAttributes);
-    rpc_write(client, &numAttributes, sizeof(numAttributes));
-    rpc_write(client, &_0attributes, sizeof(_0attributes));
-    // PARAM void **data
-    rpc_write(client, &ptr, sizeof(ptr));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
-        exit(1);
-    }
-    // PARAM void **data
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)attributes, numAttributes * sizeof(*attributes));
-    // PARAM void **data
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
-            exit(1);
-        }
-    }
-    rpc_free_client(client);
-    return _result;
-}
-
 extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamCreate called" << std::endl;

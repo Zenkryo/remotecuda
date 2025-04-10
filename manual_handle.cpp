@@ -1191,6 +1191,106 @@ int handle_cuModuleGetGlobal_v2(void *args) {
     return 0;
 }
 
+static size_t getAttributeSize(CUpointer_attribute attribute) {
+    switch(attribute) {
+    // 4-byte attributes
+    case CU_POINTER_ATTRIBUTE_MEMORY_TYPE:
+    case CU_POINTER_ATTRIBUTE_SYNC_MEMOPS:
+    case CU_POINTER_ATTRIBUTE_IS_MANAGED:
+    case CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE:
+    case CU_POINTER_ATTRIBUTE_MAPPED:
+    case CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES:
+    case CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE:
+    case CU_POINTER_ATTRIBUTE_ACCESS_FLAGS:
+        return sizeof(unsigned int); // 4 bytes
+
+    // 8-byte attributes
+    case CU_POINTER_ATTRIBUTE_CONTEXT:
+        return sizeof(CUcontext); // 8 bytes (pointer-sized)
+    case CU_POINTER_ATTRIBUTE_DEVICE_POINTER:
+        return sizeof(CUdeviceptr); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_HOST_POINTER:
+        return sizeof(void *); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_BUFFER_ID:
+        return sizeof(unsigned long long); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_RANGE_START_ADDR:
+        return sizeof(void *); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_RANGE_SIZE:
+        return sizeof(size_t); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE:
+        return sizeof(CUmemoryPool); // 8 bytes
+
+    // 4-byte (int)
+    case CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL:
+        return sizeof(int); // 4 bytes
+
+    // 16-byte (P2P tokens)
+    case CU_POINTER_ATTRIBUTE_P2P_TOKENS:
+        return 2 * sizeof(unsigned long long); // 16 bytes
+
+    default:
+        // Unknown attribute, return 0 or handle error
+        return 0;
+    }
+}
+
+int handle_cuPointerGetAttributes(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cuPointerGetAttributes called" << std::endl;
+#endif
+    int rtn = 0;
+    std::set<void *> buffers;
+    RpcClient *client = (RpcClient *)args0;
+    unsigned int numAttributes;
+    rpc_read(client, &numAttributes, sizeof(numAttributes));
+    CUdeviceptr ptr;
+    rpc_read(client, &ptr, sizeof(ptr));
+
+    CUpointer_attribute *attributes;
+    void **data;
+    CUresult _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    attributes = (CUpointer_attribute *)malloc(sizeof(CUpointer_attribute) * numAttributes);
+    if(attributes == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(attributes);
+    read_one_now(client, attributes, sizeof(CUpointer_attribute) * numAttributes, false);
+    data = (void **)malloc(sizeof(void *) * numAttributes);
+    if(data == nullptr) {
+        goto _RTN_;
+    }
+    buffers.insert(data);
+    for(size_t i = 0; i < numAttributes; i++) {
+        size_t dataSize = getAttributeSize(attributes[i]);
+        data[i] = malloc(dataSize);
+        if(data[i] == nullptr) {
+            goto _RTN_;
+        }
+        buffers.insert(data[i]);
+    }
+    _result = cuPointerGetAttributes(numAttributes, attributes, data, ptr);
+    for(size_t i = 0; i < numAttributes; i++) {
+        rpc_write(client, data[i], getAttributeSize(attributes[i]), false);
+    }
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    for(auto it = buffers.begin(); it != buffers.end(); it++) {
+        ::free(*it);
+    }
+    return rtn;
+}
+
 int handle_cuTexRefGetAddress_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuTexRefGetAddress_v2 called" << std::endl;

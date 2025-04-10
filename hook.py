@@ -109,6 +109,7 @@ MANUAL_FUNCTIONS = [
     "cuMemMap",
     "cuMemPoolImportPointer",
     "cuMemRelease",
+    "cuPointerGetAttributes",
     # "cuMemcpyBatchAsync",
     "cuModuleGetGlobal_v2",
     "cuTexRefGetAddress_v2",
@@ -269,7 +270,7 @@ def format_parameter(param):
     param_name = param.name
     if isinstance(param_type, Array):
         # 如果参数类型是 Array，移除类型字符串中的 []
-        base_type = param_type.array_of.format().replace("[]", "")
+        base_type = param_type.array_of.format().replace("[]", "").replace("* const", " *const")
         return f"{base_type} {param_name}[]"
     elif isinstance(param_type, Pointer):
         if isinstance(param_type.ptr_to, Type):
@@ -549,7 +550,7 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
     len = getArrayLengthParam(function, param)
     if is_client:
         if position == 1:
-            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *)*{len}, true);\n")
+            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
@@ -572,7 +573,7 @@ def handle_param_arraytype(function, param, f, is_client=True, position=0):
     if is_client:
         function_name = function.name.format()
         if position == 1:
-            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *)*{len}, true);\n")
+            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")

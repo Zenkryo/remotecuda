@@ -4831,45 +4831,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cuPointerGetAttributes(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cuPointerGetAttributes called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    unsigned int numAttributes;
-    rpc_read(client, &numAttributes, sizeof(numAttributes));
-    CUpointer_attribute *attributes;
-    rpc_read(client, &attributes, sizeof(attributes));
-    // PARAM void **data
-    void *data;
-    CUdeviceptr ptr;
-    rpc_read(client, &ptr, sizeof(ptr));
-    CUresult _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    // PARAM void **data
-    _result = cuPointerGetAttributes(numAttributes, attributes, &data, ptr);
-    // PARAM void **data
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    // PARAM void **data
-    return rtn;
-}
-
 int handle_cuStreamCreate(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuStreamCreate called" << std::endl;

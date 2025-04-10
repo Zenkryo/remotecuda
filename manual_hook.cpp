@@ -2352,6 +2352,76 @@ extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmod
     return _result;
 }
 
+static size_t getAttributeSize(CUpointer_attribute attribute) {
+    switch(attribute) {
+    // 4-byte attributes
+    case CU_POINTER_ATTRIBUTE_MEMORY_TYPE:
+    case CU_POINTER_ATTRIBUTE_SYNC_MEMOPS:
+    case CU_POINTER_ATTRIBUTE_IS_MANAGED:
+    case CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE:
+    case CU_POINTER_ATTRIBUTE_MAPPED:
+    case CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES:
+    case CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE:
+    case CU_POINTER_ATTRIBUTE_ACCESS_FLAGS:
+        return sizeof(unsigned int); // 4 bytes
+
+    // 8-byte attributes
+    case CU_POINTER_ATTRIBUTE_CONTEXT:
+        return sizeof(CUcontext); // 8 bytes (pointer-sized)
+    case CU_POINTER_ATTRIBUTE_DEVICE_POINTER:
+        return sizeof(CUdeviceptr); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_HOST_POINTER:
+        return sizeof(void *); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_BUFFER_ID:
+        return sizeof(unsigned long long); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_RANGE_START_ADDR:
+        return sizeof(void *); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_RANGE_SIZE:
+        return sizeof(size_t); // 8 bytes
+    case CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE:
+        return sizeof(CUmemoryPool); // 8 bytes
+
+    // 4-byte (int)
+    case CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL:
+        return sizeof(int); // 4 bytes
+
+    // 16-byte (P2P tokens)
+    case CU_POINTER_ATTRIBUTE_P2P_TOKENS:
+        return 2 * sizeof(unsigned long long); // 16 bytes
+
+    default:
+        // Unknown attribute, return 0 or handle error
+        return 0;
+    }
+}
+
+extern "C" CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer_attribute *attributes, void **data, CUdeviceptr ptr) {
+#ifdef DEBUG
+    std::cout << "Hook: cuPointerGetAttributes called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    CUresult _result;
+    rpc_prepare_request(client, RPC_cuPointerGetAttributes);
+    rpc_write(client, &numAttributes, sizeof(numAttributes));
+    rpc_write(client, &ptr, sizeof(ptr));
+    rpc_write(client, attributes, sizeof(*attributes) * numAttributes);
+    for(int i = 0; i < numAttributes; i++) {
+        rpc_read(client, data[i], getAttributeSize(attributes[i]), false);
+    }
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
 extern "C" CUresult cuTexRefGetAddress_v2(CUdeviceptr *pdptr, CUtexref hTexRef) {
 #ifdef DEBUG
     std::cout << "Hook: cuTexRefGetAddress_v2 called" << std::endl;
