@@ -93,23 +93,22 @@ std::set<CUmemGenericAllocationHandle> host_handles;
 void *getHookFunc(const char *symbol);
 
 // 取得客户端主机内存地址对应的服务器主机内存地址
-void *getServerHostPtr(void *ptr) {
-    if(cs_host_mems.find(ptr) != cs_host_mems.end()) {
-        return cs_host_mems[ptr].first;
+void *getServerHostPtr(void *clientPtr) {
+    auto it1 = cs_union_mems.find(clientPtr);
+    if(it1 != cs_union_mems.end()) {
+        return it1->second.first;
     }
-    return nullptr;
-}
-
-void *getUnionPtr(void *ptr) {
-    if(cs_union_mems.find(ptr) != cs_union_mems.end()) {
-        return cs_union_mems[ptr].first;
+    auto it2 = cs_host_mems.find(clientPtr);
+    if(it2 != cs_host_mems.end()) {
+        return it2->second.first;
     }
     return nullptr;
 }
 
 void *getServerDevPtr(void *ptr) {
-    if(cs_dev_mems.find((CUdeviceptr)ptr) != cs_dev_mems.end()) {
-        return (void *)cs_dev_mems[(CUdeviceptr)ptr].first;
+    auto it1 = cs_dev_mems.find((CUdeviceptr)ptr);
+    if(it1 != cs_dev_mems.end()) {
+        return (void *)it1->second.first;
     }
     if(server_dev_mems.find(ptr) != server_dev_mems.end()) {
         return ptr;
@@ -716,7 +715,7 @@ extern "C" cudaError_t cudaFree(void *devPtr) {
 #endif
 
     cudaError_t _result;
-    void *serverPtr = getUnionPtr(devPtr);
+    void *serverPtr = getServerHostPtr(devPtr);
     if(serverPtr == nullptr) {
         serverPtr = getServerDevPtr(devPtr);
         if(serverPtr == nullptr) {
@@ -879,6 +878,63 @@ extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int fla
         cs_host_mems[*pHost] = std::make_pair(serverPtr, size);
     } else {
         free(*pHost);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaHostRegister(void *ptr, size_t size, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaHostRegister called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    void *serverPtr = getServerHostPtr(ptr);
+    cudaError_t _result;
+    rpc_prepare_request(client, RPC_cudaHostRegister);
+    rpc_write(client, &serverPtr, sizeof(serverPtr));
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &flags, sizeof(flags));
+    rpc_write(client, ptr, size);
+    rpc_read(client, &serverPtr, sizeof(serverPtr));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    if(_result == cudaSuccess) {
+        cs_host_mems[ptr] = std::make_pair(serverPtr, size);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaHostUnregister(void *ptr) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaHostUnregister called" << std::endl;
+#endif
+
+    void *serverPtr = getServerHostPtr(ptr);
+    if(serverPtr == nullptr) {
+        return cudaErrorUnknown;
+    }
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    cudaError_t _result;
+    rpc_prepare_request(client, RPC_cudaHostUnregister);
+    rpc_write(client, &serverPtr, sizeof(serverPtr));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
     }
     rpc_free_client(client);
     return _result;

@@ -257,6 +257,74 @@ int handle_cudaHostAlloc(void *args) {
     return cudaSuccess;
 }
 
+int handle_cudaHostRegister(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaHostRegister called" << std::endl;
+#endif
+    int rtn = 0;
+    RpcClient *client = (RpcClient *)args0;
+    void *ptr;
+    rpc_read(client, &ptr, sizeof(ptr));
+    size_t size;
+    rpc_read(client, &size, sizeof(size));
+    unsigned int flags;
+    rpc_read(client, &flags, sizeof(flags));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    if(ptr == nullptr) {
+        ptr = malloc(size);
+        if(ptr == nullptr) {
+            std::cerr << "Failed to malloc" << std::endl;
+            rtn = 1;
+            goto _RTN_;
+        }
+        // TODO: 需要释放ptr
+        client->server_host_mems.insert(ptr);
+    }
+    read_one_now(client, ptr, size, false);
+    _result = cudaHostRegister(ptr, size, flags);
+    rpc_write(client, &ptr, sizeof(ptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    return rtn;
+}
+
+int handle_cudaHostUnregister(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaHostUnregister called" << std::endl;
+#endif
+    int rtn = 0;
+    RpcClient *client = (RpcClient *)args0;
+    void *ptr;
+    rpc_read(client, &ptr, sizeof(ptr));
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+    _result = cudaHostUnregister(ptr);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        rtn = 1;
+        goto _RTN_;
+    }
+
+_RTN_:
+    return rtn;
+}
+
 int handle_cudaLaunchKernel(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaLaunchKernel called" << std::endl;

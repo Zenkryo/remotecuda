@@ -30,6 +30,7 @@ typedef struct _RpcClient {
     int in_use;                             // 标记客户端是否正在使用
     std::queue<void *> tmpbufs;             // 用于存储需要释放的缓冲区
     std::set<void *> tmps4iov;              // 用于临时保存iov发送的缓冲区数据
+    std::set<void *> server_host_mems;      // 用于存储服务器端的host内存
 } RpcClient;
 
 typedef struct {

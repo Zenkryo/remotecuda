@@ -67,6 +67,8 @@ MANUAL_FUNCTIONS = [
     "cudaGetErrorString",
     "cudaGetSymbolAddress",
     "cudaHostAlloc",
+    "cudaHostRegister",
+    "cudaHostUnregister",
     "cudaLaunchKernel",
     "cudaLaunchCooperativeKernel",
     "cudaMalloc",
