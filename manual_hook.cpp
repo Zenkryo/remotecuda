@@ -257,7 +257,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             if(name_start) {
                 char *name_end = strchr(name_start, '(');
                 if(name_end) {
-                    int name_len = name_end - name_start;
                     *name_end = '\0';
                     strncpy(current_func.name, name_start, sizeof(current_func.name) - 1);
                     status = 1; // 进入参数声明行
@@ -272,7 +271,11 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
             if(name_start) {
                 char *name_end = strpbrk(name_start, "[,");
                 if(name_end) {
-                    int name_len = name_end - name_start;
+                    // 检查是否是数组
+                    if(*name_end == '[') {
+                        param->is_array = 1;
+                        param->array_size = atoi(name_end + 1);
+                    }
                     *name_end = '\0';
                     strncpy(param->name, name_start, sizeof(param->name) - 1);
                 } else {
@@ -280,12 +283,6 @@ static void parse_ptx_string(void *fatCubin, const char *ptx_string, unsigned lo
                 }
             }
 
-            // 检查是否是数组
-            char *array_start = strchr(line, '[');
-            if(array_start) {
-                param->is_array = 1;
-                param->array_size = atoi(array_start + 1);
-            }
             param->size = param->is_array ? get_type_size(param->type) * param->array_size : get_type_size(param->type);
 
             current_func.param_count++;
