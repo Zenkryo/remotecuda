@@ -78,14 +78,8 @@ std::map<void *, std::pair<void *, size_t>> cs_host_mems;
 // 映射客户端统一内存地址到服务器统一内存地址
 std::map<void *, std::pair<void *, size_t>> cs_union_mems;
 
-// 通过cuMemMap映射的设备内存，客户端和服务器有不同的指针
-std::map<CUdeviceptr, std::pair<CUdeviceptr, size_t>> cs_dev_mems;
-
 // 设备端内存指针（不包括上面的cs_dev_mems）
 std::map<void *, size_t> server_dev_mems;
-
-// 映射客户端内存保留地址到服务器内存保留地址
-std::map<CUdeviceptr, CUdeviceptr> cs_reserve_mems;
 
 // 服务器主机内存句柄
 std::set<CUmemGenericAllocationHandle> host_handles;
@@ -106,10 +100,6 @@ void *getServerHostPtr(void *clientPtr) {
 }
 
 void *getServerDevPtr(void *ptr) {
-    auto it1 = cs_dev_mems.find((CUdeviceptr)ptr);
-    if(it1 != cs_dev_mems.end()) {
-        return (void *)it1->second.first;
-    }
     if(server_dev_mems.find(ptr) != server_dev_mems.end()) {
         return ptr;
     }
@@ -120,8 +110,6 @@ void freeDevPtr(void *ptr) {
     if(cs_union_mems.find(ptr) != cs_union_mems.end()) {
         free(ptr);
         cs_union_mems.erase(ptr);
-    } else if(cs_dev_mems.find((CUdeviceptr)ptr) != cs_dev_mems.end()) {
-        cs_dev_mems.erase((CUdeviceptr)ptr);
     } else if(server_dev_mems.find(ptr) != server_dev_mems.end()) {
         server_dev_mems.erase(ptr);
     }
@@ -496,21 +484,10 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
         return;
     }
     // 纯设备指针，不用同步内存数据
-    auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
-    if(it1 != cs_dev_mems.end()) {
-        *serverPtr = (void *)it1->second.first;
+    auto it = server_dev_mems.find(clientPtr);
+    if(it != server_dev_mems.end()) {
+        *serverPtr = (void *)it->first;
         return;
-    }
-    auto it2 = server_dev_mems.find(clientPtr);
-    if(it2 != server_dev_mems.end()) {
-        *serverPtr = (void *)it2->first;
-        return;
-    }
-    for(auto it = cs_dev_mems.begin(); it != cs_dev_mems.end(); it++) {
-        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
-            *serverPtr = (void *)((uintptr_t)it->second.first + ((uintptr_t)clientPtr - (uintptr_t)it->first));
-            return;
-        }
     }
     for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
         if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
@@ -607,18 +584,9 @@ extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size) {
         return;
     }
     // 纯设备指针，不用同步内存数据
-    auto it1 = cs_dev_mems.find((CUdeviceptr)clientPtr);
-    if(it1 != cs_dev_mems.end()) {
+    auto it = server_dev_mems.find(clientPtr);
+    if(it != server_dev_mems.end()) {
         return;
-    }
-    auto it2 = server_dev_mems.find(clientPtr);
-    if(it2 != server_dev_mems.end()) {
-        return;
-    }
-    for(auto it = cs_dev_mems.begin(); it != cs_dev_mems.end(); it++) {
-        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
-            return;
-        }
     }
     for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
         if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
@@ -951,7 +919,6 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         }
     }
     if(f == nullptr) {
-        std::cerr << "Failed to find function" << std::endl;
         return cudaErrorInvalidDeviceFunction;
     }
     RpcClient *client = rpc_get_client();
@@ -1020,7 +987,6 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
         }
     }
     if(f == nullptr) {
-        std::cerr << "Failed to find function" << std::endl;
         return cudaErrorInvalidDeviceFunction;
     }
     RpcClient *client = rpc_get_client();
@@ -1783,7 +1749,6 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
         }
     }
     if(f == nullptr) {
-        std::cerr << "Failed to find function" << std::endl;
         return CUDA_ERROR_LAUNCH_FAILED;
     }
     RpcClient *client = rpc_get_client();
@@ -1854,14 +1819,8 @@ extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t al
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    CUdeviceptr *serverPtr;
-    // 客户端保留内存地址
-    *ptr = (CUdeviceptr)mmap(NULL, size, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    if(*ptr == 0) {
-        return CUDA_ERROR_OUT_OF_MEMORY;
-    }
     rpc_prepare_request(client, RPC_cuMemAddressReserve);
-    rpc_read(client, serverPtr, sizeof(*serverPtr));
+    rpc_read(client, ptr, sizeof(*ptr));
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &alignment, sizeof(alignment));
     rpc_write(client, &addr, sizeof(addr));
@@ -1872,11 +1831,6 @@ extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t al
         munmap((void *)*ptr, size);
         rpc_release_client(client);
         exit(1);
-    }
-    if(_result == CUDA_SUCCESS) {
-        cs_reserve_mems[*ptr] = *serverPtr;
-    } else {
-        munmap((void *)*ptr, size);
     }
     rpc_free_client(client);
     return _result;
@@ -2215,21 +2169,9 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
         std::cerr << "Failed to get rpc client" << std::endl;
         exit(1);
     }
-    CUdeviceptr serverPtr;
-    if(cs_reserve_mems.find(ptr) != cs_reserve_mems.end()) {
-        serverPtr = cs_reserve_mems[ptr];
-    } else {
-        return CUDA_ERROR_INVALID_VALUE;
-    }
-    bool isHost = false;
-    // 如何handle存在于host_handles中,则说明是在主机内存上映射
-    if(host_handles.find(handle) != host_handles.end()) {
-        isHost = true;
-        // 在客户端实际映射主机内存到客户端保留地址
-        mmap((void *)ptr, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, -1, 0);
-    }
+
     rpc_prepare_request(client, RPC_cuMemMap);
-    rpc_write(client, &serverPtr, sizeof(serverPtr));
+    rpc_write(client, &ptr, sizeof(ptr));
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &offset, sizeof(offset));
     rpc_write(client, &handle, sizeof(handle));
@@ -2237,24 +2179,10 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
-        if(isHost) {
-            munmap((void *)ptr, size);
-        }
         rpc_release_client(client);
         exit(1);
     }
-    if(_result == CUDA_SUCCESS) {
-        if(isHost) {
-            cs_host_mems[(void *)ptr] = std::make_pair((void *)serverPtr, size);
-        } else {
-            cs_dev_mems[ptr] = std::make_pair(serverPtr, size);
-        }
-        cs_reserve_mems.erase(ptr);
-    } else {
-        if(isHost) {
-            munmap((void *)ptr, size);
-        }
-    }
+
     rpc_free_client(client);
     return _result;
 }

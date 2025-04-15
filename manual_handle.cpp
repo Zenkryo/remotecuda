@@ -1121,7 +1121,7 @@ int handle_cuLibraryGetGlobal(void *args0) {
     CUlibrary library;
     char *name = nullptr;
     rpc_read(client, &library, sizeof(library));
-    rpc_read(client, name, 0, true);
+    rpc_read(client, &name, 0, true);
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         if(name != nullptr) {
@@ -1156,7 +1156,7 @@ int handle_cuLibraryGetManaged(void *args) {
     CUlibrary library;
     char *name = nullptr;
     rpc_read(client, &library, sizeof(library));
-    rpc_read(client, name, 0, true);
+    rpc_read(client, &name, 0, true);
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         if(name != nullptr) {
@@ -1528,14 +1528,14 @@ int handle_cuMemPoolImportPointer(void *args) {
     RpcClient *client = (RpcClient *)args;
     CUdeviceptr ptr_out;
     CUmemoryPool pool;
-    CUmemPoolPtrExportData *shareData;
+    CUmemPoolPtrExportData shareData;
     rpc_read(client, &pool, sizeof(pool));
     rpc_read(client, &shareData, sizeof(shareData));
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    CUresult _result = cuMemPoolImportPointer(&ptr_out, pool, shareData);
+    CUresult _result = cuMemPoolImportPointer(&ptr_out, pool, &shareData);
     rpc_write(client, &ptr_out, sizeof(ptr_out));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1575,7 +1575,7 @@ int handle_cuModuleGetGlobal_v2(void *args) {
     CUmodule hmod;
     char *name = nullptr;
     rpc_read(client, &hmod, sizeof(hmod));
-    rpc_read(client, name, 0, true);
+    rpc_read(client, &name, 0, true);
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         if(name != nullptr) {
