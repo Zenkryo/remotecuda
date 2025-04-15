@@ -2,5 +2,4 @@
 *.so
 *.swp
 server
-test
-test/
+build/
