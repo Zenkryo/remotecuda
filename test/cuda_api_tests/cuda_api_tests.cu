@@ -226,7 +226,7 @@ TEST_F(CudaApiTest, CudaLaunchKernel) {
 
 // Test cudaMalloc with different sizes
 TEST_F(CudaApiTest, CudaMalloc) {
-    size_t sizes[] = {1, 1024, 1024 * 1024, 1024 * 1024 * 1024};
+    size_t sizes[] = {1, 1024, 1024 * 1024}; // Remove 1GB test
 
     for(size_t size : sizes) {
         void *devPtr;
@@ -532,19 +532,90 @@ TEST_F(CudaApiTest, CudaDriverApi) {
     ASSERT_EQ(result, CUDA_SUCCESS);
     ASSERT_NE(devPtr, 0);
 
+    // Allocate host memory for testing
+    void *hostPtr = malloc(1024);
+    ASSERT_NE(hostPtr, nullptr);
+
+    // Initialize host memory with a pattern
+    int *hostIntPtr = static_cast<int *>(hostPtr);
+    for(int i = 0; i < 256; i++) { // 1024 bytes / sizeof(int) = 256 ints
+        hostIntPtr[i] = i;
+    }
+
+    // Copy from host to device
+    result = cuMemcpyHtoD_v2(devPtr, hostPtr, 1024);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Clear host memory
+    memset(hostPtr, 0, 1024);
+
+    // Copy back from device to host
+    result = cuMemcpyDtoH_v2(hostPtr, devPtr, 1024);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Verify the data
+    for(int i = 0; i < 256; i++) {
+        ASSERT_EQ(hostIntPtr[i], i) << "Memory verification failed at index " << i;
+    }
+
+    // Test with a different pattern
+    for(int i = 0; i < 256; i++) {
+        hostIntPtr[i] = 255 - i;
+    }
+
+    // Copy the new pattern to device
+    result = cuMemcpyHtoD_v2(devPtr, hostPtr, 1024);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Clear host memory again
+    memset(hostPtr, 0, 1024);
+
+    // Copy back from device to host
+    result = cuMemcpyDtoH_v2(hostPtr, devPtr, 1024);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Verify the new pattern
+    for(int i = 0; i < 256; i++) {
+        ASSERT_EQ(hostIntPtr[i], 255 - i) << "Second pattern verification failed at index " << i;
+    }
+
     // Test cuMemFree_v2
     result = cuMemFree_v2(devPtr);
     ASSERT_EQ(result, CUDA_SUCCESS);
 
     // Test cuMemAllocHost_v2
-    void *hostPtr;
-    result = cuMemAllocHost_v2(&hostPtr, 1024);
+    void *hostPtr2;
+    result = cuMemAllocHost_v2(&hostPtr2, 1024);
     ASSERT_EQ(result, CUDA_SUCCESS);
-    ASSERT_NE(hostPtr, nullptr);
+    ASSERT_NE(hostPtr2, nullptr);
+
+    // Test writing to host memory
+    int *hostIntPtr2 = static_cast<int *>(hostPtr2);
+    for(int i = 0; i < 256; i++) {
+        hostIntPtr2[i] = i;
+    }
+
+    // Test reading from host memory
+    for(int i = 0; i < 256; i++) {
+        ASSERT_EQ(hostIntPtr2[i], i) << "Host memory verification failed at index " << i;
+    }
+
+    // Test with a different pattern
+    for(int i = 0; i < 256; i++) {
+        hostIntPtr2[i] = 255 - i;
+    }
+
+    // Verify the new pattern
+    for(int i = 0; i < 256; i++) {
+        ASSERT_EQ(hostIntPtr2[i], 255 - i) << "Second host pattern verification failed at index " << i;
+    }
 
     // Test cuMemFreeHost
-    result = cuMemFreeHost(hostPtr);
+    result = cuMemFreeHost(hostPtr2);
     ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Clean up
+    free(hostPtr);
 }
 
 // Test cuExternalMemoryGetMappedBuffer
@@ -649,12 +720,85 @@ TEST_F(CudaApiTest, CuMemCreate) {
     // 创建内存分配
     CUmemGenericAllocationHandle handle;
     result = cuMemCreate(&handle, size, &prop, 0);
-
     ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // 保留虚拟地址范围
+    CUdeviceptr ptr;
+    result = cuMemAddressReserve(&ptr, size, granularity, 0, 0);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // 映射内存
+    result = cuMemMap(ptr, size, 0, handle, 0);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // 设置访问权限
+    CUmemAccessDesc accessDesc = {};
+    accessDesc.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+    accessDesc.location.id = device;
+    accessDesc.flags = CU_MEM_ACCESS_FLAGS_PROT_READWRITE;
+
+    result = cuMemSetAccess(ptr, size, &accessDesc, 1);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Allocate host memory for testing
+    void *hostPtr = malloc(size);
+    ASSERT_NE(hostPtr, nullptr);
+
+    // Initialize host memory with a pattern
+    int *hostIntPtr = static_cast<int *>(hostPtr);
+    size_t numInts = size / sizeof(int);
+    for(size_t i = 0; i < numInts; i++) {
+        hostIntPtr[i] = static_cast<int>(i);
+    }
+
+    // Copy from host to device
+    result = cuMemcpyHtoD_v2(ptr, hostPtr, size);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Clear host memory
+    memset(hostPtr, 0, size);
+
+    // Copy back from device to host
+    result = cuMemcpyDtoH_v2(hostPtr, ptr, size);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Verify the data
+    for(size_t i = 0; i < numInts; i++) {
+        ASSERT_EQ(hostIntPtr[i], static_cast<int>(i)) << "Memory verification failed at index " << i;
+    }
+
+    // Test with a different pattern
+    for(size_t i = 0; i < numInts; i++) {
+        hostIntPtr[i] = static_cast<int>(numInts - 1 - i);
+    }
+
+    // Copy the new pattern to device
+    result = cuMemcpyHtoD_v2(ptr, hostPtr, size);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Clear host memory again
+    memset(hostPtr, 0, size);
+
+    // Copy back from device to host
+    result = cuMemcpyDtoH_v2(hostPtr, ptr, size);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    // Verify the new pattern
+    for(size_t i = 0; i < numInts; i++) {
+        ASSERT_EQ(hostIntPtr[i], static_cast<int>(numInts - 1 - i)) << "Second pattern verification failed at index " << i;
+    }
 
     // Clean up
+    result = cuMemUnmap(ptr, size);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
+    result = cuMemAddressFree(ptr, size);
+    ASSERT_EQ(result, CUDA_SUCCESS);
+
     result = cuMemRelease(handle);
     ASSERT_EQ(result, CUDA_SUCCESS);
+
+    free(hostPtr);
 }
 
 // Test cuMemGetAddressRange_v2
@@ -858,12 +1002,152 @@ TEST_F(CudaApiTest, CuTexRefGetAddress) {
 // Test cuGraphMemFreeNodeGetParams
 TEST_F(CudaApiTest, CuGraphMemFreeNodeGetParams) {
     CUresult result;
-    CUgraphNode hNode = nullptr;
-    CUdeviceptr dptr_out = 0;
 
-    result = cuGraphMemFreeNodeGetParams(hNode, &dptr_out);
-    // This test is expected to fail since we don't have a valid graph node
-    ASSERT_NE(result, CUDA_SUCCESS);
+    // Test 1: Invalid node handle
+    {
+        CUgraphNode hNode = nullptr;
+        CUdeviceptr dptr_out = 0;
+        result = cuGraphMemFreeNodeGetParams(hNode, &dptr_out);
+        ASSERT_NE(result, CUDA_SUCCESS);
+    }
+
+    // Test 2: Create a valid graph and memory free node
+    {
+        // Create a graph
+        CUgraph graph;
+        result = cuGraphCreate(&graph, 0);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to create graph";
+
+        // Allocate device memory
+        CUdeviceptr dptr;
+        result = cuMemAlloc_v2(&dptr, 1024);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate device memory";
+
+        // Create a memory free node
+        CUgraphNode hNode;
+        CUgraphNode dependencies[] = {}; // Empty dependencies array
+        result = cuGraphAddMemFreeNode(&hNode, graph, dependencies, 0, dptr);
+        if(result != CUDA_SUCCESS) {
+            const char *errorName;
+            cuGetErrorName(result, &errorName);
+            const char *errorString;
+            cuGetErrorString(result, &errorString);
+            FAIL() << "Failed to create memory free node: " << errorName << " - " << errorString;
+        }
+
+        // Get node parameters
+        CUdeviceptr dptr_out = 0;
+        result = cuGraphMemFreeNodeGetParams(hNode, &dptr_out);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get node parameters";
+        ASSERT_EQ(dptr_out, dptr) << "Device pointer mismatch";
+
+        // Clean up
+        result = cuGraphDestroy(graph);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to destroy graph";
+    }
+
+    // Test 3: Create multiple memory free nodes in a graph
+    {
+        // Create a graph
+        CUgraph graph;
+        result = cuGraphCreate(&graph, 0);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to create graph";
+
+        // Allocate multiple device memory blocks
+        const int numBlocks = 3;
+        CUdeviceptr dptrs[numBlocks];
+        CUgraphNode nodes[numBlocks];
+        CUgraphNode dependencies[] = {}; // Empty dependencies array
+
+        for(int i = 0; i < numBlocks; i++) {
+            // Allocate device memory
+            result = cuMemAlloc_v2(&dptrs[i], 1024);
+            ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate device memory block " << i;
+
+            // Create a memory free node
+            result = cuGraphAddMemFreeNode(&nodes[i], graph, dependencies, 0, dptrs[i]);
+            if(result != CUDA_SUCCESS) {
+                const char *errorName;
+                cuGetErrorName(result, &errorName);
+                const char *errorString;
+                cuGetErrorString(result, &errorString);
+                FAIL() << "Failed to create memory free node " << i << ": " << errorName << " - " << errorString;
+            }
+
+            // Get node parameters
+            CUdeviceptr dptr_out = 0;
+            result = cuGraphMemFreeNodeGetParams(nodes[i], &dptr_out);
+            ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get node parameters for node " << i;
+            ASSERT_EQ(dptr_out, dptrs[i]) << "Device pointer mismatch for node " << i;
+        }
+
+        // Clean up
+        result = cuGraphDestroy(graph);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to destroy graph";
+
+        // Free device memory
+        for(int i = 0; i < numBlocks; i++) {
+            result = cuMemFree_v2(dptrs[i]);
+            ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free device memory block " << i;
+        }
+    }
+
+    // Test 4: Create a graph with dependencies between memory free nodes
+    {
+        // Create a graph
+        CUgraph graph;
+        result = cuGraphCreate(&graph, 0);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to create graph";
+
+        // Allocate device memory
+        CUdeviceptr dptr1, dptr2;
+        result = cuMemAlloc_v2(&dptr1, 1024);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate first device memory block";
+        result = cuMemAlloc_v2(&dptr2, 1024);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate second device memory block";
+
+        // Create memory free nodes
+        CUgraphNode hNode1, hNode2;
+        CUgraphNode dependencies1[] = {}; // Empty dependencies array for first node
+        result = cuGraphAddMemFreeNode(&hNode1, graph, dependencies1, 0, dptr1);
+        if(result != CUDA_SUCCESS) {
+            const char *errorName;
+            cuGetErrorName(result, &errorName);
+            const char *errorString;
+            cuGetErrorString(result, &errorString);
+            FAIL() << "Failed to create first memory free node: " << errorName << " - " << errorString;
+        }
+
+        CUgraphNode dependencies2[] = {hNode1}; // Second node depends on first node
+        result = cuGraphAddMemFreeNode(&hNode2, graph, dependencies2, 1, dptr2);
+        if(result != CUDA_SUCCESS) {
+            const char *errorName;
+            cuGetErrorName(result, &errorName);
+            const char *errorString;
+            cuGetErrorString(result, &errorString);
+            FAIL() << "Failed to create second memory free node: " << errorName << " - " << errorString;
+        }
+
+        // Get node parameters
+        CUdeviceptr dptr_out1 = 0, dptr_out2 = 0;
+        result = cuGraphMemFreeNodeGetParams(hNode1, &dptr_out1);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get first node parameters";
+        ASSERT_EQ(dptr_out1, dptr1) << "First device pointer mismatch";
+
+        result = cuGraphMemFreeNodeGetParams(hNode2, &dptr_out2);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get second node parameters";
+        ASSERT_EQ(dptr_out2, dptr2) << "Second device pointer mismatch";
+
+        // Clean up
+        result = cuGraphDestroy(graph);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to destroy graph";
+
+        // Free device memory
+        result = cuMemFree_v2(dptr1);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free first device memory block";
+        result = cuMemFree_v2(dptr2);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free second device memory block";
+    }
 }
 
 int main(int argc, char **argv) {

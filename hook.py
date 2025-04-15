@@ -384,18 +384,22 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
 
 # 处理char *参数
 def handle_param_pchar(function, param, f, is_client=True, position=0):
+    len = getCharParamLength(function)
     if is_client:
         if position == 1:
             # 现在都做输出参数处理，遇到例外再特殊处理
-            len = getCharParamLength(function)
-            f.write(f"    rpc_read(client, {param.name}, {len}, true);\n")
+            f.write(f"    if({len} > 0) {{\n")
+            f.write(f"        rpc_read(client, {param.name}, {len}, true);\n")
+            f.write(f"    }}\n")
     else:
         if position == 0:
             # 服务器端定义一个局部变量来临时保存字符串
             f.write(f"    char {param.name}[1024];\n")
             return param.name
         elif position == 2:
-            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
+            f.write(f"    if({len} > 0) {{\n")
+            f.write(f"        rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
+            f.write(f"    }}\n")
 
 
 # 处理const char*参数
