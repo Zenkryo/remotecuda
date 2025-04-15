@@ -1703,6 +1703,7 @@ extern "C" CUresult cuIpcOpenMemHandle_v2(CUdeviceptr *pdptr, CUipcMemHandle han
     rpc_free_client(client);
     return _result;
 }
+
 #if CUDA_VERSION > 11040
 extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibrary library, const char *name) {
 #ifdef DEBUG
@@ -2311,70 +2312,6 @@ extern "C" CUresult cuMemRelease(CUmemGenericAllocationHandle handle) {
     rpc_free_client(client);
     return _result;
 }
-
-// #if CUDA_VERSION > 11040
-// extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) {
-// #ifdef DEBUG
-//     std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
-// #endif
-
-//     CUresult _result;
-//     RpcClient *client = rpc_get_client();
-//     if(client == nullptr) {
-//         std::cerr << "Failed to get rpc client" << std::endl;
-//         exit(1);
-//     }
-//     rpc_prepare_request(client, RPC_cuMemcpyBatchAsync);
-//     CUdeviceptr *new_dsts = (CUdeviceptr *)malloc(count * sizeof(CUdeviceptr));
-//     CUdeviceptr *new_srcs = (CUdeviceptr *)malloc(count * sizeof(CUdeviceptr));
-//     if(new_dsts == nullptr || new_srcs == nullptr) {
-//         return CUDA_ERROR_OUT_OF_MEMORY;
-//     }
-//     for(int i = 0; i < count; i++) {
-//         if(cs_union_mems.find((void *)dsts[i]) != cs_union_mems.end()) {
-//             std::pair<void *, size_t> mem = cs_union_mems[(void *)dsts[i]];
-//             new_dsts[i] = (CUdeviceptr)mem.first;
-//             rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
-//             // 如果是拷贝到统一内存,还需要将数据读回到客户端, 服务器端需要调用cudaPointerGetAttributes来判断指针是否是统一内存
-//             rpc_read(client, (void *)dsts[i], sizes[i], true);
-//         } else if(cs_dev_mems.find(dsts[i]) != cs_dev_mems.end()) {
-//             new_dsts[i] = (CUdeviceptr)cs_dev_mems[dsts[i]];
-//             rpc_write(client, &new_dsts[i], sizeof(new_dsts[i]));
-//         } else {
-//             rpc_write(client, (void *)&dsts[i], sizeof(dsts[i]));
-//         }
-//     }
-//     for(int i = 0; i < count; i++) {
-//         if(cs_union_mems.find((void *)srcs[i]) != cs_union_mems.end()) {
-//             std::pair<void *, size_t> mem = cs_union_mems[(void *)srcs[i]];
-//             new_srcs[i] = (CUdeviceptr)mem.first;
-//             rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
-//             // 如果是从统一内存拷贝,还需要将数据写入到服务器端
-//             rpc_write(client, (void *)srcs[i], sizes[i], true);
-//         } else if(cs_dev_mems.find(srcs[i]) != cs_dev_mems.end()) {
-//             new_srcs[i] = (CUdeviceptr)cs_dev_mems[srcs[i]];
-//             rpc_write(client, &new_srcs[i], sizeof(new_srcs[i]));
-//         } else {
-//             rpc_write(client, (void *)&srcs[i], sizeof(srcs[i]));
-//         }
-//     }
-//     rpc_write(client, &count, sizeof(count));
-//     rpc_write(client, sizes, sizeof(*sizes) * count);
-//     rpc_read(client, attrs, sizeof(*attrs));
-//     rpc_read(client, attrsIdxs, sizeof(*attrsIdxs));
-//     rpc_write(client, &numAttrs, sizeof(numAttrs));
-//     rpc_read(client, failIdx, sizeof(*failIdx));
-//     rpc_write(client, &hStream, sizeof(hStream));
-//     rpc_read(client, &_result, sizeof(_result));
-//     if(rpc_submit_request(client) != 0) {
-//         std::cerr << "Failed to submit request" << std::endl;
-//         rpc_release_client(client);
-//         exit(1);
-//     }
-//     rpc_free_client(client);
-//     return _result;
-// }
-// #endif
 
 extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, const char *name) {
 #ifdef DEBUG

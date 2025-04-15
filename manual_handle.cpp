@@ -904,6 +904,27 @@ int handle_cuExternalMemoryGetMappedBuffer(void *args) {
     std::cout << "Handle function handle_cuExternalMemoryGetMappedBuffer called" << std::endl;
 #endif
 
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr devPtr;
+    CUexternalMemory extMem;
+    rpc_read(client, &extMem, sizeof(extMem));
+    CUDA_EXTERNAL_MEMORY_BUFFER_DESC bufferDesc;
+    rpc_read(client, &bufferDesc, sizeof(bufferDesc));
+
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+
+    CUresult _result = cuExternalMemoryGetMappedBuffer(&devPtr, extMem, &bufferDesc);
+    rpc_write(client, &devPtr, sizeof(devPtr));
+    rpc_write(client, &_result, sizeof(_result));
+
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+
     return 0;
 }
 
@@ -963,11 +984,28 @@ int handle_cuGetProcAddress(void *args0) {
 }
 #endif
 
-int handle_cuGraphicsResourceGetMappedPointer_v2(void *args) {
+int handle_cuGraphicsResourceGetMappedPointer_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
 #endif
 
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr devPtr;
+    size_t size;
+    CUgraphicsResource resource;
+    rpc_read(client, &resource, sizeof(resource));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuGraphicsResourceGetMappedPointer_v2(&devPtr, &size, resource);
+    rpc_write(client, &devPtr, sizeof(devPtr));
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1026,28 +1064,85 @@ int handle_cuLaunchCooperativeKernel(void *args0) {
     return 0;
 }
 
-int handle_cuImportExternalMemory(void *args) {
+int handle_cuImportExternalMemory(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuImportExternalMemory called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args0;
+    CUexternalMemory extMem_out;
+    CUDA_EXTERNAL_MEMORY_HANDLE_DESC memHandleDesc;
+    rpc_read(client, &memHandleDesc, sizeof(memHandleDesc));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuImportExternalMemory(&extMem_out, &memHandleDesc);
+    rpc_write(client, &extMem_out, sizeof(extMem_out));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
-int handle_cuIpcOpenMemHandle_v2(void *args) {
+int handle_cuIpcOpenMemHandle_v2(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuIpcOpenMemHandle_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr dptr;
+    CUipcMemHandle handle;
+    unsigned int Flags;
+    rpc_read(client, &handle, sizeof(handle));
+    rpc_read(client, &Flags, sizeof(Flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuIpcOpenMemHandle_v2(&dptr, handle, Flags);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
 #if CUDA_VERSION > 11040
-int handle_cuLibraryGetGlobal(void *args) {
+int handle_cuLibraryGetGlobal(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuLibraryGetGlobal called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr dptr;
+    size_t bytes;
+    CUlibrary library;
+    char *name = nullptr;
+    rpc_read(client, &library, sizeof(library));
+    rpc_read(client, name, 0, true);
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        if(name != nullptr) {
+            free(name);
+        }
+        return 1;
+    }
+    CUresult _result = cuLibraryGetGlobal(&dptr, &bytes, library, name);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &bytes, sizeof(bytes));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        if(name != nullptr) {
+            free(name);
+        }
+        return 1;
+    }
+    if(name != nullptr) {
+        free(name);
+    }
     return 0;
 }
 
@@ -1055,17 +1150,63 @@ int handle_cuLibraryGetManaged(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuLibraryGetManaged called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr dptr;
+    size_t bytes;
+    CUlibrary library;
+    char *name = nullptr;
+    rpc_read(client, &library, sizeof(library));
+    rpc_read(client, name, 0, true);
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        if(name != nullptr) {
+            free(name);
+        }
+        return 1;
+    }
+    CUresult _result = cuLibraryGetManaged(&dptr, &bytes, library, name);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &bytes, sizeof(bytes));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        if(name != nullptr) {
+            free(name);
+        }
+        return 1;
+    }
+    if(name != nullptr) {
+        free(name);
+    }
     return 0;
 }
 #endif
 
-int handle_cuMemAddressReserve(void *args) {
+int handle_cuMemAddressReserve(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemAddressReserve called" << std::endl;
 #endif
-
-    // TODO: Implement the function logic
+    RpcClient *client = (RpcClient *)args0;
+    CUdeviceptr ptr;
+    size_t size;
+    size_t alignment;
+    CUdeviceptr addr;
+    unsigned long long flags;
+    rpc_read(client, &size, sizeof(size));
+    rpc_read(client, &alignment, sizeof(alignment));
+    rpc_read(client, &addr, sizeof(addr));
+    rpc_read(client, &flags, sizeof(flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemAddressReserve(&ptr, size, alignment, addr, flags);
+    rpc_write(client, &ptr, sizeof(ptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1096,7 +1237,22 @@ int handle_cuMemAllocHost_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemAllocHost_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    void *pp;
+    size_t bytesize;
+    rpc_read(client, &bytesize, sizeof(bytesize));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemAllocHost_v2(&pp, bytesize);
+    printf("cuMemAllocHost_v2 called with pointer: %p\n", pp);
+    rpc_write(client, &pp, sizeof(pp));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1104,7 +1260,23 @@ int handle_cuMemAllocManaged(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemAllocManaged called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr ptr;
+    size_t bytesize;
+    unsigned int flags;
+    rpc_read(client, &bytesize, sizeof(bytesize));
+    rpc_read(client, &flags, sizeof(flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemAllocManaged(&ptr, bytesize, flags);
+    rpc_write(client, &ptr, sizeof(ptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1112,7 +1284,27 @@ int handle_cuMemAllocPitch_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemAllocPitch_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr dptr;
+    size_t pitch;
+    size_t WidthInBytes;
+    size_t Height;
+    unsigned int ElementSizeBytes;
+    rpc_read(client, &WidthInBytes, sizeof(WidthInBytes));
+    rpc_read(client, &Height, sizeof(Height));
+    rpc_read(client, &ElementSizeBytes, sizeof(ElementSizeBytes));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemAllocPitch_v2(&dptr, &pitch, WidthInBytes, Height, ElementSizeBytes);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &pitch, sizeof(pitch));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1120,8 +1312,25 @@ int handle_cuMemCreate(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemCreate called" << std::endl;
 #endif
-
-    // TODO: Implement the function logic
+    RpcClient *client = (RpcClient *)args;
+    CUmemGenericAllocationHandle handle;
+    size_t size;
+    CUmemAllocationProp prop;
+    unsigned long long flags;
+    rpc_read(client, &size, sizeof(size));
+    rpc_read(client, &prop, sizeof(prop));
+    rpc_read(client, &flags, sizeof(flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemCreate(&handle, size, &prop, flags);
+    rpc_write(client, &handle, sizeof(handle));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1129,8 +1338,20 @@ int handle_cuMemFreeHost(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemFreeHost called" << std::endl;
 #endif
-
-    // TODO: Implement the function logic
+    RpcClient *client = (RpcClient *)args;
+    void *p;
+    rpc_read(client, &p, sizeof(p));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    printf("cuMemFreeHost called with pointer: %p\n", p);
+    CUresult _result = cuMemFreeHost(p);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1138,7 +1359,23 @@ int handle_cuMemGetAddressRange_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemGetAddressRange_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr base;
+    size_t size;
+    CUdeviceptr dptr;
+    rpc_read(client, &dptr, sizeof(dptr));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemGetAddressRange_v2(&base, &size, dptr);
+    rpc_write(client, &base, sizeof(base));
+    rpc_write(client, &size, sizeof(size));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1212,8 +1449,23 @@ int handle_cuMemHostAlloc(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemHostAlloc called" << std::endl;
 #endif
-
-    // TODO: Implement the function logic
+    RpcClient *client = (RpcClient *)args;
+    void *p;
+    size_t bytesize;
+    unsigned int Flags;
+    rpc_read(client, &bytesize, sizeof(bytesize));
+    rpc_read(client, &Flags, sizeof(Flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemHostAlloc(&p, bytesize, Flags);
+    rpc_write(client, &p, sizeof(p));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1221,7 +1473,23 @@ int handle_cuMemHostGetDevicePointer_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemHostGetDevicePointer_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr dptr;
+    void *p;
+    unsigned int Flags;
+    rpc_read(client, &p, sizeof(p));
+    rpc_read(client, &Flags, sizeof(Flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemHostGetDevicePointer_v2(&dptr, p, Flags);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1229,8 +1497,27 @@ int handle_cuMemMap(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemMap called" << std::endl;
 #endif
-
-    // TODO: Implement the function logic
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr ptr;
+    size_t size;
+    size_t offset;
+    CUmemGenericAllocationHandle handle;
+    unsigned long long flags;
+    rpc_read(client, &ptr, sizeof(ptr));
+    rpc_read(client, &size, sizeof(size));
+    rpc_read(client, &offset, sizeof(offset));
+    rpc_read(client, &handle, sizeof(handle));
+    rpc_read(client, &flags, sizeof(flags));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemMap(ptr, size, offset, handle, flags);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1238,7 +1525,23 @@ int handle_cuMemPoolImportPointer(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemPoolImportPointer called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr ptr_out;
+    CUmemoryPool pool;
+    CUmemPoolPtrExportData *shareData;
+    rpc_read(client, &pool, sizeof(pool));
+    rpc_read(client, &shareData, sizeof(shareData));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemPoolImportPointer(&ptr_out, pool, shareData);
+    rpc_write(client, &ptr_out, sizeof(ptr_out));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1246,8 +1549,19 @@ int handle_cuMemRelease(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuMemRelease called" << std::endl;
 #endif
-
-    // TODO: Implement the function logic
+    RpcClient *client = (RpcClient *)args;
+    CUmemGenericAllocationHandle handle;
+    rpc_read(client, &handle, sizeof(handle));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuMemRelease(handle);
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1255,7 +1569,34 @@ int handle_cuModuleGetGlobal_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuModuleGetGlobal_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr dptr;
+    size_t bytes;
+    CUmodule hmod;
+    char *name = nullptr;
+    rpc_read(client, &hmod, sizeof(hmod));
+    rpc_read(client, name, 0, true);
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        if(name != nullptr) {
+            free(name);
+        }
+        return 1;
+    }
+    CUresult _result = cuModuleGetGlobal_v2(&dptr, &bytes, hmod, name);
+    rpc_write(client, &dptr, sizeof(dptr));
+    rpc_write(client, &bytes, sizeof(bytes));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        if(name != nullptr) {
+            free(name);
+        }
+        return 1;
+    }
+    if(name != nullptr) {
+        free(name);
+    }
     return 0;
 }
 
@@ -1363,7 +1704,21 @@ int handle_cuTexRefGetAddress_v2(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuTexRefGetAddress_v2 called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUdeviceptr pdptr;
+    CUtexref hTexRef;
+    rpc_read(client, &hTexRef, sizeof(hTexRef));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuTexRefGetAddress_v2(&pdptr, hTexRef);
+    rpc_write(client, &pdptr, sizeof(pdptr));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
@@ -1371,7 +1726,21 @@ int handle_cuGraphMemFreeNodeGetParams(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuGraphMemFreeNodeGetParams called" << std::endl;
 #endif
-
+    RpcClient *client = (RpcClient *)args;
+    CUgraphNode hNode;
+    CUdeviceptr dptr_out;
+    rpc_read(client, &hNode, sizeof(hNode));
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    CUresult _result = cuGraphMemFreeNodeGetParams(hNode, &dptr_out);
+    rpc_write(client, &dptr_out, sizeof(dptr_out));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
     return 0;
 }
 
