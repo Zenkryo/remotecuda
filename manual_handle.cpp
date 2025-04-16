@@ -76,6 +76,7 @@ int handle_mem2client(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function mem2client called" << std::endl;
 #endif
+    int ret = 0;
     RpcClient *client = (RpcClient *)args0;
     void *ptrs[32];
     size_t sizes[32];
@@ -92,6 +93,7 @@ int handle_mem2client(void *args0) {
         if(ptrs[i] == (void *)0xffffffff) {
             break;
         }
+        // 读取数据大小
         if(read_one_now(client, &sizes[i], sizeof(sizes[i]), false) < 0) {
             goto ERROR;
         }
@@ -111,14 +113,13 @@ int handle_mem2client(void *args0) {
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        goto ERROR;
+        ret = 1;
     }
-    return 0;
 ERROR:
     for(auto ptr : ptrs2free) {
         free(ptr);
     }
-    return 1;
+    return ret;
 }
 
 // #region CUDA Runtime API (cuda*)
