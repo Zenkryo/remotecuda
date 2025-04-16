@@ -3139,11 +3139,19 @@ int handle_cudaMemcpy3D(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     struct cudaMemcpy3DParms *p;
     rpc_read(client, &p, sizeof(p));
+    void *_0sptr;
+    rpc_read(client, &_0sptr, sizeof(_0sptr));
+    void *_0dptr;
+    rpc_read(client, &_0dptr, sizeof(_0dptr));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(p != nullptr) {
+        p->srcPtr.ptr = _0sptr;
+        p->dstPtr.ptr = _0dptr;
     }
     _result = cudaMemcpy3D(p);
     rpc_write(client, &_result, sizeof(_result));
@@ -3199,6 +3207,10 @@ int handle_cudaMemcpy3DAsync(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     struct cudaMemcpy3DParms *p;
     rpc_read(client, &p, sizeof(p));
+    void *_0sptr;
+    rpc_read(client, &_0sptr, sizeof(_0sptr));
+    void *_0dptr;
+    rpc_read(client, &_0dptr, sizeof(_0dptr));
     cudaStream_t stream;
     rpc_read(client, &stream, sizeof(stream));
     cudaError_t _result;
@@ -3206,6 +3218,10 @@ int handle_cudaMemcpy3DAsync(void *args0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(p != nullptr) {
+        p->srcPtr.ptr = _0sptr;
+        p->dstPtr.ptr = _0dptr;
     }
     _result = cudaMemcpy3DAsync(p, stream);
     rpc_write(client, &_result, sizeof(_result));
@@ -6393,8 +6409,10 @@ int handle_cudaGraphAddMemcpyNode(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    pCopyParams->srcPtr.ptr = _0sptr;
-    pCopyParams->dstPtr.ptr = _0dptr;
+    if(pCopyParams != nullptr) {
+        pCopyParams->srcPtr.ptr = _0sptr;
+        pCopyParams->dstPtr.ptr = _0dptr;
+    }
     _result = cudaGraphAddMemcpyNode(pGraphNode, graph, pDependencies, numDependencies, pCopyParams);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -6557,11 +6575,19 @@ int handle_cudaGraphMemcpyNodeGetParams(void *args0) {
     rpc_read(client, &node, sizeof(node));
     struct cudaMemcpy3DParms *pNodeParams;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
+    void *_0sptr;
+    rpc_read(client, &_0sptr, sizeof(_0sptr));
+    void *_0dptr;
+    rpc_read(client, &_0dptr, sizeof(_0dptr));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(pNodeParams != nullptr) {
+        pNodeParams->srcPtr.ptr = _0sptr;
+        pNodeParams->dstPtr.ptr = _0dptr;
     }
     _result = cudaGraphMemcpyNodeGetParams(node, pNodeParams);
     rpc_write(client, &_result, sizeof(_result));
@@ -6589,11 +6615,19 @@ int handle_cudaGraphMemcpyNodeSetParams(void *args0) {
     rpc_read(client, &node, sizeof(node));
     struct cudaMemcpy3DParms *pNodeParams;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
+    void *_0sptr;
+    rpc_read(client, &_0sptr, sizeof(_0sptr));
+    void *_0dptr;
+    rpc_read(client, &_0dptr, sizeof(_0dptr));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(pNodeParams != nullptr) {
+        pNodeParams->srcPtr.ptr = _0sptr;
+        pNodeParams->dstPtr.ptr = _0dptr;
     }
     _result = cudaGraphMemcpyNodeSetParams(node, pNodeParams);
     rpc_write(client, &_result, sizeof(_result));
@@ -8177,11 +8211,19 @@ int handle_cudaGraphExecMemcpyNodeSetParams(void *args0) {
     rpc_read(client, &node, sizeof(node));
     struct cudaMemcpy3DParms *pNodeParams;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
+    void *_0sptr;
+    rpc_read(client, &_0sptr, sizeof(_0sptr));
+    void *_0dptr;
+    rpc_read(client, &_0dptr, sizeof(_0dptr));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(pNodeParams != nullptr) {
+        pNodeParams->srcPtr.ptr = _0sptr;
+        pNodeParams->dstPtr.ptr = _0dptr;
     }
     _result = cudaGraphExecMemcpyNodeSetParams(hGraphExec, node, pNodeParams);
     rpc_write(client, &_result, sizeof(_result));

@@ -453,15 +453,41 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
         if position == 0:
             f.write(f"    void *_0{param.name};\n")
             f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
+            if param_type_name == "struct cudaMemcpy3DParms":
+                f.write(f"    void *_0sptr = nullptr;\n")
+                f.write(f"    void *_0dptr = nullptr;\n")
+                f.write(f"    if({param.name} != nullptr) {{\n")
+                f.write(f"        mem2server(client, &_0sptr, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
+                f.write(f"        mem2server(client, &_0dptr, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
+                f.write(f"    }}\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            if param_type_name == "struct cudaMemcpy3DParms":
+                f.write(f"    rpc_write(client, &_0sptr, sizeof(_0sptr));\n")
+                f.write(f"    rpc_write(client, &_0dptr, sizeof(_0dptr));\n")
         elif position == 3:
             f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
+            if param_type_name == "struct cudaMemcpy3DParms":
+                f.write(f"    if({param.name} != nullptr) {{\n")
+                f.write(f"        mem2client(client, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
+                f.write(f"        mem2client(client, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
+                f.write(f"    }}\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            if param_type_name == "struct cudaMemcpy3DParms":
+                f.write(f"    void *_0sptr;\n")
+                f.write(f"    rpc_read(client, &_0sptr, sizeof(_0sptr));\n")
+                f.write(f"    void *_0dptr;\n")
+                f.write(f"    rpc_read(client, &_0dptr, sizeof(_0dptr));\n")
             return param.name
+        elif position == 1:
+            if param_type_name == "struct cudaMemcpy3DParms":
+                f.write(f"    if({param.name} != nullptr) {{\n")
+                f.write(f"        {param.name}->srcPtr.ptr = _0sptr;\n")
+                f.write(f"        {param.name}->dstPtr.ptr = _0dptr;\n")
+                f.write(f"    }}\n")
 
 
 def handle_param_ptype(function, param, f, is_client=True, position=0):
@@ -493,7 +519,7 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
 
     else:
         if position == 0:
-            f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
+            f.write(f"    {param_type_name} *{param.name};\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    void *_0sptr;\n")
