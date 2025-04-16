@@ -6383,12 +6383,18 @@ int handle_cudaGraphAddMemcpyNode(void *args0) {
     rpc_read(client, &numDependencies, sizeof(numDependencies));
     struct cudaMemcpy3DParms *pCopyParams;
     rpc_read(client, &pCopyParams, sizeof(pCopyParams));
+    void *_0sptr;
+    rpc_read(client, &_0sptr, sizeof(_0sptr));
+    void *_0dptr;
+    rpc_read(client, &_0dptr, sizeof(_0dptr));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
+    pCopyParams->srcPtr.ptr = _0sptr;
+    pCopyParams->dstPtr.ptr = _0dptr;
     _result = cudaGraphAddMemcpyNode(pGraphNode, graph, pDependencies, numDependencies, pCopyParams);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {

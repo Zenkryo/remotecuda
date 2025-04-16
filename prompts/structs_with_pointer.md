@@ -30,7 +30,6 @@
 | cuGraphKernelNodeSetParams      | pNodeParams    | CUDA_KERNEL_NODE_PARAMS      |
 | cuGraphExecKernelNodeSetParams  | pNodeParams    | CUDA_KERNEL_NODE_PARAMS      |
 | cuGraphAddMemsetNode            | pNodeParams    | CUDA_MEMSET_NODE_PARAMS      |
-| cuMemsetD2D32                   | dstArray       | CUdeviceptr                  |
 
 ### cuBLAS API 函数及参数类型
 

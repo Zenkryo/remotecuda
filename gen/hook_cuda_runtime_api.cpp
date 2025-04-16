@@ -8717,6 +8717,10 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
     mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pCopyParams;
     mem2server(client, &_0pCopyParams, (void *)pCopyParams, sizeof(*pCopyParams));
+    void *_0sptr;
+    mem2server(client, &_0sptr, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize));
+    void *_0dptr;
+    mem2server(client, &_0dptr, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize));
     void *end_flag = (void *)0xffffffff;
     if(client->iov_send2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -8733,6 +8737,8 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
     rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0pCopyParams, sizeof(_0pCopyParams));
+    rpc_write(client, &_0sptr, sizeof(_0sptr));
+    rpc_write(client, &_0dptr, sizeof(_0dptr));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8743,6 +8749,8 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
     mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode));
     mem2client(client, (void *)pDependencies, sizeof(*pDependencies));
     mem2client(client, (void *)pCopyParams, sizeof(*pCopyParams));
+    mem2client(client, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize));
+    mem2client(client, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize));
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
