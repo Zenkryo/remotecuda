@@ -134,7 +134,7 @@ int handle_cudaDeviceGetTexture1DLinearMaxWidth(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     size_t *maxWidthInElements;
     rpc_read(client, &maxWidthInElements, sizeof(maxWidthInElements));
-    struct cudaChannelFormatDesc *fmtDesc;
+    struct cudaChannelFormatDesc *fmtDesc = nullptr;
     rpc_read(client, &fmtDesc, sizeof(fmtDesc));
     int device;
     rpc_read(client, &device, sizeof(device));
@@ -1079,7 +1079,7 @@ int handle_cudaChooseDevice(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     int *device;
     rpc_read(client, &device, sizeof(device));
-    struct cudaDeviceProp *prop;
+    struct cudaDeviceProp *prop = nullptr;
     rpc_read(client, &prop, sizeof(prop));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -1519,7 +1519,7 @@ int handle_cudaStreamSetAttribute(void *args0) {
     rpc_read(client, &hStream, sizeof(hStream));
     enum cudaStreamAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    union cudaStreamAttrValue *value;
+    union cudaStreamAttrValue *value = nullptr;
     rpc_read(client, &value, sizeof(value));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2235,7 +2235,7 @@ int handle_cudaImportExternalMemory(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaExternalMemory_t *extMem_out;
     rpc_read(client, &extMem_out, sizeof(extMem_out));
-    struct cudaExternalMemoryHandleDesc *memHandleDesc;
+    struct cudaExternalMemoryHandleDesc *memHandleDesc = nullptr;
     rpc_read(client, &memHandleDesc, sizeof(memHandleDesc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2268,7 +2268,7 @@ int handle_cudaExternalMemoryGetMappedBuffer(void *args0) {
     void *devPtr;
     cudaExternalMemory_t extMem;
     rpc_read(client, &extMem, sizeof(extMem));
-    struct cudaExternalMemoryBufferDesc *bufferDesc;
+    struct cudaExternalMemoryBufferDesc *bufferDesc = nullptr;
     rpc_read(client, &bufferDesc, sizeof(bufferDesc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2303,7 +2303,7 @@ int handle_cudaExternalMemoryGetMappedMipmappedArray(void *args0) {
     rpc_read(client, &mipmap, sizeof(mipmap));
     cudaExternalMemory_t extMem;
     rpc_read(client, &extMem, sizeof(extMem));
-    struct cudaExternalMemoryMipmappedArrayDesc *mipmapDesc;
+    struct cudaExternalMemoryMipmappedArrayDesc *mipmapDesc = nullptr;
     rpc_read(client, &mipmapDesc, sizeof(mipmapDesc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2365,7 +2365,7 @@ int handle_cudaImportExternalSemaphore(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaExternalSemaphore_t *extSem_out;
     rpc_read(client, &extSem_out, sizeof(extSem_out));
-    struct cudaExternalSemaphoreHandleDesc *semHandleDesc;
+    struct cudaExternalSemaphoreHandleDesc *semHandleDesc = nullptr;
     rpc_read(client, &semHandleDesc, sizeof(semHandleDesc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2395,9 +2395,9 @@ int handle_cudaSignalExternalSemaphoresAsync_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    cudaExternalSemaphore_t *extSemArray;
+    cudaExternalSemaphore_t *extSemArray = nullptr;
     rpc_read(client, &extSemArray, sizeof(extSemArray));
-    struct cudaExternalSemaphoreSignalParams *paramsArray;
+    struct cudaExternalSemaphoreSignalParams *paramsArray = nullptr;
     rpc_read(client, &paramsArray, sizeof(paramsArray));
     unsigned int numExtSems;
     rpc_read(client, &numExtSems, sizeof(numExtSems));
@@ -2431,9 +2431,9 @@ int handle_cudaWaitExternalSemaphoresAsync_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    cudaExternalSemaphore_t *extSemArray;
+    cudaExternalSemaphore_t *extSemArray = nullptr;
     rpc_read(client, &extSemArray, sizeof(extSemArray));
-    struct cudaExternalSemaphoreWaitParams *paramsArray;
+    struct cudaExternalSemaphoreWaitParams *paramsArray = nullptr;
     rpc_read(client, &paramsArray, sizeof(paramsArray));
     unsigned int numExtSems;
     rpc_read(client, &numExtSems, sizeof(numExtSems));
@@ -2867,7 +2867,7 @@ int handle_cudaMallocArray(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaArray_t *array;
     rpc_read(client, &array, sizeof(array));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     size_t width;
     rpc_read(client, &width, sizeof(width));
@@ -3031,7 +3031,7 @@ int handle_cudaMalloc3DArray(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaArray_t *array;
     rpc_read(client, &array, sizeof(array));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     struct cudaExtent extent;
     rpc_read(client, &extent, sizeof(extent));
@@ -3067,7 +3067,7 @@ int handle_cudaMallocMipmappedArray(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaMipmappedArray_t *mipmappedArray;
     rpc_read(client, &mipmappedArray, sizeof(mipmappedArray));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     struct cudaExtent extent;
     rpc_read(client, &extent, sizeof(extent));
@@ -3137,7 +3137,7 @@ int handle_cudaMemcpy3D(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct cudaMemcpy3DParms *p;
+    struct cudaMemcpy3DParms *p = nullptr;
     rpc_read(client, &p, sizeof(p));
     void *_0sptr;
     rpc_read(client, &_0sptr, sizeof(_0sptr));
@@ -3175,7 +3175,7 @@ int handle_cudaMemcpy3DPeer(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct cudaMemcpy3DPeerParms *p;
+    struct cudaMemcpy3DPeerParms *p = nullptr;
     rpc_read(client, &p, sizeof(p));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3205,7 +3205,7 @@ int handle_cudaMemcpy3DAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct cudaMemcpy3DParms *p;
+    struct cudaMemcpy3DParms *p = nullptr;
     rpc_read(client, &p, sizeof(p));
     void *_0sptr;
     rpc_read(client, &_0sptr, sizeof(_0sptr));
@@ -3245,7 +3245,7 @@ int handle_cudaMemcpy3DPeerAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct cudaMemcpy3DPeerParms *p;
+    struct cudaMemcpy3DPeerParms *p = nullptr;
     rpc_read(client, &p, sizeof(p));
     cudaStream_t stream;
     rpc_read(client, &stream, sizeof(stream));
@@ -4799,7 +4799,7 @@ int handle_cudaMemPoolSetAccess(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaMemPool_t memPool;
     rpc_read(client, &memPool, sizeof(memPool));
-    struct cudaMemAccessDesc *descList;
+    struct cudaMemAccessDesc *descList = nullptr;
     rpc_read(client, &descList, sizeof(descList));
     size_t count;
     rpc_read(client, &count, sizeof(count));
@@ -4867,7 +4867,7 @@ int handle_cudaMemPoolCreate(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaMemPool_t *memPool;
     rpc_read(client, &memPool, sizeof(memPool));
-    struct cudaMemPoolProps *poolProps;
+    struct cudaMemPoolProps *poolProps = nullptr;
     rpc_read(client, &poolProps, sizeof(poolProps));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5463,11 +5463,11 @@ int handle_cudaBindTexture(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     size_t *offset;
     rpc_read(client, &offset, sizeof(offset));
-    struct textureReference *texref;
+    struct textureReference *texref = nullptr;
     rpc_read(client, &texref, sizeof(texref));
     void *devPtr;
     rpc_read(client, &devPtr, sizeof(devPtr));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     size_t size;
     rpc_read(client, &size, sizeof(size));
@@ -5501,11 +5501,11 @@ int handle_cudaBindTexture2D(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     size_t *offset;
     rpc_read(client, &offset, sizeof(offset));
-    struct textureReference *texref;
+    struct textureReference *texref = nullptr;
     rpc_read(client, &texref, sizeof(texref));
     void *devPtr;
     rpc_read(client, &devPtr, sizeof(devPtr));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     size_t width;
     rpc_read(client, &width, sizeof(width));
@@ -5541,11 +5541,11 @@ int handle_cudaBindTextureToArray(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct textureReference *texref;
+    struct textureReference *texref = nullptr;
     rpc_read(client, &texref, sizeof(texref));
     cudaArray_const_t array;
     rpc_read(client, &array, sizeof(array));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5575,11 +5575,11 @@ int handle_cudaBindTextureToMipmappedArray(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct textureReference *texref;
+    struct textureReference *texref = nullptr;
     rpc_read(client, &texref, sizeof(texref));
     cudaMipmappedArray_const_t mipmappedArray;
     rpc_read(client, &mipmappedArray, sizeof(mipmappedArray));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5609,7 +5609,7 @@ int handle_cudaUnbindTexture(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct textureReference *texref;
+    struct textureReference *texref = nullptr;
     rpc_read(client, &texref, sizeof(texref));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5641,7 +5641,7 @@ int handle_cudaGetTextureAlignmentOffset(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     size_t *offset;
     rpc_read(client, &offset, sizeof(offset));
-    struct textureReference *texref;
+    struct textureReference *texref = nullptr;
     rpc_read(client, &texref, sizeof(texref));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5703,11 +5703,11 @@ int handle_cudaBindSurfaceToArray(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    struct surfaceReference *surfref;
+    struct surfaceReference *surfref = nullptr;
     rpc_read(client, &surfref, sizeof(surfref));
     cudaArray_const_t array;
     rpc_read(client, &array, sizeof(array));
-    struct cudaChannelFormatDesc *desc;
+    struct cudaChannelFormatDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5841,11 +5841,11 @@ int handle_cudaCreateTextureObject(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaTextureObject_t *pTexObject;
     rpc_read(client, &pTexObject, sizeof(pTexObject));
-    struct cudaResourceDesc *pResDesc;
+    struct cudaResourceDesc *pResDesc = nullptr;
     rpc_read(client, &pResDesc, sizeof(pResDesc));
-    struct cudaTextureDesc *pTexDesc;
+    struct cudaTextureDesc *pTexDesc = nullptr;
     rpc_read(client, &pTexDesc, sizeof(pTexDesc));
-    struct cudaResourceViewDesc *pResViewDesc;
+    struct cudaResourceViewDesc *pResViewDesc = nullptr;
     rpc_read(client, &pResViewDesc, sizeof(pResViewDesc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6003,7 +6003,7 @@ int handle_cudaCreateSurfaceObject(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaSurfaceObject_t *pSurfObject;
     rpc_read(client, &pSurfObject, sizeof(pSurfObject));
-    struct cudaResourceDesc *pResDesc;
+    struct cudaResourceDesc *pResDesc = nullptr;
     rpc_read(client, &pResDesc, sizeof(pResDesc));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6191,11 +6191,11 @@ int handle_cudaGraphAddKernelNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaKernelNodeParams *pNodeParams;
+    struct cudaKernelNodeParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6259,7 +6259,7 @@ int handle_cudaGraphKernelNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaKernelNodeParams *pNodeParams;
+    struct cudaKernelNodeParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6359,7 +6359,7 @@ int handle_cudaGraphKernelNodeSetAttribute(void *args0) {
     rpc_read(client, &hNode, sizeof(hNode));
     enum cudaKernelNodeAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    union cudaKernelNodeAttrValue *value;
+    union cudaKernelNodeAttrValue *value = nullptr;
     rpc_read(client, &value, sizeof(value));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6393,11 +6393,11 @@ int handle_cudaGraphAddMemcpyNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaMemcpy3DParms *pCopyParams;
+    struct cudaMemcpy3DParms *pCopyParams = nullptr;
     rpc_read(client, &pCopyParams, sizeof(pCopyParams));
     void *_0sptr;
     rpc_read(client, &_0sptr, sizeof(_0sptr));
@@ -6439,7 +6439,7 @@ int handle_cudaGraphAddMemcpyNodeToSymbol(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -6485,7 +6485,7 @@ int handle_cudaGraphAddMemcpyNodeFromSymbol(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -6531,7 +6531,7 @@ int handle_cudaGraphAddMemcpyNode1D(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -6613,7 +6613,7 @@ int handle_cudaGraphMemcpyNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaMemcpy3DParms *pNodeParams;
+    struct cudaMemcpy3DParms *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     void *_0sptr;
     rpc_read(client, &_0sptr, sizeof(_0sptr));
@@ -6773,11 +6773,11 @@ int handle_cudaGraphAddMemsetNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaMemsetParams *pMemsetParams;
+    struct cudaMemsetParams *pMemsetParams = nullptr;
     rpc_read(client, &pMemsetParams, sizeof(pMemsetParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6841,7 +6841,7 @@ int handle_cudaGraphMemsetNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaMemsetParams *pNodeParams;
+    struct cudaMemsetParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6875,11 +6875,11 @@ int handle_cudaGraphAddHostNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaHostNodeParams *pNodeParams;
+    struct cudaHostNodeParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6943,7 +6943,7 @@ int handle_cudaGraphHostNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaHostNodeParams *pNodeParams;
+    struct cudaHostNodeParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6977,7 +6977,7 @@ int handle_cudaGraphAddChildGraphNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7047,7 +7047,7 @@ int handle_cudaGraphAddEmptyNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7083,7 +7083,7 @@ int handle_cudaGraphAddEventRecordNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7185,7 +7185,7 @@ int handle_cudaGraphAddEventWaitNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7287,11 +7287,11 @@ int handle_cudaGraphAddExternalSemaphoresSignalNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaExternalSemaphoreSignalNodeParams *nodeParams;
+    struct cudaExternalSemaphoreSignalNodeParams *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7355,7 +7355,7 @@ int handle_cudaGraphExternalSemaphoresSignalNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    struct cudaExternalSemaphoreSignalNodeParams *nodeParams;
+    struct cudaExternalSemaphoreSignalNodeParams *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7389,11 +7389,11 @@ int handle_cudaGraphAddExternalSemaphoresWaitNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    struct cudaExternalSemaphoreWaitNodeParams *nodeParams;
+    struct cudaExternalSemaphoreWaitNodeParams *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7457,7 +7457,7 @@ int handle_cudaGraphExternalSemaphoresWaitNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraphNode_t hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    struct cudaExternalSemaphoreWaitNodeParams *nodeParams;
+    struct cudaExternalSemaphoreWaitNodeParams *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7491,7 +7491,7 @@ int handle_cudaGraphAddMemAllocNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7561,7 +7561,7 @@ int handle_cudaGraphAddMemFreeNode(void *args0) {
     rpc_read(client, &pGraphNode, sizeof(pGraphNode));
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *pDependencies;
+    cudaGraphNode_t *pDependencies = nullptr;
     rpc_read(client, &pDependencies, sizeof(pDependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7997,9 +7997,9 @@ int handle_cudaGraphAddDependencies(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *from;
+    cudaGraphNode_t *from = nullptr;
     rpc_read(client, &from, sizeof(from));
-    cudaGraphNode_t *to;
+    cudaGraphNode_t *to = nullptr;
     rpc_read(client, &to, sizeof(to));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -8033,9 +8033,9 @@ int handle_cudaGraphRemoveDependencies(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     cudaGraph_t graph;
     rpc_read(client, &graph, sizeof(graph));
-    cudaGraphNode_t *from;
+    cudaGraphNode_t *from = nullptr;
     rpc_read(client, &from, sizeof(from));
-    cudaGraphNode_t *to;
+    cudaGraphNode_t *to = nullptr;
     rpc_read(client, &to, sizeof(to));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -8175,7 +8175,7 @@ int handle_cudaGraphExecKernelNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaKernelNodeParams *pNodeParams;
+    struct cudaKernelNodeParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8209,7 +8209,7 @@ int handle_cudaGraphExecMemcpyNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaMemcpy3DParms *pNodeParams;
+    struct cudaMemcpy3DParms *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     void *_0sptr;
     rpc_read(client, &_0sptr, sizeof(_0sptr));
@@ -8375,7 +8375,7 @@ int handle_cudaGraphExecMemsetNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaMemsetParams *pNodeParams;
+    struct cudaMemsetParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8409,7 +8409,7 @@ int handle_cudaGraphExecHostNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraphNode_t node;
     rpc_read(client, &node, sizeof(node));
-    struct cudaHostNodeParams *pNodeParams;
+    struct cudaHostNodeParams *pNodeParams = nullptr;
     rpc_read(client, &pNodeParams, sizeof(pNodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8545,7 +8545,7 @@ int handle_cudaGraphExecExternalSemaphoresSignalNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraphNode_t hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    struct cudaExternalSemaphoreSignalNodeParams *nodeParams;
+    struct cudaExternalSemaphoreSignalNodeParams *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8579,7 +8579,7 @@ int handle_cudaGraphExecExternalSemaphoresWaitNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     cudaGraphNode_t hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    struct cudaExternalSemaphoreWaitNodeParams *nodeParams;
+    struct cudaExternalSemaphoreWaitNodeParams *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {
@@ -9012,7 +9012,7 @@ int handle_cudaGetExportTable(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     const void *ppExportTable;
-    cudaUUID_t *pExportTableId;
+    cudaUUID_t *pExportTableId = nullptr;
     rpc_read(client, &pExportTableId, sizeof(pExportTableId));
     cudaError_t _result;
     if(rpc_prepare_response(client) != 0) {

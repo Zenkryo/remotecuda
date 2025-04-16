@@ -7149,7 +7149,7 @@ int handle_nvmlDeviceCreateGpuInstanceWithPlacement(void *args0) {
     rpc_read(client, &device, sizeof(device));
     unsigned int profileId;
     rpc_read(client, &profileId, sizeof(profileId));
-    nvmlGpuInstancePlacement_t *placement;
+    nvmlGpuInstancePlacement_t *placement = nullptr;
     rpc_read(client, &placement, sizeof(placement));
     nvmlGpuInstance_t *gpuInstance;
     rpc_read(client, &gpuInstance, sizeof(gpuInstance));

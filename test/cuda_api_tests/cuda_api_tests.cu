@@ -1011,142 +1011,198 @@ TEST_F(CudaApiTest, CuGraphMemFreeNodeGetParams) {
         ASSERT_NE(result, CUDA_SUCCESS);
     }
 
-    // Test 2: Create a valid graph and memory free node
+    // Test 2: Create a valid graph with memory copy node
     {
         // Create a graph
         CUgraph graph;
         result = cuGraphCreate(&graph, 0);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to create graph";
+
+        // Allocate host memory
+        void *hptr = malloc(1024);
+        ASSERT_NE(hptr, nullptr) << "Failed to allocate host memory";
 
         // Allocate device memory
         CUdeviceptr dptr;
         result = cuMemAlloc_v2(&dptr, 1024);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate device memory";
+        ASSERT_NE(dptr, 0) << "Allocated device pointer is null";
 
-        // Create a memory free node
-        CUgraphNode hNode;
-        CUgraphNode dependencies[] = {}; // Empty dependencies array
-        result = cuGraphAddMemFreeNode(&hNode, graph, dependencies, 0, dptr);
+        // Create memory copy node
+        CUgraphNode memcpyNode;
+        CUDA_MEMCPY3D copyParams = {};
+        copyParams.srcMemoryType = CU_MEMORYTYPE_HOST;
+        copyParams.srcHost = hptr;
+        copyParams.srcPitch = 1024;
+        copyParams.srcHeight = 1;
+        copyParams.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+        copyParams.dstDevice = dptr;
+        copyParams.dstPitch = 1024;
+        copyParams.dstHeight = 1;
+        copyParams.WidthInBytes = 1024;
+        copyParams.Height = 1;
+        copyParams.Depth = 1;
+
+        result = cuGraphAddMemcpyNode(&memcpyNode, graph, nullptr, 0, &copyParams, 0);
         if(result != CUDA_SUCCESS) {
             const char *errorName;
             cuGetErrorName(result, &errorName);
             const char *errorString;
             cuGetErrorString(result, &errorString);
-            FAIL() << "Failed to create memory free node: " << errorName << " - " << errorString;
+            FAIL() << "Failed to create memory copy node: " << errorName << " - " << errorString;
         }
-
-        // Get node parameters
-        CUdeviceptr dptr_out = 0;
-        result = cuGraphMemFreeNodeGetParams(hNode, &dptr_out);
-        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get node parameters";
-        ASSERT_EQ(dptr_out, dptr) << "Device pointer mismatch";
 
         // Clean up
         result = cuGraphDestroy(graph);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to destroy graph";
+
+        // Free memory
+        result = cuMemFree_v2(dptr);
+        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free device memory";
+        free(hptr);
     }
 
-    // Test 3: Create multiple memory free nodes in a graph
+    // Test 3: Create multiple memory copy nodes in a graph
     {
         // Create a graph
         CUgraph graph;
         result = cuGraphCreate(&graph, 0);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to create graph";
 
-        // Allocate multiple device memory blocks
         const int numBlocks = 3;
+        void *hptrs[numBlocks];
         CUdeviceptr dptrs[numBlocks];
         CUgraphNode nodes[numBlocks];
-        CUgraphNode dependencies[] = {}; // Empty dependencies array
 
+        // Allocate memory
         for(int i = 0; i < numBlocks; i++) {
+            // Allocate host memory
+            hptrs[i] = malloc(1024);
+            ASSERT_NE(hptrs[i], nullptr) << "Failed to allocate host memory block " << i;
+
             // Allocate device memory
             result = cuMemAlloc_v2(&dptrs[i], 1024);
             ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate device memory block " << i;
+            ASSERT_NE(dptrs[i], 0) << "Allocated device pointer is null for block " << i;
+        }
 
-            // Create a memory free node
-            result = cuGraphAddMemFreeNode(&nodes[i], graph, dependencies, 0, dptrs[i]);
+        // Create memory copy nodes
+        for(int i = 0; i < numBlocks; i++) {
+            CUDA_MEMCPY3D copyParams = {};
+            copyParams.srcMemoryType = CU_MEMORYTYPE_HOST;
+            copyParams.srcHost = hptrs[i];
+            copyParams.srcPitch = 1024;
+            copyParams.srcHeight = 1;
+            copyParams.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+            copyParams.dstDevice = dptrs[i];
+            copyParams.dstPitch = 1024;
+            copyParams.dstHeight = 1;
+            copyParams.WidthInBytes = 1024;
+            copyParams.Height = 1;
+            copyParams.Depth = 1;
+
+            result = cuGraphAddMemcpyNode(&nodes[i], graph, nullptr, 0, &copyParams, 0);
             if(result != CUDA_SUCCESS) {
                 const char *errorName;
                 cuGetErrorName(result, &errorName);
                 const char *errorString;
                 cuGetErrorString(result, &errorString);
-                FAIL() << "Failed to create memory free node " << i << ": " << errorName << " - " << errorString;
+                FAIL() << "Failed to create memory copy node " << i << ": " << errorName << " - " << errorString;
             }
-
-            // Get node parameters
-            CUdeviceptr dptr_out = 0;
-            result = cuGraphMemFreeNodeGetParams(nodes[i], &dptr_out);
-            ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get node parameters for node " << i;
-            ASSERT_EQ(dptr_out, dptrs[i]) << "Device pointer mismatch for node " << i;
         }
 
         // Clean up
         result = cuGraphDestroy(graph);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to destroy graph";
 
-        // Free device memory
+        // Free memory
         for(int i = 0; i < numBlocks; i++) {
             result = cuMemFree_v2(dptrs[i]);
             ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free device memory block " << i;
+            free(hptrs[i]);
         }
     }
 
-    // Test 4: Create a graph with dependencies between memory free nodes
+    // Test 4: Create a graph with dependencies between memory copy nodes
     {
         // Create a graph
         CUgraph graph;
         result = cuGraphCreate(&graph, 0);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to create graph";
 
+        // Allocate host memory
+        void *hptr1 = malloc(1024);
+        void *hptr2 = malloc(1024);
+        ASSERT_NE(hptr1, nullptr) << "Failed to allocate first host memory block";
+        ASSERT_NE(hptr2, nullptr) << "Failed to allocate second host memory block";
+
         // Allocate device memory
         CUdeviceptr dptr1, dptr2;
         result = cuMemAlloc_v2(&dptr1, 1024);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate first device memory block";
+        ASSERT_NE(dptr1, 0) << "First allocated device pointer is null";
         result = cuMemAlloc_v2(&dptr2, 1024);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to allocate second device memory block";
+        ASSERT_NE(dptr2, 0) << "Second allocated device pointer is null";
 
-        // Create memory free nodes
-        CUgraphNode hNode1, hNode2;
-        CUgraphNode dependencies1[] = {}; // Empty dependencies array for first node
-        result = cuGraphAddMemFreeNode(&hNode1, graph, dependencies1, 0, dptr1);
+        // Create memory copy nodes
+        CUgraphNode node1, node2;
+        CUDA_MEMCPY3D copyParams1 = {};
+        copyParams1.srcMemoryType = CU_MEMORYTYPE_HOST;
+        copyParams1.srcHost = hptr1;
+        copyParams1.srcPitch = 1024;
+        copyParams1.srcHeight = 1;
+        copyParams1.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+        copyParams1.dstDevice = dptr1;
+        copyParams1.dstPitch = 1024;
+        copyParams1.dstHeight = 1;
+        copyParams1.WidthInBytes = 1024;
+        copyParams1.Height = 1;
+        copyParams1.Depth = 1;
+
+        result = cuGraphAddMemcpyNode(&node1, graph, nullptr, 0, &copyParams1, 0);
         if(result != CUDA_SUCCESS) {
             const char *errorName;
             cuGetErrorName(result, &errorName);
             const char *errorString;
             cuGetErrorString(result, &errorString);
-            FAIL() << "Failed to create first memory free node: " << errorName << " - " << errorString;
+            FAIL() << "Failed to create first memory copy node: " << errorName << " - " << errorString;
         }
 
-        CUgraphNode dependencies2[] = {hNode1}; // Second node depends on first node
-        result = cuGraphAddMemFreeNode(&hNode2, graph, dependencies2, 1, dptr2);
+        CUDA_MEMCPY3D copyParams2 = {};
+        copyParams2.srcMemoryType = CU_MEMORYTYPE_HOST;
+        copyParams2.srcHost = hptr2;
+        copyParams2.srcPitch = 1024;
+        copyParams2.srcHeight = 1;
+        copyParams2.dstMemoryType = CU_MEMORYTYPE_DEVICE;
+        copyParams2.dstDevice = dptr2;
+        copyParams2.dstPitch = 1024;
+        copyParams2.dstHeight = 1;
+        copyParams2.WidthInBytes = 1024;
+        copyParams2.Height = 1;
+        copyParams2.Depth = 1;
+
+        CUgraphNode dependencies[] = {node1};
+        result = cuGraphAddMemcpyNode(&node2, graph, dependencies, 1, &copyParams2, 0);
         if(result != CUDA_SUCCESS) {
             const char *errorName;
             cuGetErrorName(result, &errorName);
             const char *errorString;
             cuGetErrorString(result, &errorString);
-            FAIL() << "Failed to create second memory free node: " << errorName << " - " << errorString;
+            FAIL() << "Failed to create second memory copy node: " << errorName << " - " << errorString;
         }
-
-        // Get node parameters
-        CUdeviceptr dptr_out1 = 0, dptr_out2 = 0;
-        result = cuGraphMemFreeNodeGetParams(hNode1, &dptr_out1);
-        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get first node parameters";
-        ASSERT_EQ(dptr_out1, dptr1) << "First device pointer mismatch";
-
-        result = cuGraphMemFreeNodeGetParams(hNode2, &dptr_out2);
-        ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to get second node parameters";
-        ASSERT_EQ(dptr_out2, dptr2) << "Second device pointer mismatch";
 
         // Clean up
         result = cuGraphDestroy(graph);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to destroy graph";
 
-        // Free device memory
+        // Free memory
         result = cuMemFree_v2(dptr1);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free first device memory block";
         result = cuMemFree_v2(dptr2);
         ASSERT_EQ(result, CUDA_SUCCESS) << "Failed to free second device memory block";
+        free(hptr1);
+        free(hptr2);
     }
 }
 

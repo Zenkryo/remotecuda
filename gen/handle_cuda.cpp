@@ -2620,7 +2620,7 @@ int handle_cuMemcpy2D_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY2D *pCopy;
+    CUDA_MEMCPY2D *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2650,7 +2650,7 @@ int handle_cuMemcpy2DUnaligned_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY2D *pCopy;
+    CUDA_MEMCPY2D *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2680,7 +2680,7 @@ int handle_cuMemcpy3D_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY3D *pCopy;
+    CUDA_MEMCPY3D *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -2710,7 +2710,7 @@ int handle_cuMemcpy3DPeer(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY3D_PEER *pCopy;
+    CUDA_MEMCPY3D_PEER *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3000,7 +3000,7 @@ int handle_cuMemcpy2DAsync_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY2D *pCopy;
+    CUDA_MEMCPY2D *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUstream hStream;
     rpc_read(client, &hStream, sizeof(hStream));
@@ -3032,7 +3032,7 @@ int handle_cuMemcpy3DAsync_v2(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY3D *pCopy;
+    CUDA_MEMCPY3D *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUstream hStream;
     rpc_read(client, &hStream, sizeof(hStream));
@@ -3064,7 +3064,7 @@ int handle_cuMemcpy3DPeerAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUDA_MEMCPY3D_PEER *pCopy;
+    CUDA_MEMCPY3D_PEER *pCopy = nullptr;
     rpc_read(client, &pCopy, sizeof(pCopy));
     CUstream hStream;
     rpc_read(client, &hStream, sizeof(hStream));
@@ -3542,7 +3542,7 @@ int handle_cuArrayCreate_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUarray *pHandle;
     rpc_read(client, &pHandle, sizeof(pHandle));
-    CUDA_ARRAY_DESCRIPTOR *pAllocateArray;
+    CUDA_ARRAY_DESCRIPTOR *pAllocateArray = nullptr;
     rpc_read(client, &pAllocateArray, sizeof(pAllocateArray));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3734,7 +3734,7 @@ int handle_cuArray3DCreate_v2(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUarray *pHandle;
     rpc_read(client, &pHandle, sizeof(pHandle));
-    CUDA_ARRAY3D_DESCRIPTOR *pAllocateArray;
+    CUDA_ARRAY3D_DESCRIPTOR *pAllocateArray = nullptr;
     rpc_read(client, &pAllocateArray, sizeof(pAllocateArray));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -3798,7 +3798,7 @@ int handle_cuMipmappedArrayCreate(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUmipmappedArray *pHandle;
     rpc_read(client, &pHandle, sizeof(pHandle));
-    CUDA_ARRAY3D_DESCRIPTOR *pMipmappedArrayDesc;
+    CUDA_ARRAY3D_DESCRIPTOR *pMipmappedArrayDesc = nullptr;
     rpc_read(client, &pMipmappedArrayDesc, sizeof(pMipmappedArrayDesc));
     unsigned int numMipmapLevels;
     rpc_read(client, &numMipmapLevels, sizeof(numMipmapLevels));
@@ -3996,7 +3996,7 @@ int handle_cuMemSetAccess(void *args0) {
     rpc_read(client, &ptr, sizeof(ptr));
     size_t size;
     rpc_read(client, &size, sizeof(size));
-    CUmemAccessDesc *desc;
+    CUmemAccessDesc *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     size_t count;
     rpc_read(client, &count, sizeof(count));
@@ -4030,7 +4030,7 @@ int handle_cuMemGetAccess(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     unsigned long long *flags;
     rpc_read(client, &flags, sizeof(flags));
-    CUmemLocation *location;
+    CUmemLocation *location = nullptr;
     rpc_read(client, &location, sizeof(location));
     CUdeviceptr ptr;
     rpc_read(client, &ptr, sizeof(ptr));
@@ -4134,7 +4134,7 @@ int handle_cuMemGetAllocationGranularity(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     size_t *granularity;
     rpc_read(client, &granularity, sizeof(granularity));
-    CUmemAllocationProp *prop;
+    CUmemAllocationProp *prop = nullptr;
     rpc_read(client, &prop, sizeof(prop));
     CUmemAllocationGranularity_flags option;
     rpc_read(client, &option, sizeof(option));
@@ -4398,7 +4398,7 @@ int handle_cuMemPoolSetAccess(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUmemoryPool pool;
     rpc_read(client, &pool, sizeof(pool));
-    CUmemAccessDesc *map;
+    CUmemAccessDesc *map = nullptr;
     rpc_read(client, &map, sizeof(map));
     size_t count;
     rpc_read(client, &count, sizeof(count));
@@ -4466,7 +4466,7 @@ int handle_cuMemPoolCreate(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUmemoryPool *pool;
     rpc_read(client, &pool, sizeof(pool));
-    CUmemPoolProps *poolProps;
+    CUmemPoolProps *poolProps = nullptr;
     rpc_read(client, &poolProps, sizeof(poolProps));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5508,7 +5508,7 @@ int handle_cuStreamSetAttribute(void *args0) {
     rpc_read(client, &hStream, sizeof(hStream));
     CUstreamAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    CUstreamAttrValue *value;
+    CUstreamAttrValue *value = nullptr;
     rpc_read(client, &value, sizeof(value));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5764,7 +5764,7 @@ int handle_cuExternalMemoryGetMappedMipmappedArray(void *args0) {
     rpc_read(client, &mipmap, sizeof(mipmap));
     CUexternalMemory extMem;
     rpc_read(client, &extMem, sizeof(extMem));
-    CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC *mipmapDesc;
+    CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC *mipmapDesc = nullptr;
     rpc_read(client, &mipmapDesc, sizeof(mipmapDesc));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5826,7 +5826,7 @@ int handle_cuImportExternalSemaphore(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUexternalSemaphore *extSem_out;
     rpc_read(client, &extSem_out, sizeof(extSem_out));
-    CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC *semHandleDesc;
+    CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC *semHandleDesc = nullptr;
     rpc_read(client, &semHandleDesc, sizeof(semHandleDesc));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -5856,9 +5856,9 @@ int handle_cuSignalExternalSemaphoresAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUexternalSemaphore *extSemArray;
+    CUexternalSemaphore *extSemArray = nullptr;
     rpc_read(client, &extSemArray, sizeof(extSemArray));
-    CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS *paramsArray;
+    CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS *paramsArray = nullptr;
     rpc_read(client, &paramsArray, sizeof(paramsArray));
     unsigned int numExtSems;
     rpc_read(client, &numExtSems, sizeof(numExtSems));
@@ -5892,9 +5892,9 @@ int handle_cuWaitExternalSemaphoresAsync(void *args0) {
     int rtn = 0;
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
-    CUexternalSemaphore *extSemArray;
+    CUexternalSemaphore *extSemArray = nullptr;
     rpc_read(client, &extSemArray, sizeof(extSemArray));
-    CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS *paramsArray;
+    CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS *paramsArray = nullptr;
     rpc_read(client, &paramsArray, sizeof(paramsArray));
     unsigned int numExtSems;
     rpc_read(client, &numExtSems, sizeof(numExtSems));
@@ -6800,11 +6800,11 @@ int handle_cuGraphAddKernelNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    CUDA_KERNEL_NODE_PARAMS *nodeParams;
+    CUDA_KERNEL_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6868,7 +6868,7 @@ int handle_cuGraphKernelNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_KERNEL_NODE_PARAMS *nodeParams;
+    CUDA_KERNEL_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -6902,11 +6902,11 @@ int handle_cuGraphAddMemcpyNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    CUDA_MEMCPY3D *copyParams;
+    CUDA_MEMCPY3D *copyParams = nullptr;
     rpc_read(client, &copyParams, sizeof(copyParams));
     CUcontext ctx;
     rpc_read(client, &ctx, sizeof(ctx));
@@ -6972,7 +6972,7 @@ int handle_cuGraphMemcpyNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_MEMCPY3D *nodeParams;
+    CUDA_MEMCPY3D *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7006,11 +7006,11 @@ int handle_cuGraphAddMemsetNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    CUDA_MEMSET_NODE_PARAMS *memsetParams;
+    CUDA_MEMSET_NODE_PARAMS *memsetParams = nullptr;
     rpc_read(client, &memsetParams, sizeof(memsetParams));
     CUcontext ctx;
     rpc_read(client, &ctx, sizeof(ctx));
@@ -7076,7 +7076,7 @@ int handle_cuGraphMemsetNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_MEMSET_NODE_PARAMS *nodeParams;
+    CUDA_MEMSET_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7110,11 +7110,11 @@ int handle_cuGraphAddHostNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    CUDA_HOST_NODE_PARAMS *nodeParams;
+    CUDA_HOST_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7178,7 +7178,7 @@ int handle_cuGraphHostNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_HOST_NODE_PARAMS *nodeParams;
+    CUDA_HOST_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7212,7 +7212,7 @@ int handle_cuGraphAddChildGraphNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7282,7 +7282,7 @@ int handle_cuGraphAddEmptyNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7318,7 +7318,7 @@ int handle_cuGraphAddEventRecordNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7420,7 +7420,7 @@ int handle_cuGraphAddEventWaitNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7522,11 +7522,11 @@ int handle_cuGraphAddExternalSemaphoresSignalNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS *nodeParams;
+    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7590,7 +7590,7 @@ int handle_cuGraphExternalSemaphoresSignalNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS *nodeParams;
+    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7624,11 +7624,11 @@ int handle_cuGraphAddExternalSemaphoresWaitNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
-    CUDA_EXT_SEM_WAIT_NODE_PARAMS *nodeParams;
+    CUDA_EXT_SEM_WAIT_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7692,7 +7692,7 @@ int handle_cuGraphExternalSemaphoresWaitNodeSetParams(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_EXT_SEM_WAIT_NODE_PARAMS *nodeParams;
+    CUDA_EXT_SEM_WAIT_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -7726,7 +7726,7 @@ int handle_cuGraphAddMemAllocNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -7796,7 +7796,7 @@ int handle_cuGraphAddMemFreeNode(void *args0) {
     rpc_read(client, &phGraphNode, sizeof(phGraphNode));
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *dependencies;
+    CUgraphNode *dependencies = nullptr;
     rpc_read(client, &dependencies, sizeof(dependencies));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -8200,9 +8200,9 @@ int handle_cuGraphAddDependencies(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *from;
+    CUgraphNode *from = nullptr;
     rpc_read(client, &from, sizeof(from));
-    CUgraphNode *to;
+    CUgraphNode *to = nullptr;
     rpc_read(client, &to, sizeof(to));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -8236,9 +8236,9 @@ int handle_cuGraphRemoveDependencies(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUgraph hGraph;
     rpc_read(client, &hGraph, sizeof(hGraph));
-    CUgraphNode *from;
+    CUgraphNode *from = nullptr;
     rpc_read(client, &from, sizeof(from));
-    CUgraphNode *to;
+    CUgraphNode *to = nullptr;
     rpc_read(client, &to, sizeof(to));
     size_t numDependencies;
     rpc_read(client, &numDependencies, sizeof(numDependencies));
@@ -8378,7 +8378,7 @@ int handle_cuGraphExecKernelNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_KERNEL_NODE_PARAMS *nodeParams;
+    CUDA_KERNEL_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8412,7 +8412,7 @@ int handle_cuGraphExecMemcpyNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_MEMCPY3D *copyParams;
+    CUDA_MEMCPY3D *copyParams = nullptr;
     rpc_read(client, &copyParams, sizeof(copyParams));
     CUcontext ctx;
     rpc_read(client, &ctx, sizeof(ctx));
@@ -8448,7 +8448,7 @@ int handle_cuGraphExecMemsetNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_MEMSET_NODE_PARAMS *memsetParams;
+    CUDA_MEMSET_NODE_PARAMS *memsetParams = nullptr;
     rpc_read(client, &memsetParams, sizeof(memsetParams));
     CUcontext ctx;
     rpc_read(client, &ctx, sizeof(ctx));
@@ -8484,7 +8484,7 @@ int handle_cuGraphExecHostNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_HOST_NODE_PARAMS *nodeParams;
+    CUDA_HOST_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8620,7 +8620,7 @@ int handle_cuGraphExecExternalSemaphoresSignalNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS *nodeParams;
+    CUDA_EXT_SEM_SIGNAL_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8654,7 +8654,7 @@ int handle_cuGraphExecExternalSemaphoresWaitNodeSetParams(void *args0) {
     rpc_read(client, &hGraphExec, sizeof(hGraphExec));
     CUgraphNode hNode;
     rpc_read(client, &hNode, sizeof(hNode));
-    CUDA_EXT_SEM_WAIT_NODE_PARAMS *nodeParams;
+    CUDA_EXT_SEM_WAIT_NODE_PARAMS *nodeParams = nullptr;
     rpc_read(client, &nodeParams, sizeof(nodeParams));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -8914,7 +8914,7 @@ int handle_cuGraphKernelNodeSetAttribute(void *args0) {
     rpc_read(client, &hNode, sizeof(hNode));
     CUkernelNodeAttrID attr;
     rpc_read(client, &attr, sizeof(attr));
-    CUkernelNodeAttrValue *value;
+    CUkernelNodeAttrValue *value = nullptr;
     rpc_read(client, &value, sizeof(value));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -9449,7 +9449,7 @@ int handle_cuTexRefSetAddress2D_v3(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUtexref hTexRef;
     rpc_read(client, &hTexRef, sizeof(hTexRef));
-    CUDA_ARRAY_DESCRIPTOR *desc;
+    CUDA_ARRAY_DESCRIPTOR *desc = nullptr;
     rpc_read(client, &desc, sizeof(desc));
     CUdeviceptr dptr;
     rpc_read(client, &dptr, sizeof(dptr));
@@ -10263,11 +10263,11 @@ int handle_cuTexObjectCreate(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUtexObject *pTexObject;
     rpc_read(client, &pTexObject, sizeof(pTexObject));
-    CUDA_RESOURCE_DESC *pResDesc;
+    CUDA_RESOURCE_DESC *pResDesc = nullptr;
     rpc_read(client, &pResDesc, sizeof(pResDesc));
-    CUDA_TEXTURE_DESC *pTexDesc;
+    CUDA_TEXTURE_DESC *pTexDesc = nullptr;
     rpc_read(client, &pTexDesc, sizeof(pTexDesc));
-    CUDA_RESOURCE_VIEW_DESC *pResViewDesc;
+    CUDA_RESOURCE_VIEW_DESC *pResViewDesc = nullptr;
     rpc_read(client, &pResViewDesc, sizeof(pResViewDesc));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -10425,7 +10425,7 @@ int handle_cuSurfObjectCreate(void *args0) {
     RpcClient *client = (RpcClient *)args0;
     CUsurfObject *pSurfObject;
     rpc_read(client, &pSurfObject, sizeof(pSurfObject));
-    CUDA_RESOURCE_DESC *pResDesc;
+    CUDA_RESOURCE_DESC *pResDesc = nullptr;
     rpc_read(client, &pResDesc, sizeof(pResDesc));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {
@@ -10848,7 +10848,7 @@ int handle_cuGetExportTable(void *args0) {
     std::set<void *> buffers;
     RpcClient *client = (RpcClient *)args0;
     const void *ppExportTable;
-    CUuuid *pExportTableId;
+    CUuuid *pExportTableId = nullptr;
     rpc_read(client, &pExportTableId, sizeof(pExportTableId));
     CUresult _result;
     if(rpc_prepare_response(client) != 0) {

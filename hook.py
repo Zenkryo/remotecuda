@@ -474,7 +474,7 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    }}\n")
     else:
         if position == 0:
-            f.write(f"    {param_type_name} *{param.name};\n")
+            f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
             f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    void *_0sptr;\n")
