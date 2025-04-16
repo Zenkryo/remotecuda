@@ -1147,7 +1147,7 @@ int handle_cuLibraryGetGlobal(void *args0) {
     return 0;
 }
 
-int handle_cuLibraryGetManaged(void *args) {
+int handle_cuLibraryGetManaged(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cuLibraryGetManaged called" << std::endl;
 #endif
