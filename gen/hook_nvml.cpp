@@ -151,7 +151,9 @@ extern "C" nvmlReturn_t nvmlSystemGetDriverVersion(char *version, unsigned int l
     }
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlSystemGetDriverVersion);
-    rpc_read(client, version, length, true);
+    if(length > 0) {
+        rpc_read(client, version, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -193,7 +195,9 @@ extern "C" nvmlReturn_t nvmlSystemGetNVMLVersion(char *version, unsigned int len
     }
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlSystemGetNVMLVersion);
-    rpc_read(client, version, length, true);
+    if(length > 0) {
+        rpc_read(client, version, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -324,7 +328,9 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlSystemGetProcessName);
     rpc_write(client, &pid, sizeof(pid));
-    rpc_read(client, name, length, true);
+    if(length > 0) {
+        rpc_read(client, name, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1048,7 +1054,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetName(nvmlDevice_t device, char *name, unsig
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetName);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, name, length, true);
+    if(length > 0) {
+        rpc_read(client, name, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1181,7 +1189,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetSerial);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, serial, length, true);
+    if(length > 0) {
+        rpc_read(client, serial, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1638,7 +1648,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetUUID);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, uuid, length, true);
+    if(length > 0) {
+        rpc_read(client, uuid, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1681,7 +1693,9 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInsta
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetMdevUUID);
     rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_read(client, mdevUuid, size, true);
+    if(size > 0) {
+        rpc_read(client, mdevUuid, size, true);
+    }
     rpc_write(client, &size, sizeof(size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1769,7 +1783,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char *
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetBoardPartNumber);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, partNumber, length, true);
+    if(length > 0) {
+        rpc_read(client, partNumber, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1813,7 +1829,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInf
     rpc_prepare_request(client, RPC_nvmlDeviceGetInforomVersion);
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &object, sizeof(object));
-    rpc_read(client, version, length, true);
+    if(length > 0) {
+        rpc_read(client, version, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1856,7 +1874,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, ch
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetInforomImageVersion);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, version, length, true);
+    if(length > 0) {
+        rpc_read(client, version, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -4618,7 +4638,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char *ver
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetVbiosVersion);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, version, length, true);
+    if(length > 0) {
+        rpc_read(client, version, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7619,7 +7641,9 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuTypeGetClass);
     rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_read(client, vgpuTypeClass, *size, true);
+    if(*size > 0) {
+        rpc_read(client, vgpuTypeClass, *size, true);
+    }
     rpc_write(client, &_0size, sizeof(_0size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7665,7 +7689,9 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuTypeGetName);
     rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_read(client, vgpuTypeName, *size, true);
+    if(*size > 0) {
+        rpc_read(client, vgpuTypeName, *size, true);
+    }
     rpc_write(client, &_0size, sizeof(_0size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7943,7 +7969,9 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuTypeGetLicense);
     rpc_write(client, &vgpuTypeId, sizeof(vgpuTypeId));
-    rpc_read(client, vgpuTypeLicenseString, size, true);
+    if(size > 0) {
+        rpc_read(client, vgpuTypeLicenseString, size, true);
+    }
     rpc_write(client, &size, sizeof(size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8173,7 +8201,9 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetVmID);
     rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_read(client, vmId, size, true);
+    if(size > 0) {
+        rpc_read(client, vmId, size, true);
+    }
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &_0vmIdType, sizeof(_0vmIdType));
     rpc_read(client, &_result, sizeof(_result));
@@ -8218,7 +8248,9 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance,
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetUUID);
     rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_read(client, uuid, size, true);
+    if(size > 0) {
+        rpc_read(client, uuid, size, true);
+    }
     rpc_write(client, &size, sizeof(size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8261,7 +8293,9 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vg
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlVgpuInstanceGetVmDriverVersion);
     rpc_write(client, &vgpuInstance, sizeof(vgpuInstance));
-    rpc_read(client, version, length, true);
+    if(length > 0) {
+        rpc_read(client, version, length, true);
+    }
     rpc_write(client, &length, sizeof(length));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9009,7 +9043,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
     nvmlReturn_t _result;
     rpc_prepare_request(client, RPC_nvmlDeviceGetPgpuMetadataString);
     rpc_write(client, &device, sizeof(device));
-    rpc_read(client, pgpuMetadata, *bufferSize, true);
+    if(*bufferSize > 0) {
+        rpc_read(client, pgpuMetadata, *bufferSize, true);
+    }
     rpc_write(client, &_0bufferSize, sizeof(_0bufferSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {

@@ -146,7 +146,9 @@ int handle_cuDeviceGetName(void *args0) {
         goto _RTN_;
     }
     _result = cuDeviceGetName(name, len, dev);
-    rpc_write(client, name, strlen(name) + 1, true);
+    if(len > 0) {
+        rpc_write(client, name, strlen(name) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -244,7 +246,9 @@ int handle_cuDeviceGetLuid(void *args0) {
         goto _RTN_;
     }
     _result = cuDeviceGetLuid(luid, deviceNodeMask, dev);
-    rpc_write(client, luid, strlen(luid) + 1, true);
+    if(32 > 0) {
+        rpc_write(client, luid, strlen(luid) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -2046,7 +2050,9 @@ int handle_cuDeviceGetPCIBusId(void *args0) {
         goto _RTN_;
     }
     _result = cuDeviceGetPCIBusId(pciBusId, len, dev);
-    rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
+    if(len > 0) {
+        rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8310,7 +8316,9 @@ int handle_cuGraphInstantiate_v2(void *args0) {
         goto _RTN_;
     }
     _result = cuGraphInstantiate_v2(phGraphExec, hGraph, phErrorNode, logBuffer, bufferSize);
-    rpc_write(client, logBuffer, strlen(logBuffer) + 1, true);
+    if(bufferSize > 0) {
+        rpc_write(client, logBuffer, strlen(logBuffer) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

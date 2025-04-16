@@ -332,10 +332,21 @@ def getPointerLength(function, param):
 
 # 处理值类型参数
 def handle_param_type(function, param, f, is_client=True, position=0):
+    param_type_name = param.type.format()
     if is_client:
+        if position == 0:
+            if param_type_name == "CUdeviceptr":
+                f.write(f"    void *_0{param.name};\n")
+                f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, -1);\n")
         # 客户端写入参数的值
-        if position == 1:
-            f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+        elif position == 1:
+            if param_type_name == "CUdeviceptr":
+                f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            else:
+                f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+        elif position == 3:
+            if param_type_name == "CUdeviceptr":
+                f.write(f"    mem2client(client, (void *){param.name}, -1);\n")
     else:
         if position == 0:
             # 服务器端定义同名变量

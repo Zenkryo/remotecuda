@@ -108,7 +108,9 @@ int handle_nvmlSystemGetDriverVersion(void *args0) {
         goto _RTN_;
     }
     _result = nvmlSystemGetDriverVersion(version, length);
-    rpc_write(client, version, strlen(version) + 1, true);
+    if(length > 0) {
+        rpc_write(client, version, strlen(version) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -140,7 +142,9 @@ int handle_nvmlSystemGetNVMLVersion(void *args0) {
         goto _RTN_;
     }
     _result = nvmlSystemGetNVMLVersion(version, length);
-    rpc_write(client, version, strlen(version) + 1, true);
+    if(length > 0) {
+        rpc_write(client, version, strlen(version) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -234,7 +238,9 @@ int handle_nvmlSystemGetProcessName(void *args0) {
         goto _RTN_;
     }
     _result = nvmlSystemGetProcessName(pid, name, length);
-    rpc_write(client, name, strlen(name) + 1, true);
+    if(length > 0) {
+        rpc_write(client, name, strlen(name) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -751,7 +757,9 @@ int handle_nvmlDeviceGetName(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetName(device, name, length);
-    rpc_write(client, name, strlen(name) + 1, true);
+    if(length > 0) {
+        rpc_write(client, name, strlen(name) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -849,7 +857,9 @@ int handle_nvmlDeviceGetSerial(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetSerial(device, serial, length);
-    rpc_write(client, serial, strlen(serial) + 1, true);
+    if(length > 0) {
+        rpc_write(client, serial, strlen(serial) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1189,7 +1199,9 @@ int handle_nvmlDeviceGetUUID(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetUUID(device, uuid, length);
-    rpc_write(client, uuid, strlen(uuid) + 1, true);
+    if(length > 0) {
+        rpc_write(client, uuid, strlen(uuid) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1223,7 +1235,9 @@ int handle_nvmlVgpuInstanceGetMdevUUID(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuInstanceGetMdevUUID(vgpuInstance, mdevUuid, size);
-    rpc_write(client, mdevUuid, strlen(mdevUuid) + 1, true);
+    if(size > 0) {
+        rpc_write(client, mdevUuid, strlen(mdevUuid) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1289,7 +1303,9 @@ int handle_nvmlDeviceGetBoardPartNumber(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetBoardPartNumber(device, partNumber, length);
-    rpc_write(client, partNumber, strlen(partNumber) + 1, true);
+    if(length > 0) {
+        rpc_write(client, partNumber, strlen(partNumber) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1325,7 +1341,9 @@ int handle_nvmlDeviceGetInforomVersion(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetInforomVersion(device, object, version, length);
-    rpc_write(client, version, strlen(version) + 1, true);
+    if(length > 0) {
+        rpc_write(client, version, strlen(version) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -1359,7 +1377,9 @@ int handle_nvmlDeviceGetInforomImageVersion(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetInforomImageVersion(device, version, length);
-    rpc_write(client, version, strlen(version) + 1, true);
+    if(length > 0) {
+        rpc_write(client, version, strlen(version) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -3349,7 +3369,9 @@ int handle_nvmlDeviceGetVbiosVersion(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetVbiosVersion(device, version, length);
-    rpc_write(client, version, strlen(version) + 1, true);
+    if(length > 0) {
+        rpc_write(client, version, strlen(version) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5555,7 +5577,9 @@ int handle_nvmlVgpuTypeGetClass(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuTypeGetClass(vgpuTypeId, vgpuTypeClass, size);
-    rpc_write(client, vgpuTypeClass, strlen(vgpuTypeClass) + 1, true);
+    if(*size > 0) {
+        rpc_write(client, vgpuTypeClass, strlen(vgpuTypeClass) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5589,7 +5613,9 @@ int handle_nvmlVgpuTypeGetName(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuTypeGetName(vgpuTypeId, vgpuTypeName, size);
-    rpc_write(client, vgpuTypeName, strlen(vgpuTypeName) + 1, true);
+    if(*size > 0) {
+        rpc_write(client, vgpuTypeName, strlen(vgpuTypeName) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5789,7 +5815,9 @@ int handle_nvmlVgpuTypeGetLicense(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuTypeGetLicense(vgpuTypeId, vgpuTypeLicenseString, size);
-    rpc_write(client, vgpuTypeLicenseString, strlen(vgpuTypeLicenseString) + 1, true);
+    if(size > 0) {
+        rpc_write(client, vgpuTypeLicenseString, strlen(vgpuTypeLicenseString) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5957,7 +5985,9 @@ int handle_nvmlVgpuInstanceGetVmID(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuInstanceGetVmID(vgpuInstance, vmId, size, vmIdType);
-    rpc_write(client, vmId, strlen(vmId) + 1, true);
+    if(size > 0) {
+        rpc_write(client, vmId, strlen(vmId) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -5991,7 +6021,9 @@ int handle_nvmlVgpuInstanceGetUUID(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuInstanceGetUUID(vgpuInstance, uuid, size);
-    rpc_write(client, uuid, strlen(uuid) + 1, true);
+    if(size > 0) {
+        rpc_write(client, uuid, strlen(uuid) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6025,7 +6057,9 @@ int handle_nvmlVgpuInstanceGetVmDriverVersion(void *args0) {
         goto _RTN_;
     }
     _result = nvmlVgpuInstanceGetVmDriverVersion(vgpuInstance, version, length);
-    rpc_write(client, version, strlen(version) + 1, true);
+    if(length > 0) {
+        rpc_write(client, version, strlen(version) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -6553,7 +6587,9 @@ int handle_nvmlDeviceGetPgpuMetadataString(void *args0) {
         goto _RTN_;
     }
     _result = nvmlDeviceGetPgpuMetadataString(device, pgpuMetadata, bufferSize);
-    rpc_write(client, pgpuMetadata, strlen(pgpuMetadata) + 1, true);
+    if(*bufferSize > 0) {
+        rpc_write(client, pgpuMetadata, strlen(pgpuMetadata) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

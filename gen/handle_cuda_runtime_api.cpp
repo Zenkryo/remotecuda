@@ -363,7 +363,9 @@ int handle_cudaDeviceGetPCIBusId(void *args0) {
         goto _RTN_;
     }
     _result = cudaDeviceGetPCIBusId(pciBusId, len, device);
-    rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
+    if(len > 0) {
+        rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
@@ -8071,7 +8073,9 @@ int handle_cudaGraphInstantiate(void *args0) {
         goto _RTN_;
     }
     _result = cudaGraphInstantiate(pGraphExec, graph, pErrorNode, pLogBuffer, bufferSize);
-    rpc_write(client, pLogBuffer, strlen(pLogBuffer) + 1, true);
+    if(bufferSize > 0) {
+        rpc_write(client, pLogBuffer, strlen(pLogBuffer) + 1, true);
+    }
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;

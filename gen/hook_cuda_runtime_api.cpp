@@ -509,7 +509,9 @@ extern "C" cudaError_t cudaDeviceGetPCIBusId(char *pciBusId, int len, int device
     }
     cudaError_t _result;
     rpc_prepare_request(client, RPC_cudaDeviceGetPCIBusId);
-    rpc_read(client, pciBusId, len, true);
+    if(len > 0) {
+        rpc_read(client, pciBusId, len, true);
+    }
     rpc_write(client, &len, sizeof(len));
     rpc_write(client, &device, sizeof(device));
     rpc_read(client, &_result, sizeof(_result));
@@ -11063,7 +11065,9 @@ extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGra
     rpc_write(client, &_0pGraphExec, sizeof(_0pGraphExec));
     rpc_write(client, &graph, sizeof(graph));
     rpc_write(client, &_0pErrorNode, sizeof(_0pErrorNode));
-    rpc_read(client, pLogBuffer, bufferSize, true);
+    if(bufferSize > 0) {
+        rpc_read(client, pLogBuffer, bufferSize, true);
+    }
     rpc_write(client, &bufferSize, sizeof(bufferSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
