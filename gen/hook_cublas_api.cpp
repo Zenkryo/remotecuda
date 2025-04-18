@@ -7,7 +7,8 @@
 extern void *(*real_dlsym)(void *, const char *);
 
 extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
-extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
+extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);
 void *get_so_handle(const std::string &so_file);
 int sizeofType(cudaDataType type);
 extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
@@ -34,6 +35,7 @@ extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
     cublasStatus_t _result;
     rpc_prepare_request(client, RPC_cublasCreate_v2);
     rpc_write(client, &_0handle, sizeof(_0handle));
+    updateTmpPtr((void *)handle, _0handle);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -41,7 +43,7 @@ extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)handle, sizeof(*handle));
+    mem2client(client, (void *)handle, sizeof(*handle), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -120,6 +122,7 @@ extern "C" cublasStatus_t cublasGetVersion_v2(cublasHandle_t handle, int *versio
     rpc_prepare_request(client, RPC_cublasGetVersion_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0version, sizeof(_0version));
+    updateTmpPtr((void *)version, _0version);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -127,7 +130,7 @@ extern "C" cublasStatus_t cublasGetVersion_v2(cublasHandle_t handle, int *versio
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)version, sizeof(*version));
+    mem2client(client, (void *)version, sizeof(*version), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -165,6 +168,7 @@ extern "C" cublasStatus_t cublasGetProperty(libraryPropertyType type, int *value
     rpc_prepare_request(client, RPC_cublasGetProperty);
     rpc_write(client, &type, sizeof(type));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -172,7 +176,7 @@ extern "C" cublasStatus_t cublasGetProperty(libraryPropertyType type, int *value
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value));
+    mem2client(client, (void *)value, sizeof(*value), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -250,6 +254,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
     rpc_prepare_request(client, RPC_cublasSetWorkspace_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0workspace, sizeof(_0workspace));
+    updateTmpPtr((void *)workspace, _0workspace);
     rpc_write(client, &workspaceSizeInBytes, sizeof(workspaceSizeInBytes));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -258,7 +263,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)workspace, workspaceSizeInBytes);
+    mem2client(client, (void *)workspace, workspaceSizeInBytes, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -338,6 +343,7 @@ extern "C" cublasStatus_t cublasGetStream_v2(cublasHandle_t handle, cudaStream_t
     rpc_prepare_request(client, RPC_cublasGetStream_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0streamId, sizeof(_0streamId));
+    updateTmpPtr((void *)streamId, _0streamId);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -345,7 +351,7 @@ extern "C" cublasStatus_t cublasGetStream_v2(cublasHandle_t handle, cudaStream_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)streamId, sizeof(*streamId));
+    mem2client(client, (void *)streamId, sizeof(*streamId), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -383,6 +389,7 @@ extern "C" cublasStatus_t cublasGetPointerMode_v2(cublasHandle_t handle, cublasP
     rpc_prepare_request(client, RPC_cublasGetPointerMode_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0mode, sizeof(_0mode));
+    updateTmpPtr((void *)mode, _0mode);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -390,7 +397,7 @@ extern "C" cublasStatus_t cublasGetPointerMode_v2(cublasHandle_t handle, cublasP
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mode, sizeof(*mode));
+    mem2client(client, (void *)mode, sizeof(*mode), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -470,6 +477,7 @@ extern "C" cublasStatus_t cublasGetAtomicsMode(cublasHandle_t handle, cublasAtom
     rpc_prepare_request(client, RPC_cublasGetAtomicsMode);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0mode, sizeof(_0mode));
+    updateTmpPtr((void *)mode, _0mode);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -477,7 +485,7 @@ extern "C" cublasStatus_t cublasGetAtomicsMode(cublasHandle_t handle, cublasAtom
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mode, sizeof(*mode));
+    mem2client(client, (void *)mode, sizeof(*mode), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -557,6 +565,7 @@ extern "C" cublasStatus_t cublasGetMathMode(cublasHandle_t handle, cublasMath_t 
     rpc_prepare_request(client, RPC_cublasGetMathMode);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0mode, sizeof(_0mode));
+    updateTmpPtr((void *)mode, _0mode);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -564,7 +573,7 @@ extern "C" cublasStatus_t cublasGetMathMode(cublasHandle_t handle, cublasMath_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mode, sizeof(*mode));
+    mem2client(client, (void *)mode, sizeof(*mode), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -644,6 +653,7 @@ extern "C" cublasStatus_t cublasGetSmCountTarget(cublasHandle_t handle, int *smC
     rpc_prepare_request(client, RPC_cublasGetSmCountTarget);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0smCountTarget, sizeof(_0smCountTarget));
+    updateTmpPtr((void *)smCountTarget, _0smCountTarget);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -651,7 +661,7 @@ extern "C" cublasStatus_t cublasGetSmCountTarget(cublasHandle_t handle, int *smC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)smCountTarget, sizeof(*smCountTarget));
+    mem2client(client, (void *)smCountTarget, sizeof(*smCountTarget), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -815,6 +825,7 @@ extern "C" cublasStatus_t cublasGetLoggerCallback(cublasLogCallback *userCallbac
     cublasStatus_t _result;
     rpc_prepare_request(client, RPC_cublasGetLoggerCallback);
     rpc_write(client, &_0userCallback, sizeof(_0userCallback));
+    updateTmpPtr((void *)userCallback, _0userCallback);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -822,7 +833,7 @@ extern "C" cublasStatus_t cublasGetLoggerCallback(cublasLogCallback *userCallbac
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)userCallback, sizeof(*userCallback));
+    mem2client(client, (void *)userCallback, sizeof(*userCallback), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -863,8 +874,10 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0devicePtr, sizeof(_0devicePtr));
+    updateTmpPtr((void *)devicePtr, _0devicePtr);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -873,8 +886,8 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * elemSize);
-    mem2client(client, (void *)devicePtr, n * elemSize);
+    mem2client(client, (void *)x, n * elemSize, true);
+    mem2client(client, (void *)devicePtr, n * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -915,8 +928,10 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -925,8 +940,8 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * elemSize);
-    mem2client(client, (void *)y, n * elemSize);
+    mem2client(client, (void *)x, n * elemSize, true);
+    mem2client(client, (void *)y, n * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -968,8 +983,10 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
     rpc_write(client, &cols, sizeof(cols));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -978,8 +995,8 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, rows * cols * elemSize);
-    mem2client(client, (void *)B, rows * cols * elemSize);
+    mem2client(client, (void *)A, rows * cols * elemSize, true);
+    mem2client(client, (void *)B, rows * cols * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1021,8 +1038,10 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
     rpc_write(client, &cols, sizeof(cols));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1031,8 +1050,8 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, rows * cols * elemSize);
-    mem2client(client, (void *)B, rows * cols * elemSize);
+    mem2client(client, (void *)A, rows * cols * elemSize, true);
+    mem2client(client, (void *)B, rows * cols * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1073,8 +1092,10 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0hostPtr, sizeof(_0hostPtr));
+    updateTmpPtr((void *)hostPtr, _0hostPtr);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0devicePtr, sizeof(_0devicePtr));
+    updateTmpPtr((void *)devicePtr, _0devicePtr);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
@@ -1084,8 +1105,8 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)hostPtr, n * elemSize);
-    mem2client(client, (void *)devicePtr, n * elemSize);
+    mem2client(client, (void *)hostPtr, n * elemSize, true);
+    mem2client(client, (void *)devicePtr, n * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1126,8 +1147,10 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0devicePtr, sizeof(_0devicePtr));
+    updateTmpPtr((void *)devicePtr, _0devicePtr);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0hostPtr, sizeof(_0hostPtr));
+    updateTmpPtr((void *)hostPtr, _0hostPtr);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
@@ -1137,8 +1160,8 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devicePtr, n * elemSize);
-    mem2client(client, (void *)hostPtr, n * elemSize);
+    mem2client(client, (void *)devicePtr, n * elemSize, true);
+    mem2client(client, (void *)hostPtr, n * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1180,8 +1203,10 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
     rpc_write(client, &cols, sizeof(cols));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
@@ -1191,8 +1216,8 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, rows * cols * elemSize);
-    mem2client(client, (void *)B, rows * cols * elemSize);
+    mem2client(client, (void *)A, rows * cols * elemSize, true);
+    mem2client(client, (void *)B, rows * cols * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1234,8 +1259,10 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
     rpc_write(client, &cols, sizeof(cols));
     rpc_write(client, &elemSize, sizeof(elemSize));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
@@ -1245,8 +1272,8 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, rows * cols * elemSize);
-    mem2client(client, (void *)B, rows * cols * elemSize);
+    mem2client(client, (void *)A, rows * cols * elemSize, true);
+    mem2client(client, (void *)B, rows * cols * elemSize, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1327,9 +1354,11 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_write(client, &resultType, sizeof(resultType));
     rpc_write(client, &executionType, sizeof(executionType));
     rpc_read(client, &_result, sizeof(_result));
@@ -1339,8 +1368,8 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)result, sizeofType(resultType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)result, sizeofType(resultType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1381,8 +1410,10 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1390,8 +1421,8 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1432,8 +1463,10 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1441,8 +1474,8 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1483,8 +1516,10 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1492,8 +1527,8 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1534,8 +1569,10 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1543,8 +1580,8 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1587,12 +1624,15 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_write(client, &resultType, sizeof(resultType));
     rpc_write(client, &executionType, sizeof(executionType));
     rpc_read(client, &_result, sizeof(_result));
@@ -1602,9 +1642,9 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
-    mem2client(client, (void *)result, sizeofType(resultType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
+    mem2client(client, (void *)result, sizeofType(resultType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1647,12 +1687,15 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_write(client, &resultType, sizeof(resultType));
     rpc_write(client, &executionType, sizeof(executionType));
     rpc_read(client, &_result, sizeof(_result));
@@ -1662,9 +1705,9 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
-    mem2client(client, (void *)result, sizeofType(resultType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
+    mem2client(client, (void *)result, sizeofType(resultType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1707,10 +1750,13 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1718,9 +1764,9 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1763,10 +1809,13 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1774,9 +1823,9 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1819,10 +1868,13 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1830,9 +1882,9 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1875,10 +1927,13 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1886,9 +1941,9 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1931,10 +1986,13 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1942,9 +2000,9 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1987,10 +2045,13 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1998,9 +2059,9 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2041,8 +2102,10 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &alphaType, sizeof(alphaType));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &executionType, sizeof(executionType));
@@ -2053,8 +2116,8 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeofType(alphaType));
-    mem2client(client, (void *)x, n * sizeofType(xType));
+    mem2client(client, (void *)alpha, sizeofType(alphaType), true);
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2095,7 +2158,9 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2104,8 +2169,8 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2146,7 +2211,9 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2155,8 +2222,8 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2197,7 +2264,9 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2206,8 +2275,8 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2248,7 +2317,9 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2257,8 +2328,8 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2299,7 +2370,9 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2308,8 +2381,8 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2350,7 +2423,9 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2359,8 +2434,8 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2403,11 +2478,14 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &alphaType, sizeof(alphaType));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &executiontype, sizeof(executiontype));
@@ -2418,9 +2496,9 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeofType(alphaType));
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)alpha, sizeofType(alphaType), true);
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2463,9 +2541,12 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2474,9 +2555,9 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2519,9 +2600,12 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2530,9 +2614,9 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2575,9 +2659,12 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2586,9 +2673,9 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2631,9 +2718,12 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2642,9 +2732,9 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2685,9 +2775,11 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
@@ -2697,8 +2789,8 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2739,8 +2831,10 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2749,8 +2843,8 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2791,8 +2885,10 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2801,8 +2897,8 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2843,8 +2939,10 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2853,8 +2951,8 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2895,8 +2993,10 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2905,8 +3005,8 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2947,8 +3047,10 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2957,8 +3059,8 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2999,8 +3101,10 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3009,8 +3113,8 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3051,8 +3155,10 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3061,8 +3167,8 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3103,8 +3209,10 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3113,8 +3221,8 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3155,9 +3263,11 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
@@ -3167,8 +3277,8 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3209,8 +3319,10 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3218,8 +3330,8 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3260,8 +3372,10 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3269,8 +3383,8 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3311,8 +3425,10 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3320,8 +3436,8 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3362,8 +3478,10 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3371,8 +3489,8 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3413,9 +3531,11 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3423,8 +3543,8 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3465,8 +3585,10 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3474,8 +3596,8 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3516,8 +3638,10 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3525,8 +3649,8 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3567,8 +3691,10 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3576,8 +3702,8 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3618,8 +3744,10 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3627,8 +3755,8 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3669,9 +3797,11 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3679,8 +3809,8 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3721,9 +3851,11 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_write(client, &resultType, sizeof(resultType));
     rpc_write(client, &executiontype, sizeof(executiontype));
     rpc_read(client, &_result, sizeof(_result));
@@ -3733,8 +3865,8 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)result, sizeofType(resultType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)result, sizeofType(resultType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3775,8 +3907,10 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3784,8 +3918,8 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3826,8 +3960,10 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3835,8 +3971,8 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3877,8 +4013,10 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3886,8 +4024,8 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3928,8 +4066,10 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3937,8 +4077,8 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)result, sizeof(*result));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)result, sizeof(*result), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3983,11 +4123,15 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3995,10 +4139,10 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4043,11 +4187,15 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4055,10 +4203,10 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4103,11 +4251,15 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4115,10 +4267,10 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4163,11 +4315,15 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4175,10 +4331,10 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4223,11 +4379,15 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4235,10 +4395,10 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4283,11 +4443,15 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4295,10 +4459,10 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4343,13 +4507,17 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_write(client, &csType, sizeof(csType));
     rpc_write(client, &executiontype, sizeof(executiontype));
     rpc_read(client, &_result, sizeof(_result));
@@ -4359,10 +4527,10 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
-    mem2client(client, (void *)c, sizeofType(csType));
-    mem2client(client, (void *)s, sizeofType(csType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
+    mem2client(client, (void *)c, sizeofType(csType), true);
+    mem2client(client, (void *)s, sizeofType(csType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4406,9 +4574,13 @@ extern "C" cublasStatus_t cublasSrotg_v2(cublasHandle_t handle, float *a, float 
     rpc_prepare_request(client, RPC_cublasSrotg_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0a, sizeof(_0a));
+    updateTmpPtr((void *)a, _0a);
     rpc_write(client, &_0b, sizeof(_0b));
+    updateTmpPtr((void *)b, _0b);
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4416,10 +4588,10 @@ extern "C" cublasStatus_t cublasSrotg_v2(cublasHandle_t handle, float *a, float 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)a, sizeof(*a));
-    mem2client(client, (void *)b, sizeof(*b));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)a, sizeof(*a), true);
+    mem2client(client, (void *)b, sizeof(*b), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4463,9 +4635,13 @@ extern "C" cublasStatus_t cublasDrotg_v2(cublasHandle_t handle, double *a, doubl
     rpc_prepare_request(client, RPC_cublasDrotg_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0a, sizeof(_0a));
+    updateTmpPtr((void *)a, _0a);
     rpc_write(client, &_0b, sizeof(_0b));
+    updateTmpPtr((void *)b, _0b);
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4473,10 +4649,10 @@ extern "C" cublasStatus_t cublasDrotg_v2(cublasHandle_t handle, double *a, doubl
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)a, sizeof(*a));
-    mem2client(client, (void *)b, sizeof(*b));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)a, sizeof(*a), true);
+    mem2client(client, (void *)b, sizeof(*b), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4520,9 +4696,13 @@ extern "C" cublasStatus_t cublasCrotg_v2(cublasHandle_t handle, cuComplex *a, cu
     rpc_prepare_request(client, RPC_cublasCrotg_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0a, sizeof(_0a));
+    updateTmpPtr((void *)a, _0a);
     rpc_write(client, &_0b, sizeof(_0b));
+    updateTmpPtr((void *)b, _0b);
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4530,10 +4710,10 @@ extern "C" cublasStatus_t cublasCrotg_v2(cublasHandle_t handle, cuComplex *a, cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)a, sizeof(*a));
-    mem2client(client, (void *)b, sizeof(*b));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)a, sizeof(*a), true);
+    mem2client(client, (void *)b, sizeof(*b), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4577,9 +4757,13 @@ extern "C" cublasStatus_t cublasZrotg_v2(cublasHandle_t handle, cuDoubleComplex 
     rpc_prepare_request(client, RPC_cublasZrotg_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0a, sizeof(_0a));
+    updateTmpPtr((void *)a, _0a);
     rpc_write(client, &_0b, sizeof(_0b));
+    updateTmpPtr((void *)b, _0b);
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4587,10 +4771,10 @@ extern "C" cublasStatus_t cublasZrotg_v2(cublasHandle_t handle, cuDoubleComplex 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)a, sizeof(*a));
-    mem2client(client, (void *)b, sizeof(*b));
-    mem2client(client, (void *)c, sizeof(*c));
-    mem2client(client, (void *)s, sizeof(*s));
+    mem2client(client, (void *)a, sizeof(*a), true);
+    mem2client(client, (void *)b, sizeof(*b), true);
+    mem2client(client, (void *)c, sizeof(*c), true);
+    mem2client(client, (void *)s, sizeof(*s), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4634,10 +4818,14 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
     rpc_prepare_request(client, RPC_cublasRotgEx);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0a, sizeof(_0a));
+    updateTmpPtr((void *)a, _0a);
     rpc_write(client, &_0b, sizeof(_0b));
+    updateTmpPtr((void *)b, _0b);
     rpc_write(client, &abType, sizeof(abType));
     rpc_write(client, &_0c, sizeof(_0c));
+    updateTmpPtr((void *)c, _0c);
     rpc_write(client, &_0s, sizeof(_0s));
+    updateTmpPtr((void *)s, _0s);
     rpc_write(client, &csType, sizeof(csType));
     rpc_write(client, &executiontype, sizeof(executiontype));
     rpc_read(client, &_result, sizeof(_result));
@@ -4647,10 +4835,10 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)a, sizeofType(abType));
-    mem2client(client, (void *)b, sizeofType(abType));
-    mem2client(client, (void *)c, sizeofType(csType));
-    mem2client(client, (void *)s, sizeofType(csType));
+    mem2client(client, (void *)a, sizeofType(abType), true);
+    mem2client(client, (void *)b, sizeofType(abType), true);
+    mem2client(client, (void *)c, sizeofType(csType), true);
+    mem2client(client, (void *)s, sizeofType(csType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4693,10 +4881,13 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0param, sizeof(_0param));
+    updateTmpPtr((void *)param, _0param);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4704,9 +4895,9 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)param, 5 * sizeof(*param));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)param, 5 * sizeof(*param), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4749,10 +4940,13 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0param, sizeof(_0param));
+    updateTmpPtr((void *)param, _0param);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4760,9 +4954,9 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)param, 5 * sizeof(*param));
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)param, 5 * sizeof(*param), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4805,12 +4999,15 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &xType, sizeof(xType));
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &yType, sizeof(yType));
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0param, sizeof(_0param));
+    updateTmpPtr((void *)param, _0param);
     rpc_write(client, &paramType, sizeof(paramType));
     rpc_write(client, &executiontype, sizeof(executiontype));
     rpc_read(client, &_result, sizeof(_result));
@@ -4820,9 +5017,9 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)x, n * sizeofType(xType));
-    mem2client(client, (void *)y, n * sizeofType(yType));
-    mem2client(client, (void *)param, 5 * sizeofType(paramType));
+    mem2client(client, (void *)x, n * sizeofType(xType), true);
+    mem2client(client, (void *)y, n * sizeofType(yType), true);
+    mem2client(client, (void *)param, 5 * sizeofType(paramType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4868,10 +5065,15 @@ extern "C" cublasStatus_t cublasSrotmg_v2(cublasHandle_t handle, float *d1, floa
     rpc_prepare_request(client, RPC_cublasSrotmg_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0d1, sizeof(_0d1));
+    updateTmpPtr((void *)d1, _0d1);
     rpc_write(client, &_0d2, sizeof(_0d2));
+    updateTmpPtr((void *)d2, _0d2);
     rpc_write(client, &_0x1, sizeof(_0x1));
+    updateTmpPtr((void *)x1, _0x1);
     rpc_write(client, &_0y1, sizeof(_0y1));
+    updateTmpPtr((void *)y1, _0y1);
     rpc_write(client, &_0param, sizeof(_0param));
+    updateTmpPtr((void *)param, _0param);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4879,11 +5081,11 @@ extern "C" cublasStatus_t cublasSrotmg_v2(cublasHandle_t handle, float *d1, floa
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)d1, sizeof(*d1));
-    mem2client(client, (void *)d2, sizeof(*d2));
-    mem2client(client, (void *)x1, sizeof(*x1));
-    mem2client(client, (void *)y1, sizeof(*y1));
-    mem2client(client, (void *)param, 5 * sizeof(*param));
+    mem2client(client, (void *)d1, sizeof(*d1), true);
+    mem2client(client, (void *)d2, sizeof(*d2), true);
+    mem2client(client, (void *)x1, sizeof(*x1), true);
+    mem2client(client, (void *)y1, sizeof(*y1), true);
+    mem2client(client, (void *)param, 5 * sizeof(*param), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4929,10 +5131,15 @@ extern "C" cublasStatus_t cublasDrotmg_v2(cublasHandle_t handle, double *d1, dou
     rpc_prepare_request(client, RPC_cublasDrotmg_v2);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0d1, sizeof(_0d1));
+    updateTmpPtr((void *)d1, _0d1);
     rpc_write(client, &_0d2, sizeof(_0d2));
+    updateTmpPtr((void *)d2, _0d2);
     rpc_write(client, &_0x1, sizeof(_0x1));
+    updateTmpPtr((void *)x1, _0x1);
     rpc_write(client, &_0y1, sizeof(_0y1));
+    updateTmpPtr((void *)y1, _0y1);
     rpc_write(client, &_0param, sizeof(_0param));
+    updateTmpPtr((void *)param, _0param);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4940,11 +5147,11 @@ extern "C" cublasStatus_t cublasDrotmg_v2(cublasHandle_t handle, double *d1, dou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)d1, sizeof(*d1));
-    mem2client(client, (void *)d2, sizeof(*d2));
-    mem2client(client, (void *)x1, sizeof(*x1));
-    mem2client(client, (void *)y1, sizeof(*y1));
-    mem2client(client, (void *)param, 5 * sizeof(*param));
+    mem2client(client, (void *)d1, sizeof(*d1), true);
+    mem2client(client, (void *)d2, sizeof(*d2), true);
+    mem2client(client, (void *)x1, sizeof(*x1), true);
+    mem2client(client, (void *)y1, sizeof(*y1), true);
+    mem2client(client, (void *)param, 5 * sizeof(*param), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4990,14 +5197,19 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
     rpc_prepare_request(client, RPC_cublasRotmgEx);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &_0d1, sizeof(_0d1));
+    updateTmpPtr((void *)d1, _0d1);
     rpc_write(client, &d1Type, sizeof(d1Type));
     rpc_write(client, &_0d2, sizeof(_0d2));
+    updateTmpPtr((void *)d2, _0d2);
     rpc_write(client, &d2Type, sizeof(d2Type));
     rpc_write(client, &_0x1, sizeof(_0x1));
+    updateTmpPtr((void *)x1, _0x1);
     rpc_write(client, &x1Type, sizeof(x1Type));
     rpc_write(client, &_0y1, sizeof(_0y1));
+    updateTmpPtr((void *)y1, _0y1);
     rpc_write(client, &y1Type, sizeof(y1Type));
     rpc_write(client, &_0param, sizeof(_0param));
+    updateTmpPtr((void *)param, _0param);
     rpc_write(client, &paramType, sizeof(paramType));
     rpc_write(client, &executiontype, sizeof(executiontype));
     rpc_read(client, &_result, sizeof(_result));
@@ -5007,11 +5219,11 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)d1, sizeofType(d1Type));
-    mem2client(client, (void *)d2, sizeofType(d2Type));
-    mem2client(client, (void *)x1, sizeofType(x1Type));
-    mem2client(client, (void *)y1, sizeofType(y1Type));
-    mem2client(client, (void *)param, 5 * sizeofType(paramType));
+    mem2client(client, (void *)d1, sizeofType(d1Type), true);
+    mem2client(client, (void *)d2, sizeofType(d2Type), true);
+    mem2client(client, (void *)x1, sizeofType(x1Type), true);
+    mem2client(client, (void *)y1, sizeofType(y1Type), true);
+    mem2client(client, (void *)param, 5 * sizeofType(paramType), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5060,12 +5272,17 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5074,11 +5291,11 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5127,12 +5344,17 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5141,11 +5363,11 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5194,12 +5416,17 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5208,11 +5435,11 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5261,12 +5488,17 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5275,11 +5507,11 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5330,12 +5562,17 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &kl, sizeof(kl));
     rpc_write(client, &ku, sizeof(ku));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5344,11 +5581,11 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, m * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, m * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5399,12 +5636,17 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &kl, sizeof(kl));
     rpc_write(client, &ku, sizeof(ku));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5413,11 +5655,11 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, m * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, m * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5468,12 +5710,17 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &kl, sizeof(kl));
     rpc_write(client, &ku, sizeof(ku));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5482,11 +5729,11 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, m * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, m * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5537,12 +5784,17 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &kl, sizeof(kl));
     rpc_write(client, &ku, sizeof(ku));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5551,11 +5803,11 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, m * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, m * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5599,8 +5851,10 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5609,8 +5863,8 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5654,8 +5908,10 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5664,8 +5920,8 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5709,8 +5965,10 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5719,8 +5977,8 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5764,8 +6022,10 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5774,8 +6034,8 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5820,8 +6080,10 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5830,8 +6092,8 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5876,8 +6138,10 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5886,8 +6150,8 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5932,8 +6196,10 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5942,8 +6208,8 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5988,8 +6254,10 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5998,8 +6266,8 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6043,7 +6311,9 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6052,8 +6322,8 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6097,7 +6367,9 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6106,8 +6378,8 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6151,7 +6423,9 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6160,8 +6434,8 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6205,7 +6479,9 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6214,8 +6490,8 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6259,8 +6535,10 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6269,8 +6547,8 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6314,8 +6592,10 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6324,8 +6604,8 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6369,8 +6649,10 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6379,8 +6661,8 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6424,8 +6706,10 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6434,8 +6718,8 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6479,7 +6763,9 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6488,8 +6774,8 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6533,7 +6819,9 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6542,8 +6830,8 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6587,7 +6875,9 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6596,8 +6886,8 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6641,7 +6931,9 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &diag, sizeof(diag));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6650,8 +6942,8 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6696,8 +6988,10 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6706,8 +7000,8 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6752,8 +7046,10 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6762,8 +7058,8 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6808,8 +7104,10 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6818,8 +7116,8 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6864,8 +7162,10 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6874,8 +7174,8 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6923,12 +7223,17 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6937,11 +7242,11 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6989,12 +7294,17 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7003,11 +7313,11 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7055,12 +7365,17 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7069,11 +7384,11 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7121,12 +7436,17 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7135,11 +7455,11 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7187,12 +7507,17 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7201,11 +7526,11 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7253,12 +7578,17 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7267,11 +7597,11 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7320,12 +7650,17 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7334,11 +7669,11 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7387,12 +7722,17 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7401,11 +7741,11 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7454,12 +7794,17 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7468,11 +7813,11 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7521,12 +7866,17 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7535,11 +7885,11 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7587,11 +7937,16 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7600,11 +7955,11 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7652,11 +8007,16 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7665,11 +8025,11 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7717,11 +8077,16 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7730,11 +8095,11 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7782,11 +8147,16 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7795,11 +8165,11 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)y, n * sizeof(*y));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7845,11 +8215,15 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7858,10 +8232,10 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, m * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, m * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7907,11 +8281,15 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7920,10 +8298,10 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, m * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, m * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7969,11 +8347,15 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7982,10 +8364,10 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, m * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, m * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8031,11 +8413,15 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8044,10 +8430,10 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, m * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, m * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8093,11 +8479,15 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8106,10 +8496,10 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, m * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, m * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8155,11 +8545,15 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8168,10 +8562,10 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, m * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, m * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8215,9 +8609,12 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8226,9 +8623,9 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8272,9 +8669,12 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8283,9 +8683,9 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8329,9 +8729,12 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8340,9 +8743,9 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8386,9 +8789,12 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8397,9 +8803,9 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8443,9 +8849,12 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8454,9 +8863,9 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8500,9 +8909,12 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8511,9 +8923,9 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8557,9 +8969,12 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8567,9 +8982,9 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8613,9 +9028,12 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8623,9 +9041,9 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8669,9 +9087,12 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8679,9 +9100,9 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8725,9 +9146,12 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8735,9 +9159,9 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8783,11 +9207,15 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8796,10 +9224,10 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8845,11 +9273,15 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8858,10 +9290,10 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8907,11 +9339,15 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8920,10 +9356,10 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8969,11 +9405,15 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8982,10 +9422,10 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9031,11 +9471,15 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9044,10 +9488,10 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9093,11 +9537,15 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9106,10 +9554,10 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9155,11 +9603,15 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9167,10 +9619,10 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9216,11 +9668,15 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9228,10 +9684,10 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9277,11 +9733,15 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9289,10 +9749,10 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9338,11 +9798,15 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0y, sizeof(_0y));
+    updateTmpPtr((void *)y, _0y);
     rpc_write(client, &incy, sizeof(incy));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9350,10 +9814,10 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)x, n * sizeof(*x));
-    mem2client(client, (void *)y, n * sizeof(*y));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)x, n * sizeof(*x), true);
+    mem2client(client, (void *)y, n * sizeof(*y), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9404,12 +9868,17 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9418,11 +9887,11 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9473,12 +9942,17 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9487,11 +9961,11 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9542,12 +10016,17 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9556,11 +10035,11 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9611,12 +10090,17 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9625,11 +10109,11 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9680,14 +10164,19 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &Btype, sizeof(Btype));
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -9697,11 +10186,11 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9752,12 +10241,17 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9766,11 +10260,11 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9821,12 +10315,17 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9835,11 +10334,11 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9890,12 +10389,17 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9904,11 +10408,11 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9959,14 +10463,19 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &Btype, sizeof(Btype));
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -9976,11 +10485,11 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10031,14 +10540,19 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &Btype, sizeof(Btype));
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -10048,11 +10562,11 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeofType(Atype), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeofType(Btype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10100,12 +10614,15 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &A_bias, sizeof(A_bias));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &B_bias, sizeof(B_bias));
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &C_bias, sizeof(C_bias));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &C_mult, sizeof(C_mult));
@@ -10117,9 +10634,9 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(client, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10167,10 +10684,14 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10179,10 +10700,10 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10230,10 +10751,14 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10242,10 +10767,10 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10293,10 +10818,14 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10305,10 +10834,10 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10356,10 +10885,14 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10368,10 +10901,10 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10419,11 +10952,15 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -10433,10 +10970,10 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10484,11 +11021,15 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -10498,10 +11039,10 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10549,10 +11090,14 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10561,10 +11106,10 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10612,10 +11157,14 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10624,10 +11173,10 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10675,11 +11224,15 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -10689,10 +11242,10 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10740,11 +11293,15 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &Atype, sizeof(Atype));
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &Ctype, sizeof(Ctype));
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
@@ -10754,10 +11311,10 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeofType(Ctype));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeofType(Ctype), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10807,12 +11364,17 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10821,11 +11383,11 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10875,12 +11437,17 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10889,11 +11456,11 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10943,12 +11510,17 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10957,11 +11529,11 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11011,12 +11583,17 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11025,11 +11602,11 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11079,12 +11656,17 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11093,11 +11675,11 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11147,12 +11729,17 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11161,11 +11748,11 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11215,12 +11802,17 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11229,11 +11821,11 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11283,12 +11875,17 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11297,11 +11894,11 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11351,12 +11948,17 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11365,11 +11967,11 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11419,12 +12021,17 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11433,11 +12040,11 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11487,12 +12094,17 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11501,11 +12113,11 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A));
-    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
+    mem2client(client, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11555,12 +12167,17 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11569,11 +12186,11 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, n * k * sizeof(*A));
-    mem2client(client, (void *)B, n * k * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, n * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, n * k * sizeof(*A), true);
+    mem2client(client, (void *)B, n * k * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, n * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11623,12 +12240,17 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11637,11 +12259,11 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11691,12 +12313,17 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11705,11 +12332,11 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11759,12 +12386,17 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11773,11 +12405,11 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11827,12 +12459,17 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11841,11 +12478,11 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11895,12 +12532,17 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11909,11 +12551,11 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11963,12 +12605,17 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11977,11 +12624,11 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12029,9 +12676,12 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12040,9 +12690,9 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12090,9 +12740,12 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12101,9 +12754,9 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12151,9 +12804,12 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12162,9 +12818,9 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12212,9 +12868,12 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12223,9 +12882,9 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12275,11 +12934,15 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12288,10 +12951,10 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12341,11 +13004,15 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12354,10 +13021,10 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12407,11 +13074,15 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12420,10 +13091,10 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12473,11 +13144,15 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12486,10 +13161,10 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12534,11 +13209,13 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, Aarray, sizeof(__half *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, Barray, sizeof(__half *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, Carray, sizeof(__half *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12549,8 +13226,8 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12595,11 +13272,13 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, Aarray, sizeof(float *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, Barray, sizeof(float *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, Carray, sizeof(float *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12610,8 +13289,8 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12656,11 +13335,13 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, Aarray, sizeof(double *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, Barray, sizeof(double *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, Carray, sizeof(double *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12671,8 +13352,8 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12717,11 +13398,13 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, Aarray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, Barray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, Carray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12732,8 +13415,8 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12778,11 +13461,13 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, Aarray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, Barray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, Carray, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12793,8 +13478,8 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12839,11 +13524,13 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, Aarray, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, Barray, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, Carray, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12854,8 +13541,8 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)beta, sizeof(*beta));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12906,14 +13593,19 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &strideA, sizeof(strideA));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &strideB, sizeof(strideB));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &strideC, sizeof(strideC));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12924,11 +13616,11 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * k * sizeof(*A));
-    mem2client(client, (void *)B, k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * k * sizeof(*A), true);
+    mem2client(client, (void *)B, k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12979,14 +13671,19 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &strideA, sizeof(strideA));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &strideB, sizeof(strideB));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &strideC, sizeof(strideC));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -12997,11 +13694,11 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * k * sizeof(*A));
-    mem2client(client, (void *)B, k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * k * sizeof(*A), true);
+    mem2client(client, (void *)B, k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13052,14 +13749,19 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &strideA, sizeof(strideA));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &strideB, sizeof(strideB));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &strideC, sizeof(strideC));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -13070,11 +13772,11 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * k * sizeof(*A));
-    mem2client(client, (void *)B, k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * k * sizeof(*A), true);
+    mem2client(client, (void *)B, k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13125,14 +13827,19 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &strideA, sizeof(strideA));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &strideB, sizeof(strideB));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &strideC, sizeof(strideC));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -13143,11 +13850,11 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * k * sizeof(*A));
-    mem2client(client, (void *)B, k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * k * sizeof(*A), true);
+    mem2client(client, (void *)B, k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13198,14 +13905,19 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &strideA, sizeof(strideA));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &strideB, sizeof(strideB));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &strideC, sizeof(strideC));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -13216,11 +13928,11 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * k * sizeof(*A));
-    mem2client(client, (void *)B, k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * k * sizeof(*A), true);
+    mem2client(client, (void *)B, k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13271,14 +13983,19 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &k, sizeof(k));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &strideA, sizeof(strideA));
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &strideB, sizeof(strideB));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &strideC, sizeof(strideC));
     rpc_write(client, &batchCount, sizeof(batchCount));
@@ -13289,11 +14006,11 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * k * sizeof(*A));
-    mem2client(client, (void *)B, k * n * sizeof(*B));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * k * sizeof(*A), true);
+    mem2client(client, (void *)B, k * n * sizeof(*B), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13343,12 +14060,17 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13357,11 +14079,11 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13411,12 +14133,17 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13425,11 +14152,11 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13479,12 +14206,17 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13493,11 +14225,11 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13547,12 +14279,17 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0beta, sizeof(_0beta));
+    updateTmpPtr((void *)beta, _0beta);
     rpc_write(client, &_0B, sizeof(_0B));
+    updateTmpPtr((void *)B, _0B);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13561,11 +14298,11 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)beta, sizeof(*beta));
-    mem2client(client, (void *)B, m * n * sizeof(*B));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)beta, sizeof(*beta), true);
+    mem2client(client, (void *)B, m * n * sizeof(*B), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13608,7 +14345,9 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
     rpc_write(client, A, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13617,8 +14356,8 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13661,7 +14400,9 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
     rpc_write(client, A, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13670,8 +14411,8 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13714,7 +14455,9 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
     rpc_write(client, A, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13723,8 +14466,8 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13767,7 +14510,9 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
     rpc_write(client, A, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13776,8 +14521,8 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13820,9 +14565,11 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
     rpc_write(client, A, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, C, sizeof(float *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13831,8 +14578,8 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13875,9 +14622,11 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
     rpc_write(client, A, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, C, sizeof(double *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13886,8 +14635,8 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13930,9 +14679,11 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
     rpc_write(client, A, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, C, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13941,8 +14692,8 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13985,9 +14736,11 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
     rpc_write(client, A, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0P, sizeof(_0P));
+    updateTmpPtr((void *)P, _0P);
     rpc_write(client, C, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13996,8 +14749,8 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)P, n * sizeof(*P));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)P, n * sizeof(*P), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14042,9 +14795,11 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, Aarray, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
+    updateTmpPtr((void *)devIpiv, _0devIpiv);
     rpc_write(client, Barray, sizeof(float *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14053,8 +14808,8 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14099,9 +14854,11 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, Aarray, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
+    updateTmpPtr((void *)devIpiv, _0devIpiv);
     rpc_write(client, Barray, sizeof(double *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14110,8 +14867,8 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14156,9 +14913,11 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, Aarray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
+    updateTmpPtr((void *)devIpiv, _0devIpiv);
     rpc_write(client, Barray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14167,8 +14926,8 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14213,9 +14972,11 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
     rpc_write(client, Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0devIpiv, sizeof(_0devIpiv));
+    updateTmpPtr((void *)devIpiv, _0devIpiv);
     rpc_write(client, Barray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &ldb, sizeof(ldb));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14224,8 +14985,8 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devIpiv, sizeof(*devIpiv));
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)devIpiv, sizeof(*devIpiv), true);
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14269,6 +15030,7 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, A, sizeof(float *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, B, sizeof(float *) * batchCount, true);
@@ -14281,7 +15043,7 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14325,6 +15087,7 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, A, sizeof(double *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, B, sizeof(double *) * batchCount, true);
@@ -14337,7 +15100,7 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14381,6 +15144,7 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, A, sizeof(cuComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, B, sizeof(cuComplex *) * batchCount, true);
@@ -14393,7 +15157,7 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14437,6 +15201,7 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
     rpc_write(client, A, sizeof(cuDoubleComplex *) * batchCount, true);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, B, sizeof(cuDoubleComplex *) * batchCount, true);
@@ -14449,7 +15214,7 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)alpha, sizeof(*alpha));
+    mem2client(client, (void *)alpha, sizeof(*alpha), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14492,6 +15257,7 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
     rpc_write(client, Ainv, sizeof(float *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14500,7 +15266,7 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14543,6 +15309,7 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
     rpc_write(client, Ainv, sizeof(double *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14551,7 +15318,7 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14594,6 +15361,7 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
     rpc_write(client, Ainv, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14602,7 +15370,7 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14645,6 +15413,7 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
     rpc_write(client, Ainv, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &lda_inv, sizeof(lda_inv));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14653,7 +15422,7 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14696,6 +15465,7 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, TauArray, sizeof(float *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14704,7 +15474,7 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14747,6 +15517,7 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, TauArray, sizeof(double *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14755,7 +15526,7 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14798,6 +15569,7 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, TauArray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14806,7 +15578,7 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14849,6 +15621,7 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, TauArray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14857,7 +15630,7 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
+    mem2client(client, (void *)info, sizeof(*info), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14905,7 +15678,9 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, Carray, sizeof(float *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14914,8 +15689,8 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
-    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    mem2client(client, (void *)info, sizeof(*info), true);
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14963,7 +15738,9 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, Carray, sizeof(double *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14972,8 +15749,8 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
-    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    mem2client(client, (void *)info, sizeof(*info), true);
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15021,7 +15798,9 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, Carray, sizeof(cuComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15030,8 +15809,8 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
-    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    mem2client(client, (void *)info, sizeof(*info), true);
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15079,7 +15858,9 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
     rpc_write(client, Carray, sizeof(cuDoubleComplex *) * batchSize, true);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_write(client, &_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
     rpc_write(client, &_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
     rpc_write(client, &batchSize, sizeof(batchSize));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15088,8 +15869,8 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)info, sizeof(*info));
-    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray));
+    mem2client(client, (void *)info, sizeof(*info), true);
+    mem2client(client, (void *)devInfoArray, sizeof(*devInfoArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15134,10 +15915,13 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15146,9 +15930,9 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15193,10 +15977,13 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15205,9 +15992,9 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15252,10 +16039,13 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15264,9 +16054,9 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15311,10 +16101,13 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
     rpc_write(client, &m, sizeof(m));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
     rpc_write(client, &incx, sizeof(incx));
     rpc_write(client, &_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
     rpc_write(client, &ldc, sizeof(ldc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15323,9 +16116,9 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, m * n * sizeof(*A));
-    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    mem2client(client, (void *)C, m * n * sizeof(*C));
+    mem2client(client, (void *)A, m * n * sizeof(*A), true);
+    mem2client(client, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(client, (void *)C, m * n * sizeof(*C), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15367,7 +16160,9 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15376,8 +16171,8 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15419,7 +16214,9 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15428,8 +16225,8 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15471,7 +16268,9 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15480,8 +16279,8 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15523,7 +16322,9 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -15532,8 +16333,8 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    mem2client(client, (void *)A, n * n * sizeof(*A));
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15575,8 +16376,10 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -15584,8 +16387,8 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15627,8 +16430,10 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -15636,8 +16441,8 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15679,8 +16484,10 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -15688,8 +16495,8 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -15731,8 +16538,10 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
     rpc_write(client, &uplo, sizeof(uplo));
     rpc_write(client, &n, sizeof(n));
     rpc_write(client, &_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
     rpc_write(client, &lda, sizeof(lda));
     rpc_write(client, &_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -15740,8 +16549,8 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)A, n * n * sizeof(*A));
-    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    mem2client(client, (void *)A, n * n * sizeof(*A), true);
+    mem2client(client, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {

@@ -33,7 +33,7 @@ int handle_mem2server(void *args0) {
         ptrs[i] = nullptr;
         // 读取服务器端指针
         if(read_one_now(client, &ptrs[i], sizeof(ptrs[i]), false) < 0) {
-            goto ERROR;
+            return 1;
         }
         if(ptrs[i] == (void *)0xffffffff) {
             break;
@@ -43,55 +43,55 @@ int handle_mem2server(void *args0) {
         // 读取数据大小
         size = 0;
         if(read_one_now(client, &size, sizeof(size), false) < 0) {
-            goto ERROR;
+            return 1;
         }
         if(ptrs[j] == nullptr && size > 0) {
             ptrs[j] = malloc(size);
             if(ptrs[j] == nullptr) {
                 std::cerr << "Failed to malloc" << std::endl;
-                goto ERROR;
+                return 1;
             }
-            client->tmpbufs.push(ptrs[j]);                // 保存临时内存地址
+            client->tmp_server_bufers.insert(ptrs[j]);    // 保存临时内存地址
             rpc_write(client, &ptrs[j], sizeof(ptrs[j])); // 返回服务器侧申请的内存地址
         }
         if(read_one_now(client, ptrs[j], size, false) < 0) {
-            goto ERROR;
+            return 1;
         }
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        goto ERROR;
+        return 1;
     }
     return 0;
-ERROR:
-    while(!client->tmpbufs.empty()) {
-        void *ptr = client->tmpbufs.front();
-        client->tmpbufs.pop();
-        free(ptr);
-    }
-    return 1;
 }
 
 int handle_mem2client(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function mem2client called" << std::endl;
 #endif
-    int ret = 0;
+    int ret = 1;
     RpcClient *client = (RpcClient *)args0;
     void *ptrs[32];
     size_t sizes[32];
+    int del_tmp_ptrs[32];
     std::vector<void *> ptrs2free;
     int i = 0;
     int j = 0;
     while(i++ < 32) {
         ptrs[i] = nullptr;
         sizes[i] = 0;
+        del_tmp_ptrs[i] = false;
         // 读取服务器端指针
         if(read_one_now(client, &ptrs[i], sizeof(ptrs[i]), false) < 0) {
             goto ERROR;
         }
+
         if(ptrs[i] == (void *)0xffffffff) {
             break;
+        }
+        // 读取是否删除临时指针
+        if(read_one_now(client, &del_tmp_ptrs[i], sizeof(del_tmp_ptrs[i]), false) < 0) {
+            goto ERROR;
         }
         // 读取数据大小
         if(read_one_now(client, &sizes[i], sizeof(sizes[i]), false) < 0) {
@@ -103,18 +103,22 @@ int handle_mem2client(void *args0) {
             continue;
         }
         if(ptrs[j] == nullptr) {
-            void *ptr = client->tmpbufs.front();
-            client->tmpbufs.pop();
-            rpc_write(client, ptr, sizes[j], true);
-            ptrs2free.push_back(ptr);
-        } else {
-            rpc_write(client, ptrs[j], sizes[j], true);
+            std::cerr << "WARNING: unknown server side host memory for client pointer: 0x" << std::hex << ptrs[j] << std::endl;
+            goto ERROR;
+        }
+        rpc_write(client, ptrs[j], sizes[j], true);
+        if(del_tmp_ptrs[j]) {
+            if(client->tmp_server_bufers.find(ptrs[j]) != client->tmp_server_bufers.end()) {
+                client->tmp_server_bufers.erase(ptrs[j]);
+                ptrs2free.push_back(ptrs[j]);
+            }
         }
     }
     if(rpc_submit_response(client) != 0) {
         std::cerr << "Failed to submit response" << std::endl;
-        ret = 1;
+        goto ERROR;
     }
+    ret = 0;
 ERROR:
     for(auto ptr : ptrs2free) {
         free(ptr);
@@ -283,8 +287,7 @@ int handle_cudaHostRegister(void *args0) {
             rtn = 1;
             goto _RTN_;
         }
-        // TODO: 需要释放ptr
-        client->server_host_mems.insert(ptr);
+        client->tmp_server_bufers.insert(ptr);
     }
     read_one_now(client, ptr, size, false);
     _result = cudaHostRegister(ptr, size, flags);

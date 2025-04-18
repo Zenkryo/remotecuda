@@ -62,6 +62,6 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
 
 extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
 
-extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
 
 #endif

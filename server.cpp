@@ -13,7 +13,7 @@
 #include "rpc.h"
 #include "server.h"
 
-#define THREAD_POOL_SIZE 10
+#define THREAD_POOL_SIZE 1
 
 // RPC服务器端结构
 typedef struct _RpcServer {
@@ -165,7 +165,10 @@ void *rpc_handle_client(void *arg) {
     }
 DONE:
     close(connfd);
-
+    for(auto it = client.tmp_server_bufers.begin(); it != client.tmp_server_bufers.end(); it++) {
+        free(*it);
+    }
+    client.tmp_server_bufers.clear();
     // 线程完成任务，标记为未使用
     pthread_mutex_lock(&server->mutex);
     server->thread_in_use[thread_index] = 0; // 标记线程为空闲

@@ -75,6 +75,9 @@ std::vector<FuncInfo> funcinfos;
 // 映射客户端主机内存地址到服务器主机内存地址
 std::map<void *, std::pair<void *, size_t>> cs_host_mems;
 
+// 映射客户端主机内存地址到服务器主机内存地址(临时内存)
+std::map<void *, std::pair<void *, size_t>> cs_host_tmp_mems;
+
 // 映射客户端统一内存地址到服务器统一内存地址
 std::map<void *, std::pair<void *, size_t>> cs_union_mems;
 
@@ -96,6 +99,10 @@ void *getServerHostPtr(void *clientPtr) {
     if(it2 != cs_host_mems.end()) {
         return it2->second.first;
     }
+    auto it3 = cs_host_tmp_mems.find(clientPtr);
+    if(it3 != cs_host_tmp_mems.end()) {
+        return it3->second.first;
+    }
     return nullptr;
 }
 
@@ -112,6 +119,16 @@ void freeDevPtr(void *ptr) {
         cs_union_mems.erase(ptr);
     } else if(server_dev_mems.find(ptr) != server_dev_mems.end()) {
         server_dev_mems.erase(ptr);
+    }
+}
+
+extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr) {
+    if(clientPtr == nullptr || serverPtr == nullptr) {
+        return;
+    }
+    auto it1 = cs_host_tmp_mems.find(clientPtr);
+    if(it1 != cs_host_tmp_mems.end()) {
+        it1->second.first = serverPtr;
     }
 }
 
@@ -541,6 +558,14 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
             }
         }
     }
+    if(ptr == nullptr) {
+        auto it = cs_host_tmp_mems.find(clientPtr);
+        if(it != cs_host_tmp_mems.end()) {
+            ptr = it->second.first;
+            *serverPtr = ptr;
+            memSize = it->second.second;
+        }
+    }
     // ptr为空表示clientPtr是未知的主机内存
     if(ptr == nullptr) {
         if(size == 0) { // 大小不知道，无法同步数据
@@ -559,6 +584,9 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
 
         // 读取服务器端内存指针
         rpc_read(client, serverPtr, sizeof(*serverPtr));
+
+        // 用于记录客户端内存地址和服务器端创建的临时内存地址之间的映射
+        cs_host_tmp_mems[clientPtr] = std::make_pair(nullptr, size);
     } else {
         // 写入服务器端内存指针
         void **tmp_ptr = (void **)malloc(sizeof(ptr));
@@ -573,7 +601,7 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
 }
 
 // 准备从服务器向客户端同步内存
-extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size) {
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr) {
 #ifdef DEBUG
     std::cout << "Hook: mem2client called " << clientPtr << " " << size << std::endl;
 #endif
@@ -626,6 +654,9 @@ extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size) {
             memSize = it->second.second;
         } else {
             for(auto it = cs_host_mems.begin(); it != cs_host_mems.end(); it++) {
+                if(it->second.first == nullptr) {
+                    continue;
+                }
                 if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
                     clientPtr = (void *)(uintptr_t)it->first; // 修改clientPtr到内存的起始位置
                     ptr = (void *)(uintptr_t)it->second.first;
@@ -635,32 +666,34 @@ extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size) {
             }
         }
     }
+    // ptr为空表示clientPtr是未知的主机内存, 查看是否在服务器端已经创建对应的临时内存
+    if(ptr == nullptr) {
+        auto it = cs_host_tmp_mems.find(clientPtr);
+        if(it != cs_host_tmp_mems.end()) {
+            ptr = it->second.first;
+            memSize = it->second.second;
+            if(del_tmp_ptr) {
+                cs_host_tmp_mems.erase(clientPtr);
+            }
+        }
+    }
     // ptr为空表示clientPtr是未知的主机内存
     if(ptr == nullptr) {
-        if(size <= 0) { // 大小不知道，无法同步数据
-            printf("WARNING: no size info for client host memory 0x%p\n", clientPtr);
-            return;
-        }
-        // 写入null指针
-        void **tmp_ptr = (void **)malloc(sizeof(ptr));
-        *tmp_ptr = ptr;
-        client->tmps4iov.insert(tmp_ptr);
-        rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
-
-        // 写入大小
-        ssize_t *tmp_size = (ssize_t *)malloc(sizeof(size));
-        *tmp_size = size;
-        client->tmps4iov.insert(tmp_size);
-        rpc_write(client, tmp_size, sizeof(*tmp_size));
-
-        // 读取数据到客户端内存
-        rpc_read(client, clientPtr, size, true);
-    } else if(memSize > 0) {
+        printf("WARNING: unknown server side host memory for client pointer: %p\n", clientPtr);
+        return;
+    }
+    if(memSize > 0) {
         // 写入服务器端内存指针
         void **tmp_ptr = (void **)malloc(sizeof(ptr));
         *tmp_ptr = ptr;
         client->tmps4iov.insert(tmp_ptr);
         rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
+
+        // 写入是否删除临时内存
+        int *int_ptr = (int *)malloc(sizeof(int));
+        *int_ptr = del_tmp_ptr;
+        client->tmps4iov.insert(int_ptr);
+        rpc_write(client, int_ptr, sizeof(*int_ptr));
 
         // 写入大小
         ssize_t *tmp_size = (ssize_t *)malloc(sizeof(size));
@@ -901,6 +934,7 @@ extern "C" cudaError_t cudaHostUnregister(void *ptr) {
         rpc_release_client(client);
         exit(1);
     }
+    cs_host_mems.erase(ptr);
     rpc_free_client(client);
     return _result;
 }
@@ -959,7 +993,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     }
     rpc_prepare_request(client, RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(client, *((void **)args[i]), -1);
+        mem2client(client, *((void **)args[i]), -1, true);
     }
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -1027,7 +1061,7 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
     }
     rpc_prepare_request(client, RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(client, *((void **)args[i]), -1);
+        mem2client(client, *((void **)args[i]), -1, true);
     }
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -1793,7 +1827,7 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
     }
     rpc_prepare_request(client, RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(client, *((void **)kernelParams[i]), -1);
+        mem2client(client, *((void **)kernelParams[i]), -1, true);
     }
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));

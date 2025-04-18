@@ -16,19 +16,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    "hidden_api.h": "/usr/local/cuda/lib64/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
+    ##"hidden_api.h": "/usr/local/cuda/lib64/libcudart.so",
+    ##"/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    ##"/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/libcudart.so",
+    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    ##"hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    ##"/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    ##"/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
@@ -342,11 +342,12 @@ def handle_param_type(function, param, f, is_client=True, position=0):
         elif position == 1:
             if param_type_name == "CUdeviceptr":
                 f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+                f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
             else:
                 f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
         elif position == 3:
             if param_type_name == "CUdeviceptr":
-                f.write(f"    mem2client(client, (void *){param.name}, -1);\n")
+                f.write(f"    mem2client(client, (void *){param.name}, -1, true);\n")
     else:
         if position == 0:
             # 服务器端定义同名变量
@@ -366,8 +367,9 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
             f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -384,8 +386,9 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
             f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -462,15 +465,18 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    }}\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    rpc_write(client, &_0sptr, sizeof(_0sptr));\n")
                 f.write(f"    rpc_write(client, &_0dptr, sizeof(_0dptr));\n")
+                f.write(f"    updateTmpPtr((void *){param.name}->srcPtr.ptr, _0sptr);\n")
+                f.write(f"    updateTmpPtr((void *){param.name}->dstPtr.ptr, _0dptr);\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    if({param.name} != nullptr) {{\n")
-                f.write(f"        mem2client(client, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
-                f.write(f"        mem2client(client, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
+                f.write(f"        mem2client(client, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize), false);\n")
+                f.write(f"        mem2client(client, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize), false);\n")
                 f.write(f"    }}\n")
     else:
         if position == 0:
@@ -506,15 +512,16 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
                 f.write(f"    }}\n")
         elif position == 1:
             f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    rpc_write(client, &_0sptr, sizeof(_0sptr));\n")
                 f.write(f"    rpc_write(client, &_0dptr, sizeof(_0dptr));\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len});\n")
+            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    if({param.name} != nullptr) {{\n")
-                f.write(f"        mem2client(client, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
-                f.write(f"        mem2client(client, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
+                f.write(f"        mem2client(client, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize), false);\n")
+                f.write(f"        mem2client(client, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize), false);\n")
                 f.write(f"    }}\n")
 
     else:
@@ -1585,7 +1592,8 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
         f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);\n')
-        f.write('extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);\n')
+        f.write('extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);\n')
+        f.write('extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
             f.write("int sizeofType(cudaDataType type);\n")

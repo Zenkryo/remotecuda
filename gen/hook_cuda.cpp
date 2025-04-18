@@ -7,7 +7,8 @@
 extern void *(*real_dlsym)(void *, const char *);
 
 extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
-extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
+extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);
 void *get_so_handle(const std::string &so_file);
 extern "C" CUresult cuInit(unsigned int Flags) {
 #ifdef DEBUG
@@ -74,6 +75,7 @@ extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDriverGetVersion);
     rpc_write(client, &_0driverVersion, sizeof(_0driverVersion));
+    updateTmpPtr((void *)driverVersion, _0driverVersion);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -81,7 +83,7 @@ extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)driverVersion, sizeof(*driverVersion));
+    mem2client(client, (void *)driverVersion, sizeof(*driverVersion), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -118,6 +120,7 @@ extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGet);
     rpc_write(client, &_0device, sizeof(_0device));
+    updateTmpPtr((void *)device, _0device);
     rpc_write(client, &ordinal, sizeof(ordinal));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -126,7 +129,7 @@ extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)device, sizeof(*device));
+    mem2client(client, (void *)device, sizeof(*device), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -163,6 +166,7 @@ extern "C" CUresult cuDeviceGetCount(int *count) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetCount);
     rpc_write(client, &_0count, sizeof(_0count));
+    updateTmpPtr((void *)count, _0count);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -170,7 +174,7 @@ extern "C" CUresult cuDeviceGetCount(int *count) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)count, sizeof(*count));
+    mem2client(client, (void *)count, sizeof(*count), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -252,6 +256,7 @@ extern "C" CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetUuid);
     rpc_write(client, &_0uuid, sizeof(_0uuid));
+    updateTmpPtr((void *)uuid, _0uuid);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -260,7 +265,7 @@ extern "C" CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)uuid, sizeof(*uuid));
+    mem2client(client, (void *)uuid, sizeof(*uuid), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -297,6 +302,7 @@ extern "C" CUresult cuDeviceGetUuid_v2(CUuuid *uuid, CUdevice dev) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetUuid_v2);
     rpc_write(client, &_0uuid, sizeof(_0uuid));
+    updateTmpPtr((void *)uuid, _0uuid);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -305,7 +311,7 @@ extern "C" CUresult cuDeviceGetUuid_v2(CUuuid *uuid, CUdevice dev) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)uuid, sizeof(*uuid));
+    mem2client(client, (void *)uuid, sizeof(*uuid), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -345,6 +351,7 @@ extern "C" CUresult cuDeviceGetLuid(char *luid, unsigned int *deviceNodeMask, CU
         rpc_read(client, luid, 32, true);
     }
     rpc_write(client, &_0deviceNodeMask, sizeof(_0deviceNodeMask));
+    updateTmpPtr((void *)deviceNodeMask, _0deviceNodeMask);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -353,7 +360,7 @@ extern "C" CUresult cuDeviceGetLuid(char *luid, unsigned int *deviceNodeMask, CU
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)deviceNodeMask, sizeof(*deviceNodeMask));
+    mem2client(client, (void *)deviceNodeMask, sizeof(*deviceNodeMask), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -390,6 +397,7 @@ extern "C" CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceTotalMem_v2);
     rpc_write(client, &_0bytes, sizeof(_0bytes));
+    updateTmpPtr((void *)bytes, _0bytes);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -398,7 +406,7 @@ extern "C" CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)bytes, sizeof(*bytes));
+    mem2client(client, (void *)bytes, sizeof(*bytes), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -435,6 +443,7 @@ extern "C" CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInElement
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetTexture1DLinearMaxWidth);
     rpc_write(client, &_0maxWidthInElements, sizeof(_0maxWidthInElements));
+    updateTmpPtr((void *)maxWidthInElements, _0maxWidthInElements);
     rpc_write(client, &format, sizeof(format));
     rpc_write(client, &numChannels, sizeof(numChannels));
     rpc_write(client, &dev, sizeof(dev));
@@ -445,7 +454,7 @@ extern "C" CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInElement
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)maxWidthInElements, sizeof(*maxWidthInElements));
+    mem2client(client, (void *)maxWidthInElements, sizeof(*maxWidthInElements), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -482,6 +491,7 @@ extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUd
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetAttribute);
     rpc_write(client, &_0pi, sizeof(_0pi));
+    updateTmpPtr((void *)pi, _0pi);
     rpc_write(client, &attrib, sizeof(attrib));
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
@@ -491,7 +501,7 @@ extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUd
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pi, sizeof(*pi));
+    mem2client(client, (void *)pi, sizeof(*pi), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -528,6 +538,7 @@ extern "C" CUresult cuDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList, CUde
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetNvSciSyncAttributes);
     rpc_write(client, &_0nvSciSyncAttrList, sizeof(_0nvSciSyncAttrList));
+    updateTmpPtr((void *)nvSciSyncAttrList, _0nvSciSyncAttrList);
     rpc_write(client, &dev, sizeof(dev));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -537,7 +548,7 @@ extern "C" CUresult cuDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList, CUde
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nvSciSyncAttrList, 0);
+    mem2client(client, (void *)nvSciSyncAttrList, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -616,6 +627,7 @@ extern "C" CUresult cuDeviceGetMemPool(CUmemoryPool *pool, CUdevice dev) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetMemPool);
     rpc_write(client, &_0pool, sizeof(_0pool));
+    updateTmpPtr((void *)pool, _0pool);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -624,7 +636,7 @@ extern "C" CUresult cuDeviceGetMemPool(CUmemoryPool *pool, CUdevice dev) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pool, sizeof(*pool));
+    mem2client(client, (void *)pool, sizeof(*pool), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -661,6 +673,7 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetDefaultMemPool);
     rpc_write(client, &_0pool_out, sizeof(_0pool_out));
+    updateTmpPtr((void *)pool_out, _0pool_out);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -669,7 +682,7 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pool_out, sizeof(*pool_out));
+    mem2client(client, (void *)pool_out, sizeof(*pool_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -706,6 +719,7 @@ extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetProperties);
     rpc_write(client, &_0prop, sizeof(_0prop));
+    updateTmpPtr((void *)prop, _0prop);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -714,7 +728,7 @@ extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)prop, sizeof(*prop));
+    mem2client(client, (void *)prop, sizeof(*prop), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -753,7 +767,9 @@ extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice d
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceComputeCapability);
     rpc_write(client, &_0major, sizeof(_0major));
+    updateTmpPtr((void *)major, _0major);
     rpc_write(client, &_0minor, sizeof(_0minor));
+    updateTmpPtr((void *)minor, _0minor);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -762,8 +778,8 @@ extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice d
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)major, sizeof(*major));
-    mem2client(client, (void *)minor, sizeof(*minor));
+    mem2client(client, (void *)major, sizeof(*major), true);
+    mem2client(client, (void *)minor, sizeof(*minor), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -800,6 +816,7 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxRetain);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -808,7 +825,7 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -931,7 +948,9 @@ extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags
     rpc_prepare_request(client, RPC_cuDevicePrimaryCtxGetState);
     rpc_write(client, &dev, sizeof(dev));
     rpc_write(client, &_0flags, sizeof(_0flags));
+    updateTmpPtr((void *)flags, _0flags);
     rpc_write(client, &_0active, sizeof(_0active));
+    updateTmpPtr((void *)active, _0active);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -939,8 +958,8 @@ extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags));
-    mem2client(client, (void *)active, sizeof(*active));
+    mem2client(client, (void *)flags, sizeof(*flags), true);
+    mem2client(client, (void *)active, sizeof(*active), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1018,6 +1037,7 @@ extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType t
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetExecAffinitySupport);
     rpc_write(client, &_0pi, sizeof(_0pi));
+    updateTmpPtr((void *)pi, _0pi);
     rpc_write(client, &type, sizeof(type));
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
@@ -1027,7 +1047,7 @@ extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pi, sizeof(*pi));
+    mem2client(client, (void *)pi, sizeof(*pi), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1064,6 +1084,7 @@ extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxCreate_v2);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_write(client, &flags, sizeof(flags));
     rpc_write(client, &dev, sizeof(dev));
     rpc_read(client, &_result, sizeof(_result));
@@ -1073,7 +1094,7 @@ extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1112,7 +1133,9 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxCreate_v3);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
+    updateTmpPtr((void *)paramsArray, _0paramsArray);
     rpc_write(client, &numParams, sizeof(numParams));
     rpc_write(client, &flags, sizeof(flags));
     rpc_write(client, &dev, sizeof(dev));
@@ -1123,8 +1146,8 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
-    mem2client(client, (void *)paramsArray, sizeof(*paramsArray));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
+    mem2client(client, (void *)paramsArray, sizeof(*paramsArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1243,6 +1266,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxPopCurrent_v2);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1250,7 +1274,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1328,6 +1352,7 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetCurrent);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1335,7 +1360,7 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1372,6 +1397,7 @@ extern "C" CUresult cuCtxGetDevice(CUdevice *device) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetDevice);
     rpc_write(client, &_0device, sizeof(_0device));
+    updateTmpPtr((void *)device, _0device);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1379,7 +1405,7 @@ extern "C" CUresult cuCtxGetDevice(CUdevice *device) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)device, sizeof(*device));
+    mem2client(client, (void *)device, sizeof(*device), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1416,6 +1442,7 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetFlags);
     rpc_write(client, &_0flags, sizeof(_0flags));
+    updateTmpPtr((void *)flags, _0flags);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1423,7 +1450,7 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags));
+    mem2client(client, (void *)flags, sizeof(*flags), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1542,6 +1569,7 @@ extern "C" CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetLimit);
     rpc_write(client, &_0pvalue, sizeof(_0pvalue));
+    updateTmpPtr((void *)pvalue, _0pvalue);
     rpc_write(client, &limit, sizeof(limit));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1550,7 +1578,7 @@ extern "C" CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pvalue, sizeof(*pvalue));
+    mem2client(client, (void *)pvalue, sizeof(*pvalue), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1587,6 +1615,7 @@ extern "C" CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetCacheConfig);
     rpc_write(client, &_0pconfig, sizeof(_0pconfig));
+    updateTmpPtr((void *)pconfig, _0pconfig);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1594,7 +1623,7 @@ extern "C" CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pconfig, sizeof(*pconfig));
+    mem2client(client, (void *)pconfig, sizeof(*pconfig), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1672,6 +1701,7 @@ extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetSharedMemConfig);
     rpc_write(client, &_0pConfig, sizeof(_0pConfig));
+    updateTmpPtr((void *)pConfig, _0pConfig);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1679,7 +1709,7 @@ extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pConfig, sizeof(*pConfig));
+    mem2client(client, (void *)pConfig, sizeof(*pConfig), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1758,6 +1788,7 @@ extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
     rpc_prepare_request(client, RPC_cuCtxGetApiVersion);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_write(client, &_0version, sizeof(_0version));
+    updateTmpPtr((void *)version, _0version);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1765,7 +1796,7 @@ extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)version, sizeof(*version));
+    mem2client(client, (void *)version, sizeof(*version), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1804,7 +1835,9 @@ extern "C" CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greates
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetStreamPriorityRange);
     rpc_write(client, &_0leastPriority, sizeof(_0leastPriority));
+    updateTmpPtr((void *)leastPriority, _0leastPriority);
     rpc_write(client, &_0greatestPriority, sizeof(_0greatestPriority));
+    updateTmpPtr((void *)greatestPriority, _0greatestPriority);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1812,8 +1845,8 @@ extern "C" CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greates
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)leastPriority, sizeof(*leastPriority));
-    mem2client(client, (void *)greatestPriority, sizeof(*greatestPriority));
+    mem2client(client, (void *)leastPriority, sizeof(*leastPriority), true);
+    mem2client(client, (void *)greatestPriority, sizeof(*greatestPriority), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1890,6 +1923,7 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxGetExecAffinity);
     rpc_write(client, &_0pExecAffinity, sizeof(_0pExecAffinity));
+    updateTmpPtr((void *)pExecAffinity, _0pExecAffinity);
     rpc_write(client, &type, sizeof(type));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1898,7 +1932,7 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pExecAffinity, sizeof(*pExecAffinity));
+    mem2client(client, (void *)pExecAffinity, sizeof(*pExecAffinity), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -1935,6 +1969,7 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuCtxAttach);
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -1943,7 +1978,7 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2021,6 +2056,7 @@ extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoad);
     rpc_write(client, &_0module, sizeof(_0module));
+    updateTmpPtr((void *)module, _0module);
     rpc_write(client, fname, strlen(fname) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2029,7 +2065,7 @@ extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)module, sizeof(*module));
+    mem2client(client, (void *)module, sizeof(*module), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2068,7 +2104,9 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoadData);
     rpc_write(client, &_0module, sizeof(_0module));
+    updateTmpPtr((void *)module, _0module);
     rpc_write(client, &_0image, sizeof(_0image));
+    updateTmpPtr((void *)image, _0image);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2076,8 +2114,8 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)module, sizeof(*module));
-    mem2client(client, (void *)image, 0);
+    mem2client(client, (void *)module, sizeof(*module), true);
+    mem2client(client, (void *)image, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2119,9 +2157,12 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoadDataEx);
     rpc_write(client, &_0module, sizeof(_0module));
+    updateTmpPtr((void *)module, _0module);
     rpc_write(client, &_0image, sizeof(_0image));
+    updateTmpPtr((void *)image, _0image);
     rpc_write(client, &numOptions, sizeof(numOptions));
     rpc_write(client, &_0options, sizeof(_0options));
+    updateTmpPtr((void *)options, _0options);
     // PARAM void **optionValues
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2131,9 +2172,9 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
     }
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)module, sizeof(*module));
-    mem2client(client, (void *)image, 0);
-    mem2client(client, (void *)options, numOptions * sizeof(*options));
+    mem2client(client, (void *)module, sizeof(*module), true);
+    mem2client(client, (void *)image, 0, true);
+    mem2client(client, (void *)options, numOptions * sizeof(*options), true);
     // PARAM void **optionValues
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -2173,7 +2214,9 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleLoadFatBinary);
     rpc_write(client, &_0module, sizeof(_0module));
+    updateTmpPtr((void *)module, _0module);
     rpc_write(client, &_0fatCubin, sizeof(_0fatCubin));
+    updateTmpPtr((void *)fatCubin, _0fatCubin);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2181,8 +2224,8 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)module, sizeof(*module));
-    mem2client(client, (void *)fatCubin, 0);
+    mem2client(client, (void *)module, sizeof(*module), true);
+    mem2client(client, (void *)fatCubin, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2260,6 +2303,7 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleGetFunction);
     rpc_write(client, &_0hfunc, sizeof(_0hfunc));
+    updateTmpPtr((void *)hfunc, _0hfunc);
     rpc_write(client, &hmod, sizeof(hmod));
     rpc_write(client, name, strlen(name) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
@@ -2269,7 +2313,7 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)hfunc, sizeof(*hfunc));
+    mem2client(client, (void *)hfunc, sizeof(*hfunc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2306,6 +2350,7 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleGetTexRef);
     rpc_write(client, &_0pTexRef, sizeof(_0pTexRef));
+    updateTmpPtr((void *)pTexRef, _0pTexRef);
     rpc_write(client, &hmod, sizeof(hmod));
     rpc_write(client, name, strlen(name) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
@@ -2315,7 +2360,7 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pTexRef, sizeof(*pTexRef));
+    mem2client(client, (void *)pTexRef, sizeof(*pTexRef), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2352,6 +2397,7 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
     CUresult _result;
     rpc_prepare_request(client, RPC_cuModuleGetSurfRef);
     rpc_write(client, &_0pSurfRef, sizeof(_0pSurfRef));
+    updateTmpPtr((void *)pSurfRef, _0pSurfRef);
     rpc_write(client, &hmod, sizeof(hmod));
     rpc_write(client, name, strlen(name) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
@@ -2361,7 +2407,7 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pSurfRef, sizeof(*pSurfRef));
+    mem2client(client, (void *)pSurfRef, sizeof(*pSurfRef), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2402,8 +2448,10 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
     rpc_prepare_request(client, RPC_cuLinkCreate_v2);
     rpc_write(client, &numOptions, sizeof(numOptions));
     rpc_write(client, &_0options, sizeof(_0options));
+    updateTmpPtr((void *)options, _0options);
     // PARAM void **optionValues
     rpc_write(client, &_0stateOut, sizeof(_0stateOut));
+    updateTmpPtr((void *)stateOut, _0stateOut);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2412,9 +2460,9 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
     }
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)options, numOptions * sizeof(*options));
+    mem2client(client, (void *)options, numOptions * sizeof(*options), true);
     // PARAM void **optionValues
-    mem2client(client, (void *)stateOut, sizeof(*stateOut));
+    mem2client(client, (void *)stateOut, sizeof(*stateOut), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2456,10 +2504,12 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
     rpc_write(client, &state, sizeof(state));
     rpc_write(client, &type, sizeof(type));
     rpc_write(client, &_0data, sizeof(_0data));
+    updateTmpPtr((void *)data, _0data);
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, name, strlen(name) + 1, true);
     rpc_write(client, &numOptions, sizeof(numOptions));
     rpc_write(client, &_0options, sizeof(_0options));
+    updateTmpPtr((void *)options, _0options);
     // PARAM void **optionValues
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2469,8 +2519,8 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
     }
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)data, size);
-    mem2client(client, (void *)options, numOptions * sizeof(*options));
+    mem2client(client, (void *)data, size, true);
+    mem2client(client, (void *)options, numOptions * sizeof(*options), true);
     // PARAM void **optionValues
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -2513,6 +2563,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
     rpc_write(client, path, strlen(path) + 1, true);
     rpc_write(client, &numOptions, sizeof(numOptions));
     rpc_write(client, &_0options, sizeof(_0options));
+    updateTmpPtr((void *)options, _0options);
     // PARAM void **optionValues
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2522,7 +2573,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
     }
     // PARAM void **optionValues
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)options, numOptions * sizeof(*options));
+    mem2client(client, (void *)options, numOptions * sizeof(*options), true);
     // PARAM void **optionValues
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
@@ -2563,6 +2614,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
     rpc_write(client, &state, sizeof(state));
     // PARAM void **cubinOut
     rpc_write(client, &_0sizeOut, sizeof(_0sizeOut));
+    updateTmpPtr((void *)sizeOut, _0sizeOut);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2572,7 +2624,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
     // PARAM void **cubinOut
     rpc_prepare_request(client, RPC_mem2client);
     // PARAM void **cubinOut
-    mem2client(client, (void *)sizeOut, sizeof(*sizeOut));
+    mem2client(client, (void *)sizeOut, sizeof(*sizeOut), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2652,7 +2704,9 @@ extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetInfo_v2);
     rpc_write(client, &_0free, sizeof(_0free));
+    updateTmpPtr((void *)free, _0free);
     rpc_write(client, &_0total, sizeof(_0total));
+    updateTmpPtr((void *)total, _0total);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2660,8 +2714,8 @@ extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)free, sizeof(*free));
-    mem2client(client, (void *)total, sizeof(*total));
+    mem2client(client, (void *)free, sizeof(*free), true);
+    mem2client(client, (void *)total, sizeof(*total), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2698,6 +2752,7 @@ extern "C" CUresult cuMemFree_v2(CUdeviceptr dptr) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemFree_v2);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2705,7 +2760,7 @@ extern "C" CUresult cuMemFree_v2(CUdeviceptr dptr) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2744,7 +2799,9 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemHostGetFlags);
     rpc_write(client, &_0pFlags, sizeof(_0pFlags));
+    updateTmpPtr((void *)pFlags, _0pFlags);
     rpc_write(client, &_0p, sizeof(_0p));
+    updateTmpPtr((void *)p, _0p);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2752,8 +2809,8 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pFlags, sizeof(*pFlags));
-    mem2client(client, (void *)p, 0);
+    mem2client(client, (void *)pFlags, sizeof(*pFlags), true);
+    mem2client(client, (void *)p, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2790,6 +2847,7 @@ extern "C" CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetByPCIBusId);
     rpc_write(client, &_0dev, sizeof(_0dev));
+    updateTmpPtr((void *)dev, _0dev);
     rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2798,7 +2856,7 @@ extern "C" CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dev, sizeof(*dev));
+    mem2client(client, (void *)dev, sizeof(*dev), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2880,6 +2938,7 @@ extern "C" CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event
     CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcGetEventHandle);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
+    updateTmpPtr((void *)pHandle, _0pHandle);
     rpc_write(client, &event, sizeof(event));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2888,7 +2947,7 @@ extern "C" CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pHandle, sizeof(*pHandle));
+    mem2client(client, (void *)pHandle, sizeof(*pHandle), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2925,6 +2984,7 @@ extern "C" CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle hand
     CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcOpenEventHandle);
     rpc_write(client, &_0phEvent, sizeof(_0phEvent));
+    updateTmpPtr((void *)phEvent, _0phEvent);
     rpc_write(client, &handle, sizeof(handle));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -2933,7 +2993,7 @@ extern "C" CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle hand
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phEvent, sizeof(*phEvent));
+    mem2client(client, (void *)phEvent, sizeof(*phEvent), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -2972,7 +3032,9 @@ extern "C" CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
     CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcGetMemHandle);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
+    updateTmpPtr((void *)pHandle, _0pHandle);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2980,8 +3042,8 @@ extern "C" CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pHandle, sizeof(*pHandle));
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)pHandle, sizeof(*pHandle), true);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3018,6 +3080,7 @@ extern "C" CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuIpcCloseMemHandle);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3025,7 +3088,7 @@ extern "C" CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3062,6 +3125,7 @@ extern "C" CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemHostRegister_v2);
     rpc_write(client, &_0p, sizeof(_0p));
+    updateTmpPtr((void *)p, _0p);
     rpc_write(client, &bytesize, sizeof(bytesize));
     rpc_write(client, &Flags, sizeof(Flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -3071,7 +3135,7 @@ extern "C" CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)p, 0);
+    mem2client(client, (void *)p, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3108,6 +3172,7 @@ extern "C" CUresult cuMemHostUnregister(void *p) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemHostUnregister);
     rpc_write(client, &_0p, sizeof(_0p));
+    updateTmpPtr((void *)p, _0p);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3115,7 +3180,7 @@ extern "C" CUresult cuMemHostUnregister(void *p) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)p, 0);
+    mem2client(client, (void *)p, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3154,7 +3219,9 @@ extern "C" CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy);
     rpc_write(client, &_0dst, sizeof(_0dst));
+    updateTmpPtr((void *)dst, _0dst);
     rpc_write(client, &_0src, sizeof(_0src));
+    updateTmpPtr((void *)src, _0src);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3163,8 +3230,8 @@ extern "C" CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, -1);
-    mem2client(client, (void *)src, -1);
+    mem2client(client, (void *)dst, -1, true);
+    mem2client(client, (void *)src, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3203,8 +3270,10 @@ extern "C" CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CU
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyPeer);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstContext, sizeof(dstContext));
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &srcContext, sizeof(srcContext));
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
@@ -3214,8 +3283,8 @@ extern "C" CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CU
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3254,7 +3323,9 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyHtoD_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &_0srcHost, sizeof(_0srcHost));
+    updateTmpPtr((void *)srcHost, _0srcHost);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3263,8 +3334,8 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
-    mem2client(client, (void *)srcHost, ByteCount);
+    mem2client(client, (void *)dstDevice, -1, true);
+    mem2client(client, (void *)srcHost, ByteCount, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3303,7 +3374,9 @@ extern "C" CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoH_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
+    updateTmpPtr((void *)dstHost, _0dstHost);
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3312,8 +3385,8 @@ extern "C" CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstHost, ByteCount);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)dstHost, ByteCount, true);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3352,7 +3425,9 @@ extern "C" CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoD_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3361,8 +3436,8 @@ extern "C" CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3401,6 +3476,7 @@ extern "C" CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdevice
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3409,7 +3485,7 @@ extern "C" CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdevice
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3446,6 +3522,7 @@ extern "C" CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, siz
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoD_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &srcArray, sizeof(srcArray));
     rpc_write(client, &srcOffset, sizeof(srcOffset));
     rpc_write(client, &ByteCount, sizeof(ByteCount));
@@ -3456,7 +3533,7 @@ extern "C" CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, siz
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3495,6 +3572,7 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
     rpc_write(client, &_0srcHost, sizeof(_0srcHost));
+    updateTmpPtr((void *)srcHost, _0srcHost);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -3503,7 +3581,7 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)srcHost, ByteCount);
+    mem2client(client, (void *)srcHost, ByteCount, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3540,6 +3618,7 @@ extern "C" CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcO
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoH_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
+    updateTmpPtr((void *)dstHost, _0dstHost);
     rpc_write(client, &srcArray, sizeof(srcArray));
     rpc_write(client, &srcOffset, sizeof(srcOffset));
     rpc_write(client, &ByteCount, sizeof(ByteCount));
@@ -3550,7 +3629,7 @@ extern "C" CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcO
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstHost, ByteCount);
+    mem2client(client, (void *)dstHost, ByteCount, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3632,6 +3711,7 @@ extern "C" CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy2D_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3639,7 +3719,7 @@ extern "C" CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3676,6 +3756,7 @@ extern "C" CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy2DUnaligned_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3683,7 +3764,7 @@ extern "C" CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3720,6 +3801,7 @@ extern "C" CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3D_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3727,7 +3809,7 @@ extern "C" CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3764,6 +3846,7 @@ extern "C" CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3DPeer);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3771,7 +3854,7 @@ extern "C" CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3810,7 +3893,9 @@ extern "C" CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteC
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAsync);
     rpc_write(client, &_0dst, sizeof(_0dst));
+    updateTmpPtr((void *)dst, _0dst);
     rpc_write(client, &_0src, sizeof(_0src));
+    updateTmpPtr((void *)src, _0src);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -3820,8 +3905,8 @@ extern "C" CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, -1);
-    mem2client(client, (void *)src, -1);
+    mem2client(client, (void *)dst, -1, true);
+    mem2client(client, (void *)src, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3860,8 +3945,10 @@ extern "C" CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContex
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyPeerAsync);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstContext, sizeof(dstContext));
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &srcContext, sizeof(srcContext));
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -3872,8 +3959,8 @@ extern "C" CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContex
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3912,7 +3999,9 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyHtoDAsync_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &_0srcHost, sizeof(_0srcHost));
+    updateTmpPtr((void *)srcHost, _0srcHost);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -3922,8 +4011,8 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
-    mem2client(client, (void *)srcHost, ByteCount);
+    mem2client(client, (void *)dstDevice, -1, true);
+    mem2client(client, (void *)srcHost, ByteCount, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -3962,7 +4051,9 @@ extern "C" CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, s
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoHAsync_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
+    updateTmpPtr((void *)dstHost, _0dstHost);
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -3972,8 +4063,8 @@ extern "C" CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, s
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstHost, ByteCount);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)dstHost, ByteCount, true);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4012,7 +4103,9 @@ extern "C" CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcD
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyDtoDAsync_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &_0srcDevice, sizeof(_0srcDevice));
+    updateTmpPtr((void *)srcDevice, _0srcDevice);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -4022,8 +4115,8 @@ extern "C" CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcD
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
-    mem2client(client, (void *)srcDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
+    mem2client(client, (void *)srcDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4062,6 +4155,7 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
     rpc_write(client, &dstArray, sizeof(dstArray));
     rpc_write(client, &dstOffset, sizeof(dstOffset));
     rpc_write(client, &_0srcHost, sizeof(_0srcHost));
+    updateTmpPtr((void *)srcHost, _0srcHost);
     rpc_write(client, &ByteCount, sizeof(ByteCount));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -4071,7 +4165,7 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)srcHost, ByteCount);
+    mem2client(client, (void *)srcHost, ByteCount, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4108,6 +4202,7 @@ extern "C" CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpyAtoHAsync_v2);
     rpc_write(client, &_0dstHost, sizeof(_0dstHost));
+    updateTmpPtr((void *)dstHost, _0dstHost);
     rpc_write(client, &srcArray, sizeof(srcArray));
     rpc_write(client, &srcOffset, sizeof(srcOffset));
     rpc_write(client, &ByteCount, sizeof(ByteCount));
@@ -4119,7 +4214,7 @@ extern "C" CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstHost, ByteCount);
+    mem2client(client, (void *)dstHost, ByteCount, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4156,6 +4251,7 @@ extern "C" CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStr
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy2DAsync_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -4164,7 +4260,7 @@ extern "C" CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStr
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4201,6 +4297,7 @@ extern "C" CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStr
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3DAsync_v2);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -4209,7 +4306,7 @@ extern "C" CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStr
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4246,6 +4343,7 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemcpy3DPeerAsync);
     rpc_write(client, &_0pCopy, sizeof(_0pCopy));
+    updateTmpPtr((void *)pCopy, _0pCopy);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -4254,7 +4352,7 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCopy, sizeof(*pCopy));
+    mem2client(client, (void *)pCopy, sizeof(*pCopy), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4291,6 +4389,7 @@ extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD8_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &uc, sizeof(uc));
     rpc_write(client, &N, sizeof(N));
     rpc_read(client, &_result, sizeof(_result));
@@ -4300,7 +4399,7 @@ extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4337,6 +4436,7 @@ extern "C" CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, siz
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD16_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &us, sizeof(us));
     rpc_write(client, &N, sizeof(N));
     rpc_read(client, &_result, sizeof(_result));
@@ -4346,7 +4446,7 @@ extern "C" CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, siz
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4383,6 +4483,7 @@ extern "C" CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD32_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &ui, sizeof(ui));
     rpc_write(client, &N, sizeof(N));
     rpc_read(client, &_result, sizeof(_result));
@@ -4392,7 +4493,7 @@ extern "C" CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4429,6 +4530,7 @@ extern "C" CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsi
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D8_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstPitch, sizeof(dstPitch));
     rpc_write(client, &uc, sizeof(uc));
     rpc_write(client, &Width, sizeof(Width));
@@ -4440,7 +4542,7 @@ extern "C" CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsi
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4477,6 +4579,7 @@ extern "C" CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D16_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstPitch, sizeof(dstPitch));
     rpc_write(client, &us, sizeof(us));
     rpc_write(client, &Width, sizeof(Width));
@@ -4488,7 +4591,7 @@ extern "C" CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4525,6 +4628,7 @@ extern "C" CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D32_v2);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstPitch, sizeof(dstPitch));
     rpc_write(client, &ui, sizeof(ui));
     rpc_write(client, &Width, sizeof(Width));
@@ -4536,7 +4640,7 @@ extern "C" CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4573,6 +4677,7 @@ extern "C" CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, siz
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD8Async);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &uc, sizeof(uc));
     rpc_write(client, &N, sizeof(N));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -4583,7 +4688,7 @@ extern "C" CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, siz
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4620,6 +4725,7 @@ extern "C" CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, s
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD16Async);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &us, sizeof(us));
     rpc_write(client, &N, sizeof(N));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -4630,7 +4736,7 @@ extern "C" CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, s
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4667,6 +4773,7 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD32Async);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &ui, sizeof(ui));
     rpc_write(client, &N, sizeof(N));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -4677,7 +4784,7 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4714,6 +4821,7 @@ extern "C" CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, un
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D8Async);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstPitch, sizeof(dstPitch));
     rpc_write(client, &uc, sizeof(uc));
     rpc_write(client, &Width, sizeof(Width));
@@ -4726,7 +4834,7 @@ extern "C" CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, un
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4763,6 +4871,7 @@ extern "C" CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, u
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D16Async);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstPitch, sizeof(dstPitch));
     rpc_write(client, &us, sizeof(us));
     rpc_write(client, &Width, sizeof(Width));
@@ -4775,7 +4884,7 @@ extern "C" CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4812,6 +4921,7 @@ extern "C" CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, u
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemsetD2D32Async);
     rpc_write(client, &_0dstDevice, sizeof(_0dstDevice));
+    updateTmpPtr((void *)dstDevice, _0dstDevice);
     rpc_write(client, &dstPitch, sizeof(dstPitch));
     rpc_write(client, &ui, sizeof(ui));
     rpc_write(client, &Width, sizeof(Width));
@@ -4824,7 +4934,7 @@ extern "C" CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, u
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dstDevice, -1);
+    mem2client(client, (void *)dstDevice, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4863,7 +4973,9 @@ extern "C" CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPT
     CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayCreate_v2);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
+    updateTmpPtr((void *)pHandle, _0pHandle);
     rpc_write(client, &_0pAllocateArray, sizeof(_0pAllocateArray));
+    updateTmpPtr((void *)pAllocateArray, _0pAllocateArray);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4871,8 +4983,8 @@ extern "C" CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPT
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pHandle, sizeof(*pHandle));
-    mem2client(client, (void *)pAllocateArray, sizeof(*pAllocateArray));
+    mem2client(client, (void *)pHandle, sizeof(*pHandle), true);
+    mem2client(client, (void *)pAllocateArray, sizeof(*pAllocateArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4909,6 +5021,7 @@ extern "C" CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescrip
     CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayGetDescriptor_v2);
     rpc_write(client, &_0pArrayDescriptor, sizeof(_0pArrayDescriptor));
+    updateTmpPtr((void *)pArrayDescriptor, _0pArrayDescriptor);
     rpc_write(client, &hArray, sizeof(hArray));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -4917,7 +5030,7 @@ extern "C" CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescrip
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pArrayDescriptor, sizeof(*pArrayDescriptor));
+    mem2client(client, (void *)pArrayDescriptor, sizeof(*pArrayDescriptor), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4954,6 +5067,7 @@ extern "C" CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES *spa
     CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayGetSparseProperties);
     rpc_write(client, &_0sparseProperties, sizeof(_0sparseProperties));
+    updateTmpPtr((void *)sparseProperties, _0sparseProperties);
     rpc_write(client, &array, sizeof(array));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -4962,7 +5076,7 @@ extern "C" CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES *spa
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)sparseProperties, sizeof(*sparseProperties));
+    mem2client(client, (void *)sparseProperties, sizeof(*sparseProperties), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -4999,6 +5113,7 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayGetSparseProperties);
     rpc_write(client, &_0sparseProperties, sizeof(_0sparseProperties));
+    updateTmpPtr((void *)sparseProperties, _0sparseProperties);
     rpc_write(client, &mipmap, sizeof(mipmap));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5007,7 +5122,7 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)sparseProperties, sizeof(*sparseProperties));
+    mem2client(client, (void *)sparseProperties, sizeof(*sparseProperties), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5044,6 +5159,7 @@ extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsign
     CUresult _result;
     rpc_prepare_request(client, RPC_cuArrayGetPlane);
     rpc_write(client, &_0pPlaneArray, sizeof(_0pPlaneArray));
+    updateTmpPtr((void *)pPlaneArray, _0pPlaneArray);
     rpc_write(client, &hArray, sizeof(hArray));
     rpc_write(client, &planeIdx, sizeof(planeIdx));
     rpc_read(client, &_result, sizeof(_result));
@@ -5053,7 +5169,7 @@ extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsign
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pPlaneArray, sizeof(*pPlaneArray));
+    mem2client(client, (void *)pPlaneArray, sizeof(*pPlaneArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5133,7 +5249,9 @@ extern "C" CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESC
     CUresult _result;
     rpc_prepare_request(client, RPC_cuArray3DCreate_v2);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
+    updateTmpPtr((void *)pHandle, _0pHandle);
     rpc_write(client, &_0pAllocateArray, sizeof(_0pAllocateArray));
+    updateTmpPtr((void *)pAllocateArray, _0pAllocateArray);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -5141,8 +5259,8 @@ extern "C" CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESC
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pHandle, sizeof(*pHandle));
-    mem2client(client, (void *)pAllocateArray, sizeof(*pAllocateArray));
+    mem2client(client, (void *)pHandle, sizeof(*pHandle), true);
+    mem2client(client, (void *)pAllocateArray, sizeof(*pAllocateArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5179,6 +5297,7 @@ extern "C" CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDes
     CUresult _result;
     rpc_prepare_request(client, RPC_cuArray3DGetDescriptor_v2);
     rpc_write(client, &_0pArrayDescriptor, sizeof(_0pArrayDescriptor));
+    updateTmpPtr((void *)pArrayDescriptor, _0pArrayDescriptor);
     rpc_write(client, &hArray, sizeof(hArray));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5187,7 +5306,7 @@ extern "C" CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDes
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pArrayDescriptor, sizeof(*pArrayDescriptor));
+    mem2client(client, (void *)pArrayDescriptor, sizeof(*pArrayDescriptor), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5226,7 +5345,9 @@ extern "C" CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayCreate);
     rpc_write(client, &_0pHandle, sizeof(_0pHandle));
+    updateTmpPtr((void *)pHandle, _0pHandle);
     rpc_write(client, &_0pMipmappedArrayDesc, sizeof(_0pMipmappedArrayDesc));
+    updateTmpPtr((void *)pMipmappedArrayDesc, _0pMipmappedArrayDesc);
     rpc_write(client, &numMipmapLevels, sizeof(numMipmapLevels));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5235,8 +5356,8 @@ extern "C" CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pHandle, sizeof(*pHandle));
-    mem2client(client, (void *)pMipmappedArrayDesc, sizeof(*pMipmappedArrayDesc));
+    mem2client(client, (void *)pHandle, sizeof(*pHandle), true);
+    mem2client(client, (void *)pMipmappedArrayDesc, sizeof(*pMipmappedArrayDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5273,6 +5394,7 @@ extern "C" CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedAr
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMipmappedArrayGetLevel);
     rpc_write(client, &_0pLevelArray, sizeof(_0pLevelArray));
+    updateTmpPtr((void *)pLevelArray, _0pLevelArray);
     rpc_write(client, &hMipmappedArray, sizeof(hMipmappedArray));
     rpc_write(client, &level, sizeof(level));
     rpc_read(client, &_result, sizeof(_result));
@@ -5282,7 +5404,7 @@ extern "C" CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedAr
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pLevelArray, sizeof(*pLevelArray));
+    mem2client(client, (void *)pLevelArray, sizeof(*pLevelArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5360,6 +5482,7 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemAddressFree);
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_write(client, &size, sizeof(size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5368,7 +5491,7 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)ptr, -1);
+    mem2client(client, (void *)ptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5405,6 +5528,7 @@ extern "C" CUresult cuMemMapArrayAsync(CUarrayMapInfo *mapInfoList, unsigned int
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemMapArrayAsync);
     rpc_write(client, &_0mapInfoList, sizeof(_0mapInfoList));
+    updateTmpPtr((void *)mapInfoList, _0mapInfoList);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -5414,7 +5538,7 @@ extern "C" CUresult cuMemMapArrayAsync(CUarrayMapInfo *mapInfoList, unsigned int
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mapInfoList, sizeof(*mapInfoList));
+    mem2client(client, (void *)mapInfoList, sizeof(*mapInfoList), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5451,6 +5575,7 @@ extern "C" CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemUnmap);
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_write(client, &size, sizeof(size));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5459,7 +5584,7 @@ extern "C" CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)ptr, -1);
+    mem2client(client, (void *)ptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5498,8 +5623,10 @@ extern "C" CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAcce
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemSetAccess);
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_write(client, &size, sizeof(size));
     rpc_write(client, &_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
     rpc_write(client, &count, sizeof(count));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5508,8 +5635,8 @@ extern "C" CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAcce
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)ptr, -1);
-    mem2client(client, (void *)desc, sizeof(*desc));
+    mem2client(client, (void *)ptr, -1, true);
+    mem2client(client, (void *)desc, sizeof(*desc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5550,8 +5677,11 @@ extern "C" CUresult cuMemGetAccess(unsigned long long *flags, const CUmemLocatio
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetAccess);
     rpc_write(client, &_0flags, sizeof(_0flags));
+    updateTmpPtr((void *)flags, _0flags);
     rpc_write(client, &_0location, sizeof(_0location));
+    updateTmpPtr((void *)location, _0location);
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -5559,9 +5689,9 @@ extern "C" CUresult cuMemGetAccess(unsigned long long *flags, const CUmemLocatio
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags));
-    mem2client(client, (void *)location, sizeof(*location));
-    mem2client(client, (void *)ptr, -1);
+    mem2client(client, (void *)flags, sizeof(*flags), true);
+    mem2client(client, (void *)location, sizeof(*location), true);
+    mem2client(client, (void *)ptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5598,6 +5728,7 @@ extern "C" CUresult cuMemExportToShareableHandle(void *shareableHandle, CUmemGen
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemExportToShareableHandle);
     rpc_write(client, &_0shareableHandle, sizeof(_0shareableHandle));
+    updateTmpPtr((void *)shareableHandle, _0shareableHandle);
     rpc_write(client, &handle, sizeof(handle));
     rpc_write(client, &handleType, sizeof(handleType));
     rpc_write(client, &flags, sizeof(flags));
@@ -5608,7 +5739,7 @@ extern "C" CUresult cuMemExportToShareableHandle(void *shareableHandle, CUmemGen
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)shareableHandle, 0);
+    mem2client(client, (void *)shareableHandle, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5647,7 +5778,9 @@ extern "C" CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemImportFromShareableHandle);
     rpc_write(client, &_0handle, sizeof(_0handle));
+    updateTmpPtr((void *)handle, _0handle);
     rpc_write(client, &_0osHandle, sizeof(_0osHandle));
+    updateTmpPtr((void *)osHandle, _0osHandle);
     rpc_write(client, &shHandleType, sizeof(shHandleType));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5656,8 +5789,8 @@ extern "C" CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)handle, sizeof(*handle));
-    mem2client(client, (void *)osHandle, 0);
+    mem2client(client, (void *)handle, sizeof(*handle), true);
+    mem2client(client, (void *)osHandle, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5696,7 +5829,9 @@ extern "C" CUresult cuMemGetAllocationGranularity(size_t *granularity, const CUm
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetAllocationGranularity);
     rpc_write(client, &_0granularity, sizeof(_0granularity));
+    updateTmpPtr((void *)granularity, _0granularity);
     rpc_write(client, &_0prop, sizeof(_0prop));
+    updateTmpPtr((void *)prop, _0prop);
     rpc_write(client, &option, sizeof(option));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5705,8 +5840,8 @@ extern "C" CUresult cuMemGetAllocationGranularity(size_t *granularity, const CUm
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)granularity, sizeof(*granularity));
-    mem2client(client, (void *)prop, sizeof(*prop));
+    mem2client(client, (void *)granularity, sizeof(*granularity), true);
+    mem2client(client, (void *)prop, sizeof(*prop), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5743,6 +5878,7 @@ extern "C" CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemGetAllocationPropertiesFromHandle);
     rpc_write(client, &_0prop, sizeof(_0prop));
+    updateTmpPtr((void *)prop, _0prop);
     rpc_write(client, &handle, sizeof(handle));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5751,7 +5887,7 @@ extern "C" CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)prop, sizeof(*prop));
+    mem2client(client, (void *)prop, sizeof(*prop), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5790,7 +5926,9 @@ extern "C" CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle *ha
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemRetainAllocationHandle);
     rpc_write(client, &_0handle, sizeof(_0handle));
+    updateTmpPtr((void *)handle, _0handle);
     rpc_write(client, &_0addr, sizeof(_0addr));
+    updateTmpPtr((void *)addr, _0addr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -5798,8 +5936,8 @@ extern "C" CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle *ha
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)handle, sizeof(*handle));
-    mem2client(client, (void *)addr, 0);
+    mem2client(client, (void *)handle, sizeof(*handle), true);
+    mem2client(client, (void *)addr, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5836,6 +5974,7 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemFreeAsync);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -5844,7 +5983,7 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5881,6 +6020,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemAllocAsync);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_write(client, &bytesize, sizeof(bytesize));
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
@@ -5890,7 +6030,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr, sizeof(*dptr));
+    mem2client(client, (void *)dptr, sizeof(*dptr), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -5971,6 +6111,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -5978,7 +6119,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0);
+    mem2client(client, (void *)value, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6017,6 +6158,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6024,7 +6166,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0);
+    mem2client(client, (void *)value, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6062,6 +6204,7 @@ extern "C" CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc 
     rpc_prepare_request(client, RPC_cuMemPoolSetAccess);
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &_0map, sizeof(_0map));
+    updateTmpPtr((void *)map, _0map);
     rpc_write(client, &count, sizeof(count));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6070,7 +6213,7 @@ extern "C" CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)map, sizeof(*map));
+    mem2client(client, (void *)map, sizeof(*map), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6109,8 +6252,10 @@ extern "C" CUresult cuMemPoolGetAccess(CUmemAccess_flags *flags, CUmemoryPool me
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolGetAccess);
     rpc_write(client, &_0flags, sizeof(_0flags));
+    updateTmpPtr((void *)flags, _0flags);
     rpc_write(client, &memPool, sizeof(memPool));
     rpc_write(client, &_0location, sizeof(_0location));
+    updateTmpPtr((void *)location, _0location);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6118,8 +6263,8 @@ extern "C" CUresult cuMemPoolGetAccess(CUmemAccess_flags *flags, CUmemoryPool me
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags));
-    mem2client(client, (void *)location, sizeof(*location));
+    mem2client(client, (void *)flags, sizeof(*flags), true);
+    mem2client(client, (void *)location, sizeof(*location), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6158,7 +6303,9 @@ extern "C" CUresult cuMemPoolCreate(CUmemoryPool *pool, const CUmemPoolProps *po
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolCreate);
     rpc_write(client, &_0pool, sizeof(_0pool));
+    updateTmpPtr((void *)pool, _0pool);
     rpc_write(client, &_0poolProps, sizeof(_0poolProps));
+    updateTmpPtr((void *)poolProps, _0poolProps);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6166,8 +6313,8 @@ extern "C" CUresult cuMemPoolCreate(CUmemoryPool *pool, const CUmemPoolProps *po
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pool, sizeof(*pool));
-    mem2client(client, (void *)poolProps, sizeof(*poolProps));
+    mem2client(client, (void *)pool, sizeof(*pool), true);
+    mem2client(client, (void *)poolProps, sizeof(*poolProps), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6245,6 +6392,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemAllocFromPoolAsync);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_write(client, &bytesize, sizeof(bytesize));
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -6255,7 +6403,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr, sizeof(*dptr));
+    mem2client(client, (void *)dptr, sizeof(*dptr), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6292,6 +6440,7 @@ extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryP
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolExportToShareableHandle);
     rpc_write(client, &_0handle_out, sizeof(_0handle_out));
+    updateTmpPtr((void *)handle_out, _0handle_out);
     rpc_write(client, &pool, sizeof(pool));
     rpc_write(client, &handleType, sizeof(handleType));
     rpc_write(client, &flags, sizeof(flags));
@@ -6302,7 +6451,7 @@ extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryP
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)handle_out, 0);
+    mem2client(client, (void *)handle_out, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6341,7 +6490,9 @@ extern "C" CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool *pool_out, v
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolImportFromShareableHandle);
     rpc_write(client, &_0pool_out, sizeof(_0pool_out));
+    updateTmpPtr((void *)pool_out, _0pool_out);
     rpc_write(client, &_0handle, sizeof(_0handle));
+    updateTmpPtr((void *)handle, _0handle);
     rpc_write(client, &handleType, sizeof(handleType));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -6351,8 +6502,8 @@ extern "C" CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool *pool_out, v
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pool_out, sizeof(*pool_out));
-    mem2client(client, (void *)handle, 0);
+    mem2client(client, (void *)pool_out, sizeof(*pool_out), true);
+    mem2client(client, (void *)handle, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6391,7 +6542,9 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPoolExportPointer);
     rpc_write(client, &_0shareData_out, sizeof(_0shareData_out));
+    updateTmpPtr((void *)shareData_out, _0shareData_out);
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6399,8 +6552,8 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)shareData_out, sizeof(*shareData_out));
-    mem2client(client, (void *)ptr, -1);
+    mem2client(client, (void *)shareData_out, sizeof(*shareData_out), true);
+    mem2client(client, (void *)ptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6439,8 +6592,10 @@ extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attrib
     CUresult _result;
     rpc_prepare_request(client, RPC_cuPointerGetAttribute);
     rpc_write(client, &_0data, sizeof(_0data));
+    updateTmpPtr((void *)data, _0data);
     rpc_write(client, &attribute, sizeof(attribute));
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6448,8 +6603,8 @@ extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attrib
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)data, 0);
-    mem2client(client, (void *)ptr, -1);
+    mem2client(client, (void *)data, 0, true);
+    mem2client(client, (void *)ptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6486,6 +6641,7 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemPrefetchAsync);
     rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &dstDevice, sizeof(dstDevice));
     rpc_write(client, &hStream, sizeof(hStream));
@@ -6496,7 +6652,7 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, -1);
+    mem2client(client, (void *)devPtr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6533,6 +6689,7 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemAdvise);
     rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &advice, sizeof(advice));
     rpc_write(client, &device, sizeof(device));
@@ -6543,7 +6700,7 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, -1);
+    mem2client(client, (void *)devPtr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6582,9 +6739,11 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
     CUresult _result;
     rpc_prepare_request(client, RPC_cuMemRangeGetAttribute);
     rpc_write(client, &_0data, sizeof(_0data));
+    updateTmpPtr((void *)data, _0data);
     rpc_write(client, &dataSize, sizeof(dataSize));
     rpc_write(client, &attribute, sizeof(attribute));
     rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
     rpc_write(client, &count, sizeof(count));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6593,8 +6752,8 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)data, dataSize);
-    mem2client(client, (void *)devPtr, -1);
+    mem2client(client, (void *)data, dataSize, true);
+    mem2client(client, (void *)devPtr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6633,8 +6792,10 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
     CUresult _result;
     rpc_prepare_request(client, RPC_cuPointerSetAttribute);
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_write(client, &attribute, sizeof(attribute));
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6642,8 +6803,8 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0);
-    mem2client(client, (void *)ptr, -1);
+    mem2client(client, (void *)value, 0, true);
+    mem2client(client, (void *)ptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6680,6 +6841,7 @@ extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamCreate);
     rpc_write(client, &_0phStream, sizeof(_0phStream));
+    updateTmpPtr((void *)phStream, _0phStream);
     rpc_write(client, &Flags, sizeof(Flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6688,7 +6850,7 @@ extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phStream, sizeof(*phStream));
+    mem2client(client, (void *)phStream, sizeof(*phStream), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6725,6 +6887,7 @@ extern "C" CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuStreamCreateWithPriority);
     rpc_write(client, &_0phStream, sizeof(_0phStream));
+    updateTmpPtr((void *)phStream, _0phStream);
     rpc_write(client, &flags, sizeof(flags));
     rpc_write(client, &priority, sizeof(priority));
     rpc_read(client, &_result, sizeof(_result));
@@ -6734,7 +6897,7 @@ extern "C" CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phStream, sizeof(*phStream));
+    mem2client(client, (void *)phStream, sizeof(*phStream), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6772,6 +6935,7 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
     rpc_prepare_request(client, RPC_cuStreamGetPriority);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0priority, sizeof(_0priority));
+    updateTmpPtr((void *)priority, _0priority);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6779,7 +6943,7 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)priority, sizeof(*priority));
+    mem2client(client, (void *)priority, sizeof(*priority), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6817,6 +6981,7 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
     rpc_prepare_request(client, RPC_cuStreamGetFlags);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0flags, sizeof(_0flags));
+    updateTmpPtr((void *)flags, _0flags);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6824,7 +6989,7 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags));
+    mem2client(client, (void *)flags, sizeof(*flags), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6862,6 +7027,7 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
     rpc_prepare_request(client, RPC_cuStreamGetCtx);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6869,7 +7035,7 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pctx, sizeof(*pctx));
+    mem2client(client, (void *)pctx, sizeof(*pctx), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -6951,6 +7117,7 @@ extern "C" CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callb
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &callback, sizeof(callback));
     rpc_write(client, &_0userData, sizeof(_0userData));
+    updateTmpPtr((void *)userData, _0userData);
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -6959,7 +7126,7 @@ extern "C" CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callb
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)userData, 0);
+    mem2client(client, (void *)userData, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7038,6 +7205,7 @@ extern "C" CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
     CUresult _result;
     rpc_prepare_request(client, RPC_cuThreadExchangeStreamCaptureMode);
     rpc_write(client, &_0mode, sizeof(_0mode));
+    updateTmpPtr((void *)mode, _0mode);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7045,7 +7213,7 @@ extern "C" CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mode, sizeof(*mode));
+    mem2client(client, (void *)mode, sizeof(*mode), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7083,6 +7251,7 @@ extern "C" CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph) {
     rpc_prepare_request(client, RPC_cuStreamEndCapture);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0phGraph, sizeof(_0phGraph));
+    updateTmpPtr((void *)phGraph, _0phGraph);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7090,7 +7259,7 @@ extern "C" CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraph, sizeof(*phGraph));
+    mem2client(client, (void *)phGraph, sizeof(*phGraph), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7128,6 +7297,7 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
     rpc_prepare_request(client, RPC_cuStreamIsCapturing);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0captureStatus, sizeof(_0captureStatus));
+    updateTmpPtr((void *)captureStatus, _0captureStatus);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7135,7 +7305,7 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)captureStatus, sizeof(*captureStatus));
+    mem2client(client, (void *)captureStatus, sizeof(*captureStatus), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7175,7 +7345,9 @@ extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStat
     rpc_prepare_request(client, RPC_cuStreamGetCaptureInfo);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0captureStatus_out, sizeof(_0captureStatus_out));
+    updateTmpPtr((void *)captureStatus_out, _0captureStatus_out);
     rpc_write(client, &_0id_out, sizeof(_0id_out));
+    updateTmpPtr((void *)id_out, _0id_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7183,8 +7355,8 @@ extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStat
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)captureStatus_out, sizeof(*captureStatus_out));
-    mem2client(client, (void *)id_out, sizeof(*id_out));
+    mem2client(client, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
+    mem2client(client, (void *)id_out, sizeof(*id_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7228,11 +7400,15 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
     rpc_prepare_request(client, RPC_cuStreamGetCaptureInfo_v2);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0captureStatus_out, sizeof(_0captureStatus_out));
+    updateTmpPtr((void *)captureStatus_out, _0captureStatus_out);
     rpc_write(client, &_0id_out, sizeof(_0id_out));
+    updateTmpPtr((void *)id_out, _0id_out);
     rpc_write(client, &_0graph_out, sizeof(_0graph_out));
+    updateTmpPtr((void *)graph_out, _0graph_out);
     static CUgraphNode _cuStreamGetCaptureInfo_v2_dependencies_out;
     rpc_read(client, &_cuStreamGetCaptureInfo_v2_dependencies_out, sizeof(CUgraphNode));
     rpc_write(client, &_0numDependencies_out, sizeof(_0numDependencies_out));
+    updateTmpPtr((void *)numDependencies_out, _0numDependencies_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7241,10 +7417,10 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
     }
     *dependencies_out = &_cuStreamGetCaptureInfo_v2_dependencies_out;
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)captureStatus_out, sizeof(*captureStatus_out));
-    mem2client(client, (void *)id_out, sizeof(*id_out));
-    mem2client(client, (void *)graph_out, sizeof(*graph_out));
-    mem2client(client, (void *)numDependencies_out, sizeof(*numDependencies_out));
+    mem2client(client, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
+    mem2client(client, (void *)id_out, sizeof(*id_out), true);
+    mem2client(client, (void *)graph_out, sizeof(*graph_out), true);
+    mem2client(client, (void *)numDependencies_out, sizeof(*numDependencies_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7282,6 +7458,7 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
     rpc_prepare_request(client, RPC_cuStreamUpdateCaptureDependencies);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -7291,7 +7468,7 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7329,6 +7506,7 @@ extern "C" CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, s
     rpc_prepare_request(client, RPC_cuStreamAttachMemAsync);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_write(client, &length, sizeof(length));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -7338,7 +7516,7 @@ extern "C" CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, s
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7542,6 +7720,7 @@ extern "C" CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, 
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value_out, sizeof(_0value_out));
+    updateTmpPtr((void *)value_out, _0value_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7549,7 +7728,7 @@ extern "C" CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value_out, sizeof(*value_out));
+    mem2client(client, (void *)value_out, sizeof(*value_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7588,6 +7767,7 @@ extern "C" CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, 
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7595,7 +7775,7 @@ extern "C" CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value));
+    mem2client(client, (void *)value, sizeof(*value), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7632,6 +7812,7 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuEventCreate);
     rpc_write(client, &_0phEvent, sizeof(_0phEvent));
+    updateTmpPtr((void *)phEvent, _0phEvent);
     rpc_write(client, &Flags, sizeof(Flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -7640,7 +7821,7 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phEvent, sizeof(*phEvent));
+    mem2client(client, (void *)phEvent, sizeof(*phEvent), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7885,6 +8066,7 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
     CUresult _result;
     rpc_prepare_request(client, RPC_cuEventElapsedTime);
     rpc_write(client, &_0pMilliseconds, sizeof(_0pMilliseconds));
+    updateTmpPtr((void *)pMilliseconds, _0pMilliseconds);
     rpc_write(client, &hStart, sizeof(hStart));
     rpc_write(client, &hEnd, sizeof(hEnd));
     rpc_read(client, &_result, sizeof(_result));
@@ -7894,7 +8076,7 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pMilliseconds, sizeof(*pMilliseconds));
+    mem2client(client, (void *)pMilliseconds, sizeof(*pMilliseconds), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -7933,8 +8115,10 @@ extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mi
     CUresult _result;
     rpc_prepare_request(client, RPC_cuExternalMemoryGetMappedMipmappedArray);
     rpc_write(client, &_0mipmap, sizeof(_0mipmap));
+    updateTmpPtr((void *)mipmap, _0mipmap);
     rpc_write(client, &extMem, sizeof(extMem));
     rpc_write(client, &_0mipmapDesc, sizeof(_0mipmapDesc));
+    updateTmpPtr((void *)mipmapDesc, _0mipmapDesc);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7942,8 +8126,8 @@ extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mi
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mipmap, sizeof(*mipmap));
-    mem2client(client, (void *)mipmapDesc, sizeof(*mipmapDesc));
+    mem2client(client, (void *)mipmap, sizeof(*mipmap), true);
+    mem2client(client, (void *)mipmapDesc, sizeof(*mipmapDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8023,7 +8207,9 @@ extern "C" CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, c
     CUresult _result;
     rpc_prepare_request(client, RPC_cuImportExternalSemaphore);
     rpc_write(client, &_0extSem_out, sizeof(_0extSem_out));
+    updateTmpPtr((void *)extSem_out, _0extSem_out);
     rpc_write(client, &_0semHandleDesc, sizeof(_0semHandleDesc));
+    updateTmpPtr((void *)semHandleDesc, _0semHandleDesc);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8031,8 +8217,8 @@ extern "C" CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, c
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extSem_out, sizeof(*extSem_out));
-    mem2client(client, (void *)semHandleDesc, sizeof(*semHandleDesc));
+    mem2client(client, (void *)extSem_out, sizeof(*extSem_out), true);
+    mem2client(client, (void *)semHandleDesc, sizeof(*semHandleDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8071,7 +8257,9 @@ extern "C" CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *e
     CUresult _result;
     rpc_prepare_request(client, RPC_cuSignalExternalSemaphoresAsync);
     rpc_write(client, &_0extSemArray, sizeof(_0extSemArray));
+    updateTmpPtr((void *)extSemArray, _0extSemArray);
     rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
+    updateTmpPtr((void *)paramsArray, _0paramsArray);
     rpc_write(client, &numExtSems, sizeof(numExtSems));
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
@@ -8081,8 +8269,8 @@ extern "C" CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *e
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extSemArray, sizeof(*extSemArray));
-    mem2client(client, (void *)paramsArray, sizeof(*paramsArray));
+    mem2client(client, (void *)extSemArray, sizeof(*extSemArray), true);
+    mem2client(client, (void *)paramsArray, sizeof(*paramsArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8121,7 +8309,9 @@ extern "C" CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *ext
     CUresult _result;
     rpc_prepare_request(client, RPC_cuWaitExternalSemaphoresAsync);
     rpc_write(client, &_0extSemArray, sizeof(_0extSemArray));
+    updateTmpPtr((void *)extSemArray, _0extSemArray);
     rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
+    updateTmpPtr((void *)paramsArray, _0paramsArray);
     rpc_write(client, &numExtSems, sizeof(numExtSems));
     rpc_write(client, &stream, sizeof(stream));
     rpc_read(client, &_result, sizeof(_result));
@@ -8131,8 +8321,8 @@ extern "C" CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *ext
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extSemArray, sizeof(*extSemArray));
-    mem2client(client, (void *)paramsArray, sizeof(*paramsArray));
+    mem2client(client, (void *)extSemArray, sizeof(*extSemArray), true);
+    mem2client(client, (void *)paramsArray, sizeof(*paramsArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8211,6 +8401,7 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
     rpc_prepare_request(client, RPC_cuStreamWaitValue32);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &_0addr, sizeof(_0addr));
+    updateTmpPtr((void *)addr, _0addr);
     rpc_write(client, &value, sizeof(value));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -8220,7 +8411,7 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)addr, -1);
+    mem2client(client, (void *)addr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8258,6 +8449,7 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
     rpc_prepare_request(client, RPC_cuStreamWaitValue64);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &_0addr, sizeof(_0addr));
+    updateTmpPtr((void *)addr, _0addr);
     rpc_write(client, &value, sizeof(value));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -8267,7 +8459,7 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)addr, -1);
+    mem2client(client, (void *)addr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8305,6 +8497,7 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
     rpc_prepare_request(client, RPC_cuStreamWriteValue32);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &_0addr, sizeof(_0addr));
+    updateTmpPtr((void *)addr, _0addr);
     rpc_write(client, &value, sizeof(value));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -8314,7 +8507,7 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)addr, -1);
+    mem2client(client, (void *)addr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8352,6 +8545,7 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
     rpc_prepare_request(client, RPC_cuStreamWriteValue64);
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &_0addr, sizeof(_0addr));
+    updateTmpPtr((void *)addr, _0addr);
     rpc_write(client, &value, sizeof(value));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -8361,7 +8555,7 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)addr, -1);
+    mem2client(client, (void *)addr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8400,6 +8594,7 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
     rpc_write(client, &stream, sizeof(stream));
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &_0paramArray, sizeof(_0paramArray));
+    updateTmpPtr((void *)paramArray, _0paramArray);
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8408,7 +8603,7 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)paramArray, sizeof(*paramArray));
+    mem2client(client, (void *)paramArray, sizeof(*paramArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8445,6 +8640,7 @@ extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUf
     CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncGetAttribute);
     rpc_write(client, &_0pi, sizeof(_0pi));
+    updateTmpPtr((void *)pi, _0pi);
     rpc_write(client, &attrib, sizeof(attrib));
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_read(client, &_result, sizeof(_result));
@@ -8454,7 +8650,7 @@ extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUf
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pi, sizeof(*pi));
+    mem2client(client, (void *)pi, sizeof(*pi), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8618,6 +8814,7 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuFuncGetModule);
     rpc_write(client, &_0hmod, sizeof(_0hmod));
+    updateTmpPtr((void *)hmod, _0hmod);
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -8626,7 +8823,7 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)hmod, sizeof(*hmod));
+    mem2client(client, (void *)hmod, sizeof(*hmod), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8720,6 +8917,7 @@ extern "C" CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *lau
     CUresult _result;
     rpc_prepare_request(client, RPC_cuLaunchCooperativeKernelMultiDevice);
     rpc_write(client, &_0launchParamsList, sizeof(_0launchParamsList));
+    updateTmpPtr((void *)launchParamsList, _0launchParamsList);
     rpc_write(client, &numDevices, sizeof(numDevices));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -8729,7 +8927,7 @@ extern "C" CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *lau
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)launchParamsList, sizeof(*launchParamsList));
+    mem2client(client, (void *)launchParamsList, sizeof(*launchParamsList), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -8768,6 +8966,7 @@ extern "C" CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userDa
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_write(client, &fn, sizeof(fn));
     rpc_write(client, &_0userData, sizeof(_0userData));
+    updateTmpPtr((void *)userData, _0userData);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8775,7 +8974,7 @@ extern "C" CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userDa
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)userData, 0);
+    mem2client(client, (void *)userData, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9028,6 +9227,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
     rpc_write(client, &hfunc, sizeof(hfunc));
     rpc_write(client, &offset, sizeof(offset));
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_write(client, &numbytes, sizeof(numbytes));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9036,7 +9236,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)ptr, numbytes);
+    mem2client(client, (void *)ptr, numbytes, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9244,6 +9444,7 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphCreate);
     rpc_write(client, &_0phGraph, sizeof(_0phGraph));
+    updateTmpPtr((void *)phGraph, _0phGraph);
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9252,7 +9453,7 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraph, sizeof(*phGraph));
+    mem2client(client, (void *)phGraph, sizeof(*phGraph), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9293,10 +9494,13 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddKernelNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9304,9 +9508,9 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9344,6 +9548,7 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
     rpc_prepare_request(client, RPC_cuGraphKernelNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9351,7 +9556,7 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9389,6 +9594,7 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
     rpc_prepare_request(client, RPC_cuGraphKernelNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9396,7 +9602,7 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9437,10 +9643,13 @@ extern "C" CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGrap
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemcpyNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0copyParams, sizeof(_0copyParams));
+    updateTmpPtr((void *)copyParams, _0copyParams);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9449,9 +9658,9 @@ extern "C" CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGrap
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)copyParams, sizeof(*copyParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)copyParams, sizeof(*copyParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9489,6 +9698,7 @@ extern "C" CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D 
     rpc_prepare_request(client, RPC_cuGraphMemcpyNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9496,7 +9706,7 @@ extern "C" CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9534,6 +9744,7 @@ extern "C" CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEM
     rpc_prepare_request(client, RPC_cuGraphMemcpyNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9541,7 +9752,7 @@ extern "C" CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEM
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9582,10 +9793,13 @@ extern "C" CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGrap
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemsetNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0memsetParams, sizeof(_0memsetParams));
+    updateTmpPtr((void *)memsetParams, _0memsetParams);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9594,9 +9808,9 @@ extern "C" CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGrap
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)memsetParams, sizeof(*memsetParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)memsetParams, sizeof(*memsetParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9634,6 +9848,7 @@ extern "C" CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NO
     rpc_prepare_request(client, RPC_cuGraphMemsetNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9641,7 +9856,7 @@ extern "C" CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NO
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9679,6 +9894,7 @@ extern "C" CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEM
     rpc_prepare_request(client, RPC_cuGraphMemsetNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9686,7 +9902,7 @@ extern "C" CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEM
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9727,10 +9943,13 @@ extern "C" CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph,
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddHostNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9738,9 +9957,9 @@ extern "C" CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph,
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9778,6 +9997,7 @@ extern "C" CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_P
     rpc_prepare_request(client, RPC_cuGraphHostNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9785,7 +10005,7 @@ extern "C" CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_P
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9823,6 +10043,7 @@ extern "C" CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_
     rpc_prepare_request(client, RPC_cuGraphHostNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9830,7 +10051,7 @@ extern "C" CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9869,8 +10090,10 @@ extern "C" CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph h
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddChildGraphNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &childGraph, sizeof(childGraph));
     rpc_read(client, &_result, sizeof(_result));
@@ -9880,8 +10103,8 @@ extern "C" CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph h
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9919,6 +10142,7 @@ extern "C" CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *ph
     rpc_prepare_request(client, RPC_cuGraphChildGraphNodeGetGraph);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0phGraph, sizeof(_0phGraph));
+    updateTmpPtr((void *)phGraph, _0phGraph);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9926,7 +10150,7 @@ extern "C" CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *ph
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraph, sizeof(*phGraph));
+    mem2client(client, (void *)phGraph, sizeof(*phGraph), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -9965,8 +10189,10 @@ extern "C" CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddEmptyNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -9975,8 +10201,8 @@ extern "C" CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10015,8 +10241,10 @@ extern "C" CUresult cuGraphAddEventRecordNode(CUgraphNode *phGraphNode, CUgraph 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddEventRecordNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &event, sizeof(event));
     rpc_read(client, &_result, sizeof(_result));
@@ -10026,8 +10254,8 @@ extern "C" CUresult cuGraphAddEventRecordNode(CUgraphNode *phGraphNode, CUgraph 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10065,6 +10293,7 @@ extern "C" CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent *e
     rpc_prepare_request(client, RPC_cuGraphEventRecordNodeGetEvent);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0event_out, sizeof(_0event_out));
+    updateTmpPtr((void *)event_out, _0event_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10072,7 +10301,7 @@ extern "C" CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent *e
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event_out, sizeof(*event_out));
+    mem2client(client, (void *)event_out, sizeof(*event_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10153,8 +10382,10 @@ extern "C" CUresult cuGraphAddEventWaitNode(CUgraphNode *phGraphNode, CUgraph hG
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddEventWaitNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &event, sizeof(event));
     rpc_read(client, &_result, sizeof(_result));
@@ -10164,8 +10395,8 @@ extern "C" CUresult cuGraphAddEventWaitNode(CUgraphNode *phGraphNode, CUgraph hG
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10203,6 +10434,7 @@ extern "C" CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent *eve
     rpc_prepare_request(client, RPC_cuGraphEventWaitNodeGetEvent);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0event_out, sizeof(_0event_out));
+    updateTmpPtr((void *)event_out, _0event_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10210,7 +10442,7 @@ extern "C" CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent *eve
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event_out, sizeof(*event_out));
+    mem2client(client, (void *)event_out, sizeof(*event_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10293,10 +10525,13 @@ extern "C" CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode *phGraphN
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddExternalSemaphoresSignalNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10304,9 +10539,9 @@ extern "C" CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode *phGraphN
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10344,6 +10579,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNo
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresSignalNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0params_out, sizeof(_0params_out));
+    updateTmpPtr((void *)params_out, _0params_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10351,7 +10587,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)params_out, sizeof(*params_out));
+    mem2client(client, (void *)params_out, sizeof(*params_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10389,6 +10625,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNo
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresSignalNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10396,7 +10633,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10437,10 +10674,13 @@ extern "C" CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode *phGraphNod
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddExternalSemaphoresWaitNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10448,9 +10688,9 @@ extern "C" CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode *phGraphNod
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10488,6 +10728,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresWaitNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0params_out, sizeof(_0params_out));
+    updateTmpPtr((void *)params_out, _0params_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10495,7 +10736,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)params_out, sizeof(*params_out));
+    mem2client(client, (void *)params_out, sizeof(*params_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10533,6 +10774,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
     rpc_prepare_request(client, RPC_cuGraphExternalSemaphoresWaitNodeSetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10540,7 +10782,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10581,10 +10823,13 @@ extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGr
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemAllocNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10592,9 +10837,9 @@ extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGr
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10632,6 +10877,7 @@ extern "C" CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALL
     rpc_prepare_request(client, RPC_cuGraphMemAllocNodeGetParams);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0params_out, sizeof(_0params_out));
+    updateTmpPtr((void *)params_out, _0params_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10639,7 +10885,7 @@ extern "C" CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALL
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)params_out, sizeof(*params_out));
+    mem2client(client, (void *)params_out, sizeof(*params_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10680,10 +10926,13 @@ extern "C" CUresult cuGraphAddMemFreeNode(CUgraphNode *phGraphNode, CUgraph hGra
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphAddMemFreeNode);
     rpc_write(client, &_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10691,9 +10940,9 @@ extern "C" CUresult cuGraphAddMemFreeNode(CUgraphNode *phGraphNode, CUgraph hGra
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode));
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10773,6 +11022,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10780,7 +11030,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0);
+    mem2client(client, (void *)value, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10819,6 +11069,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
     rpc_write(client, &device, sizeof(device));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10826,7 +11077,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0);
+    mem2client(client, (void *)value, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10863,6 +11114,7 @@ extern "C" CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphClone);
     rpc_write(client, &_0phGraphClone, sizeof(_0phGraphClone));
+    updateTmpPtr((void *)phGraphClone, _0phGraphClone);
     rpc_write(client, &originalGraph, sizeof(originalGraph));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -10871,7 +11123,7 @@ extern "C" CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphClone, sizeof(*phGraphClone));
+    mem2client(client, (void *)phGraphClone, sizeof(*phGraphClone), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10908,6 +11160,7 @@ extern "C" CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOri
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphNodeFindInClone);
     rpc_write(client, &_0phNode, sizeof(_0phNode));
+    updateTmpPtr((void *)phNode, _0phNode);
     rpc_write(client, &hOriginalNode, sizeof(hOriginalNode));
     rpc_write(client, &hClonedGraph, sizeof(hClonedGraph));
     rpc_read(client, &_result, sizeof(_result));
@@ -10917,7 +11170,7 @@ extern "C" CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOri
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phNode, sizeof(*phNode));
+    mem2client(client, (void *)phNode, sizeof(*phNode), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -10955,6 +11208,7 @@ extern "C" CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
     rpc_prepare_request(client, RPC_cuGraphNodeGetType);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0type, sizeof(_0type));
+    updateTmpPtr((void *)type, _0type);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -10962,7 +11216,7 @@ extern "C" CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)type, sizeof(*type));
+    mem2client(client, (void *)type, sizeof(*type), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11002,7 +11256,9 @@ extern "C" CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *
     rpc_prepare_request(client, RPC_cuGraphGetNodes);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0nodes, sizeof(_0nodes));
+    updateTmpPtr((void *)nodes, _0nodes);
     rpc_write(client, &_0numNodes, sizeof(_0numNodes));
+    updateTmpPtr((void *)numNodes, _0numNodes);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11010,8 +11266,8 @@ extern "C" CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodes, sizeof(*nodes));
-    mem2client(client, (void *)numNodes, sizeof(*numNodes));
+    mem2client(client, (void *)nodes, sizeof(*nodes), true);
+    mem2client(client, (void *)numNodes, sizeof(*numNodes), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11051,7 +11307,9 @@ extern "C" CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, 
     rpc_prepare_request(client, RPC_cuGraphGetRootNodes);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0rootNodes, sizeof(_0rootNodes));
+    updateTmpPtr((void *)rootNodes, _0rootNodes);
     rpc_write(client, &_0numRootNodes, sizeof(_0numRootNodes));
+    updateTmpPtr((void *)numRootNodes, _0numRootNodes);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11059,8 +11317,8 @@ extern "C" CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)rootNodes, sizeof(*rootNodes));
-    mem2client(client, (void *)numRootNodes, sizeof(*numRootNodes));
+    mem2client(client, (void *)rootNodes, sizeof(*rootNodes), true);
+    mem2client(client, (void *)numRootNodes, sizeof(*numRootNodes), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11102,8 +11360,11 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
     rpc_prepare_request(client, RPC_cuGraphGetEdges);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0from, sizeof(_0from));
+    updateTmpPtr((void *)from, _0from);
     rpc_write(client, &_0to, sizeof(_0to));
+    updateTmpPtr((void *)to, _0to);
     rpc_write(client, &_0numEdges, sizeof(_0numEdges));
+    updateTmpPtr((void *)numEdges, _0numEdges);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11111,9 +11372,9 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)from, sizeof(*from));
-    mem2client(client, (void *)to, sizeof(*to));
-    mem2client(client, (void *)numEdges, sizeof(*numEdges));
+    mem2client(client, (void *)from, sizeof(*from), true);
+    mem2client(client, (void *)to, sizeof(*to), true);
+    mem2client(client, (void *)numEdges, sizeof(*numEdges), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11153,7 +11414,9 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
     rpc_prepare_request(client, RPC_cuGraphNodeGetDependencies);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
     rpc_write(client, &_0numDependencies, sizeof(_0numDependencies));
+    updateTmpPtr((void *)numDependencies, _0numDependencies);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11161,8 +11424,8 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dependencies, sizeof(*dependencies));
-    mem2client(client, (void *)numDependencies, sizeof(*numDependencies));
+    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(client, (void *)numDependencies, sizeof(*numDependencies), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11202,7 +11465,9 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
     rpc_prepare_request(client, RPC_cuGraphNodeGetDependentNodes);
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0dependentNodes, sizeof(_0dependentNodes));
+    updateTmpPtr((void *)dependentNodes, _0dependentNodes);
     rpc_write(client, &_0numDependentNodes, sizeof(_0numDependentNodes));
+    updateTmpPtr((void *)numDependentNodes, _0numDependentNodes);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11210,8 +11475,8 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dependentNodes, sizeof(*dependentNodes));
-    mem2client(client, (void *)numDependentNodes, sizeof(*numDependentNodes));
+    mem2client(client, (void *)dependentNodes, sizeof(*dependentNodes), true);
+    mem2client(client, (void *)numDependentNodes, sizeof(*numDependentNodes), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11251,7 +11516,9 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
     rpc_prepare_request(client, RPC_cuGraphAddDependencies);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0from, sizeof(_0from));
+    updateTmpPtr((void *)from, _0from);
     rpc_write(client, &_0to, sizeof(_0to));
+    updateTmpPtr((void *)to, _0to);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11260,8 +11527,8 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)from, sizeof(*from));
-    mem2client(client, (void *)to, sizeof(*to));
+    mem2client(client, (void *)from, sizeof(*from), true);
+    mem2client(client, (void *)to, sizeof(*to), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11301,7 +11568,9 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
     rpc_prepare_request(client, RPC_cuGraphRemoveDependencies);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0from, sizeof(_0from));
+    updateTmpPtr((void *)from, _0from);
     rpc_write(client, &_0to, sizeof(_0to));
+    updateTmpPtr((void *)to, _0to);
     rpc_write(client, &numDependencies, sizeof(numDependencies));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11310,8 +11579,8 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)from, sizeof(*from));
-    mem2client(client, (void *)to, sizeof(*to));
+    mem2client(client, (void *)from, sizeof(*from), true);
+    mem2client(client, (void *)to, sizeof(*to), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11391,8 +11660,10 @@ extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGra
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphInstantiate_v2);
     rpc_write(client, &_0phGraphExec, sizeof(_0phGraphExec));
+    updateTmpPtr((void *)phGraphExec, _0phGraphExec);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0phErrorNode, sizeof(_0phErrorNode));
+    updateTmpPtr((void *)phErrorNode, _0phErrorNode);
     if(bufferSize > 0) {
         rpc_read(client, logBuffer, bufferSize, true);
     }
@@ -11404,8 +11675,8 @@ extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGra
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphExec, sizeof(*phGraphExec));
-    mem2client(client, (void *)phErrorNode, sizeof(*phErrorNode));
+    mem2client(client, (void *)phGraphExec, sizeof(*phGraphExec), true);
+    mem2client(client, (void *)phErrorNode, sizeof(*phErrorNode), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11442,6 +11713,7 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphInstantiateWithFlags);
     rpc_write(client, &_0phGraphExec, sizeof(_0phGraphExec));
+    updateTmpPtr((void *)phGraphExec, _0phGraphExec);
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &flags, sizeof(flags));
     rpc_read(client, &_result, sizeof(_result));
@@ -11451,7 +11723,7 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phGraphExec, sizeof(*phGraphExec));
+    mem2client(client, (void *)phGraphExec, sizeof(*phGraphExec), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11490,6 +11762,7 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11497,7 +11770,7 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11536,6 +11809,7 @@ extern "C" CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgra
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0copyParams, sizeof(_0copyParams));
+    updateTmpPtr((void *)copyParams, _0copyParams);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11544,7 +11818,7 @@ extern "C" CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgra
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)copyParams, sizeof(*copyParams));
+    mem2client(client, (void *)copyParams, sizeof(*copyParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11583,6 +11857,7 @@ extern "C" CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgra
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0memsetParams, sizeof(_0memsetParams));
+    updateTmpPtr((void *)memsetParams, _0memsetParams);
     rpc_write(client, &ctx, sizeof(ctx));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -11591,7 +11866,7 @@ extern "C" CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgra
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)memsetParams, sizeof(*memsetParams));
+    mem2client(client, (void *)memsetParams, sizeof(*memsetParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11630,6 +11905,7 @@ extern "C" CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraph
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11637,7 +11913,7 @@ extern "C" CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraph
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11805,6 +12081,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11812,7 +12089,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -11851,6 +12128,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11858,7 +12136,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams));
+    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12065,7 +12343,9 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
     rpc_write(client, &hGraphExec, sizeof(hGraphExec));
     rpc_write(client, &hGraph, sizeof(hGraph));
     rpc_write(client, &_0hErrorNode_out, sizeof(_0hErrorNode_out));
+    updateTmpPtr((void *)hErrorNode_out, _0hErrorNode_out);
     rpc_write(client, &_0updateResult_out, sizeof(_0updateResult_out));
+    updateTmpPtr((void *)updateResult_out, _0updateResult_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -12073,8 +12353,8 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)hErrorNode_out, sizeof(*hErrorNode_out));
-    mem2client(client, (void *)updateResult_out, sizeof(*updateResult_out));
+    mem2client(client, (void *)hErrorNode_out, sizeof(*hErrorNode_out), true);
+    mem2client(client, (void *)updateResult_out, sizeof(*updateResult_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12155,6 +12435,7 @@ extern "C" CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNod
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value_out, sizeof(_0value_out));
+    updateTmpPtr((void *)value_out, _0value_out);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -12162,7 +12443,7 @@ extern "C" CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNod
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value_out, sizeof(*value_out));
+    mem2client(client, (void *)value_out, sizeof(*value_out), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12201,6 +12482,7 @@ extern "C" CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNod
     rpc_write(client, &hNode, sizeof(hNode));
     rpc_write(client, &attr, sizeof(attr));
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -12208,7 +12490,7 @@ extern "C" CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNod
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value));
+    mem2client(client, (void *)value, sizeof(*value), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12290,7 +12572,9 @@ extern "C" CUresult cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUho
     CUresult _result;
     rpc_prepare_request(client, RPC_cuUserObjectCreate);
     rpc_write(client, &_0object_out, sizeof(_0object_out));
+    updateTmpPtr((void *)object_out, _0object_out);
     rpc_write(client, &_0ptr, sizeof(_0ptr));
+    updateTmpPtr((void *)ptr, _0ptr);
     rpc_write(client, &destroy, sizeof(destroy));
     rpc_write(client, &initialRefcount, sizeof(initialRefcount));
     rpc_write(client, &flags, sizeof(flags));
@@ -12301,8 +12585,8 @@ extern "C" CUresult cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUho
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)object_out, sizeof(*object_out));
-    mem2client(client, (void *)ptr, 0);
+    mem2client(client, (void *)object_out, sizeof(*object_out), true);
+    mem2client(client, (void *)ptr, 0, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12510,6 +12794,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxActiveBlocksPerMultiprocessor);
     rpc_write(client, &_0numBlocks, sizeof(_0numBlocks));
+    updateTmpPtr((void *)numBlocks, _0numBlocks);
     rpc_write(client, &func, sizeof(func));
     rpc_write(client, &blockSize, sizeof(blockSize));
     rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
@@ -12520,7 +12805,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)numBlocks, sizeof(*numBlocks));
+    mem2client(client, (void *)numBlocks, sizeof(*numBlocks), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12557,6 +12842,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *nu
     CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
     rpc_write(client, &_0numBlocks, sizeof(_0numBlocks));
+    updateTmpPtr((void *)numBlocks, _0numBlocks);
     rpc_write(client, &func, sizeof(func));
     rpc_write(client, &blockSize, sizeof(blockSize));
     rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
@@ -12568,7 +12854,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *nu
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)numBlocks, sizeof(*numBlocks));
+    mem2client(client, (void *)numBlocks, sizeof(*numBlocks), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12607,7 +12893,9 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *bloc
     CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxPotentialBlockSize);
     rpc_write(client, &_0minGridSize, sizeof(_0minGridSize));
+    updateTmpPtr((void *)minGridSize, _0minGridSize);
     rpc_write(client, &_0blockSize, sizeof(_0blockSize));
+    updateTmpPtr((void *)blockSize, _0blockSize);
     rpc_write(client, &func, sizeof(func));
     rpc_write(client, &blockSizeToDynamicSMemSize, sizeof(blockSizeToDynamicSMemSize));
     rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
@@ -12619,8 +12907,8 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *bloc
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)minGridSize, sizeof(*minGridSize));
-    mem2client(client, (void *)blockSize, sizeof(*blockSize));
+    mem2client(client, (void *)minGridSize, sizeof(*minGridSize), true);
+    mem2client(client, (void *)blockSize, sizeof(*blockSize), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12659,7 +12947,9 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyMaxPotentialBlockSizeWithFlags);
     rpc_write(client, &_0minGridSize, sizeof(_0minGridSize));
+    updateTmpPtr((void *)minGridSize, _0minGridSize);
     rpc_write(client, &_0blockSize, sizeof(_0blockSize));
+    updateTmpPtr((void *)blockSize, _0blockSize);
     rpc_write(client, &func, sizeof(func));
     rpc_write(client, &blockSizeToDynamicSMemSize, sizeof(blockSizeToDynamicSMemSize));
     rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
@@ -12672,8 +12962,8 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)minGridSize, sizeof(*minGridSize));
-    mem2client(client, (void *)blockSize, sizeof(*blockSize));
+    mem2client(client, (void *)minGridSize, sizeof(*minGridSize), true);
+    mem2client(client, (void *)blockSize, sizeof(*blockSize), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12710,6 +13000,7 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
     CUresult _result;
     rpc_prepare_request(client, RPC_cuOccupancyAvailableDynamicSMemPerBlock);
     rpc_write(client, &_0dynamicSmemSize, sizeof(_0dynamicSmemSize));
+    updateTmpPtr((void *)dynamicSmemSize, _0dynamicSmemSize);
     rpc_write(client, &func, sizeof(func));
     rpc_write(client, &numBlocks, sizeof(numBlocks));
     rpc_write(client, &blockSize, sizeof(blockSize));
@@ -12720,7 +13011,7 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize));
+    mem2client(client, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12845,8 +13136,10 @@ extern "C" CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefSetAddress_v2);
     rpc_write(client, &_0ByteOffset, sizeof(_0ByteOffset));
+    updateTmpPtr((void *)ByteOffset, _0ByteOffset);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_write(client, &bytes, sizeof(bytes));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12855,8 +13148,8 @@ extern "C" CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)ByteOffset, sizeof(*ByteOffset));
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)ByteOffset, sizeof(*ByteOffset), true);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -12896,7 +13189,9 @@ extern "C" CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_D
     rpc_prepare_request(client, RPC_cuTexRefSetAddress2D_v3);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
     rpc_write(client, &_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
     rpc_write(client, &Pitch, sizeof(Pitch));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -12905,8 +13200,8 @@ extern "C" CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_D
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)desc, sizeof(*desc));
-    mem2client(client, (void *)dptr, -1);
+    mem2client(client, (void *)desc, sizeof(*desc), true);
+    mem2client(client, (void *)dptr, -1, true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13241,6 +13536,7 @@ extern "C" CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor
     rpc_prepare_request(client, RPC_cuTexRefSetBorderColor);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &_0pBorderColor, sizeof(_0pBorderColor));
+    updateTmpPtr((void *)pBorderColor, _0pBorderColor);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -13248,7 +13544,7 @@ extern "C" CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pBorderColor, sizeof(*pBorderColor));
+    mem2client(client, (void *)pBorderColor, sizeof(*pBorderColor), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13327,6 +13623,7 @@ extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetArray);
     rpc_write(client, &_0phArray, sizeof(_0phArray));
+    updateTmpPtr((void *)phArray, _0phArray);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13335,7 +13632,7 @@ extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phArray, sizeof(*phArray));
+    mem2client(client, (void *)phArray, sizeof(*phArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13372,6 +13669,7 @@ extern "C" CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmappedArray);
     rpc_write(client, &_0phMipmappedArray, sizeof(_0phMipmappedArray));
+    updateTmpPtr((void *)phMipmappedArray, _0phMipmappedArray);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13380,7 +13678,7 @@ extern "C" CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phMipmappedArray, sizeof(*phMipmappedArray));
+    mem2client(client, (void *)phMipmappedArray, sizeof(*phMipmappedArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13417,6 +13715,7 @@ extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetAddressMode);
     rpc_write(client, &_0pam, sizeof(_0pam));
+    updateTmpPtr((void *)pam, _0pam);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_write(client, &dim, sizeof(dim));
     rpc_read(client, &_result, sizeof(_result));
@@ -13426,7 +13725,7 @@ extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pam, sizeof(*pam));
+    mem2client(client, (void *)pam, sizeof(*pam), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13463,6 +13762,7 @@ extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) 
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetFilterMode);
     rpc_write(client, &_0pfm, sizeof(_0pfm));
+    updateTmpPtr((void *)pfm, _0pfm);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13471,7 +13771,7 @@ extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) 
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pfm, sizeof(*pfm));
+    mem2client(client, (void *)pfm, sizeof(*pfm), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13510,7 +13810,9 @@ extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetFormat);
     rpc_write(client, &_0pFormat, sizeof(_0pFormat));
+    updateTmpPtr((void *)pFormat, _0pFormat);
     rpc_write(client, &_0pNumChannels, sizeof(_0pNumChannels));
+    updateTmpPtr((void *)pNumChannels, _0pNumChannels);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13519,8 +13821,8 @@ extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pFormat, sizeof(*pFormat));
-    mem2client(client, (void *)pNumChannels, sizeof(*pNumChannels));
+    mem2client(client, (void *)pFormat, sizeof(*pFormat), true);
+    mem2client(client, (void *)pNumChannels, sizeof(*pNumChannels), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13557,6 +13859,7 @@ extern "C" CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTe
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmapFilterMode);
     rpc_write(client, &_0pfm, sizeof(_0pfm));
+    updateTmpPtr((void *)pfm, _0pfm);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13565,7 +13868,7 @@ extern "C" CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTe
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pfm, sizeof(*pfm));
+    mem2client(client, (void *)pfm, sizeof(*pfm), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13602,6 +13905,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmapLevelBias);
     rpc_write(client, &_0pbias, sizeof(_0pbias));
+    updateTmpPtr((void *)pbias, _0pbias);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13610,7 +13914,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pbias, sizeof(*pbias));
+    mem2client(client, (void *)pbias, sizeof(*pbias), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13649,7 +13953,9 @@ extern "C" CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, flo
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMipmapLevelClamp);
     rpc_write(client, &_0pminMipmapLevelClamp, sizeof(_0pminMipmapLevelClamp));
+    updateTmpPtr((void *)pminMipmapLevelClamp, _0pminMipmapLevelClamp);
     rpc_write(client, &_0pmaxMipmapLevelClamp, sizeof(_0pmaxMipmapLevelClamp));
+    updateTmpPtr((void *)pmaxMipmapLevelClamp, _0pmaxMipmapLevelClamp);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13658,8 +13964,8 @@ extern "C" CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, flo
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pminMipmapLevelClamp, sizeof(*pminMipmapLevelClamp));
-    mem2client(client, (void *)pmaxMipmapLevelClamp, sizeof(*pmaxMipmapLevelClamp));
+    mem2client(client, (void *)pminMipmapLevelClamp, sizeof(*pminMipmapLevelClamp), true);
+    mem2client(client, (void *)pmaxMipmapLevelClamp, sizeof(*pmaxMipmapLevelClamp), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13696,6 +14002,7 @@ extern "C" CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetMaxAnisotropy);
     rpc_write(client, &_0pmaxAniso, sizeof(_0pmaxAniso));
+    updateTmpPtr((void *)pmaxAniso, _0pmaxAniso);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13704,7 +14011,7 @@ extern "C" CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pmaxAniso, sizeof(*pmaxAniso));
+    mem2client(client, (void *)pmaxAniso, sizeof(*pmaxAniso), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13741,6 +14048,7 @@ extern "C" CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetBorderColor);
     rpc_write(client, &_0pBorderColor, sizeof(_0pBorderColor));
+    updateTmpPtr((void *)pBorderColor, _0pBorderColor);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13749,7 +14057,7 @@ extern "C" CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pBorderColor, sizeof(*pBorderColor));
+    mem2client(client, (void *)pBorderColor, sizeof(*pBorderColor), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13786,6 +14094,7 @@ extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefGetFlags);
     rpc_write(client, &_0pFlags, sizeof(_0pFlags));
+    updateTmpPtr((void *)pFlags, _0pFlags);
     rpc_write(client, &hTexRef, sizeof(hTexRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13794,7 +14103,7 @@ extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pFlags, sizeof(*pFlags));
+    mem2client(client, (void *)pFlags, sizeof(*pFlags), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13831,6 +14140,7 @@ extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexRefCreate);
     rpc_write(client, &_0pTexRef, sizeof(_0pTexRef));
+    updateTmpPtr((void *)pTexRef, _0pTexRef);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -13838,7 +14148,7 @@ extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pTexRef, sizeof(*pTexRef));
+    mem2client(client, (void *)pTexRef, sizeof(*pTexRef), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -13959,6 +14269,7 @@ extern "C" CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef) {
     CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfRefGetArray);
     rpc_write(client, &_0phArray, sizeof(_0phArray));
+    updateTmpPtr((void *)phArray, _0phArray);
     rpc_write(client, &hSurfRef, sizeof(hSurfRef));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -13967,7 +14278,7 @@ extern "C" CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef) {
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)phArray, sizeof(*phArray));
+    mem2client(client, (void *)phArray, sizeof(*phArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14010,9 +14321,13 @@ extern "C" CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOUR
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectCreate);
     rpc_write(client, &_0pTexObject, sizeof(_0pTexObject));
+    updateTmpPtr((void *)pTexObject, _0pTexObject);
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    updateTmpPtr((void *)pResDesc, _0pResDesc);
     rpc_write(client, &_0pTexDesc, sizeof(_0pTexDesc));
+    updateTmpPtr((void *)pTexDesc, _0pTexDesc);
     rpc_write(client, &_0pResViewDesc, sizeof(_0pResViewDesc));
+    updateTmpPtr((void *)pResViewDesc, _0pResViewDesc);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -14020,10 +14335,10 @@ extern "C" CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOUR
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pTexObject, sizeof(*pTexObject));
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc));
-    mem2client(client, (void *)pTexDesc, sizeof(*pTexDesc));
-    mem2client(client, (void *)pResViewDesc, sizeof(*pResViewDesc));
+    mem2client(client, (void *)pTexObject, sizeof(*pTexObject), true);
+    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
+    mem2client(client, (void *)pTexDesc, sizeof(*pTexDesc), true);
+    mem2client(client, (void *)pResViewDesc, sizeof(*pResViewDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14101,6 +14416,7 @@ extern "C" CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUt
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectGetResourceDesc);
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    updateTmpPtr((void *)pResDesc, _0pResDesc);
     rpc_write(client, &texObject, sizeof(texObject));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14109,7 +14425,7 @@ extern "C" CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUt
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc));
+    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14146,6 +14462,7 @@ extern "C" CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtex
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectGetTextureDesc);
     rpc_write(client, &_0pTexDesc, sizeof(_0pTexDesc));
+    updateTmpPtr((void *)pTexDesc, _0pTexDesc);
     rpc_write(client, &texObject, sizeof(texObject));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14154,7 +14471,7 @@ extern "C" CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtex
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pTexDesc, sizeof(*pTexDesc));
+    mem2client(client, (void *)pTexDesc, sizeof(*pTexDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14191,6 +14508,7 @@ extern "C" CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pRes
     CUresult _result;
     rpc_prepare_request(client, RPC_cuTexObjectGetResourceViewDesc);
     rpc_write(client, &_0pResViewDesc, sizeof(_0pResViewDesc));
+    updateTmpPtr((void *)pResViewDesc, _0pResViewDesc);
     rpc_write(client, &texObject, sizeof(texObject));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14199,7 +14517,7 @@ extern "C" CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pRes
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pResViewDesc, sizeof(*pResViewDesc));
+    mem2client(client, (void *)pResViewDesc, sizeof(*pResViewDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14238,7 +14556,9 @@ extern "C" CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RES
     CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfObjectCreate);
     rpc_write(client, &_0pSurfObject, sizeof(_0pSurfObject));
+    updateTmpPtr((void *)pSurfObject, _0pSurfObject);
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    updateTmpPtr((void *)pResDesc, _0pResDesc);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -14246,8 +14566,8 @@ extern "C" CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RES
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pSurfObject, sizeof(*pSurfObject));
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc));
+    mem2client(client, (void *)pSurfObject, sizeof(*pSurfObject), true);
+    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14325,6 +14645,7 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
     CUresult _result;
     rpc_prepare_request(client, RPC_cuSurfObjectGetResourceDesc);
     rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    updateTmpPtr((void *)pResDesc, _0pResDesc);
     rpc_write(client, &surfObject, sizeof(surfObject));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14333,7 +14654,7 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc));
+    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14370,6 +14691,7 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceCanAccessPeer);
     rpc_write(client, &_0canAccessPeer, sizeof(_0canAccessPeer));
+    updateTmpPtr((void *)canAccessPeer, _0canAccessPeer);
     rpc_write(client, &dev, sizeof(dev));
     rpc_write(client, &peerDev, sizeof(peerDev));
     rpc_read(client, &_result, sizeof(_result));
@@ -14379,7 +14701,7 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)canAccessPeer, sizeof(*canAccessPeer));
+    mem2client(client, (void *)canAccessPeer, sizeof(*canAccessPeer), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14499,6 +14821,7 @@ extern "C" CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute at
     CUresult _result;
     rpc_prepare_request(client, RPC_cuDeviceGetP2PAttribute);
     rpc_write(client, &_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
     rpc_write(client, &attrib, sizeof(attrib));
     rpc_write(client, &srcDevice, sizeof(srcDevice));
     rpc_write(client, &dstDevice, sizeof(dstDevice));
@@ -14509,7 +14832,7 @@ extern "C" CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute at
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value));
+    mem2client(client, (void *)value, sizeof(*value), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14587,6 +14910,7 @@ extern "C" CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraph
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsSubResourceGetMappedArray);
     rpc_write(client, &_0pArray, sizeof(_0pArray));
+    updateTmpPtr((void *)pArray, _0pArray);
     rpc_write(client, &resource, sizeof(resource));
     rpc_write(client, &arrayIndex, sizeof(arrayIndex));
     rpc_write(client, &mipLevel, sizeof(mipLevel));
@@ -14597,7 +14921,7 @@ extern "C" CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraph
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pArray, sizeof(*pArray));
+    mem2client(client, (void *)pArray, sizeof(*pArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14634,6 +14958,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *
     CUresult _result;
     rpc_prepare_request(client, RPC_cuGraphicsResourceGetMappedMipmappedArray);
     rpc_write(client, &_0pMipmappedArray, sizeof(_0pMipmappedArray));
+    updateTmpPtr((void *)pMipmappedArray, _0pMipmappedArray);
     rpc_write(client, &resource, sizeof(resource));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14642,7 +14967,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pMipmappedArray, sizeof(*pMipmappedArray));
+    mem2client(client, (void *)pMipmappedArray, sizeof(*pMipmappedArray), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14722,6 +15047,7 @@ extern "C" CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResourc
     rpc_prepare_request(client, RPC_cuGraphicsMapResources);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &_0resources, sizeof(_0resources));
+    updateTmpPtr((void *)resources, _0resources);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14730,7 +15056,7 @@ extern "C" CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResourc
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)resources, sizeof(*resources));
+    mem2client(client, (void *)resources, sizeof(*resources), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14768,6 +15094,7 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
     rpc_prepare_request(client, RPC_cuGraphicsUnmapResources);
     rpc_write(client, &count, sizeof(count));
     rpc_write(client, &_0resources, sizeof(_0resources));
+    updateTmpPtr((void *)resources, _0resources);
     rpc_write(client, &hStream, sizeof(hStream));
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
@@ -14776,7 +15103,7 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)resources, sizeof(*resources));
+    mem2client(client, (void *)resources, sizeof(*resources), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
@@ -14814,6 +15141,7 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
     rpc_prepare_request(client, RPC_cuGetExportTable);
     rpc_read(client, ppExportTable, sizeof(*ppExportTable));
     rpc_write(client, &_0pExportTableId, sizeof(_0pExportTableId));
+    updateTmpPtr((void *)pExportTableId, _0pExportTableId);
     rpc_read(client, &_result, sizeof(_result));
     if(rpc_submit_request(client) != 0) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -14821,7 +15149,7 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
         exit(1);
     }
     rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pExportTableId, sizeof(*pExportTableId));
+    mem2client(client, (void *)pExportTableId, sizeof(*pExportTableId), true);
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
         if(rpc_submit_request(client) != 0) {
