@@ -237,6 +237,29 @@ int handle_cudaGetSymbolAddress(void *args) {
     return 0;
 }
 
+int handle_cudaGraphMemcpyNodeGetParams(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function cudaGraphMemcpyNodeGetParams called" << std::endl;
+#endif
+    RpcClient *client = (RpcClient *)args0;
+    cudaGraphNode_t node;
+    rpc_read(client, &node, sizeof(node));
+    struct cudaMemcpy3DParms pNodeParams;
+    cudaError_t _result;
+    if(rpc_prepare_response(client) != 0) {
+        std::cerr << "Failed to prepare response" << std::endl;
+        return 1;
+    }
+    _result = cudaGraphMemcpyNodeGetParams(node, &pNodeParams);
+    rpc_write(client, &pNodeParams, sizeof(pNodeParams));
+    rpc_write(client, &_result, sizeof(_result));
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        return 1;
+    }
+    return 0;
+}
+
 int handle_cudaHostAlloc(void *args) {
 #ifdef DEBUG
     std::cout << "Handle function handle_cudaHostAlloc called" << std::endl;
@@ -1250,7 +1273,6 @@ int handle_cuMemAllocHost_v2(void *args) {
         return 1;
     }
     CUresult _result = cuMemAllocHost_v2(&pp, bytesize);
-    printf("cuMemAllocHost_v2 called with pointer: %p\n", pp);
     rpc_write(client, &pp, sizeof(pp));
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {
@@ -1349,7 +1371,6 @@ int handle_cuMemFreeHost(void *args) {
         std::cerr << "Failed to prepare response" << std::endl;
         return 1;
     }
-    printf("cuMemFreeHost called with pointer: %p\n", p);
     CUresult _result = cuMemFreeHost(p);
     rpc_write(client, &_result, sizeof(_result));
     if(rpc_submit_response(client) != 0) {

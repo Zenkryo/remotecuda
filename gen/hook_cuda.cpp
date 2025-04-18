@@ -2184,6 +2184,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
             exit(1);
         }
     }
+    // PARAM void **optionValues
     rpc_free_client(client);
     return _result;
 }
@@ -2471,6 +2472,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
             exit(1);
         }
     }
+    // PARAM void **optionValues
     rpc_free_client(client);
     return _result;
 }
@@ -2530,6 +2532,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
             exit(1);
         }
     }
+    // PARAM void **optionValues
     rpc_free_client(client);
     return _result;
 }
@@ -2583,6 +2586,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
             exit(1);
         }
     }
+    // PARAM void **optionValues
     rpc_free_client(client);
     return _result;
 }
@@ -2633,6 +2637,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
             exit(1);
         }
     }
+    // PARAM void **cubinOut
     rpc_free_client(client);
     return _result;
 }
@@ -8889,6 +8894,8 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
             exit(1);
         }
     }
+    // PARAM void **kernelParams
+    // PARAM void **extra
     rpc_free_client(client);
     return _result;
 }

@@ -6564,46 +6564,6 @@ _RTN_:
     return rtn;
 }
 
-int handle_cudaGraphMemcpyNodeGetParams(void *args0) {
-#ifdef DEBUG
-    std::cout << "Handle function cudaGraphMemcpyNodeGetParams called" << std::endl;
-#endif
-    int rtn = 0;
-    std::set<void *> buffers;
-    RpcClient *client = (RpcClient *)args0;
-    cudaGraphNode_t node;
-    rpc_read(client, &node, sizeof(node));
-    struct cudaMemcpy3DParms *pNodeParams;
-    rpc_read(client, &pNodeParams, sizeof(pNodeParams));
-    void *_0sptr;
-    rpc_read(client, &_0sptr, sizeof(_0sptr));
-    void *_0dptr;
-    rpc_read(client, &_0dptr, sizeof(_0dptr));
-    cudaError_t _result;
-    if(rpc_prepare_response(client) != 0) {
-        std::cerr << "Failed to prepare response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-    if(pNodeParams != nullptr) {
-        pNodeParams->srcPtr.ptr = _0sptr;
-        pNodeParams->dstPtr.ptr = _0dptr;
-    }
-    _result = cudaGraphMemcpyNodeGetParams(node, pNodeParams);
-    rpc_write(client, &_result, sizeof(_result));
-    if(rpc_submit_response(client) != 0) {
-        std::cerr << "Failed to submit response" << std::endl;
-        rtn = 1;
-        goto _RTN_;
-    }
-
-_RTN_:
-    for(auto it = buffers.begin(); it != buffers.end(); it++) {
-        ::free(*it);
-    }
-    return rtn;
-}
-
 int handle_cudaGraphMemcpyNodeSetParams(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cudaGraphMemcpyNodeSetParams called" << std::endl;

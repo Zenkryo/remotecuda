@@ -106,6 +106,25 @@ void *getServerHostPtr(void *clientPtr) {
     return nullptr;
 }
 
+void *getClientHostPtr(void *serverPtr) {
+    for(auto it = cs_host_mems.begin(); it != cs_host_mems.end(); it++) {
+        if(it->second.first == serverPtr) {
+            return it->first;
+        }
+    }
+    for(auto it = cs_host_tmp_mems.begin(); it != cs_host_tmp_mems.end(); it++) {
+        if(it->second.first == serverPtr) {
+            return it->first;
+        }
+    }
+    for(auto it = cs_union_mems.begin(); it != cs_union_mems.end(); it++) {
+        if(it->second.first == serverPtr) {
+            return it->first;
+        }
+    }
+    return nullptr;
+}
+
 void *getServerDevPtr(void *ptr) {
     if(server_dev_mems.find(ptr) != server_dev_mems.end()) {
         return ptr;
@@ -840,6 +859,50 @@ extern "C" cudaError_t cudaGetSymbolAddress(void **devPtr, const void *symbol) {
     }
     if(_result == cudaSuccess) {
         server_dev_mems[*devPtr] = 0;
+        printf("Line %d: Adding to server_dev_mems: ptr=%p, size=0\n", __LINE__, *devPtr);
+    }
+    rpc_free_client(client);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGraphMemcpyNodeGetParams(cudaGraphNode_t node, struct cudaMemcpy3DParms *pNodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGraphMemcpyNodeGetParams called" << std::endl;
+#endif
+    RpcClient *client = rpc_get_client();
+    if(client == nullptr) {
+        std::cerr << "Failed to get rpc client" << std::endl;
+        exit(1);
+    }
+    void *end_flag = (void *)0xffffffff;
+    cudaError_t _result;
+    rpc_prepare_request(client, RPC_cudaGraphMemcpyNodeGetParams);
+    rpc_write(client, &node, sizeof(node));
+    rpc_read(client, pNodeParams, sizeof(*pNodeParams));
+    rpc_read(client, &_result, sizeof(_result));
+    if(rpc_submit_request(client) != 0) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_client(client);
+        exit(1);
+    }
+    rpc_prepare_request(client, RPC_mem2client);
+    void *ptr = getClientHostPtr(pNodeParams->srcPtr.ptr);
+    if(ptr != nullptr) {
+        pNodeParams->srcPtr.ptr = ptr;
+        mem2client(client, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
+    }
+    ptr = getClientHostPtr(pNodeParams->dstPtr.ptr);
+    if(ptr != nullptr) {
+        pNodeParams->dstPtr.ptr = ptr;
+        mem2client(client, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
+    }
+    if(client->iov_read2_count > 0) {
+        rpc_write(client, &end_flag, sizeof(end_flag));
+        if(rpc_submit_request(client) != 0) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_client(client);
+            exit(1);
+        }
     }
     rpc_free_client(client);
     return _result;
@@ -2243,7 +2306,6 @@ extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool po
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
-        // TODO 通过拦截cuMemPoolExportPointer获取size，现在先将size置0
         server_dev_mems[(void *)*ptr_out] = 0;
     }
     rpc_free_client(client);
