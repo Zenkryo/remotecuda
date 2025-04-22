@@ -1,6 +1,7 @@
 #pragma once
 #include <set>
 #include <queue>
+#include <map>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,7 @@
 typedef struct _RpcClient {
     int sockfd;                             // TCP连接的文件描述符
     uint32_t funcId;                        // 函数ID
+    uuid_t clientId;                        // 客户端ID
     struct iovec iov_send[MAX_IOCV_COUNT];  // iovec数组，用于预先确定长度的数据传输
     struct iovec iov_send2[MAX_IOCV_COUNT]; // iovec数组，用长度不预先确定的数据传输
     struct iovec iov_read[MAX_IOCV_COUNT];  // iovec数组，用于预先确定长度的数据传输
@@ -34,12 +36,30 @@ typedef struct _RpcClient {
 
 typedef struct {
     uuid_t id;
+    bool is_async;
     uint16_t version_key;
 } handshake_request;
 
 typedef struct {
     int status;
 } handshake_response;
+
+// 异步消息结构
+struct AsyncMessage {
+    uint32_t message_type; // 消息类型
+    size_t data_len;       // 数据长度
+    void *data;            // 消息数据
+};
+
+// 消息处理器结构
+struct AsyncMessageHandler {
+    void (*handler)(AsyncMessage *msg); // 消息处理函数
+    void *user_data;                    // 用户数据
+};
+
+typedef int (*AsyncHandler)(void *);
+
+AsyncHandler get_async_handler(const uint32_t funcId);
 
 void rpc_init(uint16_t version_key);
 RpcClient *rpc_get_client();
@@ -51,6 +71,7 @@ void rpc_read(RpcClient *client, void *buffer, size_t len, bool with_len = false
 int rpc_submit_request(RpcClient *client);
 int rpc_prepare_response(RpcClient *client);
 int rpc_submit_response(RpcClient *client);
+void rpc_destroy();
 ssize_t read_all_now(RpcClient *client, void **buffer, size_t *size, int count);
 ssize_t read_one_now(RpcClient *client, void *buffer, size_t size, bool with_len);
 void hexdump(const char *desc, void *buf, size_t len);

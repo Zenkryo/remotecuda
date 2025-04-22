@@ -51,6 +51,7 @@ MANUAL_FUNCTIONS = [
     # 客户端和服务器端内存同步
     "mem2server",
     "mem2client",
+    "mem2client_async",
     # CUDA Runtime API
     "__cudaInitModule",
     "__cudaPopCallConfiguration",
@@ -183,13 +184,13 @@ def generate_handle_server_cpp(output_dir, function_map):
 
     with open(handle_server_file, "w") as f:
         # 包含 hook_api.h
-        f.write("#include <unordered_map>\n")
+        f.write("#include <map>\n")
         f.write("#include <iostream>\n\n")
         f.write('#include "hook_api.h"\n')
         f.write('#include "handle_server.h"\n\n')
 
         # 生成 handlerMap
-        f.write("std::unordered_map<uint32_t, RequestHandler> handlerMap = {\n")
+        f.write("std::map<uint32_t, RequestHandler> handlerMap = {\n")
         for header_file, functions in function_map.items():
             for function in functions:
                 function_name = function.name.format()
@@ -226,7 +227,7 @@ def generate_client_cpp(output_dir, function_map, so_files):
         f.write("#include <iostream>\n")
         f.write("#include <cstdlib>\n")
         f.write("#include <dlfcn.h>\n")
-        f.write("#include <unordered_map>\n")
+        f.write("#include <map>\n")
         f.write("#include <string>\n\n")
 
         # 包含所有头文件
@@ -238,9 +239,9 @@ def generate_client_cpp(output_dir, function_map, so_files):
         f.write("\n")
 
         # 写入自定义的 dlsym 实现
-        f.write("// 使用 std::unordered_map 保存函数名和函数指针的映射\n")
+        f.write("// 使用 std::map 保存函数名和函数指针的映射\n")
         f.write("void *getHookFunc(const char *symbol) {\n")
-        f.write("    std::unordered_map<std::string, void *> functionMap = {\n")
+        f.write("    std::map<std::string, void *> functionMap = {\n")
 
         # 遍历所有头文件和函数，生成 map 初始化代码
         for header_file, functions in function_map.items():
@@ -1564,7 +1565,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
     with open(output_file, "w") as f:
         # 包含必要的头文件
         f.write("#include <iostream>\n")
-        f.write("#include <unordered_map>\n")
+        f.write("#include <map>\n")
         if header_file.startswith("/"):
             f.write(f'#include "{os.path.basename(header_file)}"\n\n')
         else:
@@ -1688,7 +1689,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
     with open(output_file, "w") as f:
         # 包含必要的头文件
         f.write("#include <iostream>\n")
-        f.write("#include <unordered_map>\n")
+        f.write("#include <map>\n")
         f.write('#include "hook_api.h"\n')
         f.write('#include "handle_server.h"\n')
         f.write('#include "../rpc.h"\n')

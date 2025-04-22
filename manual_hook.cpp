@@ -1,6 +1,6 @@
 #include <iostream>
 #include <map>
-#include <unordered_map>
+#include <map>
 #include <set>
 #include <vector>
 #include <cstdlib>
@@ -726,6 +726,115 @@ extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, boo
     return;
 }
 
+extern "C" void mem2client_async(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr) {
+#ifdef DEBUG
+    std::cout << "Hook: mem2client_async called " << clientPtr << " " << size << std::endl;
+#endif
+    void *ptr = nullptr; // 服务器端内存指针(起始位置)
+    size_t memSize = 0;
+
+    if(clientPtr == nullptr) {
+        return;
+    }
+    // 纯设备指针，不用同步内存数据
+    auto it = server_dev_mems.find(clientPtr);
+    if(it != server_dev_mems.end()) {
+        return;
+    }
+    for(auto it = server_dev_mems.begin(); it != server_dev_mems.end(); it++) {
+        if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second)) {
+            return;
+        }
+    }
+    // 函数指针，直接返回
+    for(auto &func : funcinfos) {
+        if(func.fun_ptr == clientPtr) {
+            return;
+        }
+    }
+    // 统一内存指针
+    auto it3 = cs_union_mems.find(clientPtr);
+    if(it3 != cs_union_mems.end()) {
+        ptr = it3->second.first;
+        memSize = it3->second.second;
+    } else {
+        for(auto it = cs_union_mems.begin(); it != cs_union_mems.end(); it++) {
+            if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+                clientPtr = (void *)(uintptr_t)it->first;  // 修改clientPtr到内存的起始位置
+                ptr = (void *)(uintptr_t)it->second.first; // 同步的指针是无偏移的
+                memSize = it->second.second;
+                break;
+            }
+        }
+    }
+    // ptr为空，表示clientPtr不是已知的设备指针，也不是统一内存指针，其可能是未知的设备内存指针，也可能是主机内存指针
+    if(ptr == nullptr) {
+        if(size == -1) { // size为 - 1, 表示clientPtr是设备指针，无需同步数据
+            return;
+        }
+        // 主机内存指针
+        auto it = cs_host_mems.find(clientPtr);
+        if(it != cs_host_mems.end()) {
+            ptr = it->second.first;
+            memSize = it->second.second;
+        } else {
+            for(auto it = cs_host_mems.begin(); it != cs_host_mems.end(); it++) {
+                if(it->second.first == nullptr) {
+                    continue;
+                }
+                if((uintptr_t)clientPtr >= (uintptr_t)it->first && (uintptr_t)clientPtr < ((uintptr_t)it->first + it->second.second)) {
+                    clientPtr = (void *)(uintptr_t)it->first; // 修改clientPtr到内存的起始位置
+                    ptr = (void *)(uintptr_t)it->second.first;
+                    memSize = it->second.second;
+                    break;
+                }
+            }
+        }
+    }
+    // ptr为空表示clientPtr是未知的主机内存, 查看是否在服务器端已经创建对应的临时内存
+    if(ptr == nullptr) {
+        auto it = cs_host_tmp_mems.find(clientPtr);
+        if(it != cs_host_tmp_mems.end()) {
+            ptr = it->second.first;
+            memSize = it->second.second;
+            if(del_tmp_ptr) {
+                cs_host_tmp_mems.erase(clientPtr);
+            }
+        }
+    }
+    // ptr为空表示clientPtr是未知的主机内存
+    if(ptr == nullptr) {
+        printf("WARNING: unknown server side host memory for client pointer: %p\n", clientPtr);
+        return;
+    }
+    if(memSize > 0) {
+        // 写入服务器端内存指针
+        void **tmp_ptr = (void **)malloc(sizeof(ptr));
+        *tmp_ptr = ptr;
+        client->tmps4iov.insert(tmp_ptr);
+        rpc_write(client, tmp_ptr, sizeof(*tmp_ptr));
+
+        // 写入是否删除临时内存
+        int *int_ptr = (int *)malloc(sizeof(int));
+        *int_ptr = del_tmp_ptr;
+        client->tmps4iov.insert(int_ptr);
+        rpc_write(client, int_ptr, sizeof(*int_ptr));
+
+        // 写入大小
+        ssize_t *tmp_size = (ssize_t *)malloc(sizeof(size));
+        *tmp_size = memSize;
+        client->tmps4iov.insert(tmp_size);
+        rpc_write(client, tmp_size, sizeof(*tmp_size));
+
+        // 写入客户端指针
+        void **tmp_client_ptr = (void **)malloc(sizeof(clientPtr));
+        *tmp_client_ptr = clientPtr;
+        client->tmps4iov.insert(tmp_client_ptr);
+        rpc_write(client, tmp_client_ptr, sizeof(*tmp_client_ptr));
+    }
+    return;
+}
+
 extern "C" cudaError_t cudaFree(void *devPtr) {
 #ifdef DEBUG
     std::cout << "Hook: cudaFree called" << std::endl;
@@ -859,7 +968,6 @@ extern "C" cudaError_t cudaGetSymbolAddress(void **devPtr, const void *symbol) {
     }
     if(_result == cudaSuccess) {
         server_dev_mems[*devPtr] = 0;
-        printf("Line %d: Adding to server_dev_mems: ptr=%p, size=0\n", __LINE__, *devPtr);
     }
     rpc_free_client(client);
     return _result;
@@ -1054,12 +1162,19 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         rpc_release_client(client);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
+    // TODO 由于cudaLaunchKernel函数是异步调用的，所以此时还得不到返回值，
+    // 需要实现一个对应的回调机制，让服务器端在执行完cudaLaunchKernel函数后，将返回值写回给客户端
+    // 每个客户端需要启动一个线程，用于接收服务器端的返回值
+    // 服务器端需要知道的信息：
+    // 1. 一个内存区域的服务器端指针和客户端指针，还有大小
+    // 所以这里需要让服务器启动一个回调任务.
+    rpc_prepare_request(client, RPC_mem2client_async);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(client, *((void **)args[i]), -1, true);
+        mem2client_async(client, *((void **)args[i]), -1, true);
     }
     if(client->iov_read2_count > 0) {
         rpc_write(client, &end_flag, sizeof(end_flag));
+        rpc_write(client, &stream, sizeof(stream));
         if(rpc_submit_request(client) != 0) {
             std::cerr << "Failed to submit request" << std::endl;
             rpc_release_client(client);

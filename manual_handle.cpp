@@ -1,5 +1,5 @@
 #include <iostream>
-#include <unordered_map>
+#include <map>
 #include "gen/hook_api.h"
 #include "gen/handle_server.h"
 #include "rpc.h"
@@ -98,6 +98,77 @@ int handle_mem2client(void *args0) {
             goto ERROR;
         }
     }
+    while(j++ < i - 1) {
+        if(sizes[j] <= 0) {
+            continue;
+        }
+        if(ptrs[j] == nullptr) {
+            std::cerr << "WARNING: unknown server side host memory for client pointer: 0x" << std::hex << ptrs[j] << std::endl;
+            goto ERROR;
+        }
+        rpc_write(client, ptrs[j], sizes[j], true);
+        if(del_tmp_ptrs[j]) {
+            if(client->tmp_server_bufers.find(ptrs[j]) != client->tmp_server_bufers.end()) {
+                client->tmp_server_bufers.erase(ptrs[j]);
+                ptrs2free.push_back(ptrs[j]);
+            }
+        }
+    }
+    if(rpc_submit_response(client) != 0) {
+        std::cerr << "Failed to submit response" << std::endl;
+        goto ERROR;
+    }
+    ret = 0;
+ERROR:
+    for(auto ptr : ptrs2free) {
+        free(ptr);
+    }
+    return ret;
+}
+
+int handle_mem2client_async(void *args0) {
+#ifdef DEBUG
+    std::cout << "Handle function mem2client_async called" << std::endl;
+#endif
+    int ret = 1;
+    RpcClient *client = (RpcClient *)args0;
+    void *ptrs[32];
+    void *clientPtrs[32];
+    size_t sizes[32];
+    int del_tmp_ptrs[32];
+    cudaStream_t stream;
+    std::vector<void *> ptrs2free;
+    int i = 0;
+    int j = 0;
+    while(i++ < 32) {
+        ptrs[i] = nullptr;
+        sizes[i] = 0;
+        del_tmp_ptrs[i] = false;
+        // 读取服务器端指针
+        if(read_one_now(client, &ptrs[i], sizeof(ptrs[i]), false) < 0) {
+            goto ERROR;
+        }
+
+        if(ptrs[i] == (void *)0xffffffff) {
+            if(read_one_now(client, &stream, sizeof(stream), false) < 0) {
+                goto ERROR;
+            }
+            break;
+        }
+        // 读取是否删除临时指针
+        if(read_one_now(client, &del_tmp_ptrs[i], sizeof(del_tmp_ptrs[i]), false) < 0) {
+            goto ERROR;
+        }
+        // 读取数据大小
+        if(read_one_now(client, &sizes[i], sizeof(sizes[i]), false) < 0) {
+            goto ERROR;
+        }
+        // 读取客户端指针
+        if(read_one_now(client, &clientPtrs[i], sizeof(clientPtrs[i]), false) < 0) {
+            goto ERROR;
+        }
+    }
+    // cudaStreamAddCallback(stream, handle_mem2client_async_callback, (void *)client);
     while(j++ < i - 1) {
         if(sizes[j] <= 0) {
             continue;

@@ -16,6 +16,7 @@ int handle___cudaRegisterManagedVar(void *args);
 int handle___cudaRegisterFunction(void *args);
 int handle_mem2server(void *args);
 int handle_mem2client(void *args);
+int handle_mem2client_async(void *args);
 int handle_cuGetErrorString(void *args);
 int handle_cuGetErrorName(void *args);
 int handle_cuInit(void *args);

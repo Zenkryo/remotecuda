@@ -1,10 +1,10 @@
-#include <unordered_map>
+#include <map>
 #include <iostream>
 
 #include "hook_api.h"
 #include "handle_server.h"
 
-std::unordered_map<uint32_t, RequestHandler> handlerMap = {
+std::map<uint32_t, RequestHandler> handlerMap = {
     {RPC___cudaInitModule, handle___cudaInitModule},
     {RPC___cudaPushCallConfiguration, handle___cudaPushCallConfiguration},
     {RPC___cudaPopCallConfiguration, handle___cudaPopCallConfiguration},
@@ -16,6 +16,7 @@ std::unordered_map<uint32_t, RequestHandler> handlerMap = {
     {RPC___cudaRegisterFunction, handle___cudaRegisterFunction},
     {RPC_mem2server, handle_mem2server},
     {RPC_mem2client, handle_mem2client},
+    {RPC_mem2client_async, handle_mem2client_async},
     {RPC_cuGetErrorString, handle_cuGetErrorString},
     {RPC_cuGetErrorName, handle_cuGetErrorName},
     {RPC_cuInit, handle_cuInit},

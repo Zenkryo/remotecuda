@@ -3,12 +3,15 @@
 #include "rpc.h"
 
 RpcClient clients_pool[MAX_CONNECTIONS];
+RpcClient async_conn;
 pthread_mutex_t pool_lock;
-pthread_t rpc_thread_id;
+pthread_t rpc_thread_id = -1;
+pthread_t async_thread_id = -1;
 uuid_t client_id;
+uint16_t g_version_key;
 
 // 连接服务器
-static int rpc_connect(const char *server, uint16_t port, uint16_t version_key) {
+static int rpc_connect(const char *server, uint16_t port, bool is_async = false) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) {
         perror("socket creation failed");
@@ -28,7 +31,9 @@ static int rpc_connect(const char *server, uint16_t port, uint16_t version_key) 
 
     handshake_request handshake_req;
     uuid_copy(handshake_req.id, client_id);
-    handshake_req.version_key = version_key;
+
+    handshake_req.is_async = is_async;
+    handshake_req.version_key = g_version_key;
 
     // 发送握手请求
     if(write(sockfd, &handshake_req, sizeof(handshake_req)) != sizeof(handshake_req)) {
@@ -52,10 +57,8 @@ static int rpc_connect(const char *server, uint16_t port, uint16_t version_key) 
     return sockfd;
 }
 
-//  线程函数，用于维护连接
+//  线程函数，用于维护同步调用连接池
 static void *rpc_thread(void *arg) {
-    uint16_t version_key = *(uint16_t *)arg;
-    delete(uint16_t *)arg;
     // 获取环境变量CUDA_SERVER
     const char *cuda_server = getenv("CUDA_SERVER");
     if(!cuda_server) {
@@ -66,7 +69,7 @@ static void *rpc_thread(void *arg) {
         pthread_mutex_lock(&pool_lock);
         for(int i = 0; i < MAX_CONNECTIONS; i++) {
             if(clients_pool[i].sockfd == -1) {
-                int sockfd = rpc_connect(cuda_server, 12345, version_key);
+                int sockfd = rpc_connect(cuda_server, 12345, false);
                 if(sockfd != -1) {
                     clients_pool[i].sockfd = sockfd;
                 }
@@ -74,6 +77,56 @@ static void *rpc_thread(void *arg) {
         }
         pthread_mutex_unlock(&pool_lock);
         sleep(1); // 每隔1秒检查一次连接
+    }
+    return NULL;
+}
+
+// 线程函数，用于维护异步调用连接
+static void *async_thread(void *arg) {
+    const char *cuda_server = getenv("CUDA_SERVER") ? getenv("CUDA_SERVER") : "127.0.0.1";
+    while(1) {
+        int sockfd = rpc_connect(cuda_server, 12345, true);
+        if(sockfd == -1) {
+            perror("Failed to connect to server");
+            sleep(1); // 每隔1秒重连
+            continue;
+        }
+        async_conn.sockfd = sockfd;
+        async_conn.iov_read_count = 0;
+        async_conn.iov_read2_count = 0;
+        ssize_t bytes_read;
+        while(1) {
+            // 读取服务器异步请求类型
+            bytes_read = read(sockfd, &async_conn.funcId, sizeof(async_conn.funcId));
+            if(bytes_read <= 0) {
+                if(bytes_read == 0) {
+                    printf("Server disconnected: %d\n", sockfd);
+                } else {
+                    perror("Failed to read request");
+                }
+                break;
+            } else if(bytes_read != sizeof(async_conn.funcId)) {
+                fprintf(stderr, "Invalid request header\n");
+                break;
+            }
+#ifdef DUMP
+            hexdump("==> ", &async_conn.funcId, sizeof(async_conn.funcId));
+#endif
+            // 取得异步消息类型对应的处理函数
+            AsyncHandler handler = get_async_handler(async_conn.funcId);
+            if(handler == NULL) {
+                fprintf(stderr, "No async handler found for async message type: %x\n", async_conn.funcId);
+                break;
+            }
+            if(handler(&async_conn) < 0) {
+                fprintf(stderr, "Async handler failed\n");
+                break;
+            }
+            async_conn.iov_read_count = 0;
+            async_conn.iov_read2_count = 0;
+        }
+        shutdown(sockfd, SHUT_RDWR);
+        close(sockfd);
     }
     return NULL;
 }
@@ -307,6 +360,7 @@ void hexdump(const char *desc, void *buf, size_t len) {
 
 // 初始化连接池
 void rpc_init(uint16_t version_key) {
+    g_version_key = version_key;
     uuid_generate(client_id);
     pthread_mutex_init(&pool_lock, NULL);
     for(int i = 0; i < MAX_CONNECTIONS; i++) {
@@ -316,9 +370,23 @@ void rpc_init(uint16_t version_key) {
         clients_pool[i].iov_send2_count = 0;
         clients_pool[i].sockfd = -1;
     }
-    // 创建一个线程用于维护连接
-    uint16_t *key = new uint16_t(version_key);
-    pthread_create(&rpc_thread_id, NULL, rpc_thread, key);
+    // 创建一个线程用于维护同步调用连接池
+    pthread_create(&rpc_thread_id, NULL, rpc_thread, nullptr);
+    // 创建一个线程用于维护异步调用连接
+    pthread_create(&async_thread_id, NULL, async_thread, nullptr);
+}
+
+void rpc_destroy() {
+    pthread_mutex_lock(&pool_lock);
+    if(rpc_thread_id != -1) {
+        pthread_join(rpc_thread_id, nullptr);
+        rpc_thread_id = -1;
+    }
+    if(async_thread_id != -1) {
+        pthread_join(async_thread_id, nullptr);
+        async_thread_id = -1;
+    }
+    pthread_mutex_unlock(&pool_lock);
 }
 
 // 取得一个RPC客户端
@@ -533,4 +601,17 @@ int sum_group(int *group_size, int group_count) {
         sum += group_size[i];
     }
     return sum;
+}
+
+int mem2client_async_handler(void *arg) {
+    RpcClient *async_conn = (RpcClient *)arg;
+    return 0;
+}
+
+AsyncHandler get_async_handler(const uint32_t funcId) {
+    switch(funcId) {
+    case 0:
+        return mem2client_async_handler;
+    }
+    return NULL;
 }

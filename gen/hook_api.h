@@ -1,7 +1,7 @@
 #ifndef HOOK_API_H
 #define HOOK_API_H
 
-#define VERSION_KEY 0xD59E
+#define VERSION_KEY 0xC0D2
 
 #define RPC___cudaInitModule 0x6507491C
 #define RPC___cudaPushCallConfiguration 0x0A3A0834
@@ -14,6 +14,7 @@
 #define RPC___cudaRegisterFunction 0x9DBDA494
 #define RPC_mem2server 0xABD5E56D
 #define RPC_mem2client 0x5C5B57EB
+#define RPC_mem2client_async 0x93573EB7
 #define RPC_cuGetErrorString 0x62B8183B
 #define RPC_cuGetErrorName 0x9D330A37
 #define RPC_cuInit 0x3C168895

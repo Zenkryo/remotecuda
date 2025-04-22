@@ -28,7 +28,7 @@
     "cwchar": "cpp",
     "cwctype": "cpp",
     "deque": "cpp",
-    "unordered_map": "cpp",
+    "map": "cpp",
     "vector": "cpp",
     "exception": "cpp",
     "algorithm": "cpp",
@@ -155,5 +155,4 @@
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
-
 }

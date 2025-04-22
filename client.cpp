@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <dlfcn.h>
-#include <unordered_map>
+#include <map>
 #include <string>
 #include <cuda_runtime.h>
 #include <cublas_api.h>
@@ -55,7 +55,7 @@ extern "C" void *dlsym(void *handle, const char *symbol) {
     return real_dlsym(handle, symbol);
 }
 
-static std::unordered_map<std::string, void *> so_handles;
+static std::map<std::string, void *> so_handles;
 
 // Hook 的初始化函数
 void init_hook() { rpc_init(VERSION_KEY); }
@@ -72,6 +72,7 @@ void *get_so_handle(const std::string &so_file) {
 }
 
 void cleanup_hook() {
+    // rpc_destroy();
     for(auto &handle : so_handles) {
         if(handle.second) {
             dlclose(handle.second);

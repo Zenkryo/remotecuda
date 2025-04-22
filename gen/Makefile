@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -fPIC -Wno-deprecated-declarations -I/usr/local/cuda/include -I/usr/local/cudnn/include -DCUBLASAPI= #-DDEBUG
+CXXFLAGS = -g -std=c++11 -fPIC -Wno-deprecated-declarations -I/usr/local/cuda/include -I/usr/local/cudnn/include -DCUBLASAPI= -DDEBUG -DDUMP
 LDFLAGS = -ldl -lpthread -luuid
 
 # Compilation flags for hook.so

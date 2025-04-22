@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <dlfcn.h>
-#include <unordered_map>
+#include <map>
 #include <string>
 
 #include "../hidden_api.h"
@@ -15,9 +15,9 @@
 #include "cublas_api.h"
 
 
-// 使用 std::unordered_map 保存函数名和函数指针的映射
+// 使用 std::map 保存函数名和函数指针的映射
 void *getHookFunc(const char *symbol) {
-    std::unordered_map<std::string, void *> functionMap = {
+    std::map<std::string, void *> functionMap = {
     // hidden_api.h
         {"__cudaInitModule", reinterpret_cast<void *>(__cudaInitModule)},
         {"__cudaPushCallConfiguration", reinterpret_cast<void *>(__cudaPushCallConfiguration)},
@@ -30,6 +30,7 @@ void *getHookFunc(const char *symbol) {
         {"__cudaRegisterFunction", reinterpret_cast<void *>(__cudaRegisterFunction)},
         {"mem2server", reinterpret_cast<void *>(mem2server)},
         {"mem2client", reinterpret_cast<void *>(mem2client)},
+        {"mem2client_async", reinterpret_cast<void *>(mem2client_async)},
     // cuda.h
         {"cuGetErrorString", reinterpret_cast<void *>(cuGetErrorString)},
         {"cuGetErrorName", reinterpret_cast<void *>(cuGetErrorName)},

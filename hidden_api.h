@@ -64,4 +64,6 @@ extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr,
 
 extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
 
+extern "C" void mem2client_async(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
+
 #endif
