@@ -21,6 +21,7 @@ typedef struct _ReqHeader {
 
 #pragma pack(pop) // 恢复默认对齐
 
+RpcServer server;
 extern std::map<uint32_t, RequestHandler> handlerMap;
 
 RequestHandler get_handler(const uint32_t funcId) {
@@ -30,8 +31,6 @@ RequestHandler get_handler(const uint32_t funcId) {
     }
     return nullptr;
 }
-
-RpcServer server;
 
 // 绑定并监听端口
 int rpc_bind(uint16_t port) {
@@ -105,7 +104,10 @@ void *rpc_handle_client(void *arg) {
             fprintf(stderr, "No handler found for function ID: %x\n", client->funcId);
             break;
         }
-        handler(client);
+        if(handler(client) != 0) {
+            fprintf(stderr, "Handler returned error\n");
+            break;
+        }
         client->iov_read_count = 0;
         client->iov_read2_count = 0;
         client->iov_send_count = 0;

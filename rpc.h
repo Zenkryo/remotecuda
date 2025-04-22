@@ -44,19 +44,6 @@ typedef struct {
     int status;
 } handshake_response;
 
-// 异步消息结构
-struct AsyncMessage {
-    uint32_t message_type; // 消息类型
-    size_t data_len;       // 数据长度
-    void *data;            // 消息数据
-};
-
-// 消息处理器结构
-struct AsyncMessageHandler {
-    void (*handler)(AsyncMessage *msg); // 消息处理函数
-    void *user_data;                    // 用户数据
-};
-
 typedef int (*AsyncHandler)(void *);
 
 AsyncHandler get_async_handler(const uint32_t funcId);

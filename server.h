@@ -1,5 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
+
 #include <map>
 #include <cstdint>
 #include "rpc.h"

@@ -2,15 +2,28 @@
 #include <iostream>
 #include "rpc.h"
 
+// 每个客户端建立多个和服务器端的同步调用连接
 RpcClient clients_pool[MAX_CONNECTIONS];
+
+// 每个客户端建立一个和服务器端的异步调用连接
 RpcClient async_conn;
+
+// 互斥锁，用于保护clients_pool
 pthread_mutex_t pool_lock;
+
+// 线程ID，用于维护同步调用连接池
 pthread_t rpc_thread_id = -1;
+
+// 线程ID，用于维护异步调用连接
 pthread_t async_thread_id = -1;
+
+// 客户端ID
 uuid_t client_id;
+
+// 版本号
 uint16_t g_version_key;
 
-// 连接服务器
+// 连接服务器并握手， is_async为true表示建立异步调用连接，否则建立同步调用连接
 static int rpc_connect(const char *server, uint16_t port, bool is_async = false) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd < 0) {
@@ -133,13 +146,13 @@ static void *async_thread(void *arg) {
 
 // 关闭RPC连接
 static void rpc_close(RpcClient *client) {
-    pthread_mutex_lock(&pool_lock); // 加锁
+    pthread_mutex_lock(&pool_lock);
     if(client->sockfd >= 0) {
         shutdown(client->sockfd, SHUT_RDWR);
         close(client->sockfd);
         client->sockfd = -1;
     }
-    pthread_mutex_unlock(&pool_lock); // 解锁
+    pthread_mutex_unlock(&pool_lock);
 }
 
 static ssize_t write_full_iovec(int sockfd, struct iovec *iov, int iovcnt) {
@@ -377,7 +390,6 @@ void rpc_init(uint16_t version_key) {
 }
 
 void rpc_destroy() {
-    pthread_mutex_lock(&pool_lock);
     if(rpc_thread_id != -1) {
         pthread_join(rpc_thread_id, nullptr);
         rpc_thread_id = -1;
@@ -386,7 +398,6 @@ void rpc_destroy() {
         pthread_join(async_thread_id, nullptr);
         async_thread_id = -1;
     }
-    pthread_mutex_unlock(&pool_lock);
 }
 
 // 取得一个RPC客户端
