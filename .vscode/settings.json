@@ -62,7 +62,6 @@
     "thread": "cpp",
     "typeinfo": "cpp",
     "__nullptr": "cpp",
-    "map": "cpp",
     "set": "cpp",
     "cinttypes": "cpp",
     "__debug": "cpp",
@@ -73,7 +72,8 @@
     "__tree": "cpp",
     "filesystem": "cpp",
     "__string": "cpp",
-    "__locale": "cpp"
+    "__locale": "cpp",
+    "unordered_map": "cpp"
   },
   "C_Cpp.default.defines": [
     "CUBLASAPI="

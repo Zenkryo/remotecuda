@@ -10,14 +10,14 @@ RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), versi
     // 创建监听socket
     listenfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(listenfd_ < 0) {
-        throw RpcException("Failed to create socket: " + std::string(strerror(errno)));
+        throw RpcException("Failed to create socket: " + std::string(strerror(errno)), __LINE__);
     }
 
     // 设置SO_REUSEADDR选项
     int reuse = 1;
     if(setsockopt(listenfd_, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0) {
         close(listenfd_);
-        throw RpcException("Failed to set SO_REUSEADDR: " + std::string(strerror(errno)));
+        throw RpcException("Failed to set SO_REUSEADDR: " + std::string(strerror(errno)), __LINE__);
     }
 
     // 绑定地址
@@ -29,13 +29,13 @@ RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), versi
 
     if(bind(listenfd_, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         close(listenfd_);
-        throw RpcException("Failed to bind: " + std::string(strerror(errno)));
+        throw RpcException("Failed to bind: " + std::string(strerror(errno)), __LINE__);
     }
 
     // 开始监听
     if(listen(listenfd_, 5) < 0) {
         close(listenfd_);
-        throw RpcException("Failed to listen: " + std::string(strerror(errno)));
+        throw RpcException("Failed to listen: " + std::string(strerror(errno)), __LINE__);
     }
 }
 
@@ -43,7 +43,7 @@ RpcServer::~RpcServer() { stop(); }
 
 void RpcServer::start() {
     if(running_) {
-        throw RpcException("Server already running");
+        throw RpcException("Server already running", __LINE__);
     }
 
     running_ = true;
@@ -92,7 +92,7 @@ void RpcServer::accept_loop() {
         if(connfd < 0) {
             if(errno == EINTR)
                 continue;
-            throw RpcException("Failed to accept: " + std::string(strerror(errno)));
+            throw RpcException("Failed to accept: " + std::string(strerror(errno)), __LINE__);
         }
 
         // 处理握手
@@ -153,13 +153,11 @@ void RpcServer::handle_client(std::unique_ptr<RpcClient> client) {
             }
             handler = it->second;
         }
-
         // 处理请求
         if(handler(client.get()) != 0) {
             break;
         }
     }
-
     client->disconnect();
 }
 

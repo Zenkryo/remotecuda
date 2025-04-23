@@ -5,7 +5,7 @@
 
 namespace rpc {
 
-RpcClient::RpcClient() : sockfd_(-1), func_id_(0), in_use_(false), is_server(false) { uuid_generate(client_id_); }
+RpcClient::RpcClient() : sockfd_(-1), func_id_(0), is_server(false) { uuid_generate(client_id_); }
 
 RpcClient::~RpcClient() {
     disconnect();
@@ -16,12 +16,12 @@ void RpcClient::connect(const std::string &server, uint16_t port, bool is_async)
     std::lock_guard<std::mutex> lock(mutex_);
 
     if(sockfd_ >= 0) {
-        throw RpcException("Client already connected");
+        throw RpcException("Client already connected", __LINE__);
     }
 
     sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd_ < 0) {
-        throw RpcException("Failed to create socket: " + std::string(strerror(errno)));
+        throw RpcException("Failed to create socket: " + std::string(strerror(errno)), __LINE__);
     }
 
     struct sockaddr_in server_addr;
@@ -31,13 +31,13 @@ void RpcClient::connect(const std::string &server, uint16_t port, bool is_async)
     if(inet_pton(AF_INET, server.c_str(), &server_addr.sin_addr) <= 0) {
         close(sockfd_);
         sockfd_ = -1;
-        throw RpcException("Invalid address: " + server);
+        throw RpcException("Invalid address: " + server, __LINE__);
     }
 
     if(::connect(sockfd_, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         close(sockfd_);
         sockfd_ = -1;
-        throw RpcException("Connection failed: " + std::string(strerror(errno)));
+        throw RpcException("Connection failed: " + std::string(strerror(errno)), __LINE__);
     }
 
     // 发送握手请求
@@ -49,7 +49,7 @@ void RpcClient::connect(const std::string &server, uint16_t port, bool is_async)
     if(::write(sockfd_, &handshake_req, sizeof(handshake_req)) != sizeof(handshake_req)) {
         close(sockfd_);
         sockfd_ = -1;
-        throw RpcException("Failed to send handshake request");
+        throw RpcException("Failed to send handshake request", __LINE__);
     }
 
     // 读取握手响应
@@ -57,13 +57,13 @@ void RpcClient::connect(const std::string &server, uint16_t port, bool is_async)
     if(::read(sockfd_, &handshake_rsp, sizeof(handshake_rsp)) != sizeof(handshake_rsp)) {
         close(sockfd_);
         sockfd_ = -1;
-        throw RpcException("Failed to read handshake response");
+        throw RpcException("Failed to read handshake response", __LINE__);
     }
 
     if(handshake_rsp.status != 0) {
         close(sockfd_);
         sockfd_ = -1;
-        throw RpcException("Handshake failed");
+        throw RpcException("Handshake failed", __LINE__);
     }
 }
 
@@ -107,51 +107,33 @@ void RpcClient::read(void *buffer, size_t len, bool with_len) {
     }
 }
 
-int RpcClient::submit_request() {
+void RpcClient::submit_request() {
     std::lock_guard<std::mutex> lock(mutex_);
-    if(sockfd_ < 0) {
-        throw RpcException("Not connected");
-    }
-
     // 发送数据
-    if(write_full_iovec(iov_send_) < 0 || write_full_iovec(iov_send2_) < 0) {
-        throw RpcException("Failed to send request: " + std::string(strerror(errno)));
+    if(write_all(false) < 0 || write_all(true) < 0) {
+        throw RpcException("Failed to send request: " + std::string(strerror(errno)), __LINE__);
     }
 
     // 读取响应
-    if(read_full_iovec(iov_read_) < 0 || read_full_iovec(iov_read2_) < 0) {
-        throw RpcException("Failed to read response: " + std::string(strerror(errno)));
+    if(read_all(false) < 0 || read_all(true) < 0) {
+        throw RpcException("Failed to read response: " + std::string(strerror(errno)), __LINE__);
     }
-
-    return 0;
 }
 
-int RpcClient::prepare_response() {
+void RpcClient::prepare_response() {
     std::lock_guard<std::mutex> lock(mutex_);
-    if(sockfd_ < 0) {
-        throw RpcException("Not connected");
-    }
-
     // 读取请求
-    if(read_full_iovec(iov_read_) < 0 || read_full_iovec(iov_read2_) < 0) {
-        throw RpcException("Failed to read request: " + std::string(strerror(errno)));
+    if(read_all(false) < 0 || read_all(true) < 0) {
+        throw RpcException("Failed to read request: " + std::string(strerror(errno)), __LINE__);
     }
-
-    return 0;
 }
 
-int RpcClient::submit_response() {
+void RpcClient::submit_response() {
     std::lock_guard<std::mutex> lock(mutex_);
-    if(sockfd_ < 0) {
-        throw RpcException("Not connected");
-    }
-
     // 发送响应
-    if(write_full_iovec(iov_send_) < 0 || write_full_iovec(iov_send2_) < 0) {
-        throw RpcException("Failed to send response: " + std::string(strerror(errno)));
+    if(write_all(false) < 0 || write_all(true) < 0) {
+        throw RpcException("Failed to send response: " + std::string(strerror(errno)), __LINE__);
     }
-
-    return 0;
 }
 
 ssize_t RpcClient::write_full_iovec(std::vector<iovec> &iov) {
@@ -163,37 +145,35 @@ ssize_t RpcClient::write_full_iovec(std::vector<iovec> &iov) {
     size_t current = 0;
 
     while(remaining > 0) {
-        ssize_t bytes_written = writev(sockfd_, &iov[current], remaining);
-        if(bytes_written < 0) {
+        ssize_t bytes_wrote = ::writev(sockfd_, &iov[current], remaining);
+        if(bytes_wrote < 0) {
             if(errno == EINTR)
                 continue;
             return -1;
         }
 
-        total_bytes += bytes_written;
+        total_bytes += bytes_wrote;
 
 #ifdef DUMP
-        size_t bytes_remaining = bytes_written;
+        size_t bytes_remaining = bytes_wrote;
         for(size_t i = current; i < current + iov.size() && bytes_remaining > 0; i++) {
             size_t len = std::min(iov[i].iov_len, static_cast<size_t>(bytes_remaining));
             RpcClient::hexdump("<== ", iov[i].iov_base, len);
             bytes_remaining -= len;
         }
 #endif
-        // Adjust iovec array
-        while(bytes_written > 0 && remaining > 0) {
-            if(bytes_written >= static_cast<ssize_t>(iov[current].iov_len)) {
-                bytes_written -= iov[current].iov_len;
+        while(bytes_wrote > 0 && remaining > 0) {
+            if(bytes_wrote >= static_cast<ssize_t>(iov[current].iov_len)) {
+                bytes_wrote -= iov[current].iov_len;
                 current++;
                 remaining--;
             } else {
-                iov[current].iov_base = static_cast<char *>(iov[current].iov_base) + bytes_written;
-                iov[current].iov_len -= bytes_written;
-                bytes_written = 0;
+                iov[current].iov_base = static_cast<char *>(iov[current].iov_base) + bytes_wrote;
+                iov[current].iov_len -= bytes_wrote;
+                bytes_wrote = 0;
             }
         }
     }
-
     return total_bytes;
 }
 
@@ -228,7 +208,6 @@ ssize_t RpcClient::read_full_iovec(std::vector<iovec> &iov) {
         }
 #endif
 
-        // Adjust iovec array
         while(bytes_read > 0 && remaining > 0) {
             if(bytes_read >= static_cast<ssize_t>(iov[current].iov_len)) {
                 bytes_read -= iov[current].iov_len;
@@ -241,105 +220,164 @@ ssize_t RpcClient::read_full_iovec(std::vector<iovec> &iov) {
             }
         }
     }
-
     return total_bytes;
+}
+
+ssize_t RpcClient::write_all(bool with_len = false) {
+    ssize_t bytes_wrote = 0;
+    if(with_len) {
+        std::vector<iovec> iovs;
+        for(auto &iov : iov_send2_) {
+            iovs.push_back({&iov.iov_len, sizeof(iov.iov_len)});
+            iovs.push_back(iov);
+        }
+        bytes_wrote = write_full_iovec(iovs);
+        iov_send2_.clear();
+    } else {
+        bytes_wrote = write_full_iovec(iov_send_);
+        iov_send_.clear();
+    }
+    return bytes_wrote;
+}
+
+ssize_t RpcClient::read_all(bool with_len = false) {
+    ssize_t total_read = 0;
+    ssize_t bytes_read = 0;
+    if(with_len) {
+        for(auto &iov : iov_read2_) {
+            // 读取长度字段
+            size_t length = 0;
+            std::vector<iovec> iovs = {{&length, sizeof(length)}};
+            bytes_read = read_full_iovec(iovs);
+            if(bytes_read < 0) {
+                return -1;
+            }
+            total_read += bytes_read;
+            if(length == 0) {
+                continue;
+            }
+            void *tmp_buffer = nullptr;
+            if(iov.iov_len == 0) {
+                tmp_buffer = malloc(length);
+                if(tmp_buffer == nullptr) {
+                    throw RpcException("Failed to allocate memory: " + std::string(strerror(errno)), __LINE__);
+                }
+                void **buffer_ptr = static_cast<void **>(iov.iov_base);
+                *buffer_ptr = tmp_buffer;
+            } else if(iov.iov_len < length) {
+                throw RpcException("Buffer too small: " + std::string(strerror(ENOBUFS)), __LINE__);
+            }
+            iov.iov_len = length;
+
+            // Read data
+            iovs = {iov};
+            bytes_read = read_full_iovec(iovs);
+            if(bytes_read < 0) {
+                if(tmp_buffer != nullptr) {
+                    free(tmp_buffer);
+                    void **buffer_ptr = static_cast<void **>(iov.iov_base);
+                    *buffer_ptr = nullptr;
+                }
+                return -1;
+            }
+            if(tmp_buffer != nullptr) {
+                tmp_buffers_.insert(tmp_buffer);
+            }
+            total_read += bytes_read;
+        }
+        iov_read2_.clear();
+        return total_read;
+    }
+    total_read = read_full_iovec(iov_read_);
+    iov_read_.clear();
+    return total_read;
 }
 
 ssize_t RpcClient::read_one_now(void *buffer, size_t size, bool with_len) {
     std::lock_guard<std::mutex> lock(mutex_);
-    if(sockfd_ < 0) {
-        throw RpcException("Not connected");
-    }
 
     ssize_t total_read = 0;
+    ssize_t bytes_read;
     size_t length = size;
 
     if(with_len) {
         // 读取长度字段
-        if(::read(sockfd_, &length, sizeof(length)) != sizeof(length)) {
+        std::vector<iovec> iovs = {{&length, sizeof(length)}};
+        bytes_read = read_full_iovec(iovs);
+        if(bytes_read < 0) {
             return -1;
         }
-        total_read += sizeof(length);
-#ifdef DUMP
-        RpcClient::hexdump("==> ", &length, sizeof(length));
-#endif
+        total_read += bytes_read;
 
         // 检查缓冲区大小
         if(size > 0 && length > size) {
-            errno = ENOBUFS;
-            return -1;
+            throw RpcException("Buffer too small: " + std::string(strerror(ENOBUFS)), __LINE__);
         }
     }
 
     if(length == 0) {
         return total_read;
     }
+    void *tmp_buffer = nullptr;
 
     // 读取数据
     if(size == 0) {
         // 动态分配缓冲区
-        void *tmp_buffer = malloc(length);
+        tmp_buffer = malloc(length);
         if(tmp_buffer == nullptr) {
-            errno = ENOBUFS;
-            return -1;
+            throw RpcException("Failed to allocate memory: " + std::string(strerror(errno)), __LINE__);
         }
         *(void **)buffer = tmp_buffer;
-        tmp_buffers_.insert(tmp_buffer);
     }
-
-    ssize_t bytes_read = ::read(sockfd_, buffer, length);
-    if(bytes_read <= 0) {
-        if(size == 0) {
+    std::vector<iovec> iovs = {{buffer, length}};
+    bytes_read = read_full_iovec(iovs);
+    if(bytes_read < 0) {
+        if(tmp_buffer != nullptr) {
             free(*(void **)buffer);
-            tmp_buffers_.erase(*(void **)buffer);
         }
         return -1;
     }
-#ifdef DUMP
-    RpcClient::hexdump("==> ", buffer, bytes_read);
-#endif
-
+    if(tmp_buffer != nullptr) {
+        tmp_buffers_.insert(tmp_buffer);
+    }
     total_read += bytes_read;
     return total_read;
 }
 
 ssize_t RpcClient::read_all_now(void **buffer, size_t *size, int count) {
     std::lock_guard<std::mutex> lock(mutex_);
-    if(sockfd_ < 0) {
-        throw RpcException("Not connected");
-    }
 
     ssize_t total_read = 0;
+    ssize_t bytes_read;
     std::set<void *> new_buffers; // 用于跟踪新分配的缓冲区
 
     for(int i = 0; i < count; i++) {
         // 读取长度字段
         size_t length;
-        if(::read(sockfd_, &length, sizeof(length)) != sizeof(length)) {
-            // 发生错误，清理已分配的缓冲区
+        std::vector<iovec> iovs = {{&length, sizeof(length)}};
+        bytes_read = read_full_iovec(iovs);
+        if(bytes_read < 0) {
             for(void *ptr : new_buffers) {
                 free(ptr);
             }
             return -1;
         }
-        total_read += sizeof(length);
+        total_read += bytes_read;
 
         // 分配新的缓冲区
-        void *new_buffer = malloc(length);
-        if(new_buffer == nullptr) {
+        void *tmp_buffer = malloc(length);
+        if(tmp_buffer == nullptr) {
             // 内存分配失败，清理已分配的缓冲区
             for(void *ptr : new_buffers) {
                 free(ptr);
             }
-            errno = ENOBUFS;
-            return -1;
+            throw RpcException("Failed to allocate memory: " + std::string(strerror(errno)), __LINE__);
         }
-        new_buffers.insert(new_buffer);
-
+        new_buffers.insert(tmp_buffer);
+        iovs = {{tmp_buffer, length}};
         // 读取数据
-        ssize_t bytes_read = ::read(sockfd_, new_buffer, length);
+        bytes_read = read_full_iovec(iovs);
         if(bytes_read < 0) {
-            // 读取失败，清理已分配的缓冲区
             for(void *ptr : new_buffers) {
                 free(ptr);
             }
@@ -348,7 +386,7 @@ ssize_t RpcClient::read_all_now(void **buffer, size_t *size, int count) {
         total_read += bytes_read;
 
         // 保存缓冲区指针和大小
-        buffer[i] = new_buffer;
+        buffer[i] = tmp_buffer;
         if(size != nullptr) {
             size[i] = length;
         }

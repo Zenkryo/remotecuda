@@ -3,12 +3,16 @@
 #include <thread>
 #include <chrono>
 #include <cstring>
+#include <vector>
+#include <string>
+#include <cmath>
 
 using namespace rpc;
 
 // 示例处理函数
 int echo_handler(RpcClient *client) {
     char buffer[1024];
+    char name[1024];
     size_t len;
 
     // 读取数据长度
@@ -20,11 +24,53 @@ int echo_handler(RpcClient *client) {
 
     // 读取数据
     client->read_one_now(buffer, len);
+    client->read_one_now(name, sizeof(name), true);
     // 发送响应
     client->write(&len, sizeof(len));
     client->write(buffer, len);
+    client->write(name, strlen(name) + 1, true);
     client->submit_response();
 
+    return 0;
+}
+
+// 数值计算服务示例
+int calculate_handler(RpcClient *client) {
+    int operation;
+    int a, b, result;
+    client->read(&operation, sizeof(operation));
+    client->read(&a, sizeof(a));
+    client->read(&b, sizeof(b));
+
+    client->prepare_response();
+    switch(operation) {
+    case 1: // 加法
+        result = a + b;
+        break;
+    case 2: // 减法
+        result = a - b;
+        break;
+    case 3: // 乘法
+        result = a * b;
+        break;
+    case 4: // 除法
+        if(b == 0) {
+            result = 0;
+            client->write(&result, sizeof(result));
+            client->submit_response();
+            return -1;
+        }
+        result = a / b;
+        break;
+    default:
+        result = 0;
+        client->write(&result, sizeof(result));
+        client->submit_response();
+        return -1;
+    }
+
+    client->write(&result, sizeof(result));
+    client->submit_response();
     return 0;
 }
 
@@ -35,6 +81,7 @@ void run_server() {
 
         // 注册处理函数
         server.register_handler(1, echo_handler);
+        server.register_handler(2, calculate_handler);
 
         std::cout << "Server starting..." << std::endl;
         server.start();
@@ -51,29 +98,41 @@ void run_client() {
         // 连接到服务器
         client.connect("127.0.0.1", 12345);
 
-        // 准备请求
+        // 1. 测试echo服务
+        std::cout << "\nTesting echo service:" << std::endl;
         client.prepare_request(1);
-
-        // 发送数据
         const char *message = "Hello, RPC!";
+        const char *name = "tester";
+
         size_t len = strlen(message) + 1;
         client.write(&len, sizeof(len));
+
         client.write(message, len);
 
-        // 读取响应
-        size_t response_len;
-        client.read(&response_len, sizeof(response_len));
+        client.write(name, strlen(name) + 1, true);
 
-        char response[1024];
-        // client.read(response, response_len);
-
+        char message_echo[1024];
+        client.read(message_echo, sizeof(message_echo), true);
+        char name_echo[1024];
+        client.read(name_echo, sizeof(name_echo), true);
         // 提交请求
-        if(client.submit_request() != 0) {
-            throw RpcException("Request failed");
-        }
-        std::cout << "response_len: " << response_len << std::endl;
-        client.read_one_now(response, response_len);
-        std::cout << "Received: " << std::string(response, response_len) << std::endl;
+        client.submit_request();
+        std::cout << "Echo response: " << std::string(message_echo) << " name" << std::string(name_echo) << std::endl;
+
+        // 2. 测试计算服务
+        std::cout << "\nTesting calculation service:" << std::endl;
+        client.prepare_request(2);
+        int operation = 1; // 加法
+        int a = 10, b = 20;
+        client.write(&operation, sizeof(operation));
+        client.write(&a, sizeof(a));
+        client.write(&b, sizeof(b));
+
+        int result;
+        client.read(&result, sizeof(result));
+        // 提交请求
+        client.submit_request();
+        std::cout << "Calculation result: " << result << std::endl;
 
     } catch(const RpcException &e) {
         std::cerr << "Client error: " << e.what() << std::endl;

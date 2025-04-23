@@ -24,7 +24,7 @@ class RpcServer;
 // 异常类
 class RpcException : public std::runtime_error {
   public:
-    explicit RpcException(const std::string &message) : std::runtime_error(message) {}
+    explicit RpcException(const std::string &message, int line = 0) : std::runtime_error(message + (line > 0 ? " [line " + std::to_string(line) + "]" : "")) {}
 };
 
 // 常量定义
@@ -61,16 +61,21 @@ class RpcClient {
     void prepare_request(uint32_t func_id);
     void write(const void *data, size_t len, bool with_len = false);
     void read(void *buffer, size_t len, bool with_len = false);
-    int submit_request();
+    void submit_request();
 
     // 响应处理
-    int prepare_response();
-    int submit_response();
+    void prepare_response();
+    void submit_response();
 
     // 异步读取
     ssize_t read_all_now(void **buffer, size_t *size, int count);
     ssize_t read_one_now(void *buffer, size_t size, bool with_len = false);
 
+    // 获取iov读写计数
+    int get_iov_read_count(bool with_len) const { return with_len ? iov_read2_.size() : iov_read_.size(); }
+    int get_iov_send_count(bool with_len) const { return with_len ? iov_send2_.size() : iov_send_.size(); }
+
+    // 十六进制转储
     void hexdump(const char *desc, const void *buf, size_t len);
 
     // 友元声明
@@ -89,9 +94,10 @@ class RpcClient {
 
     std::set<void *> tmp_buffers_;
     std::mutex mutex_;
-    std::atomic<bool> in_use_;
 
     // 内部辅助方法
+    ssize_t write_all(bool with_len);
+    ssize_t read_all(bool with_len);
     ssize_t write_full_iovec(std::vector<iovec> &iov);
     ssize_t read_full_iovec(std::vector<iovec> &iov);
     void cleanup_tmp_buffers();
@@ -129,7 +135,6 @@ class RpcServer {
     // 内部方法
     void accept_loop();
     void handle_client(std::unique_ptr<RpcClient> client);
-    void cleanup();
 };
 
 } // namespace rpc
