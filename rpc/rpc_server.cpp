@@ -65,12 +65,12 @@ void RpcServer::stop() {
 
     // 清理异步连接
     std::lock_guard<std::mutex> lock(mutex_);
-    for(auto &pair : async_clients_) {
+    for(auto &pair : async_conns_) {
         if(pair.second) {
             pair.second->disconnect();
         }
     }
-    async_clients_.clear();
+    async_conns_.clear();
 
     // 等待所有工作线程结束
     for(auto &thread : worker_threads_) {
@@ -116,7 +116,7 @@ void RpcServer::accept_loop() {
         }
 
         // 创建新的客户端连接
-        auto client = std::make_unique<RpcClient>();
+        auto client = std::make_unique<RpcConn>();
         client->is_server = true;
         client->sockfd_ = connfd;
         uuid_copy(client->client_id_, handshake_req.id);
@@ -128,21 +128,19 @@ void RpcServer::accept_loop() {
             std::string key = uuid_str;
 
             std::lock_guard<std::mutex> lock(mutex_);
-            async_clients_[key] = std::move(client);
+            async_conns_[key] = std::move(client);
         } else {
             // 处理同步连接
-            worker_threads_.emplace_back(&RpcServer::handle_client, this, std::move(client));
+            worker_threads_.emplace_back(&RpcServer::handle_request, this, std::move(client));
         }
     }
 }
 
-void RpcServer::handle_client(std::unique_ptr<RpcClient> client) {
+void RpcServer::handle_request(std::unique_ptr<RpcConn> conn) {
     while(running_) {
         uint32_t func_id;
 
-        if(client->read_one_now(&func_id, sizeof(func_id)) < 0) {
-            break;
-        }
+        conn->read_one_now(&func_id, sizeof(func_id));
         // 获取处理函数
         RequestHandler handler;
         {
@@ -154,11 +152,11 @@ void RpcServer::handle_client(std::unique_ptr<RpcClient> client) {
             handler = it->second;
         }
         // 处理请求
-        if(handler(client.get()) != 0) {
+        if(handler(conn.get()) != 0) {
             break;
         }
     }
-    client->disconnect();
+    conn->disconnect();
 }
 
 } // namespace rpc

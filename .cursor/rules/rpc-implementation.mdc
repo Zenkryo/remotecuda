@@ -1,0 +1,65 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# RPC Implementation Guide
+
+This document outlines the key components and patterns of the RPC (Remote Procedure Call) implementation.
+
+## Core Components
+
+The RPC implementation consists of a client-side component in [rpc/rpc_client.cpp](mdc:rpc/rpc_client.cpp) which handles:
+
+- Connection management with RPC servers
+- Request/response handling
+- Data serialization and transmission
+- Memory management for dynamic buffers
+
+## Key Patterns
+
+### Connection Lifecycle
+
+1. Client initialization with unique UUID
+2. Connection establishment with handshake protocol
+3. Request/response communication
+4. Cleanup and disconnection
+
+### Memory Management
+
+The implementation uses several memory management patterns:
+
+- Temporary buffer management via `tmp_buffers_` set
+- Automatic cleanup in destructor
+- Dynamic buffer allocation for variable-length data
+
+### Thread Safety
+
+All public methods are protected by mutex locks to ensure thread-safe operation:
+
+- Connection management
+- Request preparation and submission
+- Response handling
+- Buffer management
+
+### Data Transfer Patterns
+
+The implementation supports two modes of data transfer:
+
+1. Fixed-length transfers
+2. Variable-length transfers with length prefixing
+
+### Error Handling
+
+Robust error handling is implemented through:
+
+- RpcException for error conditions
+- System error code propagation
+- Resource cleanup on failure
+
+## Usage Guidelines
+
+1. Always check connection status before operations
+2. Use RAII patterns with the client object
+3. Handle exceptions for network and protocol errors
+4. Clean up any dynamically allocated buffers

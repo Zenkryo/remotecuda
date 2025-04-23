@@ -1,0 +1,49 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# RPC Protocol Guide
+
+This document describes the RPC protocol and interfaces used in the system.
+
+## Protocol Overview
+
+The RPC protocol follows a request-response pattern with the following key features:
+
+- Binary protocol with length-prefixed messages
+- Handshake mechanism for version compatibility
+- Support for both synchronous and asynchronous operations
+- Client identification via UUID
+
+## Message Format
+
+### Handshake Messages
+
+1. HandshakeRequest:
+   - Client UUID (16 bytes)
+   - Async flag (1 byte)
+   - Version key (4 bytes)
+
+2. HandshakeResponse:
+   - Status code (4 bytes)
+
+### Data Messages
+
+All data messages follow this format:
+1. Function ID (4 bytes)
+2. For variable-length data:
+   - Length prefix (size_t)
+   - Payload data
+3. For fixed-length data:
+   - Raw payload data
+
+## Interface Guidelines
+
+When implementing RPC interfaces:
+
+1. Use prepare_request/submit_request for client operations
+2. Handle both fixed and variable-length data appropriately
+3. Implement proper error handling and status codes
+4. Ensure proper resource cleanup
+5. Consider thread safety implications

@@ -18,13 +18,17 @@
 namespace rpc {
 
 // 前向声明
-class RpcClient;
+class RpcConn;
 class RpcServer;
 
 // 异常类
 class RpcException : public std::runtime_error {
   public:
     explicit RpcException(const std::string &message, int line = 0) : std::runtime_error(message + (line > 0 ? " [line " + std::to_string(line) + "]" : "")) {}
+};
+class RpcConnException : public RpcException {
+  public:
+    explicit RpcConnException(const std::string &message, int line = 0) : RpcException(message, line) {}
 };
 
 // 常量定义
@@ -42,15 +46,15 @@ struct HandshakeResponse {
     int status;
 } __attribute__((packed));
 
-// RPC客户端类
-class RpcClient {
+// RPC连接类
+class RpcConn {
   public:
-    RpcClient();
-    ~RpcClient();
+    RpcConn();
+    ~RpcConn();
 
     // 禁用拷贝
-    RpcClient(const RpcClient &) = delete;
-    RpcClient &operator=(const RpcClient &) = delete;
+    RpcConn(const RpcConn &) = delete;
+    RpcConn &operator=(const RpcConn &) = delete;
 
     // 连接管理
     void connect(const std::string &server, uint16_t port, bool is_async = false);
@@ -58,6 +62,7 @@ class RpcClient {
     bool is_connected() const { return sockfd_ >= 0; }
 
     // 请求准备和发送
+    void reset();
     void prepare_request(uint32_t func_id);
     void write(const void *data, size_t len, bool with_len = false);
     void read(void *buffer, size_t len, bool with_len = false);
@@ -68,8 +73,8 @@ class RpcClient {
     void submit_response();
 
     // 异步读取
-    ssize_t read_all_now(void **buffer, size_t *size, int count);
-    ssize_t read_one_now(void *buffer, size_t size, bool with_len = false);
+    void read_all_now(void **buffer, size_t *size, int count);
+    void read_one_now(void *buffer, size_t size, bool with_len = false);
 
     // 获取iov读写计数
     int get_iov_read_count(bool with_len) const { return with_len ? iov_read2_.size() : iov_read_.size(); }
@@ -118,7 +123,7 @@ class RpcServer {
     void stop();
 
     // 注册处理函数
-    using RequestHandler = std::function<int(RpcClient *)>;
+    using RequestHandler = std::function<int(RpcConn *)>;
     void register_handler(uint32_t func_id, RequestHandler handler);
 
   private:
@@ -126,7 +131,7 @@ class RpcServer {
     uint16_t version_key_;
     std::atomic<bool> running_;
 
-    std::map<std::string, std::unique_ptr<RpcClient>> async_clients_;
+    std::map<std::string, std::unique_ptr<RpcConn>> async_conns_;
     std::vector<std::thread> worker_threads_;
     std::map<uint32_t, RequestHandler> handlers_;
 
@@ -134,7 +139,51 @@ class RpcServer {
 
     // 内部方法
     void accept_loop();
-    void handle_client(std::unique_ptr<RpcClient> client);
+    void handle_request(std::unique_ptr<RpcConn> conn);
+};
+
+// RPC客户端类
+class RpcClient {
+  public:
+    RpcClient();
+    ~RpcClient();
+
+    // 禁用拷贝
+    RpcClient(const RpcClient &) = delete;
+    RpcClient &operator=(const RpcClient &) = delete;
+
+    // 连接管理
+    void connect(const std::string &server, uint16_t port, size_t sync_pool_size = 4);
+    void disconnect();
+
+    // 同步连接池管理
+    RpcConn *acquire_connection();
+    void release_connection(RpcConn *conn);
+    bool is_connected() const { return !sync_conns_.empty() && async_conn_ != nullptr; }
+
+    // 异步请求处理
+    using AsyncRequestHandler = std::function<void(RpcConn *)>;
+    void register_async_handler(uint32_t func_id, AsyncRequestHandler handler);
+
+  private:
+    std::string server_addr_;
+    uint16_t server_port_;
+    std::atomic<bool> running_;
+
+    // 同步连接池
+    std::vector<std::unique_ptr<RpcConn>> sync_conns_;
+    std::set<RpcConn *> available_conns_;
+    std::mutex sync_mutex_;
+
+    // 异步连接
+    std::unique_ptr<RpcConn> async_conn_;
+    std::thread async_thread_;
+    std::map<uint32_t, AsyncRequestHandler> async_handlers_;
+    std::mutex async_mutex_;
+
+    // 内部方法
+    void async_receive_loop();
+    void handle_async_request(RpcConn *conn);
 };
 
 } // namespace rpc
