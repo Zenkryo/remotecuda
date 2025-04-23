@@ -4,9 +4,9 @@ project(rpc_framework)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 添加DEBUG选项
+# 添加DEBUG选项: 用法: cmake -DDEBUG=ON
 option(DEBUG "Enable debug mode" OFF)
-# 添加DUMP选项
+# 添加DUMP选项: 用法: cmake -DDUMP=ON
 option(DUMP "Enable dump mode" OFF)
 
 # 设置打印详细编译命令

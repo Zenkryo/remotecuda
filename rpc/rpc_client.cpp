@@ -5,7 +5,7 @@
 
 namespace rpc {
 
-RpcClient::RpcClient() : running_(false) {}
+RpcClient::RpcClient(uint16_t version_key) : version_key_(version_key), running_(false) { uuid_generate(client_id_); }
 
 RpcClient::~RpcClient() { disconnect(); }
 
@@ -23,7 +23,7 @@ void RpcClient::connect(const std::string &server, uint16_t port, size_t sync_po
         std::lock_guard<std::mutex> lock(sync_mutex_);
         sync_conns_.reserve(sync_pool_size);
         for(size_t i = 0; i < sync_pool_size; ++i) {
-            auto conn = std::make_unique<RpcConn>();
+            auto conn = std::make_unique<RpcConn>(version_key_, client_id_, false);
             conn->connect(server, port, false);
             available_conns_.insert(conn.get());
             sync_conns_.push_back(std::move(conn));
@@ -31,7 +31,7 @@ void RpcClient::connect(const std::string &server, uint16_t port, size_t sync_po
     }
 
     // 创建异步连接
-    async_conn_ = std::make_unique<RpcConn>();
+    async_conn_ = std::make_unique<RpcConn>(version_key_, client_id_, false);
     async_conn_->connect(server, port, true);
 
     // 启动异步接收线程

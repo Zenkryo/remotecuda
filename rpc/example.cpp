@@ -77,7 +77,7 @@ int calculate_handler(RpcConn *conn) {
 // 服务器端示例
 void run_server() {
     try {
-        RpcServer server(12345, 0);
+        RpcServer server(12345, VERSION_KEY);
 
         // 注册处理函数
         server.register_handler(1, echo_handler);
@@ -93,47 +93,50 @@ void run_server() {
 // 客户端示例
 void run_client() {
     try {
-        RpcConn conn;
+        RpcClient client(VERSION_KEY);
+        RpcConn *conn;
 
         // 连接到服务器
-        conn.connect("127.0.0.1", 12345);
+        client.connect("127.0.0.1", 12345, 5);
+        conn = client.acquire_connection();
 
         // 1. 测试echo服务
         std::cout << "\nTesting echo service:" << std::endl;
-        conn.prepare_request(1);
+        conn->prepare_request(1);
         const char *message = "Hello, RPC!";
         const char *name = "tester";
 
         size_t len = strlen(message) + 1;
-        conn.write(&len, sizeof(len));
+        conn->write(&len, sizeof(len));
 
-        conn.write(message, len);
+        conn->write(message, len);
 
-        conn.write(name, strlen(name) + 1, true);
+        conn->write(name, strlen(name) + 1, true);
 
         char message_echo[1024];
-        conn.read(message_echo, sizeof(message_echo), true);
+        conn->read(message_echo, sizeof(message_echo), true);
         char name_echo[1024];
-        conn.read(name_echo, sizeof(name_echo), true);
+        conn->read(name_echo, sizeof(name_echo), true);
         // 提交请求
-        conn.submit_request();
+        conn->submit_request();
         std::cout << "Echo response: " << std::string(message_echo) << " name" << std::string(name_echo) << std::endl;
 
         // 2. 测试计算服务
         std::cout << "\nTesting calculation service:" << std::endl;
-        conn.prepare_request(2);
+        conn->prepare_request(2);
         int operation = 1; // 加法
         int a = 10, b = 20;
-        conn.write(&operation, sizeof(operation));
-        conn.write(&a, sizeof(a));
-        conn.write(&b, sizeof(b));
+        conn->write(&operation, sizeof(operation));
+        conn->write(&a, sizeof(a));
+        conn->write(&b, sizeof(b));
 
         int result;
-        conn.read(&result, sizeof(result));
+        conn->read(&result, sizeof(result));
         // 提交请求
-        conn.submit_request();
+        conn->submit_request();
         std::cout << "Calculation result: " << result << std::endl;
 
+        client.release_connection(conn);
     } catch(const RpcException &e) {
         std::cerr << "Client error: " << e.what() << std::endl;
     }

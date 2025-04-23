@@ -104,7 +104,6 @@ void RpcServer::accept_loop() {
 
         HandshakeResponse handshake_rsp;
         handshake_rsp.status = (handshake_req.version_key == version_key_) ? 0 : 1;
-
         if(write(connfd, &handshake_rsp, sizeof(handshake_rsp)) != sizeof(handshake_rsp)) {
             close(connfd);
             continue;
@@ -116,8 +115,7 @@ void RpcServer::accept_loop() {
         }
 
         // 创建新的客户端连接
-        auto client = std::make_unique<RpcConn>();
-        client->is_server = true;
+        auto client = std::make_unique<RpcConn>(version_key_, handshake_req.id, true);
         client->sockfd_ = connfd;
         uuid_copy(client->client_id_, handshake_req.id);
 

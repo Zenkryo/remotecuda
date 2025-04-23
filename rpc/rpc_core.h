@@ -34,6 +34,7 @@ class RpcConnException : public RpcException {
 // 常量定义
 constexpr size_t MAX_IOV_COUNT = 64;
 constexpr size_t MAX_CONNECTIONS = 1;
+constexpr uint16_t VERSION_KEY = 0x5544;
 
 // 握手请求和响应结构
 struct HandshakeRequest {
@@ -49,7 +50,7 @@ struct HandshakeResponse {
 // RPC连接类
 class RpcConn {
   public:
-    RpcConn();
+    RpcConn(uint16_t version_key, uuid_t client_id, bool is_server = false);
     ~RpcConn();
 
     // 禁用拷贝
@@ -90,6 +91,7 @@ class RpcConn {
     int sockfd_;
     uint32_t func_id_;
     uuid_t client_id_;
+    uint16_t version_key_;
     bool is_server;
 
     std::vector<iovec> iov_send_;
@@ -145,7 +147,7 @@ class RpcServer {
 // RPC客户端类
 class RpcClient {
   public:
-    RpcClient();
+    RpcClient(uint16_t version_key);
     ~RpcClient();
 
     // 禁用拷贝
@@ -168,6 +170,8 @@ class RpcClient {
   private:
     std::string server_addr_;
     uint16_t server_port_;
+    uint16_t version_key_;
+    uuid_t client_id_;
     std::atomic<bool> running_;
 
     // 同步连接池

@@ -5,7 +5,7 @@
 
 namespace rpc {
 
-RpcConn::RpcConn() : sockfd_(-1), func_id_(0), is_server(false) { uuid_generate(client_id_); }
+RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : sockfd_(-1), func_id_(0), client_id_(), version_key_(version_key), is_server(is_server) { uuid_copy(client_id_, client_id); }
 
 RpcConn::~RpcConn() {
     disconnect();
@@ -44,7 +44,7 @@ void RpcConn::connect(const std::string &server, uint16_t port, bool is_async) {
     HandshakeRequest handshake_req;
     uuid_copy(handshake_req.id, client_id_);
     handshake_req.is_async = is_async;
-    handshake_req.version_key = 0; // TODO: 从配置获取
+    handshake_req.version_key = version_key_;
 
     if(::write(sockfd_, &handshake_req, sizeof(handshake_req)) != sizeof(handshake_req)) {
         close(sockfd_);
