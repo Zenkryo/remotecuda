@@ -71,6 +71,8 @@ class RpcClient {
     ssize_t read_all_now(void **buffer, size_t *size, int count);
     ssize_t read_one_now(void *buffer, size_t size, bool with_len = false);
 
+    void hexdump(const char *desc, const void *buf, size_t len);
+
     // 友元声明
     friend class RpcServer;
 
@@ -78,6 +80,7 @@ class RpcClient {
     int sockfd_;
     uint32_t func_id_;
     uuid_t client_id_;
+    bool is_server;
 
     std::vector<iovec> iov_send_;
     std::vector<iovec> iov_send2_;

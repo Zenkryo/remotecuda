@@ -102,16 +102,6 @@ void RpcServer::accept_loop() {
             continue;
         }
 
-        // 调试输出
-        std::cout << "Server received handshake request:" << std::endl;
-        std::cout << "  client_id: ";
-        for(size_t i = 0; i < sizeof(handshake_req.id); i++) {
-            printf("%02x ", reinterpret_cast<unsigned char *>(&handshake_req.id)[i]);
-        }
-        std::cout << std::endl;
-        std::cout << "  is_async: " << (handshake_req.is_async ? "true" : "false") << std::endl;
-        std::cout << "  version_key: " << handshake_req.version_key << std::endl;
-
         HandshakeResponse handshake_rsp;
         handshake_rsp.status = (handshake_req.version_key == version_key_) ? 0 : 1;
 
@@ -120,10 +110,6 @@ void RpcServer::accept_loop() {
             continue;
         }
 
-        // 调试输出
-        std::cout << "Server sent handshake response:" << std::endl;
-        std::cout << "  status: " << handshake_rsp.status << std::endl;
-
         if(handshake_rsp.status != 0) {
             close(connfd);
             continue;
@@ -131,6 +117,7 @@ void RpcServer::accept_loop() {
 
         // 创建新的客户端连接
         auto client = std::make_unique<RpcClient>();
+        client->is_server = true;
         client->sockfd_ = connfd;
         uuid_copy(client->client_id_, handshake_req.id);
 
@@ -152,17 +139,10 @@ void RpcServer::accept_loop() {
 void RpcServer::handle_client(std::unique_ptr<RpcClient> client) {
     while(running_) {
         uint32_t func_id;
-        if(read(client->sockfd_, &func_id, sizeof(func_id)) != sizeof(func_id)) {
+
+        if(client->read_one_now(&func_id, sizeof(func_id)) < 0) {
             break;
         }
-
-        // 调试输出
-        std::cout << "Server received func_id: ";
-        for(size_t i = 0; i < sizeof(func_id); i++) {
-            printf("%02x ", reinterpret_cast<unsigned char *>(&func_id)[i]);
-        }
-        std::cout << std::endl;
-
         // 获取处理函数
         RequestHandler handler;
         {

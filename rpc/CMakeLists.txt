@@ -4,6 +4,14 @@ project(rpc_framework)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 添加DEBUG选项
+option(DEBUG "Enable debug mode" OFF)
+# 添加DUMP选项
+option(DUMP "Enable dump mode" OFF)
+
+# 设置打印详细编译命令
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 # 查找必要的包
 find_package(Threads REQUIRED)
 
@@ -36,3 +44,22 @@ target_compile_options(rpc_example
     -Wextra
     -Wpedantic
 )
+
+# 根据DEBUG选项添加编译定义
+if(DEBUG)
+    target_compile_definitions(rpc_example PRIVATE DEBUG)
+    target_compile_options(rpc_example PRIVATE -g -O0)
+else()
+    target_compile_options(rpc_example PRIVATE -O2)
+endif()
+
+# 根据DUMP选项添加编译定义
+if(DUMP)
+    target_compile_definitions(rpc_example PRIVATE DUMP)
+endif()
+
+# 打印编译命令
+message(STATUS "CXX Compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "CXX Flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Debug mode: ${DEBUG}")
+message(STATUS "Dump mode: ${DUMP}")

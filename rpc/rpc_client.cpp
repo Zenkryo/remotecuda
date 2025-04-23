@@ -5,7 +5,7 @@
 
 namespace rpc {
 
-RpcClient::RpcClient() : sockfd_(-1), func_id_(0), in_use_(false) { uuid_generate(client_id_); }
+RpcClient::RpcClient() : sockfd_(-1), func_id_(0), in_use_(false), is_server(false) { uuid_generate(client_id_); }
 
 RpcClient::~RpcClient() {
     disconnect();
@@ -172,17 +172,15 @@ ssize_t RpcClient::write_full_iovec(std::vector<iovec> &iov) {
 
         total_bytes += bytes_written;
 
-        // 调试输出
-        std::cout << "Write " << bytes_written << " bytes:" << std::endl;
-        for(size_t i = 0; i < remaining && i < 3; i++) {
-            std::cout << "  iov[" << i << "]: ";
-            for(size_t j = 0; j < std::min(iov[current + i].iov_len, size_t(32)); j++) {
-                printf("%02x ", static_cast<unsigned char *>(iov[current + i].iov_base)[j]);
-            }
-            std::cout << std::endl;
+#ifdef DUMP
+        size_t bytes_remaining = bytes_written;
+        for(size_t i = current; i < current + iov.size() && bytes_remaining > 0; i++) {
+            size_t len = std::min(iov[i].iov_len, static_cast<size_t>(bytes_remaining));
+            RpcClient::hexdump("<== ", iov[i].iov_base, len);
+            bytes_remaining -= len;
         }
-
-        // 调整iovec数组
+#endif
+        // Adjust iovec array
         while(bytes_written > 0 && remaining > 0) {
             if(bytes_written >= static_cast<ssize_t>(iov[current].iov_len)) {
                 bytes_written -= iov[current].iov_len;
@@ -216,22 +214,21 @@ ssize_t RpcClient::read_full_iovec(std::vector<iovec> &iov) {
         }
 
         if(bytes_read == 0) {
-            return -1; // 连接关闭
+            return -1; // Connection closed
         }
 
         total_bytes += bytes_read;
 
-        // 调试输出
-        std::cout << "Read " << bytes_read << " bytes:" << std::endl;
-        for(size_t i = 0; i < remaining && i < 3; i++) {
-            std::cout << "  iov[" << i << "]: ";
-            for(size_t j = 0; j < std::min(iov[current + i].iov_len, size_t(32)); j++) {
-                printf("%02x ", static_cast<unsigned char *>(iov[current + i].iov_base)[j]);
-            }
-            std::cout << std::endl;
+#ifdef DUMP
+        size_t bytes_remaining = bytes_read;
+        for(size_t i = current; i < current + iov.size() && bytes_remaining > 0; i++) {
+            size_t len = std::min(iov[i].iov_len, static_cast<size_t>(bytes_remaining));
+            RpcClient::hexdump("==> ", iov[i].iov_base, len);
+            bytes_remaining -= len;
         }
+#endif
 
-        // 调整iovec数组
+        // Adjust iovec array
         while(bytes_read > 0 && remaining > 0) {
             if(bytes_read >= static_cast<ssize_t>(iov[current].iov_len)) {
                 bytes_read -= iov[current].iov_len;
@@ -263,6 +260,9 @@ ssize_t RpcClient::read_one_now(void *buffer, size_t size, bool with_len) {
             return -1;
         }
         total_read += sizeof(length);
+#ifdef DUMP
+        RpcClient::hexdump("==> ", &length, sizeof(length));
+#endif
 
         // 检查缓冲区大小
         if(size > 0 && length > size) {
@@ -288,13 +288,16 @@ ssize_t RpcClient::read_one_now(void *buffer, size_t size, bool with_len) {
     }
 
     ssize_t bytes_read = ::read(sockfd_, buffer, length);
-    if(bytes_read < 0) {
+    if(bytes_read <= 0) {
         if(size == 0) {
             free(*(void **)buffer);
             tmp_buffers_.erase(*(void **)buffer);
         }
         return -1;
     }
+#ifdef DUMP
+    RpcClient::hexdump("==> ", buffer, bytes_read);
+#endif
 
     total_read += bytes_read;
     return total_read;
@@ -362,6 +365,39 @@ void RpcClient::cleanup_tmp_buffers() {
         free(ptr);
     }
     tmp_buffers_.clear();
+}
+
+void RpcClient::hexdump(const char *desc, const void *buf, size_t len) {
+    const unsigned char *p = static_cast<const unsigned char *>(buf);
+    printf("\033[%dm[%c]\033[0m %s len: %lu\n", is_server ? 35 : 33, is_server ? 'S' : 'C', desc, len);
+    int total_lines = len / 16;
+    if(len % 16 != 0) {
+        total_lines++;
+    }
+    int printed_lines = 0;
+    // Print 16 bytes per line
+    for(size_t i = 0; i < len; i += 16) {
+        if(printed_lines == 50) {
+            printf("... ... ... ...\n");
+        } else if(printed_lines < 50 || printed_lines > total_lines - 50) {
+            printf("%08lx: ", i);
+            for(size_t j = 0; j < 16; j++) {
+                if(i + j < len) {
+                    printf("%02x ", p[i + j]);
+                } else {
+                    printf("   ");
+                }
+            }
+            printf(" ");
+            for(size_t j = 0; j < 16; j++) {
+                if(i + j < len) {
+                    printf("%c", isprint(p[i + j]) ? p[i + j] : '.');
+                }
+            }
+            printf("\n");
+        }
+        printed_lines++;
+    }
 }
 
 } // namespace rpc
