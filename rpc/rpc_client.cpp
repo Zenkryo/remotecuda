@@ -300,6 +300,63 @@ ssize_t RpcClient::read_one_now(void *buffer, size_t size, bool with_len) {
     return total_read;
 }
 
+ssize_t RpcClient::read_all_now(void **buffer, size_t *size, int count) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if(sockfd_ < 0) {
+        throw RpcException("Not connected");
+    }
+
+    ssize_t total_read = 0;
+    std::set<void *> new_buffers; // 用于跟踪新分配的缓冲区
+
+    for(int i = 0; i < count; i++) {
+        // 读取长度字段
+        size_t length;
+        if(::read(sockfd_, &length, sizeof(length)) != sizeof(length)) {
+            // 发生错误，清理已分配的缓冲区
+            for(void *ptr : new_buffers) {
+                free(ptr);
+            }
+            return -1;
+        }
+        total_read += sizeof(length);
+
+        // 分配新的缓冲区
+        void *new_buffer = malloc(length);
+        if(new_buffer == nullptr) {
+            // 内存分配失败，清理已分配的缓冲区
+            for(void *ptr : new_buffers) {
+                free(ptr);
+            }
+            errno = ENOBUFS;
+            return -1;
+        }
+        new_buffers.insert(new_buffer);
+
+        // 读取数据
+        ssize_t bytes_read = ::read(sockfd_, new_buffer, length);
+        if(bytes_read < 0) {
+            // 读取失败，清理已分配的缓冲区
+            for(void *ptr : new_buffers) {
+                free(ptr);
+            }
+            return -1;
+        }
+        total_read += bytes_read;
+
+        // 保存缓冲区指针和大小
+        buffer[i] = new_buffer;
+        if(size != nullptr) {
+            size[i] = length;
+        }
+    }
+
+    // 将新分配的缓冲区添加到tmp_buffers_集合中
+    tmp_buffers_.insert(new_buffers.begin(), new_buffers.end());
+
+    return total_read;
+}
+
 void RpcClient::cleanup_tmp_buffers() {
     for(void *ptr : tmp_buffers_) {
         free(ptr);

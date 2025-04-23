@@ -56,8 +56,8 @@ void run_client() {
 
         // 发送数据
         const char *message = "Hello, RPC!";
-        size_t len = strlen(message);
-        client.write(&len, sizeof(len) + 1);
+        size_t len = strlen(message) + 1;
+        client.write(&len, sizeof(len));
         client.write(message, len);
 
         // 读取响应
