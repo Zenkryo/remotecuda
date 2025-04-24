@@ -23,13 +23,23 @@ int echo_handler(RpcConn *conn) {
     }
 
     // 读取数据
-    conn->read_one_now(buffer, len);
-    conn->read_one_now(name, sizeof(name), true);
+    RpcError err = conn->read_one_now(buffer, len);
+    if(err != RpcError::OK) {
+        return -1;
+    }
+    err = conn->read_one_now(name, sizeof(name), true);
+    if(err != RpcError::OK) {
+        return -1;
+    }
+
     // 发送响应
     conn->write(&len, sizeof(len));
     conn->write(buffer, len);
     conn->write(name, strlen(name) + 1, true);
-    conn->submit_response();
+    err = conn->submit_response();
+    if(err != RpcError::OK) {
+        return -1;
+    }
 
     return 0;
 }
@@ -57,7 +67,10 @@ int calculate_handler(RpcConn *conn) {
         if(b == 0) {
             result = 0;
             conn->write(&result, sizeof(result));
-            conn->submit_response();
+            RpcError err = conn->submit_response();
+            if(err != RpcError::OK) {
+                return -1;
+            }
             return -1;
         }
         result = a / b;
@@ -65,12 +78,18 @@ int calculate_handler(RpcConn *conn) {
     default:
         result = 0;
         conn->write(&result, sizeof(result));
-        conn->submit_response();
+        RpcError err = conn->submit_response();
+        if(err != RpcError::OK) {
+            return -1;
+        }
         return -1;
     }
 
     conn->write(&result, sizeof(result));
-    conn->submit_response();
+    RpcError err = conn->submit_response();
+    if(err != RpcError::OK) {
+        return -1;
+    }
     return 0;
 }
 
@@ -84,59 +103,106 @@ void run_server() {
         server.register_handler(2, calculate_handler);
 
         std::cout << "Server starting..." << std::endl;
-        server.start();
+        RpcError err = server.start();
+        if(err != RpcError::OK) {
+            std::cerr << "Server error: " << static_cast<int>(err) << std::endl;
+        }
     } catch(const RpcException &e) {
         std::cerr << "Server error: " << e.what() << std::endl;
     }
+}
+
+void case1(RpcClient &client) {
+    // 1. 测试echo服务
+    RpcConn *conn = nullptr;
+    while(!conn) {
+        conn = client.acquire_connection();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << "\nTesting echo service:" << std::endl;
+    conn->prepare_request(1);
+    const char *message = "Hello, RPC!";
+    const char *name = "tester";
+
+    size_t len = strlen(message) + 1;
+    conn->write(&len, sizeof(len));
+    conn->write(message, len);
+    conn->write(name, strlen(name) + 1, true);
+
+    char message_echo[1024];
+    conn->read(message_echo, sizeof(message_echo), true);
+    char name_echo[1024];
+    conn->read(name_echo, sizeof(name_echo), true);
+
+    // 提交请求
+    RpcError err = conn->submit_request();
+    if(err != RpcError::OK) {
+        std::cerr << "Echo request failed: " << static_cast<int>(err) << std::endl;
+        client.release_connection(conn);
+        return;
+    }
+
+    std::cout << "Echo response: " << std::string(message_echo) << " name" << std::string(name_echo) << std::endl;
+    client.release_connection(conn);
+}
+
+void case2(RpcClient &client) {
+    // 2. 测试计算服务
+    RpcConn *conn = nullptr;
+    while(!conn) {
+        conn = client.acquire_connection();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << "\nTesting calculation service:" << std::endl;
+    conn->prepare_request(2);
+    int operation = 1; // 加法
+    int a = 10, b = 20;
+    conn->write(&operation, sizeof(operation));
+    conn->write(&a, sizeof(a));
+    conn->write(&b, sizeof(b));
+
+    int result;
+    conn->read(&result, sizeof(result));
+
+    // 提交请求
+    RpcError err = conn->submit_request();
+    if(err != RpcError::OK) {
+        std::cerr << "Calculation request failed: " << static_cast<int>(err) << std::endl;
+        client.release_connection(conn);
+        return;
+    }
+
+    std::cout << "Calculation result: " << result << std::endl;
+    client.release_connection(conn);
 }
 
 // 客户端示例
 void run_client() {
     try {
         RpcClient client(VERSION_KEY);
-        RpcConn *conn;
 
         // 连接到服务器
-        client.connect("127.0.0.1", 12345, 5);
-        conn = client.acquire_connection();
+        RpcError err = client.connect("127.0.0.1", 12345, 5);
+        if(err != RpcError::OK) {
+            std::cerr << "Failed to connect: " << static_cast<int>(err) << std::endl;
+            return;
+        }
 
-        // 1. 测试echo服务
-        std::cout << "\nTesting echo service:" << std::endl;
-        conn->prepare_request(1);
-        const char *message = "Hello, RPC!";
-        const char *name = "tester";
+        // 创建20个线程
+        std::vector<std::thread> threads;
+        for(int i = 0; i < 6; i++) {
+            threads.emplace_back([&client]() {
+                case1(client);
+                case2(client);
+            });
+        }
 
-        size_t len = strlen(message) + 1;
-        conn->write(&len, sizeof(len));
+        // 等待所有线程完成
+        for(auto &thread : threads) {
+            thread.join();
+        }
 
-        conn->write(message, len);
-
-        conn->write(name, strlen(name) + 1, true);
-
-        char message_echo[1024];
-        conn->read(message_echo, sizeof(message_echo), true);
-        char name_echo[1024];
-        conn->read(name_echo, sizeof(name_echo), true);
-        // 提交请求
-        conn->submit_request();
-        std::cout << "Echo response: " << std::string(message_echo) << " name" << std::string(name_echo) << std::endl;
-
-        // 2. 测试计算服务
-        std::cout << "\nTesting calculation service:" << std::endl;
-        conn->prepare_request(2);
-        int operation = 1; // 加法
-        int a = 10, b = 20;
-        conn->write(&operation, sizeof(operation));
-        conn->write(&a, sizeof(a));
-        conn->write(&b, sizeof(b));
-
-        int result;
-        conn->read(&result, sizeof(result));
-        // 提交请求
-        conn->submit_request();
-        std::cout << "Calculation result: " << result << std::endl;
-
-        client.release_connection(conn);
+        client.disconnect();
     } catch(const RpcException &e) {
         std::cerr << "Client error: " << e.what() << std::endl;
     }
