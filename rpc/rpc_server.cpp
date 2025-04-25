@@ -8,7 +8,7 @@
 
 namespace rpc {
 
-RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), version_key_(version_key), running_(false) {
+RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), version_key_(version_key) {
     // 创建监听socket
     listenfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(listenfd_ < 0) {
@@ -54,19 +54,18 @@ RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), versi
 
 RpcServer::~RpcServer() { stop(); }
 
-RpcError RpcServer::start() {
+void RpcServer::start() {
     if(running_) {
-        return RpcError::INVALID_SOCKET;
+        return;
     }
-
     running_ = true;
-    return accept_loop();
+    accept_loop();
 }
 
-RpcError RpcServer::stop() {
-    if(!running_)
-        return RpcError::OK;
-
+void RpcServer::stop() {
+    if(!running_) {
+        return;
+    }
     running_ = false;
 
     // 关闭监听socket
@@ -85,12 +84,13 @@ RpcError RpcServer::stop() {
     }
     async_conns_.clear();
 
-    // // 清理同步连接
-    // for(auto &conn : sync_conns_) {
-    //     if(conn) {
-    //         conn->disconnect();
-    //     }
-    // }
+    // 清理同步连接
+    for(auto &conn : sync_conns_) {
+        if(conn) {
+            conn->disconnect();
+        }
+    }
+    sync_conns_.clear();
 
     // 等待所有工作线程结束
     for(auto &thread : worker_threads_) {
@@ -99,8 +99,6 @@ RpcError RpcServer::stop() {
         }
     }
     worker_threads_.clear();
-
-    return RpcError::OK;
 }
 
 void RpcServer::register_handler(uint32_t func_id, RequestHandler handler) { handlers_[func_id] = handler; }
@@ -111,7 +109,7 @@ RpcConn *RpcServer::get_async_conn(const std::string &client_id_str) {
     return (it != async_conns_.end()) ? it->second.get() : nullptr;
 }
 
-RpcError RpcServer::accept_loop() {
+void RpcServer::accept_loop() {
     while(running_) {
         fd_set read_fds;
         FD_ZERO(&read_fds);
@@ -122,21 +120,13 @@ RpcError RpcServer::accept_loop() {
         tv.tv_usec = (ACCEPT_TIMEOUT_MS % 1000) * 1000;
 
         int ret = select(listenfd_ + 1, &read_fds, nullptr, nullptr, &tv);
-        if(ret < 0) {
-            if(errno == EINTR) {
-                continue;
-            }
-            return RpcError::ACCEPT_TIMEOUT;
-        } else if(ret == 0) {
+        if(ret <= 0) {
             continue;
         }
 
         int connfd = accept(listenfd_, NULL, NULL);
         if(connfd < 0) {
-            if(errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
-                continue;
-            }
-            return RpcError::ACCEPT_TIMEOUT;
+            continue;
         }
 
         // 设置为非阻塞模式
@@ -198,22 +188,28 @@ RpcError RpcServer::accept_loop() {
         // 创建新的客户端连接
         auto client = std::make_unique<RpcConn>(version_key_, handshake_req.id, true);
         client->sockfd_ = connfd;
+        client->running_ = true;
 
         if(handshake_req.is_async) {
             // 处理异步连接, 服务器端保存客户端和异步连接的对应关系
             std::lock_guard<std::mutex> lock(async_mutex_);
+            if(async_conns_.find(client->client_id_str_) != async_conns_.end()) {
+                async_conns_.erase(client->client_id_str_);
+            }
             async_conns_[client->client_id_str_] = std::move(client);
         } else {
             // 处理同步连接, 创建工作线程处理请求
-            worker_threads_.emplace_back(&RpcServer::handle_request, this, std::move(client));
+            std::shared_ptr<RpcConn> client_ptr = std::move(client);
+            sync_conns_.push_back(client_ptr);
+
+            worker_threads_.emplace_back(&RpcServer::handle_request, this, client_ptr);
         }
     }
-    return RpcError::OK;
 }
 
-RpcError RpcServer::handle_request(std::unique_ptr<RpcConn> conn) {
+void RpcServer::handle_request(std::shared_ptr<RpcConn> conn) {
     while(running_) {
-        uint32_t func_id;
+        uint32_t func_id = 0;
         RpcError err = conn->read_one_now(&func_id, sizeof(func_id));
         if(err != RpcError::OK) {
             break;
@@ -221,13 +217,11 @@ RpcError RpcServer::handle_request(std::unique_ptr<RpcConn> conn) {
 
         // 获取处理函数
         RequestHandler handler;
-        {
-            auto it = handlers_.find(func_id);
-            if(it == handlers_.end()) {
-                break;
-            }
-            handler = it->second;
+        auto it = handlers_.find(func_id);
+        if(it == handlers_.end()) {
+            break;
         }
+        handler = it->second;
 
         // 处理请求
         if(handler(conn.get()) != 0) {
@@ -235,7 +229,6 @@ RpcError RpcServer::handle_request(std::unique_ptr<RpcConn> conn) {
         }
     }
     conn->disconnect();
-    return RpcError::OK;
 }
 
 } // namespace rpc

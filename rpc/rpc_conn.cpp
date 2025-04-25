@@ -8,7 +8,7 @@
 
 namespace rpc {
 
-RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : func_id_(0), client_id_(), version_key_(version_key), is_server(is_server), to_quit_(false) {
+RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : func_id_(0), client_id_(), version_key_(version_key), is_server(is_server) {
     char uuid_str[37];
     uuid_copy(client_id_, client_id);
     uuid_unparse(client_id_, uuid_str);
@@ -77,6 +77,7 @@ RpcError RpcConn::connect(const std::string &server, uint16_t port, bool is_asyn
     if(sockfd_ >= 0) {
         return RpcError::INVALID_SOCKET;
     }
+    running_ = true;
 
     sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd_ < 0) {
@@ -168,11 +169,116 @@ RpcError RpcConn::connect(const std::string &server, uint16_t port, bool is_asyn
         return RpcError::HANDSHAKE_FAILED;
     }
 
+    // 保存连接信息，用于断线重连
+    server_ = server;
+    port_ = port;
+    is_async_ = is_async;
+
+    return RpcError::OK;
+}
+
+RpcError RpcConn::reconnect() {
+    if(sockfd_ >= 0) {
+        ::shutdown(sockfd_, SHUT_RDWR);
+        ::close(sockfd_);
+        sockfd_ = -1;
+    }
+
+    sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockfd_ < 0) {
+        return RpcError::INVALID_SOCKET;
+    }
+
+    // 设置为非阻塞模式
+    RpcError err = set_nonblocking();
+    if(err != RpcError::OK) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return err;
+    }
+
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port_);
+    if(inet_pton(AF_INET, server_.c_str(), &server_addr.sin_addr) <= 0) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return RpcError::INVALID_ADDRESS;
+    }
+
+    // 非阻塞连接
+    int ret = ::connect(sockfd_, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if(ret < 0) {
+        if(errno == EINPROGRESS) {
+            // 等待连接完成
+            err = wait_for_writable(CONNECT_TIMEOUT_MS);
+            if(err != RpcError::OK) {
+                close(sockfd_);
+                sockfd_ = -1;
+                return err;
+            }
+
+            // 检查连接是否成功
+            int error = 0;
+            socklen_t len = sizeof(error);
+            if(getsockopt(sockfd_, SOL_SOCKET, SO_ERROR, &error, &len) < 0 || error != 0) {
+                close(sockfd_);
+                sockfd_ = -1;
+                return RpcError::CONNECTION_CLOSED;
+            }
+        } else {
+            close(sockfd_);
+            sockfd_ = -1;
+            return RpcError::CONNECTION_CLOSED;
+        }
+    }
+
+    // 发送握手请求
+    HandshakeRequest handshake_req;
+    uuid_copy(handshake_req.id, client_id_);
+    handshake_req.is_async = is_async_;
+    handshake_req.version_key = version_key_;
+
+    err = wait_for_writable(WRITE_TIMEOUT_MS);
+    if(err != RpcError::OK) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return err;
+    }
+
+    if(::write(sockfd_, &handshake_req, sizeof(handshake_req)) != sizeof(handshake_req)) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return RpcError::WRITE_ERROR;
+    }
+
+    // 读取握手响应
+    err = wait_for_readable(READ_TIMEOUT_MS);
+    if(err != RpcError::OK) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return err;
+    }
+
+    HandshakeResponse handshake_rsp;
+    if(::read(sockfd_, &handshake_rsp, sizeof(handshake_rsp)) != sizeof(handshake_rsp)) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return RpcError::READ_ERROR;
+    }
+
+    if(handshake_rsp.status != 0) {
+        close(sockfd_);
+        sockfd_ = -1;
+        return RpcError::HANDSHAKE_FAILED;
+    }
+
     return RpcError::OK;
 }
 
 RpcError RpcConn::disconnect() {
-    to_quit_ = true;
+    running_ = false;
     if(sockfd_ >= 0) {
         shutdown(sockfd_, SHUT_RDWR);
         close(sockfd_);
@@ -267,7 +373,7 @@ RpcError RpcConn::write_full_iovec(std::vector<iovec> &iov) {
     size_t remaining = iov.size();
     size_t current = 0;
 
-    while(remaining > 0 && !to_quit_) {
+    while(remaining > 0 && running_) {
         RpcError err = wait_for_writable(WRITE_TIMEOUT_MS);
         if(err != RpcError::OK) {
             if(err == RpcError::WRITE_TIMEOUT) {
@@ -282,8 +388,15 @@ RpcError RpcConn::write_full_iovec(std::vector<iovec> &iov) {
                 continue;
             return RpcError::WRITE_ERROR;
         }
-
-        while(bytes_wrote > 0 && remaining > 0 && !to_quit_) {
+#ifdef DUMP
+        size_t to_dump = bytes_wrote;
+        for(size_t i = 0; i < remaining; i++) {
+            ssize_t dump_len = to_dump > iov[current + i].iov_len ? iov[current + i].iov_len : to_dump;
+            hexdump("<==", iov[current + i].iov_base, dump_len);
+            to_dump -= dump_len;
+        }
+#endif
+        while(bytes_wrote > 0 && remaining > 0 && running_) {
             if(bytes_wrote >= static_cast<ssize_t>(iov[current].iov_len)) {
                 bytes_wrote -= iov[current].iov_len;
                 current++;
@@ -306,7 +419,7 @@ RpcError RpcConn::read_full_iovec(std::vector<iovec> &iov) {
     size_t remaining = iov.size();
     size_t current = 0;
 
-    while(remaining > 0 && !to_quit_) {
+    while(remaining > 0 && running_) {
         RpcError err = wait_for_readable(READ_TIMEOUT_MS);
         if(err != RpcError::OK) {
             if(err == RpcError::READ_TIMEOUT) {
@@ -326,9 +439,18 @@ RpcError RpcConn::read_full_iovec(std::vector<iovec> &iov) {
             return RpcError::CONNECTION_CLOSED;
         }
 
+#ifdef DUMP
+        size_t to_dump = bytes_read;
+        for(size_t i = 0; i < remaining; i++) {
+            ssize_t dump_len = to_dump > iov[current + i].iov_len ? iov[current + i].iov_len : to_dump;
+            hexdump("==>", iov[current + i].iov_base, dump_len);
+            to_dump -= dump_len;
+        }
+#endif
+
         total_bytes += bytes_read;
 
-        while(bytes_read > 0 && remaining > 0 && !to_quit_) {
+        while(bytes_read > 0 && remaining > 0 && running_) {
             if(bytes_read >= static_cast<ssize_t>(iov[current].iov_len)) {
                 bytes_read -= iov[current].iov_len;
                 current++;
@@ -417,13 +539,14 @@ RpcError RpcConn::read_one_now(void *buffer, size_t size, bool with_len) {
         // 读取长度字段
         std::vector<iovec> iovs = {{&length, sizeof(length)}};
         RpcError err = read_full_iovec(iovs);
+
         if(err != RpcError::OK) {
             return err;
         }
 
         // 检查缓冲区大小
         if(size > 0 && length > size) {
-            return RpcError::READ_ERROR;
+            throw RpcException("Not enough space to read data", __LINE__);
         }
     }
 

@@ -71,6 +71,7 @@ class RpcConn {
 
     // 连接管理
     RpcError connect(const std::string &server, uint16_t port, bool is_async = false);
+    RpcError reconnect();
     RpcError disconnect();
     bool is_connected() const;
 
@@ -109,7 +110,11 @@ class RpcConn {
     std::string client_id_str_;
     uint16_t version_key_;
     bool is_server;
-    std::atomic<bool> to_quit_{false}; // 是否退出
+    std::atomic<bool> running_{false};
+
+    std::string server_;
+    uint16_t port_;
+    bool is_async_;
 
     std::vector<iovec> iov_send_;
     std::vector<iovec> iov_send2_;
@@ -142,8 +147,8 @@ class RpcServer {
     RpcServer &operator=(const RpcServer &) = delete;
 
     // 服务器控制
-    RpcError start();
-    RpcError stop();
+    void start();
+    void stop();
 
     // 注册处理函数
     using RequestHandler = std::function<int(RpcConn *)>;
@@ -155,17 +160,18 @@ class RpcServer {
   private:
     int listenfd_;
     uint16_t version_key_;
-    std::atomic<bool> running_;
+    std::atomic<bool> running_{false};
 
     std::map<std::string, std::unique_ptr<RpcConn>> async_conns_;
+    std::vector<std::shared_ptr<RpcConn>> sync_conns_; // 所有的同步连接
     std::vector<std::thread> worker_threads_;
     std::map<uint32_t, RequestHandler> handlers_;
 
     std::mutex async_mutex_;
 
     // 修改内部方法返回类型
-    RpcError accept_loop();
-    RpcError handle_request(std::unique_ptr<RpcConn> conn);
+    void accept_loop();
+    void handle_request(std::shared_ptr<RpcConn> conn);
 };
 
 // RPC客户端类
@@ -196,7 +202,7 @@ class RpcClient {
     uint16_t server_port_;
     uint16_t version_key_;
     uuid_t client_id_;
-    std::atomic<bool> running_;
+    std::atomic<bool> running_{false};
 
     // 同步连接池
     std::vector<std::unique_ptr<RpcConn>> sync_conns_;
@@ -209,8 +215,7 @@ class RpcClient {
     std::map<uint32_t, AsyncRequestHandler> async_handlers_;
 
     // 修改内部方法返回类型
-    RpcError async_receive_loop();
-    RpcError handle_async_request(RpcConn *conn);
+    void async_receive_loop();
 };
 
 } // namespace rpc

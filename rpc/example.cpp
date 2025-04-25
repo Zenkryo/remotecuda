@@ -103,10 +103,8 @@ void run_server() {
         server.register_handler(2, calculate_handler);
 
         std::cout << "Server starting..." << std::endl;
-        RpcError err = server.start();
-        if(err != RpcError::OK) {
-            std::cerr << "Server error: " << static_cast<int>(err) << std::endl;
-        }
+        server.start();
+        printf("server start\n");
     } catch(const RpcException &e) {
         std::cerr << "Server error: " << e.what() << std::endl;
     }
@@ -117,9 +115,10 @@ void case1(RpcClient &client) {
     RpcConn *conn = nullptr;
     while(!conn) {
         conn = client.acquire_connection();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if(!conn) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     }
-    std::cout << "\nTesting echo service:" << std::endl;
     conn->prepare_request(1);
     const char *message = "Hello, RPC!";
     const char *name = "tester";
@@ -153,7 +152,6 @@ void case2(RpcClient &client) {
         conn = client.acquire_connection();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::cout << "\nTesting calculation service:" << std::endl;
     conn->prepare_request(2);
     int operation = 1; // 加法
     int a = 10, b = 20;
@@ -182,15 +180,17 @@ void run_client() {
         RpcClient client(VERSION_KEY);
 
         // 连接到服务器
-        RpcError err = client.connect("127.0.0.1", 12345, 5);
+        RpcError err = client.connect("127.0.0.1", 12345, 1);
         if(err != RpcError::OK) {
             std::cerr << "Failed to connect: " << static_cast<int>(err) << std::endl;
             return;
         }
 
-        // 创建20个线程
+        case1(client);
+
+        // // 创建20个线程
         std::vector<std::thread> threads;
-        for(int i = 0; i < 6; i++) {
+        for(int i = 0; i < 20; i++) {
             threads.emplace_back([&client]() {
                 case1(client);
                 case2(client);
@@ -202,10 +202,11 @@ void run_client() {
             thread.join();
         }
 
-        client.disconnect();
+        // client.disconnect();
     } catch(const RpcException &e) {
         std::cerr << "Client error: " << e.what() << std::endl;
     }
+    printf("run_client quit\n");
 }
 
 int main() {

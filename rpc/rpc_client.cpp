@@ -8,7 +8,7 @@
 
 namespace rpc {
 
-RpcClient::RpcClient(uint16_t version_key) : server_addr_(), server_port_(0), version_key_(version_key), running_(false) { uuid_generate(client_id_); }
+RpcClient::RpcClient(uint16_t version_key) : server_addr_(), server_port_(0), version_key_(version_key) { uuid_generate(client_id_); }
 
 RpcClient::~RpcClient() { disconnect(); }
 
@@ -28,6 +28,7 @@ RpcError RpcClient::connect(const std::string &server, uint16_t port, size_t syn
         if(err != RpcError::OK) {
             return err;
         }
+        printf("sync client connected\n");
         sync_conns_.push_back(std::move(conn));
     }
 
@@ -37,6 +38,7 @@ RpcError RpcClient::connect(const std::string &server, uint16_t port, size_t syn
     if(err != RpcError::OK) {
         return err;
     }
+    printf("async client connected\n");
 
     // 启动异步接收线程
     async_thread_ = std::thread(&RpcClient::async_receive_loop, this);
@@ -45,8 +47,9 @@ RpcError RpcClient::connect(const std::string &server, uint16_t port, size_t syn
 }
 
 void RpcClient::disconnect() {
-    if(!running_)
+    if(!running_) {
         return;
+    }
 
     running_ = false;
 
@@ -62,13 +65,15 @@ void RpcClient::disconnect() {
     // 清理异步连接
     if(async_conn_) {
         async_conn_->disconnect();
-        async_conn_.reset();
     }
 
     // 等待异步线程结束
     if(async_thread_.joinable()) {
         async_thread_.join();
     }
+
+    // 最后释放异步连接
+    async_conn_.reset();
 
     available_conns_.clear();
 }
@@ -109,56 +114,29 @@ void RpcClient::release_connection(RpcConn *conn) {
 
 void RpcClient::register_async_handler(uint32_t func_id, AsyncRequestHandler handler) { async_handlers_[func_id] = handler; }
 
-RpcError RpcClient::async_receive_loop() {
+void RpcClient::async_receive_loop() {
     while(running_) {
         uint32_t func_id;
         RpcError err = async_conn_->read_one_now(&func_id, sizeof(func_id));
         if(err != RpcError::OK) {
-            if(err == RpcError::CONNECTION_CLOSED) {
-                break;
+            if(async_conn_->reconnect() != RpcError::OK) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             }
             continue;
         }
 
         // 获取处理函数
         AsyncRequestHandler handler;
-        {
-            auto it = async_handlers_.find(func_id);
-            if(it == async_handlers_.end()) {
-                continue;
-            }
-            handler = it->second;
+
+        auto it = async_handlers_.find(func_id);
+        if(it == async_handlers_.end()) {
+            throw RpcException("Invalid function id", __LINE__);
         }
+        handler = it->second;
 
         // 处理请求
         handler(async_conn_.get());
     }
-    return RpcError::OK;
-}
-
-RpcError RpcClient::handle_async_request(RpcConn *conn) {
-    if(!conn)
-        return RpcError::INVALID_SOCKET;
-
-    uint32_t func_id;
-    RpcError err = conn->read_one_now(&func_id, sizeof(func_id));
-    if(err != RpcError::OK) {
-        return err;
-    }
-
-    // 获取处理函数
-    AsyncRequestHandler handler;
-    {
-        auto it = async_handlers_.find(func_id);
-        if(it == async_handlers_.end()) {
-            return RpcError::INVALID_SOCKET;
-        }
-        handler = it->second;
-    }
-
-    // 处理请求
-    handler(conn);
-    return RpcError::OK;
 }
 
 } // namespace rpc
