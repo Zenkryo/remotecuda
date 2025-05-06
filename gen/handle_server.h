@@ -3,7 +3,8 @@
 
 #include <cstdint>
 
-#include "../server.h"
+#include "rpc/rpc_core.h"
+using namespace rpc;
 
 int handle___cudaInitModule(void *args);
 int handle___cudaPushCallConfiguration(void *args);

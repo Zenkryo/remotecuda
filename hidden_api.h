@@ -1,9 +1,9 @@
-// 隐藏的cuda runtime API
 #ifndef HIDDEN_API_H
 #define HIDDEN_API_H
 
 #include <cuda_runtime_api.h>
-#include "rpc.h"
+#include "rpc/rpc_core.h"
+using namespace rpc;
 #define __cudaFatMAGIC2 0x466243b1
 
 typedef struct __attribute__((__packed__)) __cudaFatCudaBinaryRec2 {
@@ -60,10 +60,10 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
 
 extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun, char *deviceFun, const char *deviceName, int thread_limit, uint3 *tid, uint3 *bid, dim3 *bDim, dim3 *gDim, int *wSize);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
+extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssize_t size);
 
-extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
+extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);
 
-extern "C" void mem2client_async(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
+extern "C" void mem2client_async(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);
 
 #endif

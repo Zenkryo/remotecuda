@@ -73,7 +73,8 @@
     "filesystem": "cpp",
     "__string": "cpp",
     "__locale": "cpp",
-    "unordered_map": "cpp"
+    "unordered_map": "cpp",
+    "shared_mutex": "cpp"
   },
   "C_Cpp.default.defines": [
     "CUBLASAPI="

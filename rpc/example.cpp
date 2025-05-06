@@ -8,6 +8,7 @@
 #include <cmath>
 
 using namespace rpc;
+constexpr uint16_t VERSION_KEY = 0x5544;
 
 // 示例处理函数
 int echo_handler(RpcConn *conn) {

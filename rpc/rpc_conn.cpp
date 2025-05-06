@@ -1,10 +1,11 @@
-#include "rpc_core.h"
 #include <stdexcept>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <fcntl.h>
 #include <sys/select.h>
 #include <errno.h>
+#include "rpc_core.h"
 
 namespace rpc {
 
@@ -15,16 +16,7 @@ RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : func_
     client_id_str_ = std::string(uuid_str);
 }
 
-RpcConn::~RpcConn() {
-    disconnect();
-    cleanup_tmp_buffers();
-}
-
-bool RpcConn::is_connected() const { return sockfd_ >= 0; }
-
-int RpcConn::get_iov_read_count(bool with_len) const { return with_len ? iov_read2_.size() : iov_read_.size(); }
-
-int RpcConn::get_iov_send_count(bool with_len) const { return with_len ? iov_send2_.size() : iov_send_.size(); }
+RpcConn::~RpcConn() { disconnect(); }
 
 RpcError RpcConn::set_nonblocking() {
     int flags = fcntl(sockfd_, F_GETFL, 0);
@@ -283,7 +275,6 @@ RpcError RpcConn::disconnect() {
         shutdown(sockfd_, SHUT_RDWR);
         close(sockfd_);
         sockfd_ = -1;
-        cleanup_tmp_buffers();
     }
     return RpcError::OK;
 }
@@ -499,12 +490,14 @@ RpcError RpcConn::read_all(bool with_len) {
 
             void *tmp_buffer = nullptr;
             if(iov.iov_len == 0) {
-                tmp_buffer = malloc(length);
+                tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
                 if(tmp_buffer == nullptr) {
                     throw RpcMemoryException("Failed to allocate memory", __LINE__);
                 }
                 void **buffer_ptr = static_cast<void **>(iov.iov_base);
                 *buffer_ptr = tmp_buffer;
+
+                iov.iov_base = tmp_buffer;
             } else if(iov.iov_len < length) {
                 return RpcError::READ_ERROR;
             }
@@ -515,14 +508,11 @@ RpcError RpcConn::read_all(bool with_len) {
             err = read_full_iovec(iovs);
             if(err != RpcError::OK) {
                 if(tmp_buffer != nullptr) {
-                    free(tmp_buffer);
+                    RpcBuffers::getInstance().free_rpc_buffer(client_id_str_, tmp_buffer);
                     void **buffer_ptr = static_cast<void **>(iov.iov_base);
                     *buffer_ptr = nullptr;
                 }
                 return err;
-            }
-            if(tmp_buffer != nullptr) {
-                tmp_buffers_.insert(tmp_buffer);
             }
         }
         iov_read2_.clear();
@@ -557,60 +547,45 @@ RpcError RpcConn::read_one_now(void *buffer, size_t size, bool with_len) {
     void *tmp_buffer = nullptr;
     if(size == 0) {
         // 动态分配缓冲区
-        tmp_buffer = malloc(length);
+        tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
         if(tmp_buffer == nullptr) {
             throw RpcMemoryException("Failed to allocate memory", __LINE__);
         }
         *(void **)buffer = tmp_buffer;
+    } else {
+        tmp_buffer = buffer;
     }
 
-    std::vector<iovec> iovs = {{buffer, length}};
+    std::vector<iovec> iovs = {{tmp_buffer, length}};
     RpcError err = read_full_iovec(iovs);
     if(err != RpcError::OK) {
-        if(tmp_buffer != nullptr) {
-            free(*(void **)buffer);
+        if(size == 0) {
+            RpcBuffers::getInstance().free_rpc_buffer(client_id_str_, tmp_buffer);
         }
         return err;
-    }
-
-    if(tmp_buffer != nullptr) {
-        tmp_buffers_.insert(tmp_buffer);
     }
 
     return RpcError::OK;
 }
 
 RpcError RpcConn::read_all_now(void **buffer, size_t *size, int count) {
-    std::set<void *> new_buffers;
-
     for(int i = 0; i < count; i++) {
         // 读取长度字段
         size_t length;
         std::vector<iovec> iovs = {{&length, sizeof(length)}};
         RpcError err = read_full_iovec(iovs);
         if(err != RpcError::OK) {
-            for(void *ptr : new_buffers) {
-                free(ptr);
-            }
             return err;
         }
 
         // 分配新的缓冲区
-        void *tmp_buffer = malloc(length);
+        void *tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
         if(tmp_buffer == nullptr) {
-            for(void *ptr : new_buffers) {
-                free(ptr);
-            }
-            throw RpcMemoryException("Failed to allocate memory", __LINE__);
+            return RpcError::MALLOC_FAILED;
         }
-        new_buffers.insert(tmp_buffer);
-
         iovs = {{tmp_buffer, length}};
         err = read_full_iovec(iovs);
         if(err != RpcError::OK) {
-            for(void *ptr : new_buffers) {
-                free(ptr);
-            }
             return err;
         }
 
@@ -620,7 +595,6 @@ RpcError RpcConn::read_all_now(void **buffer, size_t *size, int count) {
         }
     }
 
-    tmp_buffers_.insert(new_buffers.begin(), new_buffers.end());
     return RpcError::OK;
 }
 
@@ -629,13 +603,6 @@ void RpcConn::reset() {
     iov_send2_.clear();
     iov_read_.clear();
     iov_read2_.clear();
-}
-
-void RpcConn::cleanup_tmp_buffers() {
-    for(void *ptr : tmp_buffers_) {
-        free(ptr);
-    }
-    tmp_buffers_.clear();
 }
 
 void RpcConn::hexdump(const char *desc, const void *buf, size_t len) {
@@ -669,6 +636,33 @@ void RpcConn::hexdump(const char *desc, const void *buf, size_t len) {
         }
         printed_lines++;
     }
+}
+
+void *RpcConn::get_host_buffer(size_t size) { return RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, size); }
+
+void RpcConn::free_host_buffer(void *ptr) { RpcBuffers::getInstance().free_rpc_buffer(client_id_str_, ptr); }
+
+void *RpcConn::get_iov_buffer(size_t size) {
+    std::lock_guard<std::mutex> lock(iov_buffers_mutex_);
+    void *iov_buffer = malloc(size);
+    if(iov_buffer == nullptr) {
+        return nullptr;
+    }
+    iov_buffers_.insert(iov_buffer);
+    return iov_buffer;
+}
+
+void RpcConn::free_iov_buffer(void *ptr) {
+    std::lock_guard<std::mutex> lock(iov_buffers_mutex_);
+    if(ptr == nullptr) {
+        return;
+    }
+    auto it = iov_buffers_.find(ptr);
+    if(it == iov_buffers_.end()) {
+        return;
+    }
+    iov_buffers_.erase(it);
+    free(ptr);
 }
 
 } // namespace rpc

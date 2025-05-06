@@ -17,6 +17,7 @@ find_package(Threads REQUIRED)
 
 # 添加源文件
 set(SOURCES
+    rpc_buffers.cpp
     rpc_conn.cpp
     rpc_server.cpp
     rpc_client.cpp

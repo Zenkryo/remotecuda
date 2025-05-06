@@ -5,18 +5,20 @@
 #include <string>
 #include <cuda_runtime.h>
 #include <cublas_api.h>
-#include "rpc.h"
+#include "rpc/rpc_core.h"
 #include "gen/hook_api.h"
+using namespace rpc;
 
 void *getHookFunc(const char *symbol);
+
 // 保存系统的 dlsym 函数指针
 void *(*real_dlsym)(void *, const char *) = nullptr;
 
 void *(*real_dlopen)(const char *, int) = nullptr;
 
 extern "C" void *dlopen(const char *filename, int flag) {
+
 #ifdef DEBUG
-    // std::cout << "dlopen " << std::endl;
     // std::cout << "dlopen " << filename << std::endl;
 #endif
     // 初始化 real_dlopen
@@ -56,9 +58,19 @@ extern "C" void *dlsym(void *handle, const char *symbol) {
 }
 
 static std::map<std::string, void *> so_handles;
+std::unique_ptr<RpcClient> client;
 
+void rpc_init() {
+    client = std::unique_ptr<RpcClient>(new RpcClient(VERSION_KEY));
+    // 连接到服务器
+    RpcError err = client->connect("127.0.0.1", 12345, 5);
+    if(err != RpcError::OK) {
+        std::cerr << "Failed to connect: " << static_cast<int>(err) << std::endl;
+        return;
+    }
+}
 // Hook 的初始化函数
-void init_hook() { rpc_init(VERSION_KEY); }
+void init_hook() { rpc_init(); }
 
 void *get_so_handle(const std::string &so_file) {
     if(so_handles.find(so_file) == so_handles.end()) {
@@ -148,3 +160,19 @@ int sizeofType(cudaDataType type) {
         return -1; // 未知类型返回错误
     }
 }
+
+RpcConn *rpc_get_conn() {
+    RpcConn *conn = nullptr;
+    int i = 10;
+    while(i-- > 0) {
+        conn = client->acquire_connection();
+
+        if(conn) {
+            return conn;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    return nullptr;
+}
+
+void rpc_release_conn(RpcConn *conn) { client->release_connection(conn); }

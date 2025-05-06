@@ -167,7 +167,8 @@ def generate_handle_server_h(output_dir, function_map):
         f.write("#ifndef HOOK_SERVER_H\n")
         f.write("#define HOOK_SERVER_H\n\n")
         f.write("#include <cstdint>\n\n")
-        f.write('#include "../server.h"\n\n')
+        f.write('#include "rpc/rpc_core.h"\n')
+        f.write("using namespace rpc;\n\n")
         # 生成每个被 Hook 函数的 handle 函数
         for header_file, functions in function_map.items():
             for function in functions:
@@ -339,23 +340,23 @@ def handle_param_type(function, param, f, is_client=True, position=0):
         if position == 0:
             if param_type_name == "CUdeviceptr":
                 f.write(f"    void *_0{param.name};\n")
-                f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, -1);\n")
+                f.write(f"    mem2server(conn, &_0{param.name}, (void *){param.name}, -1);\n")
         # 客户端写入参数的值
         elif position == 1:
             if param_type_name == "CUdeviceptr":
-                f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+                f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
                 f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
             else:
-                f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+                f.write(f"    conn->write(&{param.name}, sizeof({param.name}));\n")
         elif position == 3:
             if param_type_name == "CUdeviceptr":
-                f.write(f"    mem2client(client, (void *){param.name}, -1, true);\n")
+                f.write(f"    mem2client(conn, (void *){param.name}, -1, true);\n")
     else:
         if position == 0:
             # 服务器端定义同名变量
             f.write(f"    {param.type.format()} {param.name};\n")
             # 读取参数的值到上面定义的变量
-            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->read(&{param.name}, sizeof({param.name}));\n")
             # 返回参数名，用于调用真实函数
             return param.name
 
@@ -366,16 +367,16 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
         len = calculate_pointer_sizes(function, param)
         if position == 0:
             f.write(f"    void *_0{param.name};\n")
-            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
+            f.write(f"    mem2server(conn, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
-            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
             f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
+            f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
-            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->read(&{param.name}, sizeof({param.name}));\n")
             return param.name
 
 
@@ -385,16 +386,16 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
         len = calculate_pointer_sizes(function, param)
         if position == 0:
             f.write(f"    void *_0{param.name};\n")
-            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
+            f.write(f"    mem2server(conn, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
-            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
             f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
+            f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
-            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->read(&{param.name}, sizeof({param.name}));\n")
             return param.name
 
 
@@ -405,7 +406,7 @@ def handle_param_pchar(function, param, f, is_client=True, position=0):
         if position == 1:
             # 现在都做输出参数处理，遇到例外再特殊处理
             f.write(f"    if({len} > 0) {{\n")
-            f.write(f"        rpc_read(client, {param.name}, {len}, true);\n")
+            f.write(f"        conn->read({param.name}, {len}, true);\n")
             f.write(f"    }}\n")
     else:
         if position == 0:
@@ -414,7 +415,7 @@ def handle_param_pchar(function, param, f, is_client=True, position=0):
             return param.name
         elif position == 2:
             f.write(f"    if({len} > 0) {{\n")
-            f.write(f"        rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
+            f.write(f"        conn->write({param.name}, strlen({param.name}) + 1, true);\n")
             f.write(f"    }}\n")
 
 
@@ -423,12 +424,12 @@ def handle_param_pconstchar(function, param, f, is_client=True, position=0):
     if is_client:
         if position == 1:
             # const char * 类型的参数必然是输入参数
-            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
+            f.write(f"    conn->write({param.name}, strlen({param.name}) + 1, true);\n")
     else:
         if position == 0:
             # 服务器端定义一个局部变量来临时保存字符串
             f.write(f"    char *{param.name} = nullptr;\n")
-            f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
+            f.write(f"    conn->read(&{param.name}, 0, true);\n")
             return param.name
         elif position == 1:
             f.write(f"    buffers.insert({param.name});\n")
@@ -439,12 +440,12 @@ def handle_param_phidden(function, param, f, is_client=True, position=0):
     if is_client:
         if position == 1:
             # 对于指向隐藏类型的指针，将指针本身传递给服务器端
-            f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->write(&{param.name}, sizeof({param.name}));\n")
     else:
         if position == 0:
             # 服务器端读取指针本身
             f.write(f"    {param.type.ptr_to.format()} *{param.name};\n")
-            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->read(&{param.name}, sizeof({param.name}));\n")
             return param.name
 
 
@@ -457,31 +458,31 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
         len = calculate_pointer_sizes(function, param)
         if position == 0:
             f.write(f"    void *_0{param.name};\n")
-            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
+            f.write(f"    mem2server(conn, &_0{param.name}, (void *){param.name}, {len});\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    void *_0sptr = nullptr;\n")
                 f.write(f"    void *_0dptr = nullptr;\n")
                 f.write(f"    if({param.name} != nullptr) {{\n")
-                f.write(f"        mem2server(client, &_0sptr, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
-                f.write(f"        mem2server(client, &_0dptr, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
+                f.write(f"        mem2server(conn, &_0sptr, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
+                f.write(f"        mem2server(conn, &_0dptr, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
                 f.write(f"    }}\n")
         elif position == 1:
-            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
             f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
             if param_type_name == "struct cudaMemcpy3DParms":
-                f.write(f"    rpc_write(client, &_0sptr, sizeof(_0sptr));\n")
-                f.write(f"    rpc_write(client, &_0dptr, sizeof(_0dptr));\n")
+                f.write(f"    conn->write(&_0sptr, sizeof(_0sptr));\n")
+                f.write(f"    conn->write(&_0dptr, sizeof(_0dptr));\n")
                 f.write(f"    updateTmpPtr((void *){param.name}->srcPtr.ptr, _0sptr);\n")
                 f.write(f"    updateTmpPtr((void *){param.name}->dstPtr.ptr, _0dptr);\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
+            f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    if({param.name} != nullptr) {{\n")
                 # 保存客户端原始指针，因为之后读取cudaMemcpy3DParms时会被覆盖
                 f.write(f"        _0sptr = (void *){param.name}->srcPtr.ptr;\n")
                 f.write(f"        _0dptr = (void *){param.name}->dstPtr.ptr;\n")
-                f.write(f"        mem2client(client, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize), false);\n")
-                f.write(f"        mem2client(client, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize), false);\n")
+                f.write(f"        mem2client(conn, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize), false);\n")
+                f.write(f"        mem2client(conn, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize), false);\n")
                 f.write(f"    }}\n")
         elif position == 4:
             if param_type_name == "struct cudaMemcpy3DParms":
@@ -492,12 +493,12 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
-            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->read(&{param.name}, sizeof({param.name}));\n")
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    void *_0sptr;\n")
-                f.write(f"    rpc_read(client, &_0sptr, sizeof(_0sptr));\n")
+                f.write(f"    conn->read(&_0sptr, sizeof(_0sptr));\n")
                 f.write(f"    void *_0dptr;\n")
-                f.write(f"    rpc_read(client, &_0dptr, sizeof(_0dptr));\n")
+                f.write(f"    conn->read(&_0dptr, sizeof(_0dptr));\n")
             return param.name
         elif position == 1:
             if param_type_name == "struct cudaMemcpy3DParms":
@@ -513,16 +514,16 @@ def handle_param_ptype(function, param, f, is_client=True, position=0):
         len = calculate_pointer_sizes(function, param)
         if position == 0:
             f.write(f"    void *_0{param.name};\n")
-            f.write(f"    mem2server(client, &_0{param.name}, (void *){param.name}, {len});\n")
+            f.write(f"    mem2server(conn, &_0{param.name}, (void *){param.name}, {len});\n")
         elif position == 1:
-            f.write(f"    rpc_write(client, &_0{param.name}, sizeof(_0{param.name}));\n")
+            f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
             f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(client, (void *){param.name}, {len}, true);\n")
+            f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name};\n")
-            f.write(f"    rpc_read(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->read(&{param.name}, sizeof({param.name}));\n")
             return param.name
 
 
@@ -531,13 +532,13 @@ def handle_param_ppvoid(function, param, f, is_client=True, position=0):
     if is_client:
         if param.name in ["devPtr", "pDevice", "ptr", "funcPtr"]:
             if position == 1:
-                f.write(f"    rpc_read(client, {param.name}, sizeof(void *));\n")
+                f.write(f"    conn->read({param.name}, sizeof(void *));\n")
         else:
             f.write(f"    // PARAM void **{param.name}\n")
     else:
         if param.name in ["devPtr", "pDevice", "ptr", "funcPtr"]:
             if position == 2:
-                f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+                f.write(f"    conn->write(&{param.name}, sizeof({param.name}));\n")
         else:
             f.write(f"    // PARAM void **{param.name}\n")
         if position == 0:
@@ -551,13 +552,13 @@ def handle_param_ppconstvoid(function, param, f, is_client=True, position=0):
         f.write(f"    // PARAM const void **{param.name}\n")
     if is_client:
         if position == 1:
-            f.write(f"    rpc_read(client, {param.name}, sizeof(*{param.name}));\n")
+            f.write(f"    conn->read({param.name}, sizeof(*{param.name}));\n")
     else:
         if position == 0:
             f.write(f"    const void *{param.name};\n")
             return "&" + param.name
         elif position == 2:
-            f.write(f"    rpc_write(client, &{param.name}, sizeof({param.name}));\n")
+            f.write(f"    conn->write(&{param.name}, sizeof({param.name}));\n")
 
 
 # 处理char **类型的参数
@@ -572,7 +573,7 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
         function_name = function.name.format()
         if position == 1:
             f.write(f"    static char _{function_name}_{param.name}[1024];\n")
-            f.write(f"    rpc_read(client, _{function_name}_{param.name}, 1024, true);\n")
+            f.write(f"    conn->read(_{function_name}_{param.name}, 1024, true);\n")
         elif position == 2:
             f.write(f"    *{param.name} = _{function_name}_{param.name};\n")
     else:
@@ -580,7 +581,7 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
             f.write(f"    const char *{param.name};\n")
             return "&" + param.name
         elif position == 2:
-            f.write(f"    rpc_write(client, {param.name}, strlen({param.name}) + 1, true);\n")
+            f.write(f"    conn->write({param.name}, strlen({param.name}) + 1, true);\n")
 
 
 # 处理const type **参数
@@ -592,7 +593,7 @@ def handle_param_ppconsttype(function, param, f, is_client=True, position=0):
         if position == 1:
             # 定义一个静态变量
             f.write(f"    static {param_type_name} _{function_name}_{param.name};\n")
-            f.write(f"    rpc_read(client, &_{function_name}_{param.name}, sizeof({param_type_name}));\n")
+            f.write(f"    conn->read(&_{function_name}_{param.name}, sizeof({param_type_name}));\n")
         elif position == 2:
             f.write(f"    *{param.name} = &_{function_name}_{param.name};\n")
     else:
@@ -600,7 +601,7 @@ def handle_param_ppconsttype(function, param, f, is_client=True, position=0):
             f.write(f"    const {param_type_name} *{param.name};\n")
             return "&" + param.name
         elif position == 2:
-            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name}));\n")
+            f.write(f"    conn->write({param.name}, sizeof({param_type_name}));\n")
 
 
 # 处理type * name[]参数
@@ -611,11 +612,11 @@ def handle_param_arrayptype(function, param, f, is_client=True, position=0):
     len = getArrayLengthParam(function, param)
     if is_client:
         if position == 1:
-            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
+            f.write(f"    conn->write({param.name}, sizeof({param_type_name} *) * {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
-            f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
+            f.write(f"    conn->read(&{param.name}, 0, true);\n")
             if param.type.array_of.const and param.type.array_of.ptr_to.const:
                 return f"(const {param_type_name} *const *){param.name}"
             elif param.type.array_of.const:
@@ -634,11 +635,11 @@ def handle_param_arraytype(function, param, f, is_client=True, position=0):
     if is_client:
         function_name = function.name.format()
         if position == 1:
-            f.write(f"    rpc_write(client, {param.name}, sizeof({param_type_name} *) * {len}, true);\n")
+            f.write(f"    conn->write({param.name}, sizeof({param_type_name} *) * {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    {param_type_name} *{param.name} = nullptr;\n")
-            f.write(f"    rpc_read(client, &{param.name}, 0, true);\n")
+            f.write(f"    conn->read(&{param.name}, 0, true);\n")
             return param.name
 
 
@@ -1571,12 +1572,14 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         else:
             f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
         f.write('#include "hook_api.h"\n')
-        f.write('#include "../rpc.h"\n')
+        f.write('#include "client.h"\n')
+        # f.write('#include "rpc/rpc_core.h"\n')
+        # f.write("using namespace rpc;\n")
 
         # 声明 dlsym 函数指针
         f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write('extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);\n')
-        f.write('extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);\n')
+        f.write('extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssize_t size);\n')
+        f.write('extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);\n')
         f.write('extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);\n')
         f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
@@ -1607,22 +1610,22 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     f.write(f'    std::cout << "Hook: {function_name} called" << std::endl;\n')
                     f.write("#endif\n")
 
-                    f.write(f"    RpcClient *client = rpc_get_client();\n")
-                    f.write(f"    if(client == nullptr) {{\n")
-                    f.write(f'        std::cerr << "Failed to get rpc client" << std::endl;\n')
+                    f.write(f"    RpcConn *conn = rpc_get_conn();\n")
+                    f.write(f"    if(conn == nullptr) {{\n")
+                    f.write(f'        std::cerr << "Failed to get rpc conn" << std::endl;\n')
                     f.write(f"        exit(1);\n")
                     f.write(f"    }}\n")
-                    f.write(f"    rpc_prepare_request(client, RPC_mem2server);\n")
+                    f.write(f"    conn->prepare_request(RPC_mem2server);\n")
 
-                    # 在rpc_get_client前调用mem2server
+                    # 在rpc_get_conn前调用mem2server
                     for param in function.parameters:
                         handle_param(function, param, f, True, 0)
                     f.write(f"    void *end_flag = (void *)0xffffffff;\n")
-                    f.write(f"    if(client->iov_send2_count > 0) {{\n")
-                    f.write(f"        rpc_write(client, &end_flag, sizeof(end_flag));\n")
-                    f.write(f"        if(rpc_submit_request(client) != 0) {{\n")
+                    f.write(f"    if(conn->get_iov_send_count(true) > 0) {{\n")
+                    f.write(f"        conn->write(&end_flag, sizeof(end_flag));\n")
+                    f.write(f"        if(conn->submit_request() != RpcError::OK) {{\n")
                     f.write(f'            std::cerr << "Failed to submit request" << std::endl;\n')
-                    f.write(f"            rpc_release_client(client);\n")
+                    f.write(f"            rpc_release_conn(conn);\n")
                     f.write(f"            exit(1);\n")
                     f.write(f"        }}\n")
                     f.write(f"    }}\n")
@@ -1636,19 +1639,19 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                         else:
                             f.write(f"    {return_type} _result;\n")
 
-                    f.write(f"    rpc_prepare_request(client, RPC_{function_name});\n")
+                    f.write(f"    conn->prepare_request(RPC_{function_name});\n")
 
                     # 在rpc_prepare_request后,rpc_submit_request前调rpc_read/rpc_write
                     for param in function.parameters:
                         handle_param(function, param, f, True, 1)
 
                     if return_type == "const char *":
-                        f.write(f"    rpc_read(client, &_{function_name}_result, 0, true);\n")
+                        f.write(f"    conn->read(&_{function_name}_result, 0, true);\n")
                     elif return_type != "void":
-                        f.write(f"    rpc_read(client, &_result, sizeof(_result));\n")
-                    f.write(f"    if(rpc_submit_request(client) != 0) {{\n")
+                        f.write(f"    conn->read(&_result, sizeof(_result));\n")
+                    f.write(f"    if(conn->submit_request() != RpcError::OK) {{\n")
                     f.write(f'        std::cerr << "Failed to submit request" << std::endl;\n')
-                    f.write(f"        rpc_release_client(client);\n")
+                    f.write(f"        rpc_release_conn(conn);\n")
                     f.write(f"        exit(1);\n")
                     f.write(f"    }}\n")
 
@@ -1656,22 +1659,22 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     for param in function.parameters:
                         handle_param(function, param, f, True, 2)
 
-                    f.write(f"    rpc_prepare_request(client, RPC_mem2client);\n")
+                    f.write(f"    conn->prepare_request(RPC_mem2client);\n")
                     for param in function.parameters:
                         handle_param(function, param, f, True, 3)
 
-                    f.write(f"    if(client->iov_read2_count > 0) {{\n")
-                    f.write(f"        rpc_write(client, &end_flag, sizeof(end_flag));\n")
-                    f.write(f"        if(rpc_submit_request(client) != 0) {{\n")
+                    f.write(f"    if(conn->get_iov_read_count(true) > 0) {{\n")
+                    f.write(f"        conn->write(&end_flag, sizeof(end_flag));\n")
+                    f.write(f"        if(conn->submit_request() != RpcError::OK) {{\n")
                     f.write(f'            std::cerr << "Failed to submit request" << std::endl;\n')
-                    f.write(f"            rpc_release_client(client);\n")
+                    f.write(f"            rpc_release_conn(conn);\n")
                     f.write(f"            exit(1);\n")
                     f.write(f"        }}\n")
                     f.write(f"    }}\n")
                     for param in function.parameters:
                         handle_param(function, param, f, True, 4)
 
-                    f.write(f"    rpc_free_client(client);\n")
+                    f.write(f"    rpc_release_conn(conn);\n")
 
                     if return_type == "const char *":
                         f.write(f"    return _{function_name}_result;\n")
@@ -1690,13 +1693,15 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
         # 包含必要的头文件
         f.write("#include <iostream>\n")
         f.write("#include <map>\n")
+        f.write("#include <string.h>\n")
         f.write('#include "hook_api.h"\n')
         f.write('#include "handle_server.h"\n')
-        f.write('#include "../rpc.h"\n')
+        f.write('#include "rpc/rpc_core.h"\n')
         if header_file.startswith("/"):
             f.write(f'#include "{os.path.basename(header_file)}"\n\n')
         else:
             f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
+        f.write("using namespace rpc;\n")
         if hasattr(parsed_header, "namespace") and hasattr(parsed_header.namespace, "functions"):
             is_first_function = True
             for function in parsed_header.namespace.functions:
@@ -1721,7 +1726,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 f.write("#endif\n")
                 f.write(f"    int rtn = 0;\n")
                 f.write(f"    std::set<void *> buffers;\n")
-                f.write(f"    RpcClient *client = (RpcClient *)args0;\n")
+                f.write(f"    RpcConn *conn = (RpcConn *)args0;\n")
                 for param in function.parameters:  # 服务器端读取参数
                     if param_names == "":
                         p = handle_param(function, param, f, False, 0)
@@ -1735,7 +1740,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     f.write(f"    {return_type}_result;\n")
                 elif return_type != "void":
                     f.write(f"    {return_type} _result;\n")
-                f.write(f"    if(rpc_prepare_response(client) != 0) {{\n")
+                f.write(f"    if(conn->prepare_response() != RpcError::OK) {{\n")
                 f.write(f'        std::cerr << "Failed to prepare response" << std::endl;\n')
                 f.write("        rtn = 1;\n")
                 f.write("        goto _RTN_;\n")
@@ -1751,10 +1756,10 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                 for param in function.parameters:  # 服务器端写入返回参数
                     handle_param(function, param, f, False, 2)
                 if return_type == "const char *":
-                    f.write(f"    rpc_write(client, _result, strlen(_result) + 1, true);\n")
+                    f.write(f"    conn->write(_result, strlen(_result) + 1, true);\n")
                 elif return_type != "void":
-                    f.write(f"    rpc_write(client, &_result, sizeof(_result));\n")
-                f.write(f"    if(rpc_submit_response(client) != 0) {{\n")
+                    f.write(f"    conn->write(&_result, sizeof(_result));\n")
+                f.write(f"    if(conn->submit_response() != RpcError::OK) {{\n")
                 f.write(f'        std::cerr << "Failed to submit response" << std::endl;\n')
                 f.write("        rtn = 1;\n")
                 f.write(f"        goto _RTN_;\n")
@@ -1779,7 +1784,7 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
     with open(makefile_path, "w") as f:
         # 定义编译器和基本编译参数
         f.write("CXX = g++\n")
-        f.write("CXXFLAGS = -std=c++11 -fPIC -Wno-deprecated-declarations")
+        f.write("CXXFLAGS = -std=c++11 -fPIC -Wno-deprecated-declarations -I../")
         for include_dir in include_dirs:
             f.write(f" -I{include_dir}")
         f.write(" -DCUBLASAPI= -DDEBUG\n")
@@ -1801,7 +1806,9 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         for hook_file in hook_files:
             f.write(f"    {os.path.basename(hook_file)} \\\n")
         f.write(f"    ../manual_hook.cpp \\\n")
-        f.write("    ../rpc.cpp\\\n")
+        f.write("    ../rpc/rpc_buffers.cpp\\\n")
+        f.write("    ../rpc/rpc_conn.cpp\\\n")
+        f.write("    ../rpc/rpc_client.cpp\\\n")
         f.write(f"    ../client.cpp\n")
         f.write("\n")
 
@@ -1810,9 +1817,11 @@ def generate_makefile(output_dir, hook_files, handle_files, include_dirs):
         f.write("SERVER_SRCS = \\\n")
         for handle_file in handle_files:
             f.write(f"    {os.path.basename(handle_file)} \\\n")
-        f.write("    handle_server.cpp\\\n")
-        f.write("    ../manual_handle.cpp\\\n")
-        f.write("    ../rpc.cpp\\\n")
+        f.write("    handle_server.cpp \\\n")
+        f.write("    ../manual_handle.cpp \\\n")
+        f.write("    ../rpc/rpc_buffers.cpp \\\n")
+        f.write("    ../rpc/rpc_conn.cpp \\\n")
+        f.write("    ../rpc/rpc_server.cpp \\\n")
         f.write("    ../server.cpp\n\n")
 
         # 定义目标文件列表

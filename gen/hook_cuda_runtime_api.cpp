@@ -3,50 +3,50 @@
 #include "cuda_runtime_api.h"
 
 #include "hook_api.h"
-#include "../rpc.h"
+#include "client.h"
 extern void *(*real_dlsym)(void *, const char *);
 
-extern "C" void mem2server(RpcClient *client, void **serverPtr, void *clientPtr, ssize_t size);
-extern "C" void mem2client(RpcClient *client, void *clientPtr, ssize_t size, bool del_tmp_ptr);
+extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssize_t size);
+extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);
 extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);
 void *get_so_handle(const std::string &so_file);
 extern "C" cudaError_t cudaDeviceReset() {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceReset called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceReset);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceReset);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -54,39 +54,39 @@ extern "C" cudaError_t cudaDeviceSynchronize() {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceSynchronize called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceSynchronize);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceSynchronize);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -94,41 +94,41 @@ extern "C" cudaError_t cudaDeviceSetLimit(enum cudaLimit limit, size_t value) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceSetLimit called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceSetLimit);
-    rpc_write(client, &limit, sizeof(limit));
-    rpc_write(client, &value, sizeof(value));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceSetLimit);
+    conn->write(&limit, sizeof(limit));
+    conn->write(&value, sizeof(value));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -136,45 +136,45 @@ extern "C" cudaError_t cudaDeviceGetLimit(size_t *pValue, enum cudaLimit limit) 
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetLimit called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pValue;
-    mem2server(client, &_0pValue, (void *)pValue, sizeof(*pValue));
+    mem2server(conn, &_0pValue, (void *)pValue, sizeof(*pValue));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetLimit);
-    rpc_write(client, &_0pValue, sizeof(_0pValue));
+    conn->prepare_request(RPC_cudaDeviceGetLimit);
+    conn->write(&_0pValue, sizeof(_0pValue));
     updateTmpPtr((void *)pValue, _0pValue);
-    rpc_write(client, &limit, sizeof(limit));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&limit, sizeof(limit));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pValue, sizeof(*pValue), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pValue, sizeof(*pValue), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -182,50 +182,50 @@ extern "C" cudaError_t cudaDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInEl
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetTexture1DLinearMaxWidth called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0maxWidthInElements;
-    mem2server(client, &_0maxWidthInElements, (void *)maxWidthInElements, sizeof(*maxWidthInElements));
+    mem2server(conn, &_0maxWidthInElements, (void *)maxWidthInElements, sizeof(*maxWidthInElements));
     void *_0fmtDesc;
-    mem2server(client, &_0fmtDesc, (void *)fmtDesc, sizeof(*fmtDesc));
+    mem2server(conn, &_0fmtDesc, (void *)fmtDesc, sizeof(*fmtDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetTexture1DLinearMaxWidth);
-    rpc_write(client, &_0maxWidthInElements, sizeof(_0maxWidthInElements));
+    conn->prepare_request(RPC_cudaDeviceGetTexture1DLinearMaxWidth);
+    conn->write(&_0maxWidthInElements, sizeof(_0maxWidthInElements));
     updateTmpPtr((void *)maxWidthInElements, _0maxWidthInElements);
-    rpc_write(client, &_0fmtDesc, sizeof(_0fmtDesc));
+    conn->write(&_0fmtDesc, sizeof(_0fmtDesc));
     updateTmpPtr((void *)fmtDesc, _0fmtDesc);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)maxWidthInElements, sizeof(*maxWidthInElements), true);
-    mem2client(client, (void *)fmtDesc, sizeof(*fmtDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)maxWidthInElements, sizeof(*maxWidthInElements), true);
+    mem2client(conn, (void *)fmtDesc, sizeof(*fmtDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -233,44 +233,44 @@ extern "C" cudaError_t cudaDeviceGetCacheConfig(enum cudaFuncCache *pCacheConfig
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetCacheConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pCacheConfig;
-    mem2server(client, &_0pCacheConfig, (void *)pCacheConfig, sizeof(*pCacheConfig));
+    mem2server(conn, &_0pCacheConfig, (void *)pCacheConfig, sizeof(*pCacheConfig));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetCacheConfig);
-    rpc_write(client, &_0pCacheConfig, sizeof(_0pCacheConfig));
+    conn->prepare_request(RPC_cudaDeviceGetCacheConfig);
+    conn->write(&_0pCacheConfig, sizeof(_0pCacheConfig));
     updateTmpPtr((void *)pCacheConfig, _0pCacheConfig);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCacheConfig, sizeof(*pCacheConfig), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCacheConfig, sizeof(*pCacheConfig), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -278,49 +278,49 @@ extern "C" cudaError_t cudaDeviceGetStreamPriorityRange(int *leastPriority, int 
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetStreamPriorityRange called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0leastPriority;
-    mem2server(client, &_0leastPriority, (void *)leastPriority, sizeof(*leastPriority));
+    mem2server(conn, &_0leastPriority, (void *)leastPriority, sizeof(*leastPriority));
     void *_0greatestPriority;
-    mem2server(client, &_0greatestPriority, (void *)greatestPriority, sizeof(*greatestPriority));
+    mem2server(conn, &_0greatestPriority, (void *)greatestPriority, sizeof(*greatestPriority));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetStreamPriorityRange);
-    rpc_write(client, &_0leastPriority, sizeof(_0leastPriority));
+    conn->prepare_request(RPC_cudaDeviceGetStreamPriorityRange);
+    conn->write(&_0leastPriority, sizeof(_0leastPriority));
     updateTmpPtr((void *)leastPriority, _0leastPriority);
-    rpc_write(client, &_0greatestPriority, sizeof(_0greatestPriority));
+    conn->write(&_0greatestPriority, sizeof(_0greatestPriority));
     updateTmpPtr((void *)greatestPriority, _0greatestPriority);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)leastPriority, sizeof(*leastPriority), true);
-    mem2client(client, (void *)greatestPriority, sizeof(*greatestPriority), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)leastPriority, sizeof(*leastPriority), true);
+    mem2client(conn, (void *)greatestPriority, sizeof(*greatestPriority), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -328,40 +328,40 @@ extern "C" cudaError_t cudaDeviceSetCacheConfig(enum cudaFuncCache cacheConfig) 
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceSetCacheConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceSetCacheConfig);
-    rpc_write(client, &cacheConfig, sizeof(cacheConfig));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceSetCacheConfig);
+    conn->write(&cacheConfig, sizeof(cacheConfig));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -369,44 +369,44 @@ extern "C" cudaError_t cudaDeviceGetSharedMemConfig(enum cudaSharedMemConfig *pC
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetSharedMemConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pConfig;
-    mem2server(client, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
+    mem2server(conn, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetSharedMemConfig);
-    rpc_write(client, &_0pConfig, sizeof(_0pConfig));
+    conn->prepare_request(RPC_cudaDeviceGetSharedMemConfig);
+    conn->write(&_0pConfig, sizeof(_0pConfig));
     updateTmpPtr((void *)pConfig, _0pConfig);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pConfig, sizeof(*pConfig), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pConfig, sizeof(*pConfig), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -414,40 +414,40 @@ extern "C" cudaError_t cudaDeviceSetSharedMemConfig(enum cudaSharedMemConfig con
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceSetSharedMemConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceSetSharedMemConfig);
-    rpc_write(client, &config, sizeof(config));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceSetSharedMemConfig);
+    conn->write(&config, sizeof(config));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -455,45 +455,45 @@ extern "C" cudaError_t cudaDeviceGetByPCIBusId(int *device, const char *pciBusId
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetByPCIBusId called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0device;
-    mem2server(client, &_0device, (void *)device, sizeof(*device));
+    mem2server(conn, &_0device, (void *)device, sizeof(*device));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetByPCIBusId);
-    rpc_write(client, &_0device, sizeof(_0device));
+    conn->prepare_request(RPC_cudaDeviceGetByPCIBusId);
+    conn->write(&_0device, sizeof(_0device));
     updateTmpPtr((void *)device, _0device);
-    rpc_write(client, pciBusId, strlen(pciBusId) + 1, true);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(pciBusId, strlen(pciBusId) + 1, true);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)device, sizeof(*device), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)device, sizeof(*device), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -501,44 +501,44 @@ extern "C" cudaError_t cudaDeviceGetPCIBusId(char *pciBusId, int len, int device
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetPCIBusId called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetPCIBusId);
+    conn->prepare_request(RPC_cudaDeviceGetPCIBusId);
     if(len > 0) {
-        rpc_read(client, pciBusId, len, true);
+        conn->read(pciBusId, len, true);
     }
-    rpc_write(client, &len, sizeof(len));
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&len, sizeof(len));
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -546,45 +546,45 @@ extern "C" cudaError_t cudaIpcGetEventHandle(cudaIpcEventHandle_t *handle, cudaE
 #ifdef DEBUG
     std::cout << "Hook: cudaIpcGetEventHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0handle;
-    mem2server(client, &_0handle, (void *)handle, sizeof(*handle));
+    mem2server(conn, &_0handle, (void *)handle, sizeof(*handle));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaIpcGetEventHandle);
-    rpc_write(client, &_0handle, sizeof(_0handle));
+    conn->prepare_request(RPC_cudaIpcGetEventHandle);
+    conn->write(&_0handle, sizeof(_0handle));
     updateTmpPtr((void *)handle, _0handle);
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)handle, sizeof(*handle), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)handle, sizeof(*handle), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -592,45 +592,45 @@ extern "C" cudaError_t cudaIpcOpenEventHandle(cudaEvent_t *event, cudaIpcEventHa
 #ifdef DEBUG
     std::cout << "Hook: cudaIpcOpenEventHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0event;
-    mem2server(client, &_0event, (void *)event, sizeof(*event));
+    mem2server(conn, &_0event, (void *)event, sizeof(*event));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaIpcOpenEventHandle);
-    rpc_write(client, &_0event, sizeof(_0event));
+    conn->prepare_request(RPC_cudaIpcOpenEventHandle);
+    conn->write(&_0event, sizeof(_0event));
     updateTmpPtr((void *)event, _0event);
-    rpc_write(client, &handle, sizeof(handle));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&handle, sizeof(handle));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event, sizeof(*event), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)event, sizeof(*event), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -638,49 +638,49 @@ extern "C" cudaError_t cudaIpcGetMemHandle(cudaIpcMemHandle_t *handle, void *dev
 #ifdef DEBUG
     std::cout << "Hook: cudaIpcGetMemHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0handle;
-    mem2server(client, &_0handle, (void *)handle, sizeof(*handle));
+    mem2server(conn, &_0handle, (void *)handle, sizeof(*handle));
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, -1);
+    mem2server(conn, &_0devPtr, (void *)devPtr, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaIpcGetMemHandle);
-    rpc_write(client, &_0handle, sizeof(_0handle));
+    conn->prepare_request(RPC_cudaIpcGetMemHandle);
+    conn->write(&_0handle, sizeof(_0handle));
     updateTmpPtr((void *)handle, _0handle);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)handle, sizeof(*handle), true);
-    mem2client(client, (void *)devPtr, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)handle, sizeof(*handle), true);
+    mem2client(conn, (void *)devPtr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -688,42 +688,42 @@ extern "C" cudaError_t cudaIpcOpenMemHandle(void **devPtr, cudaIpcMemHandle_t ha
 #ifdef DEBUG
     std::cout << "Hook: cudaIpcOpenMemHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaIpcOpenMemHandle);
-    rpc_read(client, devPtr, sizeof(void *));
-    rpc_write(client, &handle, sizeof(handle));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaIpcOpenMemHandle);
+    conn->read(devPtr, sizeof(void *));
+    conn->write(&handle, sizeof(handle));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -731,44 +731,44 @@ extern "C" cudaError_t cudaIpcCloseMemHandle(void *devPtr) {
 #ifdef DEBUG
     std::cout << "Hook: cudaIpcCloseMemHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, -1);
+    mem2server(conn, &_0devPtr, (void *)devPtr, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaIpcCloseMemHandle);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaIpcCloseMemHandle);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -776,41 +776,41 @@ extern "C" cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(enum cudaFlushGPUDirec
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceFlushGPUDirectRDMAWrites called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceFlushGPUDirectRDMAWrites);
-    rpc_write(client, &target, sizeof(target));
-    rpc_write(client, &scope, sizeof(scope));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceFlushGPUDirectRDMAWrites);
+    conn->write(&target, sizeof(target));
+    conn->write(&scope, sizeof(scope));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -818,39 +818,39 @@ extern "C" cudaError_t cudaThreadExit() {
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadExit called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadExit);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaThreadExit);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -858,39 +858,39 @@ extern "C" cudaError_t cudaThreadSynchronize() {
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadSynchronize called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadSynchronize);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaThreadSynchronize);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -898,41 +898,41 @@ extern "C" cudaError_t cudaThreadSetLimit(enum cudaLimit limit, size_t value) {
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadSetLimit called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadSetLimit);
-    rpc_write(client, &limit, sizeof(limit));
-    rpc_write(client, &value, sizeof(value));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaThreadSetLimit);
+    conn->write(&limit, sizeof(limit));
+    conn->write(&value, sizeof(value));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -940,45 +940,45 @@ extern "C" cudaError_t cudaThreadGetLimit(size_t *pValue, enum cudaLimit limit) 
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadGetLimit called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pValue;
-    mem2server(client, &_0pValue, (void *)pValue, sizeof(*pValue));
+    mem2server(conn, &_0pValue, (void *)pValue, sizeof(*pValue));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadGetLimit);
-    rpc_write(client, &_0pValue, sizeof(_0pValue));
+    conn->prepare_request(RPC_cudaThreadGetLimit);
+    conn->write(&_0pValue, sizeof(_0pValue));
     updateTmpPtr((void *)pValue, _0pValue);
-    rpc_write(client, &limit, sizeof(limit));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&limit, sizeof(limit));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pValue, sizeof(*pValue), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pValue, sizeof(*pValue), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -986,44 +986,44 @@ extern "C" cudaError_t cudaThreadGetCacheConfig(enum cudaFuncCache *pCacheConfig
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadGetCacheConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pCacheConfig;
-    mem2server(client, &_0pCacheConfig, (void *)pCacheConfig, sizeof(*pCacheConfig));
+    mem2server(conn, &_0pCacheConfig, (void *)pCacheConfig, sizeof(*pCacheConfig));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadGetCacheConfig);
-    rpc_write(client, &_0pCacheConfig, sizeof(_0pCacheConfig));
+    conn->prepare_request(RPC_cudaThreadGetCacheConfig);
+    conn->write(&_0pCacheConfig, sizeof(_0pCacheConfig));
     updateTmpPtr((void *)pCacheConfig, _0pCacheConfig);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCacheConfig, sizeof(*pCacheConfig), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCacheConfig, sizeof(*pCacheConfig), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1031,40 +1031,40 @@ extern "C" cudaError_t cudaThreadSetCacheConfig(enum cudaFuncCache cacheConfig) 
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadSetCacheConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadSetCacheConfig);
-    rpc_write(client, &cacheConfig, sizeof(cacheConfig));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaThreadSetCacheConfig);
+    conn->write(&cacheConfig, sizeof(cacheConfig));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1072,39 +1072,39 @@ extern "C" cudaError_t cudaGetLastError() {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetLastError called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetLastError);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGetLastError);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1112,39 +1112,39 @@ extern "C" cudaError_t cudaPeekAtLastError() {
 #ifdef DEBUG
     std::cout << "Hook: cudaPeekAtLastError called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaPeekAtLastError);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaPeekAtLastError);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1152,44 +1152,44 @@ extern "C" cudaError_t cudaGetDeviceCount(int *count) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDeviceCount called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0count;
-    mem2server(client, &_0count, (void *)count, sizeof(*count));
+    mem2server(conn, &_0count, (void *)count, sizeof(*count));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetDeviceCount);
-    rpc_write(client, &_0count, sizeof(_0count));
+    conn->prepare_request(RPC_cudaGetDeviceCount);
+    conn->write(&_0count, sizeof(_0count));
     updateTmpPtr((void *)count, _0count);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)count, sizeof(*count), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)count, sizeof(*count), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1197,45 +1197,45 @@ extern "C" cudaError_t cudaGetDeviceProperties(struct cudaDeviceProp *prop, int 
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDeviceProperties called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0prop;
-    mem2server(client, &_0prop, (void *)prop, sizeof(*prop));
+    mem2server(conn, &_0prop, (void *)prop, sizeof(*prop));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetDeviceProperties);
-    rpc_write(client, &_0prop, sizeof(_0prop));
+    conn->prepare_request(RPC_cudaGetDeviceProperties);
+    conn->write(&_0prop, sizeof(_0prop));
     updateTmpPtr((void *)prop, _0prop);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)prop, sizeof(*prop), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)prop, sizeof(*prop), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1243,46 +1243,46 @@ extern "C" cudaError_t cudaDeviceGetAttribute(int *value, enum cudaDeviceAttr at
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    mem2server(conn, &_0value, (void *)value, sizeof(*value));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetAttribute);
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaDeviceGetAttribute);
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&attr, sizeof(attr));
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, sizeof(*value), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1290,45 +1290,45 @@ extern "C" cudaError_t cudaDeviceGetDefaultMemPool(cudaMemPool_t *memPool, int d
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetDefaultMemPool called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0memPool;
-    mem2server(client, &_0memPool, (void *)memPool, sizeof(*memPool));
+    mem2server(conn, &_0memPool, (void *)memPool, sizeof(*memPool));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetDefaultMemPool);
-    rpc_write(client, &_0memPool, sizeof(_0memPool));
+    conn->prepare_request(RPC_cudaDeviceGetDefaultMemPool);
+    conn->write(&_0memPool, sizeof(_0memPool));
     updateTmpPtr((void *)memPool, _0memPool);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)memPool, sizeof(*memPool), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memPool, sizeof(*memPool), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1336,41 +1336,41 @@ extern "C" cudaError_t cudaDeviceSetMemPool(int device, cudaMemPool_t memPool) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceSetMemPool called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceSetMemPool);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceSetMemPool);
+    conn->write(&device, sizeof(device));
+    conn->write(&memPool, sizeof(memPool));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1378,45 +1378,45 @@ extern "C" cudaError_t cudaDeviceGetMemPool(cudaMemPool_t *memPool, int device) 
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetMemPool called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0memPool;
-    mem2server(client, &_0memPool, (void *)memPool, sizeof(*memPool));
+    mem2server(conn, &_0memPool, (void *)memPool, sizeof(*memPool));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetMemPool);
-    rpc_write(client, &_0memPool, sizeof(_0memPool));
+    conn->prepare_request(RPC_cudaDeviceGetMemPool);
+    conn->write(&_0memPool, sizeof(_0memPool));
     updateTmpPtr((void *)memPool, _0memPool);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)memPool, sizeof(*memPool), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memPool, sizeof(*memPool), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1424,46 +1424,46 @@ extern "C" cudaError_t cudaDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList,
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetNvSciSyncAttributes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0nvSciSyncAttrList;
-    mem2server(client, &_0nvSciSyncAttrList, (void *)nvSciSyncAttrList, 0);
+    mem2server(conn, &_0nvSciSyncAttrList, (void *)nvSciSyncAttrList, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetNvSciSyncAttributes);
-    rpc_write(client, &_0nvSciSyncAttrList, sizeof(_0nvSciSyncAttrList));
+    conn->prepare_request(RPC_cudaDeviceGetNvSciSyncAttributes);
+    conn->write(&_0nvSciSyncAttrList, sizeof(_0nvSciSyncAttrList));
     updateTmpPtr((void *)nvSciSyncAttrList, _0nvSciSyncAttrList);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&device, sizeof(device));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nvSciSyncAttrList, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nvSciSyncAttrList, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1471,47 +1471,47 @@ extern "C" cudaError_t cudaDeviceGetP2PAttribute(int *value, enum cudaDeviceP2PA
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetP2PAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    mem2server(conn, &_0value, (void *)value, sizeof(*value));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetP2PAttribute);
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaDeviceGetP2PAttribute);
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &srcDevice, sizeof(srcDevice));
-    rpc_write(client, &dstDevice, sizeof(dstDevice));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&attr, sizeof(attr));
+    conn->write(&srcDevice, sizeof(srcDevice));
+    conn->write(&dstDevice, sizeof(dstDevice));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, sizeof(*value), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1519,49 +1519,49 @@ extern "C" cudaError_t cudaChooseDevice(int *device, const struct cudaDeviceProp
 #ifdef DEBUG
     std::cout << "Hook: cudaChooseDevice called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0device;
-    mem2server(client, &_0device, (void *)device, sizeof(*device));
+    mem2server(conn, &_0device, (void *)device, sizeof(*device));
     void *_0prop;
-    mem2server(client, &_0prop, (void *)prop, sizeof(*prop));
+    mem2server(conn, &_0prop, (void *)prop, sizeof(*prop));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaChooseDevice);
-    rpc_write(client, &_0device, sizeof(_0device));
+    conn->prepare_request(RPC_cudaChooseDevice);
+    conn->write(&_0device, sizeof(_0device));
     updateTmpPtr((void *)device, _0device);
-    rpc_write(client, &_0prop, sizeof(_0prop));
+    conn->write(&_0prop, sizeof(_0prop));
     updateTmpPtr((void *)prop, _0prop);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)device, sizeof(*device), true);
-    mem2client(client, (void *)prop, sizeof(*prop), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)device, sizeof(*device), true);
+    mem2client(conn, (void *)prop, sizeof(*prop), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1569,40 +1569,40 @@ extern "C" cudaError_t cudaSetDevice(int device) {
 #ifdef DEBUG
     std::cout << "Hook: cudaSetDevice called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaSetDevice);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaSetDevice);
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1610,44 +1610,44 @@ extern "C" cudaError_t cudaGetDevice(int *device) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDevice called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0device;
-    mem2server(client, &_0device, (void *)device, sizeof(*device));
+    mem2server(conn, &_0device, (void *)device, sizeof(*device));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetDevice);
-    rpc_write(client, &_0device, sizeof(_0device));
+    conn->prepare_request(RPC_cudaGetDevice);
+    conn->write(&_0device, sizeof(_0device));
     updateTmpPtr((void *)device, _0device);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)device, sizeof(*device), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)device, sizeof(*device), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1655,45 +1655,45 @@ extern "C" cudaError_t cudaSetValidDevices(int *device_arr, int len) {
 #ifdef DEBUG
     std::cout << "Hook: cudaSetValidDevices called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0device_arr;
-    mem2server(client, &_0device_arr, (void *)device_arr, sizeof(*device_arr));
+    mem2server(conn, &_0device_arr, (void *)device_arr, sizeof(*device_arr));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaSetValidDevices);
-    rpc_write(client, &_0device_arr, sizeof(_0device_arr));
+    conn->prepare_request(RPC_cudaSetValidDevices);
+    conn->write(&_0device_arr, sizeof(_0device_arr));
     updateTmpPtr((void *)device_arr, _0device_arr);
-    rpc_write(client, &len, sizeof(len));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&len, sizeof(len));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)device_arr, sizeof(*device_arr), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)device_arr, sizeof(*device_arr), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1701,40 +1701,40 @@ extern "C" cudaError_t cudaSetDeviceFlags(unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaSetDeviceFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaSetDeviceFlags);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaSetDeviceFlags);
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1742,44 +1742,44 @@ extern "C" cudaError_t cudaGetDeviceFlags(unsigned int *flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDeviceFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0flags;
-    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    mem2server(conn, &_0flags, (void *)flags, sizeof(*flags));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetDeviceFlags);
-    rpc_write(client, &_0flags, sizeof(_0flags));
+    conn->prepare_request(RPC_cudaGetDeviceFlags);
+    conn->write(&_0flags, sizeof(_0flags));
     updateTmpPtr((void *)flags, _0flags);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)flags, sizeof(*flags), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1787,44 +1787,44 @@ extern "C" cudaError_t cudaStreamCreate(cudaStream_t *pStream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamCreate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pStream;
-    mem2server(client, &_0pStream, (void *)pStream, sizeof(*pStream));
+    mem2server(conn, &_0pStream, (void *)pStream, sizeof(*pStream));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamCreate);
-    rpc_write(client, &_0pStream, sizeof(_0pStream));
+    conn->prepare_request(RPC_cudaStreamCreate);
+    conn->write(&_0pStream, sizeof(_0pStream));
     updateTmpPtr((void *)pStream, _0pStream);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pStream, sizeof(*pStream), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pStream, sizeof(*pStream), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1832,45 +1832,45 @@ extern "C" cudaError_t cudaStreamCreateWithFlags(cudaStream_t *pStream, unsigned
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamCreateWithFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pStream;
-    mem2server(client, &_0pStream, (void *)pStream, sizeof(*pStream));
+    mem2server(conn, &_0pStream, (void *)pStream, sizeof(*pStream));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamCreateWithFlags);
-    rpc_write(client, &_0pStream, sizeof(_0pStream));
+    conn->prepare_request(RPC_cudaStreamCreateWithFlags);
+    conn->write(&_0pStream, sizeof(_0pStream));
     updateTmpPtr((void *)pStream, _0pStream);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pStream, sizeof(*pStream), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pStream, sizeof(*pStream), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1878,46 +1878,46 @@ extern "C" cudaError_t cudaStreamCreateWithPriority(cudaStream_t *pStream, unsig
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamCreateWithPriority called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pStream;
-    mem2server(client, &_0pStream, (void *)pStream, sizeof(*pStream));
+    mem2server(conn, &_0pStream, (void *)pStream, sizeof(*pStream));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamCreateWithPriority);
-    rpc_write(client, &_0pStream, sizeof(_0pStream));
+    conn->prepare_request(RPC_cudaStreamCreateWithPriority);
+    conn->write(&_0pStream, sizeof(_0pStream));
     updateTmpPtr((void *)pStream, _0pStream);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_write(client, &priority, sizeof(priority));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&flags, sizeof(flags));
+    conn->write(&priority, sizeof(priority));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pStream, sizeof(*pStream), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pStream, sizeof(*pStream), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1925,45 +1925,45 @@ extern "C" cudaError_t cudaStreamGetPriority(cudaStream_t hStream, int *priority
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetPriority called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0priority;
-    mem2server(client, &_0priority, (void *)priority, sizeof(*priority));
+    mem2server(conn, &_0priority, (void *)priority, sizeof(*priority));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamGetPriority);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_write(client, &_0priority, sizeof(_0priority));
+    conn->prepare_request(RPC_cudaStreamGetPriority);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0priority, sizeof(_0priority));
     updateTmpPtr((void *)priority, _0priority);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)priority, sizeof(*priority), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)priority, sizeof(*priority), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -1971,45 +1971,45 @@ extern "C" cudaError_t cudaStreamGetFlags(cudaStream_t hStream, unsigned int *fl
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0flags;
-    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    mem2server(conn, &_0flags, (void *)flags, sizeof(*flags));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamGetFlags);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_write(client, &_0flags, sizeof(_0flags));
+    conn->prepare_request(RPC_cudaStreamGetFlags);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0flags, sizeof(_0flags));
     updateTmpPtr((void *)flags, _0flags);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)flags, sizeof(*flags), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2017,39 +2017,39 @@ extern "C" cudaError_t cudaCtxResetPersistingL2Cache() {
 #ifdef DEBUG
     std::cout << "Hook: cudaCtxResetPersistingL2Cache called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaCtxResetPersistingL2Cache);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaCtxResetPersistingL2Cache);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2057,41 +2057,41 @@ extern "C" cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t s
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamCopyAttributes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamCopyAttributes);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &src, sizeof(src));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaStreamCopyAttributes);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&src, sizeof(src));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2099,46 +2099,46 @@ extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, enum cudaStr
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value_out;
-    mem2server(client, &_0value_out, (void *)value_out, sizeof(*value_out));
+    mem2server(conn, &_0value_out, (void *)value_out, sizeof(*value_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamGetAttribute);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value_out, sizeof(_0value_out));
+    conn->prepare_request(RPC_cudaStreamGetAttribute);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value_out, sizeof(_0value_out));
     updateTmpPtr((void *)value_out, _0value_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value_out, sizeof(*value_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value_out, sizeof(*value_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2146,46 +2146,46 @@ extern "C" cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, enum cudaStr
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamSetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    mem2server(conn, &_0value, (void *)value, sizeof(*value));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamSetAttribute);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaStreamSetAttribute);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, sizeof(*value), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2193,40 +2193,40 @@ extern "C" cudaError_t cudaStreamDestroy(cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamDestroy called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamDestroy);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaStreamDestroy);
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2234,42 +2234,42 @@ extern "C" cudaError_t cudaStreamWaitEvent(cudaStream_t stream, cudaEvent_t even
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamWaitEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamWaitEvent);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &event, sizeof(event));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaStreamWaitEvent);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&event, sizeof(event));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2277,47 +2277,47 @@ extern "C" cudaError_t cudaStreamAddCallback(cudaStream_t stream, cudaStreamCall
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamAddCallback called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0userData;
-    mem2server(client, &_0userData, (void *)userData, 0);
+    mem2server(conn, &_0userData, (void *)userData, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamAddCallback);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &callback, sizeof(callback));
-    rpc_write(client, &_0userData, sizeof(_0userData));
+    conn->prepare_request(RPC_cudaStreamAddCallback);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&callback, sizeof(callback));
+    conn->write(&_0userData, sizeof(_0userData));
     updateTmpPtr((void *)userData, _0userData);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)userData, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)userData, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2325,40 +2325,40 @@ extern "C" cudaError_t cudaStreamSynchronize(cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamSynchronize called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamSynchronize);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaStreamSynchronize);
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2366,40 +2366,40 @@ extern "C" cudaError_t cudaStreamQuery(cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamQuery called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamQuery);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaStreamQuery);
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2407,47 +2407,47 @@ extern "C" cudaError_t cudaStreamAttachMemAsync(cudaStream_t stream, void *devPt
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamAttachMemAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, length);
+    mem2server(conn, &_0devPtr, (void *)devPtr, length);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamAttachMemAsync);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaStreamAttachMemAsync);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &length, sizeof(length));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&length, sizeof(length));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, length, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, length, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2455,41 +2455,41 @@ extern "C" cudaError_t cudaStreamBeginCapture(cudaStream_t stream, enum cudaStre
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamBeginCapture called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamBeginCapture);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &mode, sizeof(mode));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaStreamBeginCapture);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&mode, sizeof(mode));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2497,44 +2497,44 @@ extern "C" cudaError_t cudaThreadExchangeStreamCaptureMode(enum cudaStreamCaptur
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadExchangeStreamCaptureMode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0mode;
-    mem2server(client, &_0mode, (void *)mode, sizeof(*mode));
+    mem2server(conn, &_0mode, (void *)mode, sizeof(*mode));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaThreadExchangeStreamCaptureMode);
-    rpc_write(client, &_0mode, sizeof(_0mode));
+    conn->prepare_request(RPC_cudaThreadExchangeStreamCaptureMode);
+    conn->write(&_0mode, sizeof(_0mode));
     updateTmpPtr((void *)mode, _0mode);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mode, sizeof(*mode), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)mode, sizeof(*mode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2542,45 +2542,45 @@ extern "C" cudaError_t cudaStreamEndCapture(cudaStream_t stream, cudaGraph_t *pG
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamEndCapture called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraph;
-    mem2server(client, &_0pGraph, (void *)pGraph, sizeof(*pGraph));
+    mem2server(conn, &_0pGraph, (void *)pGraph, sizeof(*pGraph));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamEndCapture);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &_0pGraph, sizeof(_0pGraph));
+    conn->prepare_request(RPC_cudaStreamEndCapture);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0pGraph, sizeof(_0pGraph));
     updateTmpPtr((void *)pGraph, _0pGraph);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraph, sizeof(*pGraph), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraph, sizeof(*pGraph), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2588,45 +2588,45 @@ extern "C" cudaError_t cudaStreamIsCapturing(cudaStream_t stream, enum cudaStrea
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamIsCapturing called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pCaptureStatus;
-    mem2server(client, &_0pCaptureStatus, (void *)pCaptureStatus, sizeof(*pCaptureStatus));
+    mem2server(conn, &_0pCaptureStatus, (void *)pCaptureStatus, sizeof(*pCaptureStatus));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamIsCapturing);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &_0pCaptureStatus, sizeof(_0pCaptureStatus));
+    conn->prepare_request(RPC_cudaStreamIsCapturing);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0pCaptureStatus, sizeof(_0pCaptureStatus));
     updateTmpPtr((void *)pCaptureStatus, _0pCaptureStatus);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCaptureStatus, sizeof(*pCaptureStatus), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCaptureStatus, sizeof(*pCaptureStatus), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2634,50 +2634,50 @@ extern "C" cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, enum cudaSt
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetCaptureInfo called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pCaptureStatus;
-    mem2server(client, &_0pCaptureStatus, (void *)pCaptureStatus, sizeof(*pCaptureStatus));
+    mem2server(conn, &_0pCaptureStatus, (void *)pCaptureStatus, sizeof(*pCaptureStatus));
     void *_0pId;
-    mem2server(client, &_0pId, (void *)pId, sizeof(*pId));
+    mem2server(conn, &_0pId, (void *)pId, sizeof(*pId));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamGetCaptureInfo);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &_0pCaptureStatus, sizeof(_0pCaptureStatus));
+    conn->prepare_request(RPC_cudaStreamGetCaptureInfo);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0pCaptureStatus, sizeof(_0pCaptureStatus));
     updateTmpPtr((void *)pCaptureStatus, _0pCaptureStatus);
-    rpc_write(client, &_0pId, sizeof(_0pId));
+    conn->write(&_0pId, sizeof(_0pId));
     updateTmpPtr((void *)pId, _0pId);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pCaptureStatus, sizeof(*pCaptureStatus), true);
-    mem2client(client, (void *)pId, sizeof(*pId), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCaptureStatus, sizeof(*pCaptureStatus), true);
+    mem2client(conn, (void *)pId, sizeof(*pId), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2685,63 +2685,63 @@ extern "C" cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, enum cud
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetCaptureInfo_v2 called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0captureStatus_out;
-    mem2server(client, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
+    mem2server(conn, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
     void *_0id_out;
-    mem2server(client, &_0id_out, (void *)id_out, sizeof(*id_out));
+    mem2server(conn, &_0id_out, (void *)id_out, sizeof(*id_out));
     void *_0graph_out;
-    mem2server(client, &_0graph_out, (void *)graph_out, sizeof(*graph_out));
+    mem2server(conn, &_0graph_out, (void *)graph_out, sizeof(*graph_out));
     void *_0numDependencies_out;
-    mem2server(client, &_0numDependencies_out, (void *)numDependencies_out, sizeof(*numDependencies_out));
+    mem2server(conn, &_0numDependencies_out, (void *)numDependencies_out, sizeof(*numDependencies_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamGetCaptureInfo_v2);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &_0captureStatus_out, sizeof(_0captureStatus_out));
+    conn->prepare_request(RPC_cudaStreamGetCaptureInfo_v2);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0captureStatus_out, sizeof(_0captureStatus_out));
     updateTmpPtr((void *)captureStatus_out, _0captureStatus_out);
-    rpc_write(client, &_0id_out, sizeof(_0id_out));
+    conn->write(&_0id_out, sizeof(_0id_out));
     updateTmpPtr((void *)id_out, _0id_out);
-    rpc_write(client, &_0graph_out, sizeof(_0graph_out));
+    conn->write(&_0graph_out, sizeof(_0graph_out));
     updateTmpPtr((void *)graph_out, _0graph_out);
     static cudaGraphNode_t _cudaStreamGetCaptureInfo_v2_dependencies_out;
-    rpc_read(client, &_cudaStreamGetCaptureInfo_v2_dependencies_out, sizeof(cudaGraphNode_t));
-    rpc_write(client, &_0numDependencies_out, sizeof(_0numDependencies_out));
+    conn->read(&_cudaStreamGetCaptureInfo_v2_dependencies_out, sizeof(cudaGraphNode_t));
+    conn->write(&_0numDependencies_out, sizeof(_0numDependencies_out));
     updateTmpPtr((void *)numDependencies_out, _0numDependencies_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
     *dependencies_out = &_cudaStreamGetCaptureInfo_v2_dependencies_out;
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
-    mem2client(client, (void *)id_out, sizeof(*id_out), true);
-    mem2client(client, (void *)graph_out, sizeof(*graph_out), true);
-    mem2client(client, (void *)numDependencies_out, sizeof(*numDependencies_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
+    mem2client(conn, (void *)id_out, sizeof(*id_out), true);
+    mem2client(conn, (void *)graph_out, sizeof(*graph_out), true);
+    mem2client(conn, (void *)numDependencies_out, sizeof(*numDependencies_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2749,47 +2749,47 @@ extern "C" cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, 
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamUpdateCaptureDependencies called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dependencies;
-    mem2server(client, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaStreamUpdateCaptureDependencies);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &_0dependencies, sizeof(_0dependencies));
+    conn->prepare_request(RPC_cudaStreamUpdateCaptureDependencies);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
     updateTmpPtr((void *)dependencies, _0dependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dependencies, sizeof(*dependencies), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2797,44 +2797,44 @@ extern "C" cudaError_t cudaEventCreate(cudaEvent_t *event) {
 #ifdef DEBUG
     std::cout << "Hook: cudaEventCreate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0event;
-    mem2server(client, &_0event, (void *)event, sizeof(*event));
+    mem2server(conn, &_0event, (void *)event, sizeof(*event));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventCreate);
-    rpc_write(client, &_0event, sizeof(_0event));
+    conn->prepare_request(RPC_cudaEventCreate);
+    conn->write(&_0event, sizeof(_0event));
     updateTmpPtr((void *)event, _0event);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event, sizeof(*event), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)event, sizeof(*event), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2842,45 +2842,45 @@ extern "C" cudaError_t cudaEventCreateWithFlags(cudaEvent_t *event, unsigned int
 #ifdef DEBUG
     std::cout << "Hook: cudaEventCreateWithFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0event;
-    mem2server(client, &_0event, (void *)event, sizeof(*event));
+    mem2server(conn, &_0event, (void *)event, sizeof(*event));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventCreateWithFlags);
-    rpc_write(client, &_0event, sizeof(_0event));
+    conn->prepare_request(RPC_cudaEventCreateWithFlags);
+    conn->write(&_0event, sizeof(_0event));
     updateTmpPtr((void *)event, _0event);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event, sizeof(*event), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)event, sizeof(*event), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2888,41 +2888,41 @@ extern "C" cudaError_t cudaEventRecord(cudaEvent_t event, cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaEventRecord called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventRecord);
-    rpc_write(client, &event, sizeof(event));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaEventRecord);
+    conn->write(&event, sizeof(event));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2930,42 +2930,42 @@ extern "C" cudaError_t cudaEventRecordWithFlags(cudaEvent_t event, cudaStream_t 
 #ifdef DEBUG
     std::cout << "Hook: cudaEventRecordWithFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventRecordWithFlags);
-    rpc_write(client, &event, sizeof(event));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaEventRecordWithFlags);
+    conn->write(&event, sizeof(event));
+    conn->write(&stream, sizeof(stream));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -2973,40 +2973,40 @@ extern "C" cudaError_t cudaEventQuery(cudaEvent_t event) {
 #ifdef DEBUG
     std::cout << "Hook: cudaEventQuery called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventQuery);
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaEventQuery);
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3014,40 +3014,40 @@ extern "C" cudaError_t cudaEventSynchronize(cudaEvent_t event) {
 #ifdef DEBUG
     std::cout << "Hook: cudaEventSynchronize called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventSynchronize);
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaEventSynchronize);
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3055,40 +3055,40 @@ extern "C" cudaError_t cudaEventDestroy(cudaEvent_t event) {
 #ifdef DEBUG
     std::cout << "Hook: cudaEventDestroy called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventDestroy);
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaEventDestroy);
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3096,46 +3096,46 @@ extern "C" cudaError_t cudaEventElapsedTime(float *ms, cudaEvent_t start, cudaEv
 #ifdef DEBUG
     std::cout << "Hook: cudaEventElapsedTime called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0ms;
-    mem2server(client, &_0ms, (void *)ms, sizeof(*ms));
+    mem2server(conn, &_0ms, (void *)ms, sizeof(*ms));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaEventElapsedTime);
-    rpc_write(client, &_0ms, sizeof(_0ms));
+    conn->prepare_request(RPC_cudaEventElapsedTime);
+    conn->write(&_0ms, sizeof(_0ms));
     updateTmpPtr((void *)ms, _0ms);
-    rpc_write(client, &start, sizeof(start));
-    rpc_write(client, &end, sizeof(end));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&start, sizeof(start));
+    conn->write(&end, sizeof(end));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)ms, sizeof(*ms), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)ms, sizeof(*ms), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3143,49 +3143,49 @@ extern "C" cudaError_t cudaImportExternalMemory(cudaExternalMemory_t *extMem_out
 #ifdef DEBUG
     std::cout << "Hook: cudaImportExternalMemory called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0extMem_out;
-    mem2server(client, &_0extMem_out, (void *)extMem_out, sizeof(*extMem_out));
+    mem2server(conn, &_0extMem_out, (void *)extMem_out, sizeof(*extMem_out));
     void *_0memHandleDesc;
-    mem2server(client, &_0memHandleDesc, (void *)memHandleDesc, sizeof(*memHandleDesc));
+    mem2server(conn, &_0memHandleDesc, (void *)memHandleDesc, sizeof(*memHandleDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaImportExternalMemory);
-    rpc_write(client, &_0extMem_out, sizeof(_0extMem_out));
+    conn->prepare_request(RPC_cudaImportExternalMemory);
+    conn->write(&_0extMem_out, sizeof(_0extMem_out));
     updateTmpPtr((void *)extMem_out, _0extMem_out);
-    rpc_write(client, &_0memHandleDesc, sizeof(_0memHandleDesc));
+    conn->write(&_0memHandleDesc, sizeof(_0memHandleDesc));
     updateTmpPtr((void *)memHandleDesc, _0memHandleDesc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extMem_out, sizeof(*extMem_out), true);
-    mem2client(client, (void *)memHandleDesc, sizeof(*memHandleDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)extMem_out, sizeof(*extMem_out), true);
+    mem2client(conn, (void *)memHandleDesc, sizeof(*memHandleDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3193,46 +3193,46 @@ extern "C" cudaError_t cudaExternalMemoryGetMappedBuffer(void **devPtr, cudaExte
 #ifdef DEBUG
     std::cout << "Hook: cudaExternalMemoryGetMappedBuffer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0bufferDesc;
-    mem2server(client, &_0bufferDesc, (void *)bufferDesc, sizeof(*bufferDesc));
+    mem2server(conn, &_0bufferDesc, (void *)bufferDesc, sizeof(*bufferDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaExternalMemoryGetMappedBuffer);
-    rpc_read(client, devPtr, sizeof(void *));
-    rpc_write(client, &extMem, sizeof(extMem));
-    rpc_write(client, &_0bufferDesc, sizeof(_0bufferDesc));
+    conn->prepare_request(RPC_cudaExternalMemoryGetMappedBuffer);
+    conn->read(devPtr, sizeof(void *));
+    conn->write(&extMem, sizeof(extMem));
+    conn->write(&_0bufferDesc, sizeof(_0bufferDesc));
     updateTmpPtr((void *)bufferDesc, _0bufferDesc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)bufferDesc, sizeof(*bufferDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)bufferDesc, sizeof(*bufferDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3240,50 +3240,50 @@ extern "C" cudaError_t cudaExternalMemoryGetMappedMipmappedArray(cudaMipmappedAr
 #ifdef DEBUG
     std::cout << "Hook: cudaExternalMemoryGetMappedMipmappedArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0mipmap;
-    mem2server(client, &_0mipmap, (void *)mipmap, sizeof(*mipmap));
+    mem2server(conn, &_0mipmap, (void *)mipmap, sizeof(*mipmap));
     void *_0mipmapDesc;
-    mem2server(client, &_0mipmapDesc, (void *)mipmapDesc, sizeof(*mipmapDesc));
+    mem2server(conn, &_0mipmapDesc, (void *)mipmapDesc, sizeof(*mipmapDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaExternalMemoryGetMappedMipmappedArray);
-    rpc_write(client, &_0mipmap, sizeof(_0mipmap));
+    conn->prepare_request(RPC_cudaExternalMemoryGetMappedMipmappedArray);
+    conn->write(&_0mipmap, sizeof(_0mipmap));
     updateTmpPtr((void *)mipmap, _0mipmap);
-    rpc_write(client, &extMem, sizeof(extMem));
-    rpc_write(client, &_0mipmapDesc, sizeof(_0mipmapDesc));
+    conn->write(&extMem, sizeof(extMem));
+    conn->write(&_0mipmapDesc, sizeof(_0mipmapDesc));
     updateTmpPtr((void *)mipmapDesc, _0mipmapDesc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mipmap, sizeof(*mipmap), true);
-    mem2client(client, (void *)mipmapDesc, sizeof(*mipmapDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)mipmap, sizeof(*mipmap), true);
+    mem2client(conn, (void *)mipmapDesc, sizeof(*mipmapDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3291,40 +3291,40 @@ extern "C" cudaError_t cudaDestroyExternalMemory(cudaExternalMemory_t extMem) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDestroyExternalMemory called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDestroyExternalMemory);
-    rpc_write(client, &extMem, sizeof(extMem));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDestroyExternalMemory);
+    conn->write(&extMem, sizeof(extMem));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3332,49 +3332,49 @@ extern "C" cudaError_t cudaImportExternalSemaphore(cudaExternalSemaphore_t *extS
 #ifdef DEBUG
     std::cout << "Hook: cudaImportExternalSemaphore called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0extSem_out;
-    mem2server(client, &_0extSem_out, (void *)extSem_out, sizeof(*extSem_out));
+    mem2server(conn, &_0extSem_out, (void *)extSem_out, sizeof(*extSem_out));
     void *_0semHandleDesc;
-    mem2server(client, &_0semHandleDesc, (void *)semHandleDesc, sizeof(*semHandleDesc));
+    mem2server(conn, &_0semHandleDesc, (void *)semHandleDesc, sizeof(*semHandleDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaImportExternalSemaphore);
-    rpc_write(client, &_0extSem_out, sizeof(_0extSem_out));
+    conn->prepare_request(RPC_cudaImportExternalSemaphore);
+    conn->write(&_0extSem_out, sizeof(_0extSem_out));
     updateTmpPtr((void *)extSem_out, _0extSem_out);
-    rpc_write(client, &_0semHandleDesc, sizeof(_0semHandleDesc));
+    conn->write(&_0semHandleDesc, sizeof(_0semHandleDesc));
     updateTmpPtr((void *)semHandleDesc, _0semHandleDesc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extSem_out, sizeof(*extSem_out), true);
-    mem2client(client, (void *)semHandleDesc, sizeof(*semHandleDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)extSem_out, sizeof(*extSem_out), true);
+    mem2client(conn, (void *)semHandleDesc, sizeof(*semHandleDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3382,51 +3382,51 @@ extern "C" cudaError_t cudaSignalExternalSemaphoresAsync_v2(const cudaExternalSe
 #ifdef DEBUG
     std::cout << "Hook: cudaSignalExternalSemaphoresAsync_v2 called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0extSemArray;
-    mem2server(client, &_0extSemArray, (void *)extSemArray, sizeof(*extSemArray));
+    mem2server(conn, &_0extSemArray, (void *)extSemArray, sizeof(*extSemArray));
     void *_0paramsArray;
-    mem2server(client, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
+    mem2server(conn, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaSignalExternalSemaphoresAsync_v2);
-    rpc_write(client, &_0extSemArray, sizeof(_0extSemArray));
+    conn->prepare_request(RPC_cudaSignalExternalSemaphoresAsync_v2);
+    conn->write(&_0extSemArray, sizeof(_0extSemArray));
     updateTmpPtr((void *)extSemArray, _0extSemArray);
-    rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
+    conn->write(&_0paramsArray, sizeof(_0paramsArray));
     updateTmpPtr((void *)paramsArray, _0paramsArray);
-    rpc_write(client, &numExtSems, sizeof(numExtSems));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numExtSems, sizeof(numExtSems));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extSemArray, sizeof(*extSemArray), true);
-    mem2client(client, (void *)paramsArray, sizeof(*paramsArray), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)extSemArray, sizeof(*extSemArray), true);
+    mem2client(conn, (void *)paramsArray, sizeof(*paramsArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3434,51 +3434,51 @@ extern "C" cudaError_t cudaWaitExternalSemaphoresAsync_v2(const cudaExternalSema
 #ifdef DEBUG
     std::cout << "Hook: cudaWaitExternalSemaphoresAsync_v2 called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0extSemArray;
-    mem2server(client, &_0extSemArray, (void *)extSemArray, sizeof(*extSemArray));
+    mem2server(conn, &_0extSemArray, (void *)extSemArray, sizeof(*extSemArray));
     void *_0paramsArray;
-    mem2server(client, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
+    mem2server(conn, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaWaitExternalSemaphoresAsync_v2);
-    rpc_write(client, &_0extSemArray, sizeof(_0extSemArray));
+    conn->prepare_request(RPC_cudaWaitExternalSemaphoresAsync_v2);
+    conn->write(&_0extSemArray, sizeof(_0extSemArray));
     updateTmpPtr((void *)extSemArray, _0extSemArray);
-    rpc_write(client, &_0paramsArray, sizeof(_0paramsArray));
+    conn->write(&_0paramsArray, sizeof(_0paramsArray));
     updateTmpPtr((void *)paramsArray, _0paramsArray);
-    rpc_write(client, &numExtSems, sizeof(numExtSems));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numExtSems, sizeof(numExtSems));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)extSemArray, sizeof(*extSemArray), true);
-    mem2client(client, (void *)paramsArray, sizeof(*paramsArray), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)extSemArray, sizeof(*extSemArray), true);
+    mem2client(conn, (void *)paramsArray, sizeof(*paramsArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3486,40 +3486,40 @@ extern "C" cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extS
 #ifdef DEBUG
     std::cout << "Hook: cudaDestroyExternalSemaphore called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDestroyExternalSemaphore);
-    rpc_write(client, &extSem, sizeof(extSem));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDestroyExternalSemaphore);
+    conn->write(&extSem, sizeof(extSem));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3527,46 +3527,46 @@ extern "C" cudaError_t cudaLaunchCooperativeKernelMultiDevice(struct cudaLaunchP
 #ifdef DEBUG
     std::cout << "Hook: cudaLaunchCooperativeKernelMultiDevice called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0launchParamsList;
-    mem2server(client, &_0launchParamsList, (void *)launchParamsList, sizeof(*launchParamsList));
+    mem2server(conn, &_0launchParamsList, (void *)launchParamsList, sizeof(*launchParamsList));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaLaunchCooperativeKernelMultiDevice);
-    rpc_write(client, &_0launchParamsList, sizeof(_0launchParamsList));
+    conn->prepare_request(RPC_cudaLaunchCooperativeKernelMultiDevice);
+    conn->write(&_0launchParamsList, sizeof(_0launchParamsList));
     updateTmpPtr((void *)launchParamsList, _0launchParamsList);
-    rpc_write(client, &numDevices, sizeof(numDevices));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDevices, sizeof(numDevices));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)launchParamsList, sizeof(*launchParamsList), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)launchParamsList, sizeof(*launchParamsList), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3574,45 +3574,45 @@ extern "C" cudaError_t cudaFuncSetCacheConfig(const void *func, enum cudaFuncCac
 #ifdef DEBUG
     std::cout << "Hook: cudaFuncSetCacheConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFuncSetCacheConfig);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->prepare_request(RPC_cudaFuncSetCacheConfig);
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_write(client, &cacheConfig, sizeof(cacheConfig));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&cacheConfig, sizeof(cacheConfig));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3620,45 +3620,45 @@ extern "C" cudaError_t cudaFuncSetSharedMemConfig(const void *func, enum cudaSha
 #ifdef DEBUG
     std::cout << "Hook: cudaFuncSetSharedMemConfig called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFuncSetSharedMemConfig);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->prepare_request(RPC_cudaFuncSetSharedMemConfig);
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_write(client, &config, sizeof(config));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&config, sizeof(config));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3666,49 +3666,49 @@ extern "C" cudaError_t cudaFuncGetAttributes(struct cudaFuncAttributes *attr, co
 #ifdef DEBUG
     std::cout << "Hook: cudaFuncGetAttributes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0attr;
-    mem2server(client, &_0attr, (void *)attr, sizeof(*attr));
+    mem2server(conn, &_0attr, (void *)attr, sizeof(*attr));
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFuncGetAttributes);
-    rpc_write(client, &_0attr, sizeof(_0attr));
+    conn->prepare_request(RPC_cudaFuncGetAttributes);
+    conn->write(&_0attr, sizeof(_0attr));
     updateTmpPtr((void *)attr, _0attr);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)attr, sizeof(*attr), true);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)attr, sizeof(*attr), true);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3716,46 +3716,46 @@ extern "C" cudaError_t cudaFuncSetAttribute(const void *func, enum cudaFuncAttri
 #ifdef DEBUG
     std::cout << "Hook: cudaFuncSetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFuncSetAttribute);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->prepare_request(RPC_cudaFuncSetAttribute);
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &value, sizeof(value));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&attr, sizeof(attr));
+    conn->write(&value, sizeof(value));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3763,44 +3763,44 @@ extern "C" cudaError_t cudaSetDoubleForDevice(double *d) {
 #ifdef DEBUG
     std::cout << "Hook: cudaSetDoubleForDevice called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0d;
-    mem2server(client, &_0d, (void *)d, sizeof(*d));
+    mem2server(conn, &_0d, (void *)d, sizeof(*d));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaSetDoubleForDevice);
-    rpc_write(client, &_0d, sizeof(_0d));
+    conn->prepare_request(RPC_cudaSetDoubleForDevice);
+    conn->write(&_0d, sizeof(_0d));
     updateTmpPtr((void *)d, _0d);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)d, sizeof(*d), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)d, sizeof(*d), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3808,44 +3808,44 @@ extern "C" cudaError_t cudaSetDoubleForHost(double *d) {
 #ifdef DEBUG
     std::cout << "Hook: cudaSetDoubleForHost called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0d;
-    mem2server(client, &_0d, (void *)d, sizeof(*d));
+    mem2server(conn, &_0d, (void *)d, sizeof(*d));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaSetDoubleForHost);
-    rpc_write(client, &_0d, sizeof(_0d));
+    conn->prepare_request(RPC_cudaSetDoubleForHost);
+    conn->write(&_0d, sizeof(_0d));
     updateTmpPtr((void *)d, _0d);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)d, sizeof(*d), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)d, sizeof(*d), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3853,46 +3853,46 @@ extern "C" cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, 
 #ifdef DEBUG
     std::cout << "Hook: cudaLaunchHostFunc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0userData;
-    mem2server(client, &_0userData, (void *)userData, 0);
+    mem2server(conn, &_0userData, (void *)userData, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaLaunchHostFunc);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_write(client, &fn, sizeof(fn));
-    rpc_write(client, &_0userData, sizeof(_0userData));
+    conn->prepare_request(RPC_cudaLaunchHostFunc);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&fn, sizeof(fn));
+    conn->write(&_0userData, sizeof(_0userData));
     updateTmpPtr((void *)userData, _0userData);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)userData, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)userData, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3900,51 +3900,51 @@ extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlo
 #ifdef DEBUG
     std::cout << "Hook: cudaOccupancyMaxActiveBlocksPerMultiprocessor called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0numBlocks;
-    mem2server(client, &_0numBlocks, (void *)numBlocks, sizeof(*numBlocks));
+    mem2server(conn, &_0numBlocks, (void *)numBlocks, sizeof(*numBlocks));
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaOccupancyMaxActiveBlocksPerMultiprocessor);
-    rpc_write(client, &_0numBlocks, sizeof(_0numBlocks));
+    conn->prepare_request(RPC_cudaOccupancyMaxActiveBlocksPerMultiprocessor);
+    conn->write(&_0numBlocks, sizeof(_0numBlocks));
     updateTmpPtr((void *)numBlocks, _0numBlocks);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_write(client, &blockSize, sizeof(blockSize));
-    rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&blockSize, sizeof(blockSize));
+    conn->write(&dynamicSMemSize, sizeof(dynamicSMemSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)numBlocks, sizeof(*numBlocks), true);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)numBlocks, sizeof(*numBlocks), true);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -3952,51 +3952,51 @@ extern "C" cudaError_t cudaOccupancyAvailableDynamicSMemPerBlock(size_t *dynamic
 #ifdef DEBUG
     std::cout << "Hook: cudaOccupancyAvailableDynamicSMemPerBlock called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dynamicSmemSize;
-    mem2server(client, &_0dynamicSmemSize, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize));
+    mem2server(conn, &_0dynamicSmemSize, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize));
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaOccupancyAvailableDynamicSMemPerBlock);
-    rpc_write(client, &_0dynamicSmemSize, sizeof(_0dynamicSmemSize));
+    conn->prepare_request(RPC_cudaOccupancyAvailableDynamicSMemPerBlock);
+    conn->write(&_0dynamicSmemSize, sizeof(_0dynamicSmemSize));
     updateTmpPtr((void *)dynamicSmemSize, _0dynamicSmemSize);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_write(client, &numBlocks, sizeof(numBlocks));
-    rpc_write(client, &blockSize, sizeof(blockSize));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numBlocks, sizeof(numBlocks));
+    conn->write(&blockSize, sizeof(blockSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize), true);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize), true);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4004,52 +4004,52 @@ extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(in
 #ifdef DEBUG
     std::cout << "Hook: cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0numBlocks;
-    mem2server(client, &_0numBlocks, (void *)numBlocks, sizeof(*numBlocks));
+    mem2server(conn, &_0numBlocks, (void *)numBlocks, sizeof(*numBlocks));
     void *_0func;
-    mem2server(client, &_0func, (void *)func, 0);
+    mem2server(conn, &_0func, (void *)func, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
-    rpc_write(client, &_0numBlocks, sizeof(_0numBlocks));
+    conn->prepare_request(RPC_cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
+    conn->write(&_0numBlocks, sizeof(_0numBlocks));
     updateTmpPtr((void *)numBlocks, _0numBlocks);
-    rpc_write(client, &_0func, sizeof(_0func));
+    conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
-    rpc_write(client, &blockSize, sizeof(blockSize));
-    rpc_write(client, &dynamicSMemSize, sizeof(dynamicSMemSize));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&blockSize, sizeof(blockSize));
+    conn->write(&dynamicSMemSize, sizeof(dynamicSMemSize));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)numBlocks, sizeof(*numBlocks), true);
-    mem2client(client, (void *)func, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)numBlocks, sizeof(*numBlocks), true);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4057,52 +4057,52 @@ extern "C" cudaError_t cudaMallocArray(cudaArray_t *array, const struct cudaChan
 #ifdef DEBUG
     std::cout << "Hook: cudaMallocArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0array;
-    mem2server(client, &_0array, (void *)array, sizeof(*array));
+    mem2server(conn, &_0array, (void *)array, sizeof(*array));
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMallocArray);
-    rpc_write(client, &_0array, sizeof(_0array));
+    conn->prepare_request(RPC_cudaMallocArray);
+    conn->write(&_0array, sizeof(_0array));
     updateTmpPtr((void *)array, _0array);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)array, sizeof(*array), true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)array, sizeof(*array), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4110,40 +4110,40 @@ extern "C" cudaError_t cudaFreeArray(cudaArray_t array) {
 #ifdef DEBUG
     std::cout << "Hook: cudaFreeArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFreeArray);
-    rpc_write(client, &array, sizeof(array));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaFreeArray);
+    conn->write(&array, sizeof(array));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4151,40 +4151,40 @@ extern "C" cudaError_t cudaFreeMipmappedArray(cudaMipmappedArray_t mipmappedArra
 #ifdef DEBUG
     std::cout << "Hook: cudaFreeMipmappedArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFreeMipmappedArray);
-    rpc_write(client, &mipmappedArray, sizeof(mipmappedArray));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaFreeMipmappedArray);
+    conn->write(&mipmappedArray, sizeof(mipmappedArray));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4192,46 +4192,46 @@ extern "C" cudaError_t cudaHostGetDevicePointer(void **pDevice, void *pHost, uns
 #ifdef DEBUG
     std::cout << "Hook: cudaHostGetDevicePointer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pHost;
-    mem2server(client, &_0pHost, (void *)pHost, 0);
+    mem2server(conn, &_0pHost, (void *)pHost, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaHostGetDevicePointer);
-    rpc_read(client, pDevice, sizeof(void *));
-    rpc_write(client, &_0pHost, sizeof(_0pHost));
+    conn->prepare_request(RPC_cudaHostGetDevicePointer);
+    conn->read(pDevice, sizeof(void *));
+    conn->write(&_0pHost, sizeof(_0pHost));
     updateTmpPtr((void *)pHost, _0pHost);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pHost, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pHost, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4239,49 +4239,49 @@ extern "C" cudaError_t cudaHostGetFlags(unsigned int *pFlags, void *pHost) {
 #ifdef DEBUG
     std::cout << "Hook: cudaHostGetFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pFlags;
-    mem2server(client, &_0pFlags, (void *)pFlags, sizeof(*pFlags));
+    mem2server(conn, &_0pFlags, (void *)pFlags, sizeof(*pFlags));
     void *_0pHost;
-    mem2server(client, &_0pHost, (void *)pHost, 0);
+    mem2server(conn, &_0pHost, (void *)pHost, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaHostGetFlags);
-    rpc_write(client, &_0pFlags, sizeof(_0pFlags));
+    conn->prepare_request(RPC_cudaHostGetFlags);
+    conn->write(&_0pFlags, sizeof(_0pFlags));
     updateTmpPtr((void *)pFlags, _0pFlags);
-    rpc_write(client, &_0pHost, sizeof(_0pHost));
+    conn->write(&_0pHost, sizeof(_0pHost));
     updateTmpPtr((void *)pHost, _0pHost);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pFlags, sizeof(*pFlags), true);
-    mem2client(client, (void *)pHost, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pFlags, sizeof(*pFlags), true);
+    mem2client(conn, (void *)pHost, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4289,51 +4289,51 @@ extern "C" cudaError_t cudaMalloc3DArray(cudaArray_t *array, const struct cudaCh
 #ifdef DEBUG
     std::cout << "Hook: cudaMalloc3DArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0array;
-    mem2server(client, &_0array, (void *)array, sizeof(*array));
+    mem2server(conn, &_0array, (void *)array, sizeof(*array));
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMalloc3DArray);
-    rpc_write(client, &_0array, sizeof(_0array));
+    conn->prepare_request(RPC_cudaMalloc3DArray);
+    conn->write(&_0array, sizeof(_0array));
     updateTmpPtr((void *)array, _0array);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &extent, sizeof(extent));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&extent, sizeof(extent));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)array, sizeof(*array), true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)array, sizeof(*array), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4341,52 +4341,52 @@ extern "C" cudaError_t cudaMallocMipmappedArray(cudaMipmappedArray_t *mipmappedA
 #ifdef DEBUG
     std::cout << "Hook: cudaMallocMipmappedArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0mipmappedArray;
-    mem2server(client, &_0mipmappedArray, (void *)mipmappedArray, sizeof(*mipmappedArray));
+    mem2server(conn, &_0mipmappedArray, (void *)mipmappedArray, sizeof(*mipmappedArray));
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMallocMipmappedArray);
-    rpc_write(client, &_0mipmappedArray, sizeof(_0mipmappedArray));
+    conn->prepare_request(RPC_cudaMallocMipmappedArray);
+    conn->write(&_0mipmappedArray, sizeof(_0mipmappedArray));
     updateTmpPtr((void *)mipmappedArray, _0mipmappedArray);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &extent, sizeof(extent));
-    rpc_write(client, &numLevels, sizeof(numLevels));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&extent, sizeof(extent));
+    conn->write(&numLevels, sizeof(numLevels));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mipmappedArray, sizeof(*mipmappedArray), true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)mipmappedArray, sizeof(*mipmappedArray), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4394,46 +4394,46 @@ extern "C" cudaError_t cudaGetMipmappedArrayLevel(cudaArray_t *levelArray, cudaM
 #ifdef DEBUG
     std::cout << "Hook: cudaGetMipmappedArrayLevel called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0levelArray;
-    mem2server(client, &_0levelArray, (void *)levelArray, sizeof(*levelArray));
+    mem2server(conn, &_0levelArray, (void *)levelArray, sizeof(*levelArray));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetMipmappedArrayLevel);
-    rpc_write(client, &_0levelArray, sizeof(_0levelArray));
+    conn->prepare_request(RPC_cudaGetMipmappedArrayLevel);
+    conn->write(&_0levelArray, sizeof(_0levelArray));
     updateTmpPtr((void *)levelArray, _0levelArray);
-    rpc_write(client, &mipmappedArray, sizeof(mipmappedArray));
-    rpc_write(client, &level, sizeof(level));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&mipmappedArray, sizeof(mipmappedArray));
+    conn->write(&level, sizeof(level));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)levelArray, sizeof(*levelArray), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)levelArray, sizeof(*levelArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4441,56 +4441,56 @@ extern "C" cudaError_t cudaMemcpy3D(const struct cudaMemcpy3DParms *p) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy3D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0p;
-    mem2server(client, &_0p, (void *)p, sizeof(*p));
+    mem2server(conn, &_0p, (void *)p, sizeof(*p));
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(p != nullptr) {
-        mem2server(client, &_0sptr, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize));
-        mem2server(client, &_0dptr, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize));
+        mem2server(conn, &_0dptr, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize));
     }
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy3D);
-    rpc_write(client, &_0p, sizeof(_0p));
+    conn->prepare_request(RPC_cudaMemcpy3D);
+    conn->write(&_0p, sizeof(_0p));
     updateTmpPtr((void *)p, _0p);
-    rpc_write(client, &_0sptr, sizeof(_0sptr));
-    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    conn->write(&_0sptr, sizeof(_0sptr));
+    conn->write(&_0dptr, sizeof(_0dptr));
     updateTmpPtr((void *)p->srcPtr.ptr, _0sptr);
     updateTmpPtr((void *)p->dstPtr.ptr, _0dptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)p, sizeof(*p), true);
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)p, sizeof(*p), true);
     if(p != nullptr) {
         _0sptr = (void *)p->srcPtr.ptr;
         _0dptr = (void *)p->dstPtr.ptr;
-        mem2client(client, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize), false);
-        mem2client(client, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize), false);
+        mem2client(conn, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize), false);
+        mem2client(conn, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize), false);
     }
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
@@ -4498,7 +4498,7 @@ extern "C" cudaError_t cudaMemcpy3D(const struct cudaMemcpy3DParms *p) {
         const_cast<void *&>(p->srcPtr.ptr) = _0sptr;
         const_cast<void *&>(p->dstPtr.ptr) = _0dptr;
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4506,44 +4506,44 @@ extern "C" cudaError_t cudaMemcpy3DPeer(const struct cudaMemcpy3DPeerParms *p) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy3DPeer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0p;
-    mem2server(client, &_0p, (void *)p, sizeof(*p));
+    mem2server(conn, &_0p, (void *)p, sizeof(*p));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy3DPeer);
-    rpc_write(client, &_0p, sizeof(_0p));
+    conn->prepare_request(RPC_cudaMemcpy3DPeer);
+    conn->write(&_0p, sizeof(_0p));
     updateTmpPtr((void *)p, _0p);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)p, sizeof(*p), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)p, sizeof(*p), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4551,57 +4551,57 @@ extern "C" cudaError_t cudaMemcpy3DAsync(const struct cudaMemcpy3DParms *p, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy3DAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0p;
-    mem2server(client, &_0p, (void *)p, sizeof(*p));
+    mem2server(conn, &_0p, (void *)p, sizeof(*p));
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(p != nullptr) {
-        mem2server(client, &_0sptr, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize));
-        mem2server(client, &_0dptr, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize));
+        mem2server(conn, &_0dptr, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize));
     }
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy3DAsync);
-    rpc_write(client, &_0p, sizeof(_0p));
+    conn->prepare_request(RPC_cudaMemcpy3DAsync);
+    conn->write(&_0p, sizeof(_0p));
     updateTmpPtr((void *)p, _0p);
-    rpc_write(client, &_0sptr, sizeof(_0sptr));
-    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    conn->write(&_0sptr, sizeof(_0sptr));
+    conn->write(&_0dptr, sizeof(_0dptr));
     updateTmpPtr((void *)p->srcPtr.ptr, _0sptr);
     updateTmpPtr((void *)p->dstPtr.ptr, _0dptr);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)p, sizeof(*p), true);
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)p, sizeof(*p), true);
     if(p != nullptr) {
         _0sptr = (void *)p->srcPtr.ptr;
         _0dptr = (void *)p->dstPtr.ptr;
-        mem2client(client, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize), false);
-        mem2client(client, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize), false);
+        mem2client(conn, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize), false);
+        mem2client(conn, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize), false);
     }
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
@@ -4609,7 +4609,7 @@ extern "C" cudaError_t cudaMemcpy3DAsync(const struct cudaMemcpy3DParms *p, cuda
         const_cast<void *&>(p->srcPtr.ptr) = _0sptr;
         const_cast<void *&>(p->dstPtr.ptr) = _0dptr;
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4617,45 +4617,45 @@ extern "C" cudaError_t cudaMemcpy3DPeerAsync(const struct cudaMemcpy3DPeerParms 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy3DPeerAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0p;
-    mem2server(client, &_0p, (void *)p, sizeof(*p));
+    mem2server(conn, &_0p, (void *)p, sizeof(*p));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy3DPeerAsync);
-    rpc_write(client, &_0p, sizeof(_0p));
+    conn->prepare_request(RPC_cudaMemcpy3DPeerAsync);
+    conn->write(&_0p, sizeof(_0p));
     updateTmpPtr((void *)p, _0p);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)p, sizeof(*p), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)p, sizeof(*p), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4663,49 +4663,49 @@ extern "C" cudaError_t cudaMemGetInfo(size_t *free, size_t *total) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemGetInfo called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0free;
-    mem2server(client, &_0free, (void *)free, sizeof(*free));
+    mem2server(conn, &_0free, (void *)free, sizeof(*free));
     void *_0total;
-    mem2server(client, &_0total, (void *)total, sizeof(*total));
+    mem2server(conn, &_0total, (void *)total, sizeof(*total));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemGetInfo);
-    rpc_write(client, &_0free, sizeof(_0free));
+    conn->prepare_request(RPC_cudaMemGetInfo);
+    conn->write(&_0free, sizeof(_0free));
     updateTmpPtr((void *)free, _0free);
-    rpc_write(client, &_0total, sizeof(_0total));
+    conn->write(&_0total, sizeof(_0total));
     updateTmpPtr((void *)total, _0total);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)free, sizeof(*free), true);
-    mem2client(client, (void *)total, sizeof(*total), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)free, sizeof(*free), true);
+    mem2client(conn, (void *)total, sizeof(*total), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4713,55 +4713,55 @@ extern "C" cudaError_t cudaArrayGetInfo(struct cudaChannelFormatDesc *desc, stru
 #ifdef DEBUG
     std::cout << "Hook: cudaArrayGetInfo called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *_0extent;
-    mem2server(client, &_0extent, (void *)extent, sizeof(*extent));
+    mem2server(conn, &_0extent, (void *)extent, sizeof(*extent));
     void *_0flags;
-    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    mem2server(conn, &_0flags, (void *)flags, sizeof(*flags));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaArrayGetInfo);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->prepare_request(RPC_cudaArrayGetInfo);
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &_0extent, sizeof(_0extent));
+    conn->write(&_0extent, sizeof(_0extent));
     updateTmpPtr((void *)extent, _0extent);
-    rpc_write(client, &_0flags, sizeof(_0flags));
+    conn->write(&_0flags, sizeof(_0flags));
     updateTmpPtr((void *)flags, _0flags);
-    rpc_write(client, &array, sizeof(array));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&array, sizeof(array));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    mem2client(client, (void *)extent, sizeof(*extent), true);
-    mem2client(client, (void *)flags, sizeof(*flags), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    mem2client(conn, (void *)extent, sizeof(*extent), true);
+    mem2client(conn, (void *)flags, sizeof(*flags), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4769,46 +4769,46 @@ extern "C" cudaError_t cudaArrayGetPlane(cudaArray_t *pPlaneArray, cudaArray_t h
 #ifdef DEBUG
     std::cout << "Hook: cudaArrayGetPlane called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pPlaneArray;
-    mem2server(client, &_0pPlaneArray, (void *)pPlaneArray, sizeof(*pPlaneArray));
+    mem2server(conn, &_0pPlaneArray, (void *)pPlaneArray, sizeof(*pPlaneArray));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaArrayGetPlane);
-    rpc_write(client, &_0pPlaneArray, sizeof(_0pPlaneArray));
+    conn->prepare_request(RPC_cudaArrayGetPlane);
+    conn->write(&_0pPlaneArray, sizeof(_0pPlaneArray));
     updateTmpPtr((void *)pPlaneArray, _0pPlaneArray);
-    rpc_write(client, &hArray, sizeof(hArray));
-    rpc_write(client, &planeIdx, sizeof(planeIdx));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&hArray, sizeof(hArray));
+    conn->write(&planeIdx, sizeof(planeIdx));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pPlaneArray, sizeof(*pPlaneArray), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pPlaneArray, sizeof(*pPlaneArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4816,45 +4816,45 @@ extern "C" cudaError_t cudaArrayGetSparseProperties(struct cudaArraySparseProper
 #ifdef DEBUG
     std::cout << "Hook: cudaArrayGetSparseProperties called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0sparseProperties;
-    mem2server(client, &_0sparseProperties, (void *)sparseProperties, sizeof(*sparseProperties));
+    mem2server(conn, &_0sparseProperties, (void *)sparseProperties, sizeof(*sparseProperties));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaArrayGetSparseProperties);
-    rpc_write(client, &_0sparseProperties, sizeof(_0sparseProperties));
+    conn->prepare_request(RPC_cudaArrayGetSparseProperties);
+    conn->write(&_0sparseProperties, sizeof(_0sparseProperties));
     updateTmpPtr((void *)sparseProperties, _0sparseProperties);
-    rpc_write(client, &array, sizeof(array));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&array, sizeof(array));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)sparseProperties, sizeof(*sparseProperties), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)sparseProperties, sizeof(*sparseProperties), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4862,45 +4862,45 @@ extern "C" cudaError_t cudaMipmappedArrayGetSparseProperties(struct cudaArraySpa
 #ifdef DEBUG
     std::cout << "Hook: cudaMipmappedArrayGetSparseProperties called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0sparseProperties;
-    mem2server(client, &_0sparseProperties, (void *)sparseProperties, sizeof(*sparseProperties));
+    mem2server(conn, &_0sparseProperties, (void *)sparseProperties, sizeof(*sparseProperties));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMipmappedArrayGetSparseProperties);
-    rpc_write(client, &_0sparseProperties, sizeof(_0sparseProperties));
+    conn->prepare_request(RPC_cudaMipmappedArrayGetSparseProperties);
+    conn->write(&_0sparseProperties, sizeof(_0sparseProperties));
     updateTmpPtr((void *)sparseProperties, _0sparseProperties);
-    rpc_write(client, &mipmap, sizeof(mipmap));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&mipmap, sizeof(mipmap));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)sparseProperties, sizeof(*sparseProperties), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)sparseProperties, sizeof(*sparseProperties), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4908,51 +4908,51 @@ extern "C" cudaError_t cudaMemcpy(void *dst, const void *src, size_t count, enum
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpy);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -4960,52 +4960,52 @@ extern "C" cudaError_t cudaMemcpyPeer(void *dst, int dstDevice, const void *src,
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyPeer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyPeer);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyPeer);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &dstDevice, sizeof(dstDevice));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&dstDevice, sizeof(dstDevice));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &srcDevice, sizeof(srcDevice));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&srcDevice, sizeof(srcDevice));
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5013,54 +5013,54 @@ extern "C" cudaError_t cudaMemcpy2D(void *dst, size_t dpitch, const void *src, s
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, dpitch * height);
+    mem2server(conn, &_0dst, (void *)dst, dpitch * height);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, spitch * height);
+    mem2server(conn, &_0src, (void *)src, spitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2D);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpy2D);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &dpitch, sizeof(dpitch));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&dpitch, sizeof(dpitch));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &spitch, sizeof(spitch));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&spitch, sizeof(spitch));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, dpitch * height, true);
-    mem2client(client, (void *)src, spitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, dpitch * height, true);
+    mem2client(conn, (void *)src, spitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5068,51 +5068,51 @@ extern "C" cudaError_t cudaMemcpy2DToArray(cudaArray_t dst, size_t wOffset, size
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2DToArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, spitch * height);
+    mem2server(conn, &_0src, (void *)src, spitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2DToArray);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->prepare_request(RPC_cudaMemcpy2DToArray);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &spitch, sizeof(spitch));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&spitch, sizeof(spitch));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)src, spitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)src, spitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5120,51 +5120,51 @@ extern "C" cudaError_t cudaMemcpy2DFromArray(void *dst, size_t dpitch, cudaArray
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2DFromArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, dpitch * height);
+    mem2server(conn, &_0dst, (void *)dst, dpitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2DFromArray);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpy2DFromArray);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &dpitch, sizeof(dpitch));
-    rpc_write(client, &src, sizeof(src));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&dpitch, sizeof(dpitch));
+    conn->write(&src, sizeof(src));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, dpitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, dpitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5172,48 +5172,48 @@ extern "C" cudaError_t cudaMemcpy2DArrayToArray(cudaArray_t dst, size_t wOffsetD
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2DArrayToArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2DArrayToArray);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &wOffsetDst, sizeof(wOffsetDst));
-    rpc_write(client, &hOffsetDst, sizeof(hOffsetDst));
-    rpc_write(client, &src, sizeof(src));
-    rpc_write(client, &wOffsetSrc, sizeof(wOffsetSrc));
-    rpc_write(client, &hOffsetSrc, sizeof(hOffsetSrc));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMemcpy2DArrayToArray);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&wOffsetDst, sizeof(wOffsetDst));
+    conn->write(&hOffsetDst, sizeof(hOffsetDst));
+    conn->write(&src, sizeof(src));
+    conn->write(&wOffsetSrc, sizeof(wOffsetSrc));
+    conn->write(&hOffsetSrc, sizeof(hOffsetSrc));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5221,52 +5221,52 @@ extern "C" cudaError_t cudaMemcpyToSymbol(const void *symbol, const void *src, s
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyToSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyToSymbol);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->prepare_request(RPC_cudaMemcpyToSymbol);
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)symbol, -1, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5274,52 +5274,52 @@ extern "C" cudaError_t cudaMemcpyFromSymbol(void *dst, const void *symbol, size_
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyFromSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyFromSymbol);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyFromSymbol);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5327,52 +5327,52 @@ extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count,
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyAsync);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyAsync);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5380,53 +5380,53 @@ extern "C" cudaError_t cudaMemcpyPeerAsync(void *dst, int dstDevice, const void 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyPeerAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyPeerAsync);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyPeerAsync);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &dstDevice, sizeof(dstDevice));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&dstDevice, sizeof(dstDevice));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &srcDevice, sizeof(srcDevice));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&srcDevice, sizeof(srcDevice));
+    conn->write(&count, sizeof(count));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5434,55 +5434,55 @@ extern "C" cudaError_t cudaMemcpy2DAsync(void *dst, size_t dpitch, const void *s
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2DAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, dpitch * height);
+    mem2server(conn, &_0dst, (void *)dst, dpitch * height);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, spitch * height);
+    mem2server(conn, &_0src, (void *)src, spitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2DAsync);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpy2DAsync);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &dpitch, sizeof(dpitch));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&dpitch, sizeof(dpitch));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &spitch, sizeof(spitch));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&spitch, sizeof(spitch));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, dpitch * height, true);
-    mem2client(client, (void *)src, spitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, dpitch * height, true);
+    mem2client(conn, (void *)src, spitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5490,52 +5490,52 @@ extern "C" cudaError_t cudaMemcpy2DToArrayAsync(cudaArray_t dst, size_t wOffset,
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2DToArrayAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, spitch * height);
+    mem2server(conn, &_0src, (void *)src, spitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2DToArrayAsync);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->prepare_request(RPC_cudaMemcpy2DToArrayAsync);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &spitch, sizeof(spitch));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&spitch, sizeof(spitch));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)src, spitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)src, spitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5543,52 +5543,52 @@ extern "C" cudaError_t cudaMemcpy2DFromArrayAsync(void *dst, size_t dpitch, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpy2DFromArrayAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, dpitch * height);
+    mem2server(conn, &_0dst, (void *)dst, dpitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpy2DFromArrayAsync);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpy2DFromArrayAsync);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &dpitch, sizeof(dpitch));
-    rpc_write(client, &src, sizeof(src));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&dpitch, sizeof(dpitch));
+    conn->write(&src, sizeof(src));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, dpitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, dpitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5596,53 +5596,53 @@ extern "C" cudaError_t cudaMemcpyToSymbolAsync(const void *symbol, const void *s
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyToSymbolAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyToSymbolAsync);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->prepare_request(RPC_cudaMemcpyToSymbolAsync);
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)symbol, -1, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5650,53 +5650,53 @@ extern "C" cudaError_t cudaMemcpyFromSymbolAsync(void *dst, const void *symbol, 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyFromSymbolAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyFromSymbolAsync);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyFromSymbolAsync);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5704,46 +5704,46 @@ extern "C" cudaError_t cudaMemset(void *devPtr, int value, size_t count) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, count);
+    mem2server(conn, &_0devPtr, (void *)devPtr, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemset);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaMemset);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&value, sizeof(value));
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5751,48 +5751,48 @@ extern "C" cudaError_t cudaMemset2D(void *devPtr, size_t pitch, int value, size_
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset2D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, pitch * height);
+    mem2server(conn, &_0devPtr, (void *)devPtr, pitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemset2D);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaMemset2D);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &pitch, sizeof(pitch));
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&pitch, sizeof(pitch));
+    conn->write(&value, sizeof(value));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, pitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, pitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5800,42 +5800,42 @@ extern "C" cudaError_t cudaMemset3D(struct cudaPitchedPtr pitchedDevPtr, int val
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset3D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemset3D);
-    rpc_write(client, &pitchedDevPtr, sizeof(pitchedDevPtr));
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &extent, sizeof(extent));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMemset3D);
+    conn->write(&pitchedDevPtr, sizeof(pitchedDevPtr));
+    conn->write(&value, sizeof(value));
+    conn->write(&extent, sizeof(extent));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5843,47 +5843,47 @@ extern "C" cudaError_t cudaMemsetAsync(void *devPtr, int value, size_t count, cu
 #ifdef DEBUG
     std::cout << "Hook: cudaMemsetAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, count);
+    mem2server(conn, &_0devPtr, (void *)devPtr, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemsetAsync);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaMemsetAsync);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&value, sizeof(value));
+    conn->write(&count, sizeof(count));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5891,49 +5891,49 @@ extern "C" cudaError_t cudaMemset2DAsync(void *devPtr, size_t pitch, int value, 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset2DAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, pitch * height);
+    mem2server(conn, &_0devPtr, (void *)devPtr, pitch * height);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemset2DAsync);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaMemset2DAsync);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &pitch, sizeof(pitch));
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&pitch, sizeof(pitch));
+    conn->write(&value, sizeof(value));
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, pitch * height, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, pitch * height, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5941,43 +5941,43 @@ extern "C" cudaError_t cudaMemset3DAsync(struct cudaPitchedPtr pitchedDevPtr, in
 #ifdef DEBUG
     std::cout << "Hook: cudaMemset3DAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemset3DAsync);
-    rpc_write(client, &pitchedDevPtr, sizeof(pitchedDevPtr));
-    rpc_write(client, &value, sizeof(value));
-    rpc_write(client, &extent, sizeof(extent));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMemset3DAsync);
+    conn->write(&pitchedDevPtr, sizeof(pitchedDevPtr));
+    conn->write(&value, sizeof(value));
+    conn->write(&extent, sizeof(extent));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -5985,49 +5985,49 @@ extern "C" cudaError_t cudaGetSymbolSize(size_t *size, const void *symbol) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetSymbolSize called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0size;
-    mem2server(client, &_0size, (void *)size, sizeof(*size));
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetSymbolSize);
-    rpc_write(client, &_0size, sizeof(_0size));
+    conn->prepare_request(RPC_cudaGetSymbolSize);
+    conn->write(&_0size, sizeof(_0size));
     updateTmpPtr((void *)size, _0size);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)size, sizeof(*size), true);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6035,47 +6035,47 @@ extern "C" cudaError_t cudaMemPrefetchAsync(const void *devPtr, size_t count, in
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPrefetchAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, count);
+    mem2server(conn, &_0devPtr, (void *)devPtr, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPrefetchAsync);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaMemPrefetchAsync);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &dstDevice, sizeof(dstDevice));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&dstDevice, sizeof(dstDevice));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6083,47 +6083,47 @@ extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaMemAdvise called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, count);
+    mem2server(conn, &_0devPtr, (void *)devPtr, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemAdvise);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaMemAdvise);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &advice, sizeof(advice));
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&advice, sizeof(advice));
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6131,52 +6131,52 @@ extern "C" cudaError_t cudaMemRangeGetAttribute(void *data, size_t dataSize, enu
 #ifdef DEBUG
     std::cout << "Hook: cudaMemRangeGetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0data;
-    mem2server(client, &_0data, (void *)data, dataSize);
+    mem2server(conn, &_0data, (void *)data, dataSize);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, count);
+    mem2server(conn, &_0devPtr, (void *)devPtr, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemRangeGetAttribute);
-    rpc_write(client, &_0data, sizeof(_0data));
+    conn->prepare_request(RPC_cudaMemRangeGetAttribute);
+    conn->write(&_0data, sizeof(_0data));
     updateTmpPtr((void *)data, _0data);
-    rpc_write(client, &dataSize, sizeof(dataSize));
-    rpc_write(client, &attribute, sizeof(attribute));
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->write(&dataSize, sizeof(dataSize));
+    conn->write(&attribute, sizeof(attribute));
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)data, dataSize, true);
-    mem2client(client, (void *)devPtr, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)data, dataSize, true);
+    mem2client(conn, (void *)devPtr, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6184,49 +6184,49 @@ extern "C" cudaError_t cudaMemcpyToArray(cudaArray_t dst, size_t wOffset, size_t
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyToArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyToArray);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->prepare_request(RPC_cudaMemcpyToArray);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6234,49 +6234,49 @@ extern "C" cudaError_t cudaMemcpyFromArray(void *dst, cudaArray_const_t src, siz
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyFromArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyFromArray);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyFromArray);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &src, sizeof(src));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&src, sizeof(src));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6284,47 +6284,47 @@ extern "C" cudaError_t cudaMemcpyArrayToArray(cudaArray_t dst, size_t wOffsetDst
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyArrayToArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyArrayToArray);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &wOffsetDst, sizeof(wOffsetDst));
-    rpc_write(client, &hOffsetDst, sizeof(hOffsetDst));
-    rpc_write(client, &src, sizeof(src));
-    rpc_write(client, &wOffsetSrc, sizeof(wOffsetSrc));
-    rpc_write(client, &hOffsetSrc, sizeof(hOffsetSrc));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMemcpyArrayToArray);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&wOffsetDst, sizeof(wOffsetDst));
+    conn->write(&hOffsetDst, sizeof(hOffsetDst));
+    conn->write(&src, sizeof(src));
+    conn->write(&wOffsetSrc, sizeof(wOffsetSrc));
+    conn->write(&hOffsetSrc, sizeof(hOffsetSrc));
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6332,50 +6332,50 @@ extern "C" cudaError_t cudaMemcpyToArrayAsync(cudaArray_t dst, size_t wOffset, s
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyToArrayAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyToArrayAsync);
-    rpc_write(client, &dst, sizeof(dst));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->prepare_request(RPC_cudaMemcpyToArrayAsync);
+    conn->write(&dst, sizeof(dst));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6383,50 +6383,50 @@ extern "C" cudaError_t cudaMemcpyFromArrayAsync(void *dst, cudaArray_const_t src
 #ifdef DEBUG
     std::cout << "Hook: cudaMemcpyFromArrayAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemcpyFromArrayAsync);
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaMemcpyFromArrayAsync);
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &src, sizeof(src));
-    rpc_write(client, &wOffset, sizeof(wOffset));
-    rpc_write(client, &hOffset, sizeof(hOffset));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&src, sizeof(src));
+    conn->write(&wOffset, sizeof(wOffset));
+    conn->write(&hOffset, sizeof(hOffset));
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6434,42 +6434,42 @@ extern "C" cudaError_t cudaMallocAsync(void **devPtr, size_t size, cudaStream_t 
 #ifdef DEBUG
     std::cout << "Hook: cudaMallocAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMallocAsync);
-    rpc_read(client, devPtr, sizeof(void *));
-    rpc_write(client, &size, sizeof(size));
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMallocAsync);
+    conn->read(devPtr, sizeof(void *));
+    conn->write(&size, sizeof(size));
+    conn->write(&hStream, sizeof(hStream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6477,45 +6477,45 @@ extern "C" cudaError_t cudaFreeAsync(void *devPtr, cudaStream_t hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cudaFreeAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, -1);
+    mem2server(conn, &_0devPtr, (void *)devPtr, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaFreeAsync);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->prepare_request(RPC_cudaFreeAsync);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &hStream, sizeof(hStream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&hStream, sizeof(hStream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)devPtr, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6523,41 +6523,41 @@ extern "C" cudaError_t cudaMemPoolTrimTo(cudaMemPool_t memPool, size_t minBytesT
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolTrimTo called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolTrimTo);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &minBytesToKeep, sizeof(minBytesToKeep));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMemPoolTrimTo);
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&minBytesToKeep, sizeof(minBytesToKeep));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6565,46 +6565,46 @@ extern "C" cudaError_t cudaMemPoolSetAttribute(cudaMemPool_t memPool, enum cudaM
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolSetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolSetAttribute);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaMemPoolSetAttribute);
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6612,46 +6612,46 @@ extern "C" cudaError_t cudaMemPoolGetAttribute(cudaMemPool_t memPool, enum cudaM
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolGetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolGetAttribute);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaMemPoolGetAttribute);
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6659,46 +6659,46 @@ extern "C" cudaError_t cudaMemPoolSetAccess(cudaMemPool_t memPool, const struct 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolSetAccess called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0descList;
-    mem2server(client, &_0descList, (void *)descList, sizeof(*descList));
+    mem2server(conn, &_0descList, (void *)descList, sizeof(*descList));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolSetAccess);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &_0descList, sizeof(_0descList));
+    conn->prepare_request(RPC_cudaMemPoolSetAccess);
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&_0descList, sizeof(_0descList));
     updateTmpPtr((void *)descList, _0descList);
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)descList, sizeof(*descList), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)descList, sizeof(*descList), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6706,50 +6706,50 @@ extern "C" cudaError_t cudaMemPoolGetAccess(enum cudaMemAccessFlags *flags, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolGetAccess called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0flags;
-    mem2server(client, &_0flags, (void *)flags, sizeof(*flags));
+    mem2server(conn, &_0flags, (void *)flags, sizeof(*flags));
     void *_0location;
-    mem2server(client, &_0location, (void *)location, sizeof(*location));
+    mem2server(conn, &_0location, (void *)location, sizeof(*location));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolGetAccess);
-    rpc_write(client, &_0flags, sizeof(_0flags));
+    conn->prepare_request(RPC_cudaMemPoolGetAccess);
+    conn->write(&_0flags, sizeof(_0flags));
     updateTmpPtr((void *)flags, _0flags);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &_0location, sizeof(_0location));
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&_0location, sizeof(_0location));
     updateTmpPtr((void *)location, _0location);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)flags, sizeof(*flags), true);
-    mem2client(client, (void *)location, sizeof(*location), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)flags, sizeof(*flags), true);
+    mem2client(conn, (void *)location, sizeof(*location), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6757,49 +6757,49 @@ extern "C" cudaError_t cudaMemPoolCreate(cudaMemPool_t *memPool, const struct cu
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolCreate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0memPool;
-    mem2server(client, &_0memPool, (void *)memPool, sizeof(*memPool));
+    mem2server(conn, &_0memPool, (void *)memPool, sizeof(*memPool));
     void *_0poolProps;
-    mem2server(client, &_0poolProps, (void *)poolProps, sizeof(*poolProps));
+    mem2server(conn, &_0poolProps, (void *)poolProps, sizeof(*poolProps));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolCreate);
-    rpc_write(client, &_0memPool, sizeof(_0memPool));
+    conn->prepare_request(RPC_cudaMemPoolCreate);
+    conn->write(&_0memPool, sizeof(_0memPool));
     updateTmpPtr((void *)memPool, _0memPool);
-    rpc_write(client, &_0poolProps, sizeof(_0poolProps));
+    conn->write(&_0poolProps, sizeof(_0poolProps));
     updateTmpPtr((void *)poolProps, _0poolProps);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)memPool, sizeof(*memPool), true);
-    mem2client(client, (void *)poolProps, sizeof(*poolProps), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memPool, sizeof(*memPool), true);
+    mem2client(conn, (void *)poolProps, sizeof(*poolProps), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6807,40 +6807,40 @@ extern "C" cudaError_t cudaMemPoolDestroy(cudaMemPool_t memPool) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolDestroy called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolDestroy);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMemPoolDestroy);
+    conn->write(&memPool, sizeof(memPool));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6848,43 +6848,43 @@ extern "C" cudaError_t cudaMallocFromPoolAsync(void **ptr, size_t size, cudaMemP
 #ifdef DEBUG
     std::cout << "Hook: cudaMallocFromPoolAsync called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMallocFromPoolAsync);
-    rpc_read(client, ptr, sizeof(void *));
-    rpc_write(client, &size, sizeof(size));
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaMallocFromPoolAsync);
+    conn->read(ptr, sizeof(void *));
+    conn->write(&size, sizeof(size));
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6892,47 +6892,47 @@ extern "C" cudaError_t cudaMemPoolExportToShareableHandle(void *shareableHandle,
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolExportToShareableHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0shareableHandle;
-    mem2server(client, &_0shareableHandle, (void *)shareableHandle, 0);
+    mem2server(conn, &_0shareableHandle, (void *)shareableHandle, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolExportToShareableHandle);
-    rpc_write(client, &_0shareableHandle, sizeof(_0shareableHandle));
+    conn->prepare_request(RPC_cudaMemPoolExportToShareableHandle);
+    conn->write(&_0shareableHandle, sizeof(_0shareableHandle));
     updateTmpPtr((void *)shareableHandle, _0shareableHandle);
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &handleType, sizeof(handleType));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&handleType, sizeof(handleType));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)shareableHandle, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)shareableHandle, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6940,51 +6940,51 @@ extern "C" cudaError_t cudaMemPoolImportFromShareableHandle(cudaMemPool_t *memPo
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolImportFromShareableHandle called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0memPool;
-    mem2server(client, &_0memPool, (void *)memPool, sizeof(*memPool));
+    mem2server(conn, &_0memPool, (void *)memPool, sizeof(*memPool));
     void *_0shareableHandle;
-    mem2server(client, &_0shareableHandle, (void *)shareableHandle, 0);
+    mem2server(conn, &_0shareableHandle, (void *)shareableHandle, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolImportFromShareableHandle);
-    rpc_write(client, &_0memPool, sizeof(_0memPool));
+    conn->prepare_request(RPC_cudaMemPoolImportFromShareableHandle);
+    conn->write(&_0memPool, sizeof(_0memPool));
     updateTmpPtr((void *)memPool, _0memPool);
-    rpc_write(client, &_0shareableHandle, sizeof(_0shareableHandle));
+    conn->write(&_0shareableHandle, sizeof(_0shareableHandle));
     updateTmpPtr((void *)shareableHandle, _0shareableHandle);
-    rpc_write(client, &handleType, sizeof(handleType));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&handleType, sizeof(handleType));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)memPool, sizeof(*memPool), true);
-    mem2client(client, (void *)shareableHandle, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memPool, sizeof(*memPool), true);
+    mem2client(conn, (void *)shareableHandle, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -6992,49 +6992,49 @@ extern "C" cudaError_t cudaMemPoolExportPointer(struct cudaMemPoolPtrExportData 
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolExportPointer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0exportData;
-    mem2server(client, &_0exportData, (void *)exportData, sizeof(*exportData));
+    mem2server(conn, &_0exportData, (void *)exportData, sizeof(*exportData));
     void *_0ptr;
-    mem2server(client, &_0ptr, (void *)ptr, 0);
+    mem2server(conn, &_0ptr, (void *)ptr, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolExportPointer);
-    rpc_write(client, &_0exportData, sizeof(_0exportData));
+    conn->prepare_request(RPC_cudaMemPoolExportPointer);
+    conn->write(&_0exportData, sizeof(_0exportData));
     updateTmpPtr((void *)exportData, _0exportData);
-    rpc_write(client, &_0ptr, sizeof(_0ptr));
+    conn->write(&_0ptr, sizeof(_0ptr));
     updateTmpPtr((void *)ptr, _0ptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)exportData, sizeof(*exportData), true);
-    mem2client(client, (void *)ptr, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)exportData, sizeof(*exportData), true);
+    mem2client(conn, (void *)ptr, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7042,46 +7042,46 @@ extern "C" cudaError_t cudaMemPoolImportPointer(void **ptr, cudaMemPool_t memPoo
 #ifdef DEBUG
     std::cout << "Hook: cudaMemPoolImportPointer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0exportData;
-    mem2server(client, &_0exportData, (void *)exportData, sizeof(*exportData));
+    mem2server(conn, &_0exportData, (void *)exportData, sizeof(*exportData));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaMemPoolImportPointer);
-    rpc_read(client, ptr, sizeof(void *));
-    rpc_write(client, &memPool, sizeof(memPool));
-    rpc_write(client, &_0exportData, sizeof(_0exportData));
+    conn->prepare_request(RPC_cudaMemPoolImportPointer);
+    conn->read(ptr, sizeof(void *));
+    conn->write(&memPool, sizeof(memPool));
+    conn->write(&_0exportData, sizeof(_0exportData));
     updateTmpPtr((void *)exportData, _0exportData);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)exportData, sizeof(*exportData), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)exportData, sizeof(*exportData), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7089,49 +7089,49 @@ extern "C" cudaError_t cudaPointerGetAttributes(struct cudaPointerAttributes *at
 #ifdef DEBUG
     std::cout << "Hook: cudaPointerGetAttributes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0attributes;
-    mem2server(client, &_0attributes, (void *)attributes, sizeof(*attributes));
+    mem2server(conn, &_0attributes, (void *)attributes, sizeof(*attributes));
     void *_0ptr;
-    mem2server(client, &_0ptr, (void *)ptr, 0);
+    mem2server(conn, &_0ptr, (void *)ptr, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaPointerGetAttributes);
-    rpc_write(client, &_0attributes, sizeof(_0attributes));
+    conn->prepare_request(RPC_cudaPointerGetAttributes);
+    conn->write(&_0attributes, sizeof(_0attributes));
     updateTmpPtr((void *)attributes, _0attributes);
-    rpc_write(client, &_0ptr, sizeof(_0ptr));
+    conn->write(&_0ptr, sizeof(_0ptr));
     updateTmpPtr((void *)ptr, _0ptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)attributes, sizeof(*attributes), true);
-    mem2client(client, (void *)ptr, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)attributes, sizeof(*attributes), true);
+    mem2client(conn, (void *)ptr, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7139,46 +7139,46 @@ extern "C" cudaError_t cudaDeviceCanAccessPeer(int *canAccessPeer, int device, i
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceCanAccessPeer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0canAccessPeer;
-    mem2server(client, &_0canAccessPeer, (void *)canAccessPeer, sizeof(*canAccessPeer));
+    mem2server(conn, &_0canAccessPeer, (void *)canAccessPeer, sizeof(*canAccessPeer));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceCanAccessPeer);
-    rpc_write(client, &_0canAccessPeer, sizeof(_0canAccessPeer));
+    conn->prepare_request(RPC_cudaDeviceCanAccessPeer);
+    conn->write(&_0canAccessPeer, sizeof(_0canAccessPeer));
     updateTmpPtr((void *)canAccessPeer, _0canAccessPeer);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &peerDevice, sizeof(peerDevice));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&device, sizeof(device));
+    conn->write(&peerDevice, sizeof(peerDevice));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)canAccessPeer, sizeof(*canAccessPeer), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)canAccessPeer, sizeof(*canAccessPeer), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7186,41 +7186,41 @@ extern "C" cudaError_t cudaDeviceEnablePeerAccess(int peerDevice, unsigned int f
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceEnablePeerAccess called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceEnablePeerAccess);
-    rpc_write(client, &peerDevice, sizeof(peerDevice));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceEnablePeerAccess);
+    conn->write(&peerDevice, sizeof(peerDevice));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7228,40 +7228,40 @@ extern "C" cudaError_t cudaDeviceDisablePeerAccess(int peerDevice) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceDisablePeerAccess called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceDisablePeerAccess);
-    rpc_write(client, &peerDevice, sizeof(peerDevice));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceDisablePeerAccess);
+    conn->write(&peerDevice, sizeof(peerDevice));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7269,40 +7269,40 @@ extern "C" cudaError_t cudaGraphicsUnregisterResource(cudaGraphicsResource_t res
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsUnregisterResource called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsUnregisterResource);
-    rpc_write(client, &resource, sizeof(resource));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphicsUnregisterResource);
+    conn->write(&resource, sizeof(resource));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7310,41 +7310,41 @@ extern "C" cudaError_t cudaGraphicsResourceSetMapFlags(cudaGraphicsResource_t re
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsResourceSetMapFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsResourceSetMapFlags);
-    rpc_write(client, &resource, sizeof(resource));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphicsResourceSetMapFlags);
+    conn->write(&resource, sizeof(resource));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7352,46 +7352,46 @@ extern "C" cudaError_t cudaGraphicsMapResources(int count, cudaGraphicsResource_
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsMapResources called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0resources;
-    mem2server(client, &_0resources, (void *)resources, sizeof(*resources));
+    mem2server(conn, &_0resources, (void *)resources, sizeof(*resources));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsMapResources);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &_0resources, sizeof(_0resources));
+    conn->prepare_request(RPC_cudaGraphicsMapResources);
+    conn->write(&count, sizeof(count));
+    conn->write(&_0resources, sizeof(_0resources));
     updateTmpPtr((void *)resources, _0resources);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)resources, sizeof(*resources), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)resources, sizeof(*resources), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7399,46 +7399,46 @@ extern "C" cudaError_t cudaGraphicsUnmapResources(int count, cudaGraphicsResourc
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsUnmapResources called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0resources;
-    mem2server(client, &_0resources, (void *)resources, sizeof(*resources));
+    mem2server(conn, &_0resources, (void *)resources, sizeof(*resources));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsUnmapResources);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &_0resources, sizeof(_0resources));
+    conn->prepare_request(RPC_cudaGraphicsUnmapResources);
+    conn->write(&count, sizeof(count));
+    conn->write(&_0resources, sizeof(_0resources));
     updateTmpPtr((void *)resources, _0resources);
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)resources, sizeof(*resources), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)resources, sizeof(*resources), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7446,46 +7446,46 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedPointer(void **devPtr, size_
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsResourceGetMappedPointer called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0size;
-    mem2server(client, &_0size, (void *)size, sizeof(*size));
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsResourceGetMappedPointer);
-    rpc_read(client, devPtr, sizeof(void *));
-    rpc_write(client, &_0size, sizeof(_0size));
+    conn->prepare_request(RPC_cudaGraphicsResourceGetMappedPointer);
+    conn->read(devPtr, sizeof(void *));
+    conn->write(&_0size, sizeof(_0size));
     updateTmpPtr((void *)size, _0size);
-    rpc_write(client, &resource, sizeof(resource));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&resource, sizeof(resource));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)size, sizeof(*size), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7493,47 +7493,47 @@ extern "C" cudaError_t cudaGraphicsSubResourceGetMappedArray(cudaArray_t *array,
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsSubResourceGetMappedArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0array;
-    mem2server(client, &_0array, (void *)array, sizeof(*array));
+    mem2server(conn, &_0array, (void *)array, sizeof(*array));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsSubResourceGetMappedArray);
-    rpc_write(client, &_0array, sizeof(_0array));
+    conn->prepare_request(RPC_cudaGraphicsSubResourceGetMappedArray);
+    conn->write(&_0array, sizeof(_0array));
     updateTmpPtr((void *)array, _0array);
-    rpc_write(client, &resource, sizeof(resource));
-    rpc_write(client, &arrayIndex, sizeof(arrayIndex));
-    rpc_write(client, &mipLevel, sizeof(mipLevel));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&resource, sizeof(resource));
+    conn->write(&arrayIndex, sizeof(arrayIndex));
+    conn->write(&mipLevel, sizeof(mipLevel));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)array, sizeof(*array), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)array, sizeof(*array), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7541,45 +7541,45 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedMipmappedArray(cudaMipmapped
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphicsResourceGetMappedMipmappedArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0mipmappedArray;
-    mem2server(client, &_0mipmappedArray, (void *)mipmappedArray, sizeof(*mipmappedArray));
+    mem2server(conn, &_0mipmappedArray, (void *)mipmappedArray, sizeof(*mipmappedArray));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphicsResourceGetMappedMipmappedArray);
-    rpc_write(client, &_0mipmappedArray, sizeof(_0mipmappedArray));
+    conn->prepare_request(RPC_cudaGraphicsResourceGetMappedMipmappedArray);
+    conn->write(&_0mipmappedArray, sizeof(_0mipmappedArray));
     updateTmpPtr((void *)mipmappedArray, _0mipmappedArray);
-    rpc_write(client, &resource, sizeof(resource));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&resource, sizeof(resource));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)mipmappedArray, sizeof(*mipmappedArray), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)mipmappedArray, sizeof(*mipmappedArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7587,60 +7587,60 @@ extern "C" cudaError_t cudaBindTexture(size_t *offset, const struct textureRefer
 #ifdef DEBUG
     std::cout << "Hook: cudaBindTexture called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0offset;
-    mem2server(client, &_0offset, (void *)offset, sizeof(*offset));
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
     void *_0texref;
-    mem2server(client, &_0texref, (void *)texref, sizeof(*texref));
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, size);
+    mem2server(conn, &_0devPtr, (void *)devPtr, size);
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaBindTexture);
-    rpc_write(client, &_0offset, sizeof(_0offset));
+    conn->prepare_request(RPC_cudaBindTexture);
+    conn->write(&_0offset, sizeof(_0offset));
     updateTmpPtr((void *)offset, _0offset);
-    rpc_write(client, &_0texref, sizeof(_0texref));
+    conn->write(&_0texref, sizeof(_0texref));
     updateTmpPtr((void *)texref, _0texref);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &size, sizeof(size));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&size, sizeof(size));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)offset, sizeof(*offset), true);
-    mem2client(client, (void *)texref, sizeof(*texref), true);
-    mem2client(client, (void *)devPtr, size, true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)devPtr, size, true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7648,62 +7648,62 @@ extern "C" cudaError_t cudaBindTexture2D(size_t *offset, const struct textureRef
 #ifdef DEBUG
     std::cout << "Hook: cudaBindTexture2D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0offset;
-    mem2server(client, &_0offset, (void *)offset, sizeof(*offset));
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
     void *_0texref;
-    mem2server(client, &_0texref, (void *)texref, sizeof(*texref));
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
     void *_0devPtr;
-    mem2server(client, &_0devPtr, (void *)devPtr, pitch * height);
+    mem2server(conn, &_0devPtr, (void *)devPtr, pitch * height);
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaBindTexture2D);
-    rpc_write(client, &_0offset, sizeof(_0offset));
+    conn->prepare_request(RPC_cudaBindTexture2D);
+    conn->write(&_0offset, sizeof(_0offset));
     updateTmpPtr((void *)offset, _0offset);
-    rpc_write(client, &_0texref, sizeof(_0texref));
+    conn->write(&_0texref, sizeof(_0texref));
     updateTmpPtr((void *)texref, _0texref);
-    rpc_write(client, &_0devPtr, sizeof(_0devPtr));
+    conn->write(&_0devPtr, sizeof(_0devPtr));
     updateTmpPtr((void *)devPtr, _0devPtr);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &width, sizeof(width));
-    rpc_write(client, &height, sizeof(height));
-    rpc_write(client, &pitch, sizeof(pitch));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&pitch, sizeof(pitch));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)offset, sizeof(*offset), true);
-    mem2client(client, (void *)texref, sizeof(*texref), true);
-    mem2client(client, (void *)devPtr, pitch * height, true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)devPtr, pitch * height, true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7711,50 +7711,50 @@ extern "C" cudaError_t cudaBindTextureToArray(const struct textureReference *tex
 #ifdef DEBUG
     std::cout << "Hook: cudaBindTextureToArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0texref;
-    mem2server(client, &_0texref, (void *)texref, sizeof(*texref));
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaBindTextureToArray);
-    rpc_write(client, &_0texref, sizeof(_0texref));
+    conn->prepare_request(RPC_cudaBindTextureToArray);
+    conn->write(&_0texref, sizeof(_0texref));
     updateTmpPtr((void *)texref, _0texref);
-    rpc_write(client, &array, sizeof(array));
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&array, sizeof(array));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)texref, sizeof(*texref), true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7762,50 +7762,50 @@ extern "C" cudaError_t cudaBindTextureToMipmappedArray(const struct textureRefer
 #ifdef DEBUG
     std::cout << "Hook: cudaBindTextureToMipmappedArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0texref;
-    mem2server(client, &_0texref, (void *)texref, sizeof(*texref));
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaBindTextureToMipmappedArray);
-    rpc_write(client, &_0texref, sizeof(_0texref));
+    conn->prepare_request(RPC_cudaBindTextureToMipmappedArray);
+    conn->write(&_0texref, sizeof(_0texref));
     updateTmpPtr((void *)texref, _0texref);
-    rpc_write(client, &mipmappedArray, sizeof(mipmappedArray));
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&mipmappedArray, sizeof(mipmappedArray));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)texref, sizeof(*texref), true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7813,44 +7813,44 @@ extern "C" cudaError_t cudaUnbindTexture(const struct textureReference *texref) 
 #ifdef DEBUG
     std::cout << "Hook: cudaUnbindTexture called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0texref;
-    mem2server(client, &_0texref, (void *)texref, sizeof(*texref));
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaUnbindTexture);
-    rpc_write(client, &_0texref, sizeof(_0texref));
+    conn->prepare_request(RPC_cudaUnbindTexture);
+    conn->write(&_0texref, sizeof(_0texref));
     updateTmpPtr((void *)texref, _0texref);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)texref, sizeof(*texref), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7858,49 +7858,49 @@ extern "C" cudaError_t cudaGetTextureAlignmentOffset(size_t *offset, const struc
 #ifdef DEBUG
     std::cout << "Hook: cudaGetTextureAlignmentOffset called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0offset;
-    mem2server(client, &_0offset, (void *)offset, sizeof(*offset));
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
     void *_0texref;
-    mem2server(client, &_0texref, (void *)texref, sizeof(*texref));
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetTextureAlignmentOffset);
-    rpc_write(client, &_0offset, sizeof(_0offset));
+    conn->prepare_request(RPC_cudaGetTextureAlignmentOffset);
+    conn->write(&_0offset, sizeof(_0offset));
     updateTmpPtr((void *)offset, _0offset);
-    rpc_write(client, &_0texref, sizeof(_0texref));
+    conn->write(&_0texref, sizeof(_0texref));
     updateTmpPtr((void *)texref, _0texref);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)offset, sizeof(*offset), true);
-    mem2client(client, (void *)texref, sizeof(*texref), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7908,47 +7908,47 @@ extern "C" cudaError_t cudaGetTextureReference(const struct textureReference **t
 #ifdef DEBUG
     std::cout << "Hook: cudaGetTextureReference called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetTextureReference);
+    conn->prepare_request(RPC_cudaGetTextureReference);
     static struct textureReference _cudaGetTextureReference_texref;
-    rpc_read(client, &_cudaGetTextureReference_texref, sizeof(struct textureReference));
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->read(&_cudaGetTextureReference_texref, sizeof(struct textureReference));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
     *texref = &_cudaGetTextureReference_texref;
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -7956,50 +7956,50 @@ extern "C" cudaError_t cudaBindSurfaceToArray(const struct surfaceReference *sur
 #ifdef DEBUG
     std::cout << "Hook: cudaBindSurfaceToArray called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0surfref;
-    mem2server(client, &_0surfref, (void *)surfref, sizeof(*surfref));
+    mem2server(conn, &_0surfref, (void *)surfref, sizeof(*surfref));
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaBindSurfaceToArray);
-    rpc_write(client, &_0surfref, sizeof(_0surfref));
+    conn->prepare_request(RPC_cudaBindSurfaceToArray);
+    conn->write(&_0surfref, sizeof(_0surfref));
     updateTmpPtr((void *)surfref, _0surfref);
-    rpc_write(client, &array, sizeof(array));
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->write(&array, sizeof(array));
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)surfref, sizeof(*surfref), true);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)surfref, sizeof(*surfref), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8007,47 +8007,47 @@ extern "C" cudaError_t cudaGetSurfaceReference(const struct surfaceReference **s
 #ifdef DEBUG
     std::cout << "Hook: cudaGetSurfaceReference called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetSurfaceReference);
+    conn->prepare_request(RPC_cudaGetSurfaceReference);
     static struct surfaceReference _cudaGetSurfaceReference_surfref;
-    rpc_read(client, &_cudaGetSurfaceReference_surfref, sizeof(struct surfaceReference));
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->read(&_cudaGetSurfaceReference_surfref, sizeof(struct surfaceReference));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
     *surfref = &_cudaGetSurfaceReference_surfref;
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8055,45 +8055,45 @@ extern "C" cudaError_t cudaGetChannelDesc(struct cudaChannelFormatDesc *desc, cu
 #ifdef DEBUG
     std::cout << "Hook: cudaGetChannelDesc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0desc;
-    mem2server(client, &_0desc, (void *)desc, sizeof(*desc));
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetChannelDesc);
-    rpc_write(client, &_0desc, sizeof(_0desc));
+    conn->prepare_request(RPC_cudaGetChannelDesc);
+    conn->write(&_0desc, sizeof(_0desc));
     updateTmpPtr((void *)desc, _0desc);
-    rpc_write(client, &array, sizeof(array));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&array, sizeof(array));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)desc, sizeof(*desc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8101,44 +8101,44 @@ extern "C" struct cudaChannelFormatDesc cudaCreateChannelDesc(int x, int y, int 
 #ifdef DEBUG
     std::cout << "Hook: cudaCreateChannelDesc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     struct cudaChannelFormatDesc _result;
-    rpc_prepare_request(client, RPC_cudaCreateChannelDesc);
-    rpc_write(client, &x, sizeof(x));
-    rpc_write(client, &y, sizeof(y));
-    rpc_write(client, &z, sizeof(z));
-    rpc_write(client, &w, sizeof(w));
-    rpc_write(client, &f, sizeof(f));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaCreateChannelDesc);
+    conn->write(&x, sizeof(x));
+    conn->write(&y, sizeof(y));
+    conn->write(&z, sizeof(z));
+    conn->write(&w, sizeof(w));
+    conn->write(&f, sizeof(f));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8146,59 +8146,59 @@ extern "C" cudaError_t cudaCreateTextureObject(cudaTextureObject_t *pTexObject, 
 #ifdef DEBUG
     std::cout << "Hook: cudaCreateTextureObject called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pTexObject;
-    mem2server(client, &_0pTexObject, (void *)pTexObject, sizeof(*pTexObject));
+    mem2server(conn, &_0pTexObject, (void *)pTexObject, sizeof(*pTexObject));
     void *_0pResDesc;
-    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    mem2server(conn, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
     void *_0pTexDesc;
-    mem2server(client, &_0pTexDesc, (void *)pTexDesc, sizeof(*pTexDesc));
+    mem2server(conn, &_0pTexDesc, (void *)pTexDesc, sizeof(*pTexDesc));
     void *_0pResViewDesc;
-    mem2server(client, &_0pResViewDesc, (void *)pResViewDesc, sizeof(*pResViewDesc));
+    mem2server(conn, &_0pResViewDesc, (void *)pResViewDesc, sizeof(*pResViewDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaCreateTextureObject);
-    rpc_write(client, &_0pTexObject, sizeof(_0pTexObject));
+    conn->prepare_request(RPC_cudaCreateTextureObject);
+    conn->write(&_0pTexObject, sizeof(_0pTexObject));
     updateTmpPtr((void *)pTexObject, _0pTexObject);
-    rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    conn->write(&_0pResDesc, sizeof(_0pResDesc));
     updateTmpPtr((void *)pResDesc, _0pResDesc);
-    rpc_write(client, &_0pTexDesc, sizeof(_0pTexDesc));
+    conn->write(&_0pTexDesc, sizeof(_0pTexDesc));
     updateTmpPtr((void *)pTexDesc, _0pTexDesc);
-    rpc_write(client, &_0pResViewDesc, sizeof(_0pResViewDesc));
+    conn->write(&_0pResViewDesc, sizeof(_0pResViewDesc));
     updateTmpPtr((void *)pResViewDesc, _0pResViewDesc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pTexObject, sizeof(*pTexObject), true);
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
-    mem2client(client, (void *)pTexDesc, sizeof(*pTexDesc), true);
-    mem2client(client, (void *)pResViewDesc, sizeof(*pResViewDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pTexObject, sizeof(*pTexObject), true);
+    mem2client(conn, (void *)pResDesc, sizeof(*pResDesc), true);
+    mem2client(conn, (void *)pTexDesc, sizeof(*pTexDesc), true);
+    mem2client(conn, (void *)pResViewDesc, sizeof(*pResViewDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8206,40 +8206,40 @@ extern "C" cudaError_t cudaDestroyTextureObject(cudaTextureObject_t texObject) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDestroyTextureObject called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDestroyTextureObject);
-    rpc_write(client, &texObject, sizeof(texObject));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDestroyTextureObject);
+    conn->write(&texObject, sizeof(texObject));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8247,45 +8247,45 @@ extern "C" cudaError_t cudaGetTextureObjectResourceDesc(struct cudaResourceDesc 
 #ifdef DEBUG
     std::cout << "Hook: cudaGetTextureObjectResourceDesc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pResDesc;
-    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    mem2server(conn, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetTextureObjectResourceDesc);
-    rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    conn->prepare_request(RPC_cudaGetTextureObjectResourceDesc);
+    conn->write(&_0pResDesc, sizeof(_0pResDesc));
     updateTmpPtr((void *)pResDesc, _0pResDesc);
-    rpc_write(client, &texObject, sizeof(texObject));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&texObject, sizeof(texObject));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pResDesc, sizeof(*pResDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8293,45 +8293,45 @@ extern "C" cudaError_t cudaGetTextureObjectTextureDesc(struct cudaTextureDesc *p
 #ifdef DEBUG
     std::cout << "Hook: cudaGetTextureObjectTextureDesc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pTexDesc;
-    mem2server(client, &_0pTexDesc, (void *)pTexDesc, sizeof(*pTexDesc));
+    mem2server(conn, &_0pTexDesc, (void *)pTexDesc, sizeof(*pTexDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetTextureObjectTextureDesc);
-    rpc_write(client, &_0pTexDesc, sizeof(_0pTexDesc));
+    conn->prepare_request(RPC_cudaGetTextureObjectTextureDesc);
+    conn->write(&_0pTexDesc, sizeof(_0pTexDesc));
     updateTmpPtr((void *)pTexDesc, _0pTexDesc);
-    rpc_write(client, &texObject, sizeof(texObject));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&texObject, sizeof(texObject));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pTexDesc, sizeof(*pTexDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pTexDesc, sizeof(*pTexDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8339,45 +8339,45 @@ extern "C" cudaError_t cudaGetTextureObjectResourceViewDesc(struct cudaResourceV
 #ifdef DEBUG
     std::cout << "Hook: cudaGetTextureObjectResourceViewDesc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pResViewDesc;
-    mem2server(client, &_0pResViewDesc, (void *)pResViewDesc, sizeof(*pResViewDesc));
+    mem2server(conn, &_0pResViewDesc, (void *)pResViewDesc, sizeof(*pResViewDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetTextureObjectResourceViewDesc);
-    rpc_write(client, &_0pResViewDesc, sizeof(_0pResViewDesc));
+    conn->prepare_request(RPC_cudaGetTextureObjectResourceViewDesc);
+    conn->write(&_0pResViewDesc, sizeof(_0pResViewDesc));
     updateTmpPtr((void *)pResViewDesc, _0pResViewDesc);
-    rpc_write(client, &texObject, sizeof(texObject));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&texObject, sizeof(texObject));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pResViewDesc, sizeof(*pResViewDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pResViewDesc, sizeof(*pResViewDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8385,49 +8385,49 @@ extern "C" cudaError_t cudaCreateSurfaceObject(cudaSurfaceObject_t *pSurfObject,
 #ifdef DEBUG
     std::cout << "Hook: cudaCreateSurfaceObject called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pSurfObject;
-    mem2server(client, &_0pSurfObject, (void *)pSurfObject, sizeof(*pSurfObject));
+    mem2server(conn, &_0pSurfObject, (void *)pSurfObject, sizeof(*pSurfObject));
     void *_0pResDesc;
-    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    mem2server(conn, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaCreateSurfaceObject);
-    rpc_write(client, &_0pSurfObject, sizeof(_0pSurfObject));
+    conn->prepare_request(RPC_cudaCreateSurfaceObject);
+    conn->write(&_0pSurfObject, sizeof(_0pSurfObject));
     updateTmpPtr((void *)pSurfObject, _0pSurfObject);
-    rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    conn->write(&_0pResDesc, sizeof(_0pResDesc));
     updateTmpPtr((void *)pResDesc, _0pResDesc);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pSurfObject, sizeof(*pSurfObject), true);
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSurfObject, sizeof(*pSurfObject), true);
+    mem2client(conn, (void *)pResDesc, sizeof(*pResDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8435,40 +8435,40 @@ extern "C" cudaError_t cudaDestroySurfaceObject(cudaSurfaceObject_t surfObject) 
 #ifdef DEBUG
     std::cout << "Hook: cudaDestroySurfaceObject called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDestroySurfaceObject);
-    rpc_write(client, &surfObject, sizeof(surfObject));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDestroySurfaceObject);
+    conn->write(&surfObject, sizeof(surfObject));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8476,45 +8476,45 @@ extern "C" cudaError_t cudaGetSurfaceObjectResourceDesc(struct cudaResourceDesc 
 #ifdef DEBUG
     std::cout << "Hook: cudaGetSurfaceObjectResourceDesc called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pResDesc;
-    mem2server(client, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
+    mem2server(conn, &_0pResDesc, (void *)pResDesc, sizeof(*pResDesc));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetSurfaceObjectResourceDesc);
-    rpc_write(client, &_0pResDesc, sizeof(_0pResDesc));
+    conn->prepare_request(RPC_cudaGetSurfaceObjectResourceDesc);
+    conn->write(&_0pResDesc, sizeof(_0pResDesc));
     updateTmpPtr((void *)pResDesc, _0pResDesc);
-    rpc_write(client, &surfObject, sizeof(surfObject));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&surfObject, sizeof(surfObject));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pResDesc, sizeof(*pResDesc), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pResDesc, sizeof(*pResDesc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8522,44 +8522,44 @@ extern "C" cudaError_t cudaDriverGetVersion(int *driverVersion) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDriverGetVersion called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0driverVersion;
-    mem2server(client, &_0driverVersion, (void *)driverVersion, sizeof(*driverVersion));
+    mem2server(conn, &_0driverVersion, (void *)driverVersion, sizeof(*driverVersion));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDriverGetVersion);
-    rpc_write(client, &_0driverVersion, sizeof(_0driverVersion));
+    conn->prepare_request(RPC_cudaDriverGetVersion);
+    conn->write(&_0driverVersion, sizeof(_0driverVersion));
     updateTmpPtr((void *)driverVersion, _0driverVersion);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)driverVersion, sizeof(*driverVersion), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)driverVersion, sizeof(*driverVersion), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8567,44 +8567,44 @@ extern "C" cudaError_t cudaRuntimeGetVersion(int *runtimeVersion) {
 #ifdef DEBUG
     std::cout << "Hook: cudaRuntimeGetVersion called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0runtimeVersion;
-    mem2server(client, &_0runtimeVersion, (void *)runtimeVersion, sizeof(*runtimeVersion));
+    mem2server(conn, &_0runtimeVersion, (void *)runtimeVersion, sizeof(*runtimeVersion));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaRuntimeGetVersion);
-    rpc_write(client, &_0runtimeVersion, sizeof(_0runtimeVersion));
+    conn->prepare_request(RPC_cudaRuntimeGetVersion);
+    conn->write(&_0runtimeVersion, sizeof(_0runtimeVersion));
     updateTmpPtr((void *)runtimeVersion, _0runtimeVersion);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)runtimeVersion, sizeof(*runtimeVersion), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)runtimeVersion, sizeof(*runtimeVersion), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8612,45 +8612,45 @@ extern "C" cudaError_t cudaGraphCreate(cudaGraph_t *pGraph, unsigned int flags) 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphCreate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraph;
-    mem2server(client, &_0pGraph, (void *)pGraph, sizeof(*pGraph));
+    mem2server(conn, &_0pGraph, (void *)pGraph, sizeof(*pGraph));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphCreate);
-    rpc_write(client, &_0pGraph, sizeof(_0pGraph));
+    conn->prepare_request(RPC_cudaGraphCreate);
+    conn->write(&_0pGraph, sizeof(_0pGraph));
     updateTmpPtr((void *)pGraph, _0pGraph);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraph, sizeof(*pGraph), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraph, sizeof(*pGraph), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8658,56 +8658,56 @@ extern "C" cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t *pGraphNode, cudaG
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddKernelNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddKernelNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddKernelNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8715,45 +8715,45 @@ extern "C" cudaError_t cudaGraphKernelNodeGetParams(cudaGraphNode_t node, struct
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphKernelNodeGetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphKernelNodeGetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8761,45 +8761,45 @@ extern "C" cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphKernelNodeSetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphKernelNodeSetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8807,41 +8807,41 @@ extern "C" cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hSrc, c
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeCopyAttributes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphKernelNodeCopyAttributes);
-    rpc_write(client, &hSrc, sizeof(hSrc));
-    rpc_write(client, &hDst, sizeof(hDst));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphKernelNodeCopyAttributes);
+    conn->write(&hSrc, sizeof(hSrc));
+    conn->write(&hDst, sizeof(hDst));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8849,46 +8849,46 @@ extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, en
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeGetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value_out;
-    mem2server(client, &_0value_out, (void *)value_out, sizeof(*value_out));
+    mem2server(conn, &_0value_out, (void *)value_out, sizeof(*value_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphKernelNodeGetAttribute);
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value_out, sizeof(_0value_out));
+    conn->prepare_request(RPC_cudaGraphKernelNodeGetAttribute);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value_out, sizeof(_0value_out));
     updateTmpPtr((void *)value_out, _0value_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value_out, sizeof(*value_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value_out, sizeof(*value_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8896,46 +8896,46 @@ extern "C" cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, en
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeSetAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, sizeof(*value));
+    mem2server(conn, &_0value, (void *)value, sizeof(*value));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphKernelNodeSetAttribute);
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaGraphKernelNodeSetAttribute);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, sizeof(*value), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, sizeof(*value), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -8943,68 +8943,68 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemcpyNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pCopyParams;
-    mem2server(client, &_0pCopyParams, (void *)pCopyParams, sizeof(*pCopyParams));
+    mem2server(conn, &_0pCopyParams, (void *)pCopyParams, sizeof(*pCopyParams));
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(pCopyParams != nullptr) {
-        mem2server(client, &_0sptr, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize));
-        mem2server(client, &_0dptr, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize));
+        mem2server(conn, &_0dptr, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize));
     }
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemcpyNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemcpyNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0pCopyParams, sizeof(_0pCopyParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0pCopyParams, sizeof(_0pCopyParams));
     updateTmpPtr((void *)pCopyParams, _0pCopyParams);
-    rpc_write(client, &_0sptr, sizeof(_0sptr));
-    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    conn->write(&_0sptr, sizeof(_0sptr));
+    conn->write(&_0dptr, sizeof(_0dptr));
     updateTmpPtr((void *)pCopyParams->srcPtr.ptr, _0sptr);
     updateTmpPtr((void *)pCopyParams->dstPtr.ptr, _0dptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)pCopyParams, sizeof(*pCopyParams), true);
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)pCopyParams, sizeof(*pCopyParams), true);
     if(pCopyParams != nullptr) {
         _0sptr = (void *)pCopyParams->srcPtr.ptr;
         _0dptr = (void *)pCopyParams->dstPtr.ptr;
-        mem2client(client, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize), false);
-        mem2client(client, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize), false);
+        mem2client(conn, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize), false);
+        mem2client(conn, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize), false);
     }
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
@@ -9012,7 +9012,7 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
         const_cast<void *&>(pCopyParams->srcPtr.ptr) = _0sptr;
         const_cast<void *&>(pCopyParams->dstPtr.ptr) = _0dptr;
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9020,64 +9020,64 @@ extern "C" cudaError_t cudaGraphAddMemcpyNodeToSymbol(cudaGraphNode_t *pGraphNod
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemcpyNodeToSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemcpyNodeToSymbol);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemcpyNodeToSymbol);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)symbol, -1, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)symbol, -1, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9085,64 +9085,64 @@ extern "C" cudaError_t cudaGraphAddMemcpyNodeFromSymbol(cudaGraphNode_t *pGraphN
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemcpyNodeFromSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemcpyNodeFromSymbol);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemcpyNodeFromSymbol);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9150,63 +9150,63 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode1D(cudaGraphNode_t *pGraphNode, cud
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemcpyNode1D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemcpyNode1D);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemcpyNode1D);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9214,57 +9214,57 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParams(cudaGraphNode_t node, const 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemcpyNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(pNodeParams != nullptr) {
-        mem2server(client, &_0sptr, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize));
-        mem2server(client, &_0dptr, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize));
+        mem2server(conn, &_0dptr, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize));
     }
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemcpyNodeSetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphMemcpyNodeSetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_write(client, &_0sptr, sizeof(_0sptr));
-    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    conn->write(&_0sptr, sizeof(_0sptr));
+    conn->write(&_0dptr, sizeof(_0dptr));
     updateTmpPtr((void *)pNodeParams->srcPtr.ptr, _0sptr);
     updateTmpPtr((void *)pNodeParams->dstPtr.ptr, _0dptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
     if(pNodeParams != nullptr) {
         _0sptr = (void *)pNodeParams->srcPtr.ptr;
         _0dptr = (void *)pNodeParams->dstPtr.ptr;
-        mem2client(client, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
-        mem2client(client, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
+        mem2client(conn, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
+        mem2client(conn, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
     }
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
@@ -9272,7 +9272,7 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParams(cudaGraphNode_t node, const 
         const_cast<void *&>(pNodeParams->srcPtr.ptr) = _0sptr;
         const_cast<void *&>(pNodeParams->dstPtr.ptr) = _0dptr;
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9280,53 +9280,53 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParamsToSymbol(cudaGraphNode_t node
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemcpyNodeSetParamsToSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemcpyNodeSetParamsToSymbol);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->prepare_request(RPC_cudaGraphMemcpyNodeSetParamsToSymbol);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)symbol, -1, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9334,53 +9334,53 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParamsFromSymbol(cudaGraphNode_t no
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemcpyNodeSetParamsFromSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemcpyNodeSetParamsFromSymbol);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaGraphMemcpyNodeSetParamsFromSymbol);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9388,52 +9388,52 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParams1D(cudaGraphNode_t node, void
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemcpyNodeSetParams1D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemcpyNodeSetParams1D);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaGraphMemcpyNodeSetParams1D);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9441,56 +9441,56 @@ extern "C" cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t *pGraphNode, cudaG
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemsetNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pMemsetParams;
-    mem2server(client, &_0pMemsetParams, (void *)pMemsetParams, sizeof(*pMemsetParams));
+    mem2server(conn, &_0pMemsetParams, (void *)pMemsetParams, sizeof(*pMemsetParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemsetNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemsetNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0pMemsetParams, sizeof(_0pMemsetParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0pMemsetParams, sizeof(_0pMemsetParams));
     updateTmpPtr((void *)pMemsetParams, _0pMemsetParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)pMemsetParams, sizeof(*pMemsetParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)pMemsetParams, sizeof(*pMemsetParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9498,45 +9498,45 @@ extern "C" cudaError_t cudaGraphMemsetNodeGetParams(cudaGraphNode_t node, struct
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemsetNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemsetNodeGetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphMemsetNodeGetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9544,45 +9544,45 @@ extern "C" cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemsetNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemsetNodeSetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphMemsetNodeSetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9590,56 +9590,56 @@ extern "C" cudaError_t cudaGraphAddHostNode(cudaGraphNode_t *pGraphNode, cudaGra
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddHostNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddHostNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddHostNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9647,45 +9647,45 @@ extern "C" cudaError_t cudaGraphHostNodeGetParams(cudaGraphNode_t node, struct c
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphHostNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphHostNodeGetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphHostNodeGetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9693,45 +9693,45 @@ extern "C" cudaError_t cudaGraphHostNodeSetParams(cudaGraphNode_t node, const st
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphHostNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphHostNodeSetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphHostNodeSetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9739,52 +9739,52 @@ extern "C" cudaError_t cudaGraphAddChildGraphNode(cudaGraphNode_t *pGraphNode, c
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddChildGraphNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddChildGraphNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddChildGraphNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &childGraph, sizeof(childGraph));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&childGraph, sizeof(childGraph));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9792,45 +9792,45 @@ extern "C" cudaError_t cudaGraphChildGraphNodeGetGraph(cudaGraphNode_t node, cud
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphChildGraphNodeGetGraph called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraph;
-    mem2server(client, &_0pGraph, (void *)pGraph, sizeof(*pGraph));
+    mem2server(conn, &_0pGraph, (void *)pGraph, sizeof(*pGraph));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphChildGraphNodeGetGraph);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pGraph, sizeof(_0pGraph));
+    conn->prepare_request(RPC_cudaGraphChildGraphNodeGetGraph);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pGraph, sizeof(_0pGraph));
     updateTmpPtr((void *)pGraph, _0pGraph);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraph, sizeof(*pGraph), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraph, sizeof(*pGraph), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9838,51 +9838,51 @@ extern "C" cudaError_t cudaGraphAddEmptyNode(cudaGraphNode_t *pGraphNode, cudaGr
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddEmptyNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddEmptyNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddEmptyNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9890,52 +9890,52 @@ extern "C" cudaError_t cudaGraphAddEventRecordNode(cudaGraphNode_t *pGraphNode, 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddEventRecordNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddEventRecordNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddEventRecordNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9943,45 +9943,45 @@ extern "C" cudaError_t cudaGraphEventRecordNodeGetEvent(cudaGraphNode_t node, cu
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphEventRecordNodeGetEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0event_out;
-    mem2server(client, &_0event_out, (void *)event_out, sizeof(*event_out));
+    mem2server(conn, &_0event_out, (void *)event_out, sizeof(*event_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphEventRecordNodeGetEvent);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0event_out, sizeof(_0event_out));
+    conn->prepare_request(RPC_cudaGraphEventRecordNodeGetEvent);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0event_out, sizeof(_0event_out));
     updateTmpPtr((void *)event_out, _0event_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event_out, sizeof(*event_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)event_out, sizeof(*event_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -9989,41 +9989,41 @@ extern "C" cudaError_t cudaGraphEventRecordNodeSetEvent(cudaGraphNode_t node, cu
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphEventRecordNodeSetEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphEventRecordNodeSetEvent);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphEventRecordNodeSetEvent);
+    conn->write(&node, sizeof(node));
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10031,52 +10031,52 @@ extern "C" cudaError_t cudaGraphAddEventWaitNode(cudaGraphNode_t *pGraphNode, cu
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddEventWaitNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddEventWaitNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddEventWaitNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10084,45 +10084,45 @@ extern "C" cudaError_t cudaGraphEventWaitNodeGetEvent(cudaGraphNode_t node, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphEventWaitNodeGetEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0event_out;
-    mem2server(client, &_0event_out, (void *)event_out, sizeof(*event_out));
+    mem2server(conn, &_0event_out, (void *)event_out, sizeof(*event_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphEventWaitNodeGetEvent);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0event_out, sizeof(_0event_out));
+    conn->prepare_request(RPC_cudaGraphEventWaitNodeGetEvent);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0event_out, sizeof(_0event_out));
     updateTmpPtr((void *)event_out, _0event_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)event_out, sizeof(*event_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)event_out, sizeof(*event_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10130,41 +10130,41 @@ extern "C" cudaError_t cudaGraphEventWaitNodeSetEvent(cudaGraphNode_t node, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphEventWaitNodeSetEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphEventWaitNodeSetEvent);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphEventWaitNodeSetEvent);
+    conn->write(&node, sizeof(node));
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10172,56 +10172,56 @@ extern "C" cudaError_t cudaGraphAddExternalSemaphoresSignalNode(cudaGraphNode_t 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddExternalSemaphoresSignalNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddExternalSemaphoresSignalNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddExternalSemaphoresSignalNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10229,45 +10229,45 @@ extern "C" cudaError_t cudaGraphExternalSemaphoresSignalNodeGetParams(cudaGraphN
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExternalSemaphoresSignalNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0params_out;
-    mem2server(client, &_0params_out, (void *)params_out, sizeof(*params_out));
+    mem2server(conn, &_0params_out, (void *)params_out, sizeof(*params_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExternalSemaphoresSignalNodeGetParams);
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &_0params_out, sizeof(_0params_out));
+    conn->prepare_request(RPC_cudaGraphExternalSemaphoresSignalNodeGetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0params_out, sizeof(_0params_out));
     updateTmpPtr((void *)params_out, _0params_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)params_out, sizeof(*params_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)params_out, sizeof(*params_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10275,45 +10275,45 @@ extern "C" cudaError_t cudaGraphExternalSemaphoresSignalNodeSetParams(cudaGraphN
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExternalSemaphoresSignalNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExternalSemaphoresSignalNodeSetParams);
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->prepare_request(RPC_cudaGraphExternalSemaphoresSignalNodeSetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10321,56 +10321,56 @@ extern "C" cudaError_t cudaGraphAddExternalSemaphoresWaitNode(cudaGraphNode_t *p
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddExternalSemaphoresWaitNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddExternalSemaphoresWaitNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddExternalSemaphoresWaitNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10378,45 +10378,45 @@ extern "C" cudaError_t cudaGraphExternalSemaphoresWaitNodeGetParams(cudaGraphNod
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExternalSemaphoresWaitNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0params_out;
-    mem2server(client, &_0params_out, (void *)params_out, sizeof(*params_out));
+    mem2server(conn, &_0params_out, (void *)params_out, sizeof(*params_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExternalSemaphoresWaitNodeGetParams);
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &_0params_out, sizeof(_0params_out));
+    conn->prepare_request(RPC_cudaGraphExternalSemaphoresWaitNodeGetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0params_out, sizeof(_0params_out));
     updateTmpPtr((void *)params_out, _0params_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)params_out, sizeof(*params_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)params_out, sizeof(*params_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10424,45 +10424,45 @@ extern "C" cudaError_t cudaGraphExternalSemaphoresWaitNodeSetParams(cudaGraphNod
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExternalSemaphoresWaitNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExternalSemaphoresWaitNodeSetParams);
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->prepare_request(RPC_cudaGraphExternalSemaphoresWaitNodeSetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10470,56 +10470,56 @@ extern "C" cudaError_t cudaGraphAddMemAllocNode(cudaGraphNode_t *pGraphNode, cud
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemAllocNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemAllocNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemAllocNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10527,45 +10527,45 @@ extern "C" cudaError_t cudaGraphMemAllocNodeGetParams(cudaGraphNode_t node, stru
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemAllocNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0params_out;
-    mem2server(client, &_0params_out, (void *)params_out, sizeof(*params_out));
+    mem2server(conn, &_0params_out, (void *)params_out, sizeof(*params_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemAllocNodeGetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0params_out, sizeof(_0params_out));
+    conn->prepare_request(RPC_cudaGraphMemAllocNodeGetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0params_out, sizeof(_0params_out));
     updateTmpPtr((void *)params_out, _0params_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)params_out, sizeof(*params_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)params_out, sizeof(*params_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10573,56 +10573,56 @@ extern "C" cudaError_t cudaGraphAddMemFreeNode(cudaGraphNode_t *pGraphNode, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddMemFreeNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphNode;
-    mem2server(client, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
+    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0dptr;
-    mem2server(client, &_0dptr, (void *)dptr, 0);
+    mem2server(conn, &_0dptr, (void *)dptr, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddMemFreeNode);
-    rpc_write(client, &_0pGraphNode, sizeof(_0pGraphNode));
+    conn->prepare_request(RPC_cudaGraphAddMemFreeNode);
+    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
     updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0dptr, sizeof(_0dptr));
     updateTmpPtr((void *)dptr, _0dptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)dptr, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)dptr, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10630,45 +10630,45 @@ extern "C" cudaError_t cudaGraphMemFreeNodeGetParams(cudaGraphNode_t node, void 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphMemFreeNodeGetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dptr_out;
-    mem2server(client, &_0dptr_out, (void *)dptr_out, 0);
+    mem2server(conn, &_0dptr_out, (void *)dptr_out, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphMemFreeNodeGetParams);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0dptr_out, sizeof(_0dptr_out));
+    conn->prepare_request(RPC_cudaGraphMemFreeNodeGetParams);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0dptr_out, sizeof(_0dptr_out));
     updateTmpPtr((void *)dptr_out, _0dptr_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dptr_out, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dptr_out, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10676,40 +10676,40 @@ extern "C" cudaError_t cudaDeviceGraphMemTrim(int device) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGraphMemTrim called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGraphMemTrim);
-    rpc_write(client, &device, sizeof(device));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaDeviceGraphMemTrim);
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10717,46 +10717,46 @@ extern "C" cudaError_t cudaDeviceGetGraphMemAttribute(int device, enum cudaGraph
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetGraphMemAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceGetGraphMemAttribute);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaDeviceGetGraphMemAttribute);
+    conn->write(&device, sizeof(device));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10764,46 +10764,46 @@ extern "C" cudaError_t cudaDeviceSetGraphMemAttribute(int device, enum cudaGraph
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceSetGraphMemAttribute called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(client, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaDeviceSetGraphMemAttribute);
-    rpc_write(client, &device, sizeof(device));
-    rpc_write(client, &attr, sizeof(attr));
-    rpc_write(client, &_0value, sizeof(_0value));
+    conn->prepare_request(RPC_cudaDeviceSetGraphMemAttribute);
+    conn->write(&device, sizeof(device));
+    conn->write(&attr, sizeof(attr));
+    conn->write(&_0value, sizeof(_0value));
     updateTmpPtr((void *)value, _0value);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)value, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10811,45 +10811,45 @@ extern "C" cudaError_t cudaGraphClone(cudaGraph_t *pGraphClone, cudaGraph_t orig
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphClone called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphClone;
-    mem2server(client, &_0pGraphClone, (void *)pGraphClone, sizeof(*pGraphClone));
+    mem2server(conn, &_0pGraphClone, (void *)pGraphClone, sizeof(*pGraphClone));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphClone);
-    rpc_write(client, &_0pGraphClone, sizeof(_0pGraphClone));
+    conn->prepare_request(RPC_cudaGraphClone);
+    conn->write(&_0pGraphClone, sizeof(_0pGraphClone));
     updateTmpPtr((void *)pGraphClone, _0pGraphClone);
-    rpc_write(client, &originalGraph, sizeof(originalGraph));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&originalGraph, sizeof(originalGraph));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphClone, sizeof(*pGraphClone), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphClone, sizeof(*pGraphClone), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10857,46 +10857,46 @@ extern "C" cudaError_t cudaGraphNodeFindInClone(cudaGraphNode_t *pNode, cudaGrap
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeFindInClone called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNode;
-    mem2server(client, &_0pNode, (void *)pNode, sizeof(*pNode));
+    mem2server(conn, &_0pNode, (void *)pNode, sizeof(*pNode));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphNodeFindInClone);
-    rpc_write(client, &_0pNode, sizeof(_0pNode));
+    conn->prepare_request(RPC_cudaGraphNodeFindInClone);
+    conn->write(&_0pNode, sizeof(_0pNode));
     updateTmpPtr((void *)pNode, _0pNode);
-    rpc_write(client, &originalNode, sizeof(originalNode));
-    rpc_write(client, &clonedGraph, sizeof(clonedGraph));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&originalNode, sizeof(originalNode));
+    conn->write(&clonedGraph, sizeof(clonedGraph));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNode, sizeof(*pNode), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNode, sizeof(*pNode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10904,45 +10904,45 @@ extern "C" cudaError_t cudaGraphNodeGetType(cudaGraphNode_t node, enum cudaGraph
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetType called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pType;
-    mem2server(client, &_0pType, (void *)pType, sizeof(*pType));
+    mem2server(conn, &_0pType, (void *)pType, sizeof(*pType));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphNodeGetType);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pType, sizeof(_0pType));
+    conn->prepare_request(RPC_cudaGraphNodeGetType);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pType, sizeof(_0pType));
     updateTmpPtr((void *)pType, _0pType);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pType, sizeof(*pType), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pType, sizeof(*pType), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -10950,50 +10950,50 @@ extern "C" cudaError_t cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t *nod
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphGetNodes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0nodes;
-    mem2server(client, &_0nodes, (void *)nodes, sizeof(*nodes));
+    mem2server(conn, &_0nodes, (void *)nodes, sizeof(*nodes));
     void *_0numNodes;
-    mem2server(client, &_0numNodes, (void *)numNodes, sizeof(*numNodes));
+    mem2server(conn, &_0numNodes, (void *)numNodes, sizeof(*numNodes));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphGetNodes);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0nodes, sizeof(_0nodes));
+    conn->prepare_request(RPC_cudaGraphGetNodes);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0nodes, sizeof(_0nodes));
     updateTmpPtr((void *)nodes, _0nodes);
-    rpc_write(client, &_0numNodes, sizeof(_0numNodes));
+    conn->write(&_0numNodes, sizeof(_0numNodes));
     updateTmpPtr((void *)numNodes, _0numNodes);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodes, sizeof(*nodes), true);
-    mem2client(client, (void *)numNodes, sizeof(*numNodes), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodes, sizeof(*nodes), true);
+    mem2client(conn, (void *)numNodes, sizeof(*numNodes), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11001,50 +11001,50 @@ extern "C" cudaError_t cudaGraphGetRootNodes(cudaGraph_t graph, cudaGraphNode_t 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphGetRootNodes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pRootNodes;
-    mem2server(client, &_0pRootNodes, (void *)pRootNodes, sizeof(*pRootNodes));
+    mem2server(conn, &_0pRootNodes, (void *)pRootNodes, sizeof(*pRootNodes));
     void *_0pNumRootNodes;
-    mem2server(client, &_0pNumRootNodes, (void *)pNumRootNodes, sizeof(*pNumRootNodes));
+    mem2server(conn, &_0pNumRootNodes, (void *)pNumRootNodes, sizeof(*pNumRootNodes));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphGetRootNodes);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pRootNodes, sizeof(_0pRootNodes));
+    conn->prepare_request(RPC_cudaGraphGetRootNodes);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pRootNodes, sizeof(_0pRootNodes));
     updateTmpPtr((void *)pRootNodes, _0pRootNodes);
-    rpc_write(client, &_0pNumRootNodes, sizeof(_0pNumRootNodes));
+    conn->write(&_0pNumRootNodes, sizeof(_0pNumRootNodes));
     updateTmpPtr((void *)pNumRootNodes, _0pNumRootNodes);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pRootNodes, sizeof(*pRootNodes), true);
-    mem2client(client, (void *)pNumRootNodes, sizeof(*pNumRootNodes), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pRootNodes, sizeof(*pRootNodes), true);
+    mem2client(conn, (void *)pNumRootNodes, sizeof(*pNumRootNodes), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11052,55 +11052,55 @@ extern "C" cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t *fro
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphGetEdges called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0from;
-    mem2server(client, &_0from, (void *)from, sizeof(*from));
+    mem2server(conn, &_0from, (void *)from, sizeof(*from));
     void *_0to;
-    mem2server(client, &_0to, (void *)to, sizeof(*to));
+    mem2server(conn, &_0to, (void *)to, sizeof(*to));
     void *_0numEdges;
-    mem2server(client, &_0numEdges, (void *)numEdges, sizeof(*numEdges));
+    mem2server(conn, &_0numEdges, (void *)numEdges, sizeof(*numEdges));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphGetEdges);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0from, sizeof(_0from));
+    conn->prepare_request(RPC_cudaGraphGetEdges);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0from, sizeof(_0from));
     updateTmpPtr((void *)from, _0from);
-    rpc_write(client, &_0to, sizeof(_0to));
+    conn->write(&_0to, sizeof(_0to));
     updateTmpPtr((void *)to, _0to);
-    rpc_write(client, &_0numEdges, sizeof(_0numEdges));
+    conn->write(&_0numEdges, sizeof(_0numEdges));
     updateTmpPtr((void *)numEdges, _0numEdges);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)from, sizeof(*from), true);
-    mem2client(client, (void *)to, sizeof(*to), true);
-    mem2client(client, (void *)numEdges, sizeof(*numEdges), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)from, sizeof(*from), true);
+    mem2client(conn, (void *)to, sizeof(*to), true);
+    mem2client(conn, (void *)numEdges, sizeof(*numEdges), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11108,50 +11108,50 @@ extern "C" cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGr
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetDependencies called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pDependencies;
-    mem2server(client, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
+    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pNumDependencies;
-    mem2server(client, &_0pNumDependencies, (void *)pNumDependencies, sizeof(*pNumDependencies));
+    mem2server(conn, &_0pNumDependencies, (void *)pNumDependencies, sizeof(*pNumDependencies));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphNodeGetDependencies);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pDependencies, sizeof(_0pDependencies));
+    conn->prepare_request(RPC_cudaGraphNodeGetDependencies);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pDependencies, sizeof(_0pDependencies));
     updateTmpPtr((void *)pDependencies, _0pDependencies);
-    rpc_write(client, &_0pNumDependencies, sizeof(_0pNumDependencies));
+    conn->write(&_0pNumDependencies, sizeof(_0pNumDependencies));
     updateTmpPtr((void *)pNumDependencies, _0pNumDependencies);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(client, (void *)pNumDependencies, sizeof(*pNumDependencies), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
+    mem2client(conn, (void *)pNumDependencies, sizeof(*pNumDependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11159,50 +11159,50 @@ extern "C" cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetDependentNodes called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pDependentNodes;
-    mem2server(client, &_0pDependentNodes, (void *)pDependentNodes, sizeof(*pDependentNodes));
+    mem2server(conn, &_0pDependentNodes, (void *)pDependentNodes, sizeof(*pDependentNodes));
     void *_0pNumDependentNodes;
-    mem2server(client, &_0pNumDependentNodes, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes));
+    mem2server(conn, &_0pNumDependentNodes, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphNodeGetDependentNodes);
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pDependentNodes, sizeof(_0pDependentNodes));
+    conn->prepare_request(RPC_cudaGraphNodeGetDependentNodes);
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pDependentNodes, sizeof(_0pDependentNodes));
     updateTmpPtr((void *)pDependentNodes, _0pDependentNodes);
-    rpc_write(client, &_0pNumDependentNodes, sizeof(_0pNumDependentNodes));
+    conn->write(&_0pNumDependentNodes, sizeof(_0pNumDependentNodes));
     updateTmpPtr((void *)pNumDependentNodes, _0pNumDependentNodes);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pDependentNodes, sizeof(*pDependentNodes), true);
-    mem2client(client, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pDependentNodes, sizeof(*pDependentNodes), true);
+    mem2client(conn, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11210,51 +11210,51 @@ extern "C" cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGra
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddDependencies called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0from;
-    mem2server(client, &_0from, (void *)from, sizeof(*from));
+    mem2server(conn, &_0from, (void *)from, sizeof(*from));
     void *_0to;
-    mem2server(client, &_0to, (void *)to, sizeof(*to));
+    mem2server(conn, &_0to, (void *)to, sizeof(*to));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphAddDependencies);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0from, sizeof(_0from));
+    conn->prepare_request(RPC_cudaGraphAddDependencies);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0from, sizeof(_0from));
     updateTmpPtr((void *)from, _0from);
-    rpc_write(client, &_0to, sizeof(_0to));
+    conn->write(&_0to, sizeof(_0to));
     updateTmpPtr((void *)to, _0to);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)from, sizeof(*from), true);
-    mem2client(client, (void *)to, sizeof(*to), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)from, sizeof(*from), true);
+    mem2client(conn, (void *)to, sizeof(*to), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11262,51 +11262,51 @@ extern "C" cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphRemoveDependencies called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0from;
-    mem2server(client, &_0from, (void *)from, sizeof(*from));
+    mem2server(conn, &_0from, (void *)from, sizeof(*from));
     void *_0to;
-    mem2server(client, &_0to, (void *)to, sizeof(*to));
+    mem2server(conn, &_0to, (void *)to, sizeof(*to));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphRemoveDependencies);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0from, sizeof(_0from));
+    conn->prepare_request(RPC_cudaGraphRemoveDependencies);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0from, sizeof(_0from));
     updateTmpPtr((void *)from, _0from);
-    rpc_write(client, &_0to, sizeof(_0to));
+    conn->write(&_0to, sizeof(_0to));
     updateTmpPtr((void *)to, _0to);
-    rpc_write(client, &numDependencies, sizeof(numDependencies));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)from, sizeof(*from), true);
-    mem2client(client, (void *)to, sizeof(*to), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)from, sizeof(*from), true);
+    mem2client(conn, (void *)to, sizeof(*to), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11314,40 +11314,40 @@ extern "C" cudaError_t cudaGraphDestroyNode(cudaGraphNode_t node) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphDestroyNode called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphDestroyNode);
-    rpc_write(client, &node, sizeof(node));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphDestroyNode);
+    conn->write(&node, sizeof(node));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11355,54 +11355,54 @@ extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGra
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphInstantiate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphExec;
-    mem2server(client, &_0pGraphExec, (void *)pGraphExec, sizeof(*pGraphExec));
+    mem2server(conn, &_0pGraphExec, (void *)pGraphExec, sizeof(*pGraphExec));
     void *_0pErrorNode;
-    mem2server(client, &_0pErrorNode, (void *)pErrorNode, sizeof(*pErrorNode));
+    mem2server(conn, &_0pErrorNode, (void *)pErrorNode, sizeof(*pErrorNode));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphInstantiate);
-    rpc_write(client, &_0pGraphExec, sizeof(_0pGraphExec));
+    conn->prepare_request(RPC_cudaGraphInstantiate);
+    conn->write(&_0pGraphExec, sizeof(_0pGraphExec));
     updateTmpPtr((void *)pGraphExec, _0pGraphExec);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &_0pErrorNode, sizeof(_0pErrorNode));
+    conn->write(&graph, sizeof(graph));
+    conn->write(&_0pErrorNode, sizeof(_0pErrorNode));
     updateTmpPtr((void *)pErrorNode, _0pErrorNode);
     if(bufferSize > 0) {
-        rpc_read(client, pLogBuffer, bufferSize, true);
+        conn->read(pLogBuffer, bufferSize, true);
     }
-    rpc_write(client, &bufferSize, sizeof(bufferSize));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&bufferSize, sizeof(bufferSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphExec, sizeof(*pGraphExec), true);
-    mem2client(client, (void *)pErrorNode, sizeof(*pErrorNode), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphExec, sizeof(*pGraphExec), true);
+    mem2client(conn, (void *)pErrorNode, sizeof(*pErrorNode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11410,46 +11410,46 @@ extern "C" cudaError_t cudaGraphInstantiateWithFlags(cudaGraphExec_t *pGraphExec
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphInstantiateWithFlags called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pGraphExec;
-    mem2server(client, &_0pGraphExec, (void *)pGraphExec, sizeof(*pGraphExec));
+    mem2server(conn, &_0pGraphExec, (void *)pGraphExec, sizeof(*pGraphExec));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphInstantiateWithFlags);
-    rpc_write(client, &_0pGraphExec, sizeof(_0pGraphExec));
+    conn->prepare_request(RPC_cudaGraphInstantiateWithFlags);
+    conn->write(&_0pGraphExec, sizeof(_0pGraphExec));
     updateTmpPtr((void *)pGraphExec, _0pGraphExec);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&graph, sizeof(graph));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pGraphExec, sizeof(*pGraphExec), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pGraphExec, sizeof(*pGraphExec), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11457,46 +11457,46 @@ extern "C" cudaError_t cudaGraphExecKernelNodeSetParams(cudaGraphExec_t hGraphEx
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecKernelNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecKernelNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphExecKernelNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11504,58 +11504,58 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParams(cudaGraphExec_t hGraphEx
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecMemcpyNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(pNodeParams != nullptr) {
-        mem2server(client, &_0sptr, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize));
-        mem2server(client, &_0dptr, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize));
+        mem2server(conn, &_0dptr, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize));
     }
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecMemcpyNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphExecMemcpyNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_write(client, &_0sptr, sizeof(_0sptr));
-    rpc_write(client, &_0dptr, sizeof(_0dptr));
+    conn->write(&_0sptr, sizeof(_0sptr));
+    conn->write(&_0dptr, sizeof(_0dptr));
     updateTmpPtr((void *)pNodeParams->srcPtr.ptr, _0sptr);
     updateTmpPtr((void *)pNodeParams->dstPtr.ptr, _0dptr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
     if(pNodeParams != nullptr) {
         _0sptr = (void *)pNodeParams->srcPtr.ptr;
         _0dptr = (void *)pNodeParams->dstPtr.ptr;
-        mem2client(client, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
-        mem2client(client, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
+        mem2client(conn, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
+        mem2client(conn, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
     }
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
@@ -11563,7 +11563,7 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParams(cudaGraphExec_t hGraphEx
         const_cast<void *&>(pNodeParams->srcPtr.ptr) = _0sptr;
         const_cast<void *&>(pNodeParams->dstPtr.ptr) = _0dptr;
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11571,54 +11571,54 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParamsToSymbol(cudaGraphExec_t 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecMemcpyNodeSetParamsToSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecMemcpyNodeSetParamsToSymbol);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->prepare_request(RPC_cudaGraphExecMemcpyNodeSetParamsToSymbol);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)symbol, -1, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11626,54 +11626,54 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParamsFromSymbol(cudaGraphExec_
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecMemcpyNodeSetParamsFromSymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0symbol;
-    mem2server(client, &_0symbol, (void *)symbol, -1);
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecMemcpyNodeSetParamsFromSymbol);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaGraphExecMemcpyNodeSetParamsFromSymbol);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0symbol, sizeof(_0symbol));
+    conn->write(&_0symbol, sizeof(_0symbol));
     updateTmpPtr((void *)symbol, _0symbol);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &offset, sizeof(offset));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&offset, sizeof(offset));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)symbol, -1, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11681,53 +11681,53 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParams1D(cudaGraphExec_t hGraph
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecMemcpyNodeSetParams1D called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0dst;
-    mem2server(client, &_0dst, (void *)dst, count);
+    mem2server(conn, &_0dst, (void *)dst, count);
     void *_0src;
-    mem2server(client, &_0src, (void *)src, count);
+    mem2server(conn, &_0src, (void *)src, count);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecMemcpyNodeSetParams1D);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0dst, sizeof(_0dst));
+    conn->prepare_request(RPC_cudaGraphExecMemcpyNodeSetParams1D);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0dst, sizeof(_0dst));
     updateTmpPtr((void *)dst, _0dst);
-    rpc_write(client, &_0src, sizeof(_0src));
+    conn->write(&_0src, sizeof(_0src));
     updateTmpPtr((void *)src, _0src);
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &kind, sizeof(kind));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&count, sizeof(count));
+    conn->write(&kind, sizeof(kind));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)dst, count, true);
-    mem2client(client, (void *)src, count, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)src, count, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11735,46 +11735,46 @@ extern "C" cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphEx
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecMemsetNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecMemsetNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphExecMemsetNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11782,46 +11782,46 @@ extern "C" cudaError_t cudaGraphExecHostNodeSetParams(cudaGraphExec_t hGraphExec
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecHostNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
-    mem2server(client, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecHostNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &_0pNodeParams, sizeof(_0pNodeParams));
+    conn->prepare_request(RPC_cudaGraphExecHostNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pNodeParams, sizeof(*pNodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11829,42 +11829,42 @@ extern "C" cudaError_t cudaGraphExecChildGraphNodeSetParams(cudaGraphExec_t hGra
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecChildGraphNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecChildGraphNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &node, sizeof(node));
-    rpc_write(client, &childGraph, sizeof(childGraph));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphExecChildGraphNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&node, sizeof(node));
+    conn->write(&childGraph, sizeof(childGraph));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11872,42 +11872,42 @@ extern "C" cudaError_t cudaGraphExecEventRecordNodeSetEvent(cudaGraphExec_t hGra
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecEventRecordNodeSetEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecEventRecordNodeSetEvent);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphExecEventRecordNodeSetEvent);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11915,42 +11915,42 @@ extern "C" cudaError_t cudaGraphExecEventWaitNodeSetEvent(cudaGraphExec_t hGraph
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecEventWaitNodeSetEvent called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecEventWaitNodeSetEvent);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &event, sizeof(event));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphExecEventWaitNodeSetEvent);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&event, sizeof(event));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -11958,46 +11958,46 @@ extern "C" cudaError_t cudaGraphExecExternalSemaphoresSignalNodeSetParams(cudaGr
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecExternalSemaphoresSignalNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecExternalSemaphoresSignalNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->prepare_request(RPC_cudaGraphExecExternalSemaphoresSignalNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12005,46 +12005,46 @@ extern "C" cudaError_t cudaGraphExecExternalSemaphoresWaitNodeSetParams(cudaGrap
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecExternalSemaphoresWaitNodeSetParams called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0nodeParams;
-    mem2server(client, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecExternalSemaphoresWaitNodeSetParams);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hNode, sizeof(hNode));
-    rpc_write(client, &_0nodeParams, sizeof(_0nodeParams));
+    conn->prepare_request(RPC_cudaGraphExecExternalSemaphoresWaitNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)nodeParams, sizeof(*nodeParams), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12052,51 +12052,51 @@ extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecUpdate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0hErrorNode_out;
-    mem2server(client, &_0hErrorNode_out, (void *)hErrorNode_out, sizeof(*hErrorNode_out));
+    mem2server(conn, &_0hErrorNode_out, (void *)hErrorNode_out, sizeof(*hErrorNode_out));
     void *_0updateResult_out;
-    mem2server(client, &_0updateResult_out, (void *)updateResult_out, sizeof(*updateResult_out));
+    mem2server(conn, &_0updateResult_out, (void *)updateResult_out, sizeof(*updateResult_out));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecUpdate);
-    rpc_write(client, &hGraphExec, sizeof(hGraphExec));
-    rpc_write(client, &hGraph, sizeof(hGraph));
-    rpc_write(client, &_0hErrorNode_out, sizeof(_0hErrorNode_out));
+    conn->prepare_request(RPC_cudaGraphExecUpdate);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0hErrorNode_out, sizeof(_0hErrorNode_out));
     updateTmpPtr((void *)hErrorNode_out, _0hErrorNode_out);
-    rpc_write(client, &_0updateResult_out, sizeof(_0updateResult_out));
+    conn->write(&_0updateResult_out, sizeof(_0updateResult_out));
     updateTmpPtr((void *)updateResult_out, _0updateResult_out);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)hErrorNode_out, sizeof(*hErrorNode_out), true);
-    mem2client(client, (void *)updateResult_out, sizeof(*updateResult_out), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)hErrorNode_out, sizeof(*hErrorNode_out), true);
+    mem2client(conn, (void *)updateResult_out, sizeof(*updateResult_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12104,41 +12104,41 @@ extern "C" cudaError_t cudaGraphUpload(cudaGraphExec_t graphExec, cudaStream_t s
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphUpload called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphUpload);
-    rpc_write(client, &graphExec, sizeof(graphExec));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphUpload);
+    conn->write(&graphExec, sizeof(graphExec));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12146,41 +12146,41 @@ extern "C" cudaError_t cudaGraphLaunch(cudaGraphExec_t graphExec, cudaStream_t s
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphLaunch called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphLaunch);
-    rpc_write(client, &graphExec, sizeof(graphExec));
-    rpc_write(client, &stream, sizeof(stream));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphLaunch);
+    conn->write(&graphExec, sizeof(graphExec));
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12188,40 +12188,40 @@ extern "C" cudaError_t cudaGraphExecDestroy(cudaGraphExec_t graphExec) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecDestroy called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphExecDestroy);
-    rpc_write(client, &graphExec, sizeof(graphExec));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphExecDestroy);
+    conn->write(&graphExec, sizeof(graphExec));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12229,40 +12229,40 @@ extern "C" cudaError_t cudaGraphDestroy(cudaGraph_t graph) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphDestroy called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphDestroy);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphDestroy);
+    conn->write(&graph, sizeof(graph));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12270,42 +12270,42 @@ extern "C" cudaError_t cudaGraphDebugDotPrint(cudaGraph_t graph, const char *pat
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphDebugDotPrint called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphDebugDotPrint);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, path, strlen(path) + 1, true);
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphDebugDotPrint);
+    conn->write(&graph, sizeof(graph));
+    conn->write(path, strlen(path) + 1, true);
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12313,52 +12313,52 @@ extern "C" cudaError_t cudaUserObjectCreate(cudaUserObject_t *object_out, void *
 #ifdef DEBUG
     std::cout << "Hook: cudaUserObjectCreate called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0object_out;
-    mem2server(client, &_0object_out, (void *)object_out, sizeof(*object_out));
+    mem2server(conn, &_0object_out, (void *)object_out, sizeof(*object_out));
     void *_0ptr;
-    mem2server(client, &_0ptr, (void *)ptr, 0);
+    mem2server(conn, &_0ptr, (void *)ptr, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaUserObjectCreate);
-    rpc_write(client, &_0object_out, sizeof(_0object_out));
+    conn->prepare_request(RPC_cudaUserObjectCreate);
+    conn->write(&_0object_out, sizeof(_0object_out));
     updateTmpPtr((void *)object_out, _0object_out);
-    rpc_write(client, &_0ptr, sizeof(_0ptr));
+    conn->write(&_0ptr, sizeof(_0ptr));
     updateTmpPtr((void *)ptr, _0ptr);
-    rpc_write(client, &destroy, sizeof(destroy));
-    rpc_write(client, &initialRefcount, sizeof(initialRefcount));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->write(&destroy, sizeof(destroy));
+    conn->write(&initialRefcount, sizeof(initialRefcount));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)object_out, sizeof(*object_out), true);
-    mem2client(client, (void *)ptr, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)object_out, sizeof(*object_out), true);
+    mem2client(conn, (void *)ptr, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12366,41 +12366,41 @@ extern "C" cudaError_t cudaUserObjectRetain(cudaUserObject_t object, unsigned in
 #ifdef DEBUG
     std::cout << "Hook: cudaUserObjectRetain called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaUserObjectRetain);
-    rpc_write(client, &object, sizeof(object));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaUserObjectRetain);
+    conn->write(&object, sizeof(object));
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12408,41 +12408,41 @@ extern "C" cudaError_t cudaUserObjectRelease(cudaUserObject_t object, unsigned i
 #ifdef DEBUG
     std::cout << "Hook: cudaUserObjectRelease called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaUserObjectRelease);
-    rpc_write(client, &object, sizeof(object));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaUserObjectRelease);
+    conn->write(&object, sizeof(object));
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12450,43 +12450,43 @@ extern "C" cudaError_t cudaGraphRetainUserObject(cudaGraph_t graph, cudaUserObje
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphRetainUserObject called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphRetainUserObject);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &object, sizeof(object));
-    rpc_write(client, &count, sizeof(count));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphRetainUserObject);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&object, sizeof(object));
+    conn->write(&count, sizeof(count));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12494,42 +12494,42 @@ extern "C" cudaError_t cudaGraphReleaseUserObject(cudaGraph_t graph, cudaUserObj
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphReleaseUserObject called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGraphReleaseUserObject);
-    rpc_write(client, &graph, sizeof(graph));
-    rpc_write(client, &object, sizeof(object));
-    rpc_write(client, &count, sizeof(count));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGraphReleaseUserObject);
+    conn->write(&graph, sizeof(graph));
+    conn->write(&object, sizeof(object));
+    conn->write(&count, sizeof(count));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12537,42 +12537,42 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDriverEntryPoint called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetDriverEntryPoint);
-    rpc_write(client, symbol, strlen(symbol) + 1, true);
-    rpc_read(client, funcPtr, sizeof(void *));
-    rpc_write(client, &flags, sizeof(flags));
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_cudaGetDriverEntryPoint);
+    conn->write(symbol, strlen(symbol) + 1, true);
+    conn->read(funcPtr, sizeof(void *));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12580,45 +12580,45 @@ extern "C" cudaError_t cudaGetExportTable(const void **ppExportTable, const cuda
 #ifdef DEBUG
     std::cout << "Hook: cudaGetExportTable called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0pExportTableId;
-    mem2server(client, &_0pExportTableId, (void *)pExportTableId, sizeof(*pExportTableId));
+    mem2server(conn, &_0pExportTableId, (void *)pExportTableId, sizeof(*pExportTableId));
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetExportTable);
-    rpc_read(client, ppExportTable, sizeof(*ppExportTable));
-    rpc_write(client, &_0pExportTableId, sizeof(_0pExportTableId));
+    conn->prepare_request(RPC_cudaGetExportTable);
+    conn->read(ppExportTable, sizeof(*ppExportTable));
+    conn->write(&_0pExportTableId, sizeof(_0pExportTableId));
     updateTmpPtr((void *)pExportTableId, _0pExportTableId);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)pExportTableId, sizeof(*pExportTableId), true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pExportTableId, sizeof(*pExportTableId), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }
 
@@ -12626,48 +12626,48 @@ extern "C" cudaError_t cudaGetFuncBySymbol(cudaFunction_t *functionPtr, const vo
 #ifdef DEBUG
     std::cout << "Hook: cudaGetFuncBySymbol called" << std::endl;
 #endif
-    RpcClient *client = rpc_get_client();
-    if(client == nullptr) {
-        std::cerr << "Failed to get rpc client" << std::endl;
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2server);
+    conn->prepare_request(RPC_mem2server);
     void *_0functionPtr;
-    mem2server(client, &_0functionPtr, (void *)functionPtr, sizeof(*functionPtr));
+    mem2server(conn, &_0functionPtr, (void *)functionPtr, sizeof(*functionPtr));
     void *_0symbolPtr;
-    mem2server(client, &_0symbolPtr, (void *)symbolPtr, 0);
+    mem2server(conn, &_0symbolPtr, (void *)symbolPtr, 0);
     void *end_flag = (void *)0xffffffff;
-    if(client->iov_send2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
     cudaError_t _result;
-    rpc_prepare_request(client, RPC_cudaGetFuncBySymbol);
-    rpc_write(client, &_0functionPtr, sizeof(_0functionPtr));
+    conn->prepare_request(RPC_cudaGetFuncBySymbol);
+    conn->write(&_0functionPtr, sizeof(_0functionPtr));
     updateTmpPtr((void *)functionPtr, _0functionPtr);
-    rpc_write(client, &_0symbolPtr, sizeof(_0symbolPtr));
+    conn->write(&_0symbolPtr, sizeof(_0symbolPtr));
     updateTmpPtr((void *)symbolPtr, _0symbolPtr);
-    rpc_read(client, &_result, sizeof(_result));
-    if(rpc_submit_request(client) != 0) {
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_client(client);
+        rpc_release_conn(conn);
         exit(1);
     }
-    rpc_prepare_request(client, RPC_mem2client);
-    mem2client(client, (void *)functionPtr, sizeof(*functionPtr), true);
-    mem2client(client, (void *)symbolPtr, 0, true);
-    if(client->iov_read2_count > 0) {
-        rpc_write(client, &end_flag, sizeof(end_flag));
-        if(rpc_submit_request(client) != 0) {
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)functionPtr, sizeof(*functionPtr), true);
+    mem2client(conn, (void *)symbolPtr, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_client(client);
+            rpc_release_conn(conn);
             exit(1);
         }
     }
-    rpc_free_client(client);
+    rpc_release_conn(conn);
     return _result;
 }

@@ -1,10 +1,10 @@
-#include "rpc_core.h"
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
 #include <fcntl.h>
 #include <sys/select.h>
 #include <errno.h>
+#include "rpc_core.h"
 
 namespace rpc {
 
@@ -85,9 +85,11 @@ void RpcServer::stop() {
     async_conns_.clear();
 
     // 清理同步连接
-    for(auto &conn : sync_conns_) {
-        if(conn) {
-            conn->disconnect();
+    for(auto &pair : sync_conns_) {
+        for(auto &conn : pair.second) {
+            if(conn) {
+                conn->disconnect();
+            }
         }
     }
     sync_conns_.clear();
@@ -186,23 +188,23 @@ void RpcServer::accept_loop() {
         }
 
         // 创建新的客户端连接
-        auto client = std::make_unique<RpcConn>(version_key_, handshake_req.id, true);
-        client->sockfd_ = connfd;
-        client->running_ = true;
+        auto conn = std::unique_ptr<RpcConn>(new RpcConn(version_key_, handshake_req.id, true));
+        conn->sockfd_ = connfd;
+        conn->running_ = true;
 
         if(handshake_req.is_async) {
             // 处理异步连接, 服务器端保存客户端和异步连接的对应关系
             std::lock_guard<std::mutex> lock(async_mutex_);
-            if(async_conns_.find(client->client_id_str_) != async_conns_.end()) {
-                async_conns_.erase(client->client_id_str_);
+            if(async_conns_.find(conn->client_id_str_) != async_conns_.end()) {
+                async_conns_.erase(conn->client_id_str_);
             }
-            async_conns_[client->client_id_str_] = std::move(client);
+            async_conns_[conn->client_id_str_] = std::move(conn);
         } else {
             // 处理同步连接, 创建工作线程处理请求
-            std::shared_ptr<RpcConn> client_ptr = std::move(client);
-            sync_conns_.push_back(client_ptr);
+            std::shared_ptr<RpcConn> conn_ptr = std::move(conn);
+            sync_conns_[conn_ptr->client_id_str_].insert(conn_ptr);
 
-            worker_threads_.emplace_back(&RpcServer::handle_request, this, client_ptr);
+            worker_threads_.emplace_back(&RpcServer::handle_request, this, conn_ptr);
         }
     }
 }

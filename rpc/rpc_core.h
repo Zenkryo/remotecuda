@@ -14,12 +14,14 @@
 #include <sys/uio.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <algorithm>
 
 namespace rpc {
 
 // 前向声明
 class RpcConn;
 class RpcServer;
+class RpcBuffers;
 
 // 异常类
 class RpcException : public std::runtime_error {
@@ -33,13 +35,29 @@ class RpcMemoryException : public RpcException {
     explicit RpcMemoryException(const std::string &message, int line = 0) : RpcException(message, line) {}
 };
 
+// 请求处理函数类型
+using RequestHandler = std::function<int(RpcConn *)>;
+
 // 错误码定义
-enum class RpcError { OK = 0, CONNECTION_CLOSED = -1, WRITE_ERROR = -2, READ_ERROR = -3, CONNECT_TIMEOUT = -4, ACCEPT_TIMEOUT = -5, WRITE_TIMEOUT = -6, READ_TIMEOUT = -7, INVALID_SOCKET = -8, INVALID_ADDRESS = -9, HANDSHAKE_FAILED = -10, QUIT = -11 };
+enum class RpcError {
+    OK = 0,                 // 正确
+    CONNECTION_CLOSED = -1, // 连接关闭
+    WRITE_ERROR = -2,       // 写错误
+    READ_ERROR = -3,        // 读错误
+    CONNECT_TIMEOUT = -4,   // 连接超时
+    ACCEPT_TIMEOUT = -5,    // 接受连接超时
+    WRITE_TIMEOUT = -6,     // 写操作超时
+    READ_TIMEOUT = -7,      // 读操作超时
+    INVALID_SOCKET = -8,    // 无效的socket
+    INVALID_ADDRESS = -9,   // 无效的地址
+    HANDSHAKE_FAILED = -10, // 握手失败
+    MALLOC_FAILED = -11,    // 内存分配失败
+    QUIT = -12              // 退出
+};
 
 // 常量定义
 constexpr size_t MAX_IOV_COUNT = 64;
 constexpr size_t MAX_CONNECTIONS = 1;
-constexpr uint16_t VERSION_KEY = 0x5544;
 
 // 超时时间定义（毫秒）
 constexpr int CONNECT_TIMEOUT_MS = 5000;  // 连接超时
@@ -73,7 +91,7 @@ class RpcConn {
     RpcError connect(const std::string &server, uint16_t port, bool is_async = false);
     RpcError reconnect();
     RpcError disconnect();
-    bool is_connected() const;
+    bool is_connected() const { return sockfd_ >= 0; }
 
     // 请求准备和发送
     void reset();
@@ -93,11 +111,23 @@ class RpcConn {
     RpcError read_one_now(void *buffer, size_t size, bool with_len = false);
 
     // 获取iov读写计数
-    int get_iov_read_count(bool with_len) const;
-    int get_iov_send_count(bool with_len) const;
+    int get_iov_read_count(bool with_len) const { return with_len ? iov_read2_.size() : iov_read_.size(); }
+    int get_iov_send_count(bool with_len) const { return with_len ? iov_send2_.size() : iov_send_.size(); }
 
     // 十六进制转储
     void hexdump(const char *desc, const void *buf, size_t len);
+
+    // 获取主机缓冲区
+    void *get_host_buffer(size_t size);
+
+    // 释放主机缓冲区
+    void free_host_buffer(void *ptr);
+
+    // 获取iov临时缓冲区
+    void *get_iov_buffer(size_t size);
+
+    // 释放iov临时缓冲区
+    void free_iov_buffer(void *ptr);
 
     // 友元声明
     friend class RpcServer;
@@ -111,6 +141,8 @@ class RpcConn {
     uint16_t version_key_;
     bool is_server;
     std::atomic<bool> running_{false};
+    std::set<void *> iov_buffers_;
+    std::mutex iov_buffers_mutex_;
 
     std::string server_;
     uint16_t port_;
@@ -120,8 +152,6 @@ class RpcConn {
     std::vector<iovec> iov_send2_;
     std::vector<iovec> iov_read_;
     std::vector<iovec> iov_read2_;
-
-    std::set<void *> tmp_buffers_;
 
     // 新增超时控制相关方法
     RpcError wait_for_readable(int timeout_ms);
@@ -133,7 +163,6 @@ class RpcConn {
     RpcError read_all(bool with_len);
     RpcError write_full_iovec(std::vector<iovec> &iov);
     RpcError read_full_iovec(std::vector<iovec> &iov);
-    void cleanup_tmp_buffers();
 };
 
 // RPC服务器类
@@ -151,7 +180,7 @@ class RpcServer {
     void stop();
 
     // 注册处理函数
-    using RequestHandler = std::function<int(RpcConn *)>;
+
     void register_handler(uint32_t func_id, RequestHandler handler);
 
     // 获取异步连接
@@ -163,7 +192,7 @@ class RpcServer {
     std::atomic<bool> running_{false};
 
     std::map<std::string, std::unique_ptr<RpcConn>> async_conns_;
-    std::vector<std::shared_ptr<RpcConn>> sync_conns_; // 所有的同步连接
+    std::map<std::string, std::set<std::shared_ptr<RpcConn>>> sync_conns_; // 所有的同步连接
     std::vector<std::thread> worker_threads_;
     std::map<uint32_t, RequestHandler> handlers_;
 
@@ -191,7 +220,7 @@ class RpcClient {
     // 同步连接池管理
     RpcConn *acquire_connection();
     void release_connection(RpcConn *conn);
-    bool is_connected() const { return !sync_conns_.empty() && async_conn_ != nullptr; }
+    bool is_connected() const { return !using_sync_conns_.empty() && async_conn_ != nullptr; }
 
     // 异步请求处理
     using AsyncRequestHandler = std::function<void(RpcConn *)>;
@@ -205,8 +234,8 @@ class RpcClient {
     std::atomic<bool> running_{false};
 
     // 同步连接池
-    std::vector<std::unique_ptr<RpcConn>> sync_conns_;
-    std::set<RpcConn *> available_conns_;
+    std::vector<std::unique_ptr<RpcConn>> using_sync_conns_;
+    std::vector<std::unique_ptr<RpcConn>> available_sync_conns_;
     std::mutex sync_mutex_;
 
     // 异步连接
@@ -214,8 +243,36 @@ class RpcClient {
     std::thread async_thread_;
     std::map<uint32_t, AsyncRequestHandler> async_handlers_;
 
-    // 修改内部方法返回类型
+    // 异步接收循环
     void async_receive_loop();
 };
 
+class RpcBuffers {
+  public:
+    // 获取单例实例
+    static RpcBuffers &getInstance() {
+        static RpcBuffers instance;
+        return instance;
+    }
+
+    // 禁用拷贝和赋值
+    RpcBuffers(const RpcBuffers &) = delete;
+    RpcBuffers &operator=(const RpcBuffers &) = delete;
+
+    // 分配主机内存
+    void *malloc_rpc_buffer(std::string client_id, size_t size);
+
+    // 释放主机内存
+    void free_rpc_buffer(std::string client_id, void *ptr);
+
+  private:
+    // 私有构造函数和析构函数
+    RpcBuffers() = default;
+    ~RpcBuffers() = default;
+
+    // client id -> rpc buffers
+    std::map<std::string, std::set<void *>> rpc_buffers_;
+
+    std::mutex buffers_mutex_;
+};
 } // namespace rpc
