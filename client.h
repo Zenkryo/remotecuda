@@ -65,5 +65,5 @@ void updateTmpPtr(void *clientPtr, void *serverPtr);
 void *get_so_handle(const std::string &so_file);
 RpcConn *rpc_get_conn();
 void rpc_release_conn(RpcConn *conn);
-
+int sizeofPoolAttribute(int attr);
 #endif

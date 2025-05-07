@@ -6566,7 +6566,7 @@ extern "C" cudaError_t cudaMemPoolSetAttribute(cudaMemPool_t memPool, enum cudaM
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, sizeofPoolAttribute((int)attr));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -6589,7 +6589,7 @@ extern "C" cudaError_t cudaMemPoolSetAttribute(cudaMemPool_t memPool, enum cudaM
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, sizeofPoolAttribute((int)attr), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6613,7 +6613,7 @@ extern "C" cudaError_t cudaMemPoolGetAttribute(cudaMemPool_t memPool, enum cudaM
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, sizeofPoolAttribute((int)attr));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -6636,7 +6636,7 @@ extern "C" cudaError_t cudaMemPoolGetAttribute(cudaMemPool_t memPool, enum cudaM
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, sizeofPoolAttribute((int)attr), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -10760,7 +10760,7 @@ extern "C" cudaError_t cudaDeviceGetGraphMemAttribute(int device, enum cudaGraph
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 8);
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -10783,7 +10783,7 @@ extern "C" cudaError_t cudaDeviceGetGraphMemAttribute(int device, enum cudaGraph
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, 8, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -10807,7 +10807,7 @@ extern "C" cudaError_t cudaDeviceSetGraphMemAttribute(int device, enum cudaGraph
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 8);
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -10830,7 +10830,7 @@ extern "C" cudaError_t cudaDeviceSetGraphMemAttribute(int device, enum cudaGraph
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, 8, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {

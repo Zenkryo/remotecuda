@@ -1568,8 +1568,13 @@ def calculate_pointer_sizes(function, param):
         "TauArray",
         "Ainv",
     ]
+    function_name = function.name.format()
     if isinstance(param.type, Pointer):
         if param_name not in pointer_vars:
+            if function_name in ["cudaMemPoolSetAttribute", "cudaMemPoolGetAttribute", "cuMemPoolSetAttribute", "cuMemPoolGetAttribute"]:
+                return f"sizeofPoolAttribute((int)attr)"
+            elif function_name in ["cudaDeviceGetGraphMemAttribute", "cudaDeviceSetGraphMemAttribute", "cuDeviceGetGraphMemAttribute", "cuDeviceSetGraphMemAttribute"]:
+                return "8"
             if param.type.ptr_to.format() == "void" or param.type.ptr_to.format() == "const void":
                 return "0"
             else:

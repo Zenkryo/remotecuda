@@ -6100,7 +6100,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, sizeofPoolAttribute((int)attr));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -6123,7 +6123,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, sizeofPoolAttribute((int)attr), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6147,7 +6147,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, sizeofPoolAttribute((int)attr));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -6170,7 +6170,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, sizeofPoolAttribute((int)attr), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11015,7 +11015,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 8);
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -11038,7 +11038,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, 8, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11062,7 +11062,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
     }
     conn->prepare_request(RPC_mem2server);
     void *_0value;
-    mem2server(conn, &_0value, (void *)value, 0);
+    mem2server(conn, &_0value, (void *)value, 8);
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -11085,7 +11085,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)value, 8, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {

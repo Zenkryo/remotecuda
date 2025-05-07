@@ -160,6 +160,12 @@ int sizeofType(cudaDataType type) {
         return -1; // 未知类型返回错误
     }
 }
+int sizeofPoolAttribute(int attr) {
+    if(attr < 4) {
+        return sizeof(int);
+    }
+    return sizeof(uint64_t);
+}
 
 RpcConn *rpc_get_conn() {
     RpcConn *conn = nullptr;
