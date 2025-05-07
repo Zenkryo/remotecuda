@@ -2126,6 +2126,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
 #ifdef DEBUG
     std::cout << "Hook: cuModuleLoadDataEx called" << std::endl;
 #endif
+    // PARAM void **optionValues
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -2419,6 +2420,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
 #ifdef DEBUG
     std::cout << "Hook: cuLinkCreate_v2 called" << std::endl;
 #endif
+    // PARAM void **optionValues
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -2475,6 +2477,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
 #ifdef DEBUG
     std::cout << "Hook: cuLinkAddData_v2 called" << std::endl;
 #endif
+    // PARAM void **optionValues
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -2535,6 +2538,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
 #ifdef DEBUG
     std::cout << "Hook: cuLinkAddFile_v2 called" << std::endl;
 #endif
+    // PARAM void **optionValues
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -2589,6 +2593,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
 #ifdef DEBUG
     std::cout << "Hook: cuLinkComplete called" << std::endl;
 #endif
+    // PARAM void **cubinOut
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -8839,6 +8844,8 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
 #ifdef DEBUG
     std::cout << "Hook: cuLaunchKernel called" << std::endl;
 #endif
+    // PARAM void **kernelParams
+    // PARAM void **extra
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;

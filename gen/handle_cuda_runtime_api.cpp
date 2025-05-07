@@ -6187,8 +6187,6 @@ int handle_cudaGraphAddKernelNode(void *args0) {
     std::cout << "Handle function cudaGraphAddKernelNode called" << std::endl;
 #endif
     int rtn = 0;
-    void **args;
-    int arg_count;
     std::set<void *> buffers;
     RpcConn *conn = (RpcConn *)args0;
     cudaGraphNode_t *pGraphNode;
@@ -6201,6 +6199,8 @@ int handle_cudaGraphAddKernelNode(void *args0) {
     conn->read(&numDependencies, sizeof(numDependencies));
     struct cudaKernelNodeParams *pNodeParams = nullptr;
     conn->read(&pNodeParams, sizeof(pNodeParams));
+    void **args = nullptr;
+    int arg_count;
     conn->read(&arg_count, sizeof(arg_count));
     cudaError_t _result;
     if(conn->prepare_response() != RpcError::OK) {
@@ -6223,7 +6223,6 @@ int handle_cudaGraphAddKernelNode(void *args0) {
     conn->write(&_result, sizeof(_result));
     if(conn->submit_response() != RpcError::OK) {
         std::cerr << "Failed to submit response" << std::endl;
-        conn->free_host_buffer(args);
         rtn = 1;
         goto _RTN_;
     }
@@ -6278,12 +6277,26 @@ int handle_cudaGraphKernelNodeSetParams(void *args0) {
     conn->read(&node, sizeof(node));
     struct cudaKernelNodeParams *pNodeParams = nullptr;
     conn->read(&pNodeParams, sizeof(pNodeParams));
+    void **args = nullptr;
+    int arg_count;
+    conn->read(&arg_count, sizeof(arg_count));
     cudaError_t _result;
     if(conn->prepare_response() != RpcError::OK) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
+    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);
+    if(args == nullptr) {
+        std::cerr << "Failed to allocate args" << std::endl;
+        return 1;
+    }
+    if(conn->read_all_now(args, nullptr, arg_count) != RpcError::OK) {
+        std::cerr << "Failed to read args" << std::endl;
+        conn->free_host_buffer(args);
+        return 1;
+    }
+    pNodeParams->kernelParams = args;
     _result = cudaGraphKernelNodeSetParams(node, pNodeParams);
     conn->write(&_result, sizeof(_result));
     if(conn->submit_response() != RpcError::OK) {
@@ -8154,12 +8167,26 @@ int handle_cudaGraphExecKernelNodeSetParams(void *args0) {
     conn->read(&node, sizeof(node));
     struct cudaKernelNodeParams *pNodeParams = nullptr;
     conn->read(&pNodeParams, sizeof(pNodeParams));
+    void **args = nullptr;
+    int arg_count;
+    conn->read(&arg_count, sizeof(arg_count));
     cudaError_t _result;
     if(conn->prepare_response() != RpcError::OK) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
     }
+    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);
+    if(args == nullptr) {
+        std::cerr << "Failed to allocate args" << std::endl;
+        return 1;
+    }
+    if(conn->read_all_now(args, nullptr, arg_count) != RpcError::OK) {
+        std::cerr << "Failed to read args" << std::endl;
+        conn->free_host_buffer(args);
+        return 1;
+    }
+    pNodeParams->kernelParams = args;
     _result = cudaGraphExecKernelNodeSetParams(hGraphExec, node, pNodeParams);
     conn->write(&_result, sizeof(_result));
     if(conn->submit_response() != RpcError::OK) {

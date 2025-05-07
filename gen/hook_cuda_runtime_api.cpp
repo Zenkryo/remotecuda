@@ -4446,8 +4446,8 @@ extern "C" cudaError_t cudaMemcpy3D(const struct cudaMemcpy3DParms *p) {
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(p != nullptr) {
-        mem2server(conn, &_0sptr, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize));
-        mem2server(conn, &_0dptr, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)p->srcPtr.ptr, p->srcPtr.pitch * p->srcPtr.ysize);
+        mem2server(conn, &_0dptr, (void *)p->dstPtr.ptr, p->dstPtr.pitch * p->dstPtr.ysize);
     }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
@@ -4477,8 +4477,8 @@ extern "C" cudaError_t cudaMemcpy3D(const struct cudaMemcpy3DParms *p) {
     if(p != nullptr) {
         _0sptr = (void *)p->srcPtr.ptr;
         _0dptr = (void *)p->dstPtr.ptr;
-        mem2client(conn, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize), false);
-        mem2client(conn, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize), false);
+        mem2client(conn, (void *)p->srcPtr.ptr, p->srcPtr.pitch * p->srcPtr.ysize, false);
+        mem2client(conn, (void *)p->dstPtr.ptr, p->dstPtr.pitch * p->dstPtr.ysize, false);
     }
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -4556,8 +4556,8 @@ extern "C" cudaError_t cudaMemcpy3DAsync(const struct cudaMemcpy3DParms *p, cuda
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(p != nullptr) {
-        mem2server(conn, &_0sptr, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize));
-        mem2server(conn, &_0dptr, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)p->srcPtr.ptr, p->srcPtr.pitch * p->srcPtr.ysize);
+        mem2server(conn, &_0dptr, (void *)p->dstPtr.ptr, p->dstPtr.pitch * p->dstPtr.ysize);
     }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
@@ -4588,8 +4588,8 @@ extern "C" cudaError_t cudaMemcpy3DAsync(const struct cudaMemcpy3DParms *p, cuda
     if(p != nullptr) {
         _0sptr = (void *)p->srcPtr.ptr;
         _0dptr = (void *)p->dstPtr.ptr;
-        mem2client(conn, (void *)p->srcPtr.ptr, sizeof(p->srcPtr.pitch * p->srcPtr.ysize), false);
-        mem2client(conn, (void *)p->dstPtr.ptr, sizeof(p->dstPtr.pitch * p->dstPtr.ysize), false);
+        mem2client(conn, (void *)p->srcPtr.ptr, p->srcPtr.pitch * p->srcPtr.ysize, false);
+        mem2client(conn, (void *)p->dstPtr.ptr, p->dstPtr.pitch * p->dstPtr.ysize, false);
     }
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -8665,23 +8665,21 @@ extern "C" cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t *pGraphNode, cudaG
     if(f == nullptr) {
         return cudaErrorInvalidDeviceFunction;
     }
-
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    for(int i = 0; i < f->param_count; i++) {
-        mem2server(conn, &f->params[i].ptr, *((void **)pNodeParams->kernelParams[i]), -1);
-    }
     void *_0pGraphNode;
     mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
     mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pNodeParams;
     mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
-
+    for(int i = 0; i < f->param_count; i++) {
+        mem2server(conn, &f->params[i].ptr, *((void **)pNodeParams->kernelParams[i]), -1);
+    }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -8778,6 +8776,19 @@ extern "C" cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const 
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeSetParams called" << std::endl;
 #endif
+    if(pNodeParams == nullptr) {
+        return cudaErrorInvalidDeviceFunction;
+    }
+    FuncInfo *f = nullptr;
+    for(auto &funcinfo : funcinfos) {
+        if(funcinfo.fun_ptr == pNodeParams->func) {
+            f = &funcinfo;
+            break;
+        }
+    }
+    if(f == nullptr) {
+        return cudaErrorInvalidDeviceFunction;
+    }
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -8786,6 +8797,9 @@ extern "C" cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const 
     conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
     mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    for(int i = 0; i < f->param_count; i++) {
+        mem2server(conn, &f->params[i].ptr, *((void **)pNodeParams->kernelParams[i]), -1);
+    }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -8800,6 +8814,11 @@ extern "C" cudaError_t cudaGraphKernelNodeSetParams(cudaGraphNode_t node, const 
     conn->write(&node, sizeof(node));
     conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
+    conn->write(&f->param_count, sizeof(f->param_count));
+    for(int i = 0; i < f->param_count; i++) {
+        conn->write(&f->params[i].ptr, f->params[i].size, true);
+        updateTmpPtr(*((void **)pNodeParams->kernelParams[i]), f->params[i].ptr);
+    }
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9242,8 +9261,8 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParams(cudaGraphNode_t node, const 
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(pNodeParams != nullptr) {
-        mem2server(conn, &_0sptr, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize));
-        mem2server(conn, &_0dptr, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)pNodeParams->srcPtr.ptr, pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize);
+        mem2server(conn, &_0dptr, (void *)pNodeParams->dstPtr.ptr, pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize);
     }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
@@ -9274,8 +9293,8 @@ extern "C" cudaError_t cudaGraphMemcpyNodeSetParams(cudaGraphNode_t node, const 
     if(pNodeParams != nullptr) {
         _0sptr = (void *)pNodeParams->srcPtr.ptr;
         _0dptr = (void *)pNodeParams->dstPtr.ptr;
-        mem2client(conn, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
-        mem2client(conn, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
+        mem2client(conn, (void *)pNodeParams->srcPtr.ptr, pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize, false);
+        mem2client(conn, (void *)pNodeParams->dstPtr.ptr, pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize, false);
     }
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -11474,6 +11493,19 @@ extern "C" cudaError_t cudaGraphExecKernelNodeSetParams(cudaGraphExec_t hGraphEx
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecKernelNodeSetParams called" << std::endl;
 #endif
+    if(pNodeParams == nullptr) {
+        return cudaErrorInvalidDeviceFunction;
+    }
+    FuncInfo *f = nullptr;
+    for(auto &funcinfo : funcinfos) {
+        if(funcinfo.fun_ptr == pNodeParams->func) {
+            f = &funcinfo;
+            break;
+        }
+    }
+    if(f == nullptr) {
+        return cudaErrorInvalidDeviceFunction;
+    }
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
@@ -11482,6 +11514,9 @@ extern "C" cudaError_t cudaGraphExecKernelNodeSetParams(cudaGraphExec_t hGraphEx
     conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
     mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    for(int i = 0; i < f->param_count; i++) {
+        mem2server(conn, &f->params[i].ptr, *((void **)pNodeParams->kernelParams[i]), -1);
+    }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -11497,6 +11532,11 @@ extern "C" cudaError_t cudaGraphExecKernelNodeSetParams(cudaGraphExec_t hGraphEx
     conn->write(&node, sizeof(node));
     conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
+    conn->write(&f->param_count, sizeof(f->param_count));
+    for(int i = 0; i < f->param_count; i++) {
+        conn->write(&f->params[i].ptr, f->params[i].size, true);
+        updateTmpPtr(*((void **)pNodeParams->kernelParams[i]), f->params[i].ptr);
+    }
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11532,8 +11572,8 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParams(cudaGraphExec_t hGraphEx
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(pNodeParams != nullptr) {
-        mem2server(conn, &_0sptr, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize));
-        mem2server(conn, &_0dptr, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)pNodeParams->srcPtr.ptr, pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize);
+        mem2server(conn, &_0dptr, (void *)pNodeParams->dstPtr.ptr, pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize);
     }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
@@ -11565,8 +11605,8 @@ extern "C" cudaError_t cudaGraphExecMemcpyNodeSetParams(cudaGraphExec_t hGraphEx
     if(pNodeParams != nullptr) {
         _0sptr = (void *)pNodeParams->srcPtr.ptr;
         _0dptr = (void *)pNodeParams->dstPtr.ptr;
-        mem2client(conn, (void *)pNodeParams->srcPtr.ptr, sizeof(pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize), false);
-        mem2client(conn, (void *)pNodeParams->dstPtr.ptr, sizeof(pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize), false);
+        mem2client(conn, (void *)pNodeParams->srcPtr.ptr, pNodeParams->srcPtr.pitch * pNodeParams->srcPtr.ysize, false);
+        mem2client(conn, (void *)pNodeParams->dstPtr.ptr, pNodeParams->dstPtr.pitch * pNodeParams->dstPtr.ysize, false);
     }
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
