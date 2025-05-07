@@ -452,8 +452,10 @@ int handle_cudaLaunchKernel(void *args0) {
         std::cerr << "Failed to allocate args" << std::endl;
         return 1;
     }
+    memset(args, 0, sizeof(void *) * arg_count);
     if(conn->read_all_now(args, nullptr, arg_count) != RpcError::OK) {
         std::cerr << "Failed to read args" << std::endl;
+        free(args);
         return 1;
     }
 
@@ -500,6 +502,7 @@ int handle_cudaLaunchCooperativeKernel(void *args0) {
         std::cerr << "Failed to allocate args" << std::endl;
         return 1;
     }
+    memset(args, 0, sizeof(void *) * arg_count);
     if(conn->read_all_now(args, nullptr, arg_count) != RpcError::OK) {
         std::cerr << "Failed to read args" << std::endl;
         return 1;

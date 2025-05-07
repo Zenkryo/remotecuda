@@ -4,12 +4,6 @@
 
 #include "hook_api.h"
 #include "client.h"
-extern void *(*real_dlsym)(void *, const char *);
-
-extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssize_t size);
-extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);
-extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);
-void *get_so_handle(const std::string &so_file);
 extern "C" cudaError_t cudaDeviceReset() {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceReset called" << std::endl;
@@ -8658,18 +8652,36 @@ extern "C" cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t *pGraphNode, cudaG
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphAddKernelNode called" << std::endl;
 #endif
+    if(pNodeParams == nullptr) {
+        return cudaErrorInvalidDeviceFunction;
+    }
+    FuncInfo *f = nullptr;
+    for(auto &funcinfo : funcinfos) {
+        if(funcinfo.fun_ptr == pNodeParams->func) {
+            f = &funcinfo;
+            break;
+        }
+    }
+    if(f == nullptr) {
+        return cudaErrorInvalidDeviceFunction;
+    }
+
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
         std::cerr << "Failed to get rpc conn" << std::endl;
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
+    for(int i = 0; i < f->param_count; i++) {
+        mem2server(conn, &f->params[i].ptr, *((void **)pNodeParams->kernelParams[i]), -1);
+    }
     void *_0pGraphNode;
     mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
     void *_0pDependencies;
     mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pNodeParams;
     mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -8689,6 +8701,11 @@ extern "C" cudaError_t cudaGraphAddKernelNode(cudaGraphNode_t *pGraphNode, cudaG
     conn->write(&numDependencies, sizeof(numDependencies));
     conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
+    conn->write(&f->param_count, sizeof(f->param_count));
+    for(int i = 0; i < f->param_count; i++) {
+        conn->write(&f->params[i].ptr, f->params[i].size, true);
+        updateTmpPtr(*((void **)pNodeParams->kernelParams[i]), f->params[i].ptr);
+    }
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -8958,8 +8975,8 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
     void *_0sptr = nullptr;
     void *_0dptr = nullptr;
     if(pCopyParams != nullptr) {
-        mem2server(conn, &_0sptr, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize));
-        mem2server(conn, &_0dptr, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize));
+        mem2server(conn, &_0sptr, (void *)pCopyParams->srcPtr.ptr, pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize);
+        mem2server(conn, &_0dptr, (void *)pCopyParams->dstPtr.ptr, pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize);
     }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
@@ -8997,8 +9014,8 @@ extern "C" cudaError_t cudaGraphAddMemcpyNode(cudaGraphNode_t *pGraphNode, cudaG
     if(pCopyParams != nullptr) {
         _0sptr = (void *)pCopyParams->srcPtr.ptr;
         _0dptr = (void *)pCopyParams->dstPtr.ptr;
-        mem2client(conn, (void *)pCopyParams->srcPtr.ptr, sizeof(pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize), false);
-        mem2client(conn, (void *)pCopyParams->dstPtr.ptr, sizeof(pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize), false);
+        mem2client(conn, (void *)pCopyParams->srcPtr.ptr, pCopyParams->srcPtr.pitch * pCopyParams->srcPtr.ysize, false);
+        mem2client(conn, (void *)pCopyParams->dstPtr.ptr, pCopyParams->dstPtr.pitch * pCopyParams->dstPtr.ysize, false);
     }
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));

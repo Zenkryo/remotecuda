@@ -579,9 +579,13 @@ RpcError RpcConn::read_all_now(void **buffer, size_t *size, int count) {
         }
 
         // 分配新的缓冲区
-        void *tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
+        void *tmp_buffer = buffer[i];
         if(tmp_buffer == nullptr) {
-            return RpcError::MALLOC_FAILED;
+            tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
+            if(tmp_buffer == nullptr) {
+                return RpcError::MALLOC_FAILED;
+            }
+            buffer[i] = tmp_buffer;
         }
         iovs = {{tmp_buffer, length}};
         err = read_full_iovec(iovs);
@@ -589,7 +593,6 @@ RpcError RpcConn::read_all_now(void **buffer, size_t *size, int count) {
             return err;
         }
 
-        buffer[i] = tmp_buffer;
         if(size != nullptr) {
             size[i] = length;
         }
@@ -648,6 +651,7 @@ void *RpcConn::get_iov_buffer(size_t size) {
     if(iov_buffer == nullptr) {
         return nullptr;
     }
+    memset(iov_buffer, 0, size);
     iov_buffers_.insert(iov_buffer);
     return iov_buffer;
 }

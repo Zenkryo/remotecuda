@@ -463,8 +463,12 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    void *_0sptr = nullptr;\n")
                 f.write(f"    void *_0dptr = nullptr;\n")
                 f.write(f"    if({param.name} != nullptr) {{\n")
-                f.write(f"        mem2server(conn, &_0sptr, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize));\n")
-                f.write(f"        mem2server(conn, &_0dptr, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize));\n")
+                f.write(f"        mem2server(conn, &_0sptr, (void *){param.name}->srcPtr.ptr, {param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize);\n")
+                f.write(f"        mem2server(conn, &_0dptr, (void *){param.name}->dstPtr.ptr, {param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize);\n")
+                f.write(f"    }}\n")
+            elif param_type_name == "struct cudaKernelNodeParams":
+                f.write(f"    for(int i = 0; i < f->param_count; i++) {{\n")
+                f.write(f"        mem2server(conn, &f->params[i].ptr, *((void **){param.name}->kernelParams[i]), -1);\n")
                 f.write(f"    }}\n")
         elif position == 1:
             f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
@@ -474,6 +478,12 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    conn->write(&_0dptr, sizeof(_0dptr));\n")
                 f.write(f"    updateTmpPtr((void *){param.name}->srcPtr.ptr, _0sptr);\n")
                 f.write(f"    updateTmpPtr((void *){param.name}->dstPtr.ptr, _0dptr);\n")
+            elif param_type_name == "struct cudaKernelNodeParams":
+                f.write(f"    conn->write(&f->param_count, sizeof(f->param_count));\n")
+                f.write(f"    for(int i = 0; i < f->param_count; i++) {{\n")
+                f.write(f"        conn->write(&f->params[i].ptr, f->params[i].size, true);\n")
+                f.write(f"        updateTmpPtr(*((void **){param.name}->kernelParams[i]), f->params[i].ptr);\n")
+                f.write(f"    }}\n")
         elif position == 3:
             f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
             if param_type_name == "struct cudaMemcpy3DParms":
@@ -481,14 +491,29 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 # 保存客户端原始指针，因为之后读取cudaMemcpy3DParms时会被覆盖
                 f.write(f"        _0sptr = (void *){param.name}->srcPtr.ptr;\n")
                 f.write(f"        _0dptr = (void *){param.name}->dstPtr.ptr;\n")
-                f.write(f"        mem2client(conn, (void *){param.name}->srcPtr.ptr, sizeof({param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize), false);\n")
-                f.write(f"        mem2client(conn, (void *){param.name}->dstPtr.ptr, sizeof({param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize), false);\n")
+                f.write(f"        mem2client(conn, (void *){param.name}->srcPtr.ptr, {param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize, false);\n")
+                f.write(f"        mem2client(conn, (void *){param.name}->dstPtr.ptr, {param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize, false);\n")
                 f.write(f"    }}\n")
         elif position == 4:
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    if({param.name} != nullptr) {{\n")
                 f.write(f"        const_cast<void *&>({param.name}->srcPtr.ptr) = _0sptr;\n")
                 f.write(f"        const_cast<void *&>({param.name}->dstPtr.ptr) = _0dptr;\n")
+                f.write(f"    }}\n")
+        elif position == 5:
+            if param_type_name == "struct cudaKernelNodeParams":
+                f.write(f"    if({param.name} == nullptr) {{\n")
+                f.write(f"        return cudaErrorInvalidDeviceFunction;\n")
+                f.write(f"    }}\n")
+                f.write(f"    FuncInfo *f = nullptr;\n")
+                f.write(f"    for(auto &funcinfo : funcinfos) {{\n")
+                f.write(f"        if(funcinfo.fun_ptr == {param.name}->func) {{\n")
+                f.write(f"            f = &funcinfo;\n")
+                f.write(f"            break;\n")
+                f.write(f"        }}\n")
+                f.write(f"    }}\n")
+                f.write(f"    if(f == nullptr) {{\n")
+                f.write(f"        return cudaErrorInvalidDeviceFunction;\n")
                 f.write(f"    }}\n")
     else:
         if position == 0:
@@ -499,6 +524,9 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    conn->read(&_0sptr, sizeof(_0sptr));\n")
                 f.write(f"    void *_0dptr;\n")
                 f.write(f"    conn->read(&_0dptr, sizeof(_0dptr));\n")
+            elif param_type_name == "struct cudaKernelNodeParams":
+                f.write(f"    int arg_count;\n")
+                f.write(f"    conn->read(&arg_count, sizeof(arg_count));\n")
             return param.name
         elif position == 1:
             if param_type_name == "struct cudaMemcpy3DParms":
@@ -506,6 +534,18 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"        {param.name}->srcPtr.ptr = _0sptr;\n")
                 f.write(f"        {param.name}->dstPtr.ptr = _0dptr;\n")
                 f.write(f"    }}\n")
+            elif param_type_name == "struct cudaKernelNodeParams":
+                f.write(f"    void **args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);\n")
+                f.write(f"    if(args == nullptr) {{\n")
+                f.write(f'        std::cerr << "Failed to allocate args" << std::endl;\n')
+                f.write(f"        return 1;\n")
+                f.write(f"    }}\n")
+                f.write(f"    if(conn->read_all_now(args, nullptr, arg_count) != RpcError::OK) {{\n")
+                f.write(f'        std::cerr << "Failed to read args" << std::endl;\n')
+                f.write(f"        conn->free_host_buffer(args);\n")
+                f.write(f"        return 1;\n")
+                f.write(f"    }}\n")
+                f.write(f"    {param.name}->kernelParams = args;\n")
 
 
 def handle_param_ptype(function, param, f, is_client=True, position=0):
@@ -1573,15 +1613,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
             f.write(f'#include "../{os.path.basename(header_file)}"\n\n')
         f.write('#include "hook_api.h"\n')
         f.write('#include "client.h"\n')
-        # f.write('#include "rpc/rpc_core.h"\n')
-        # f.write("using namespace rpc;\n")
 
-        # 声明 dlsym 函数指针
-        f.write("extern void *(*real_dlsym)(void *, const char *);\n\n")
-        f.write('extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssize_t size);\n')
-        f.write('extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);\n')
-        f.write('extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);\n')
-        f.write("void *get_so_handle(const std::string &so_file);\n")
         if header_file.endswith("cublas_api.h"):
             f.write("int sizeofType(cudaDataType type);\n")
         # 写入被 Hook 的函数实现
@@ -1609,7 +1641,9 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     f.write("#ifdef DEBUG\n")
                     f.write(f'    std::cout << "Hook: {function_name} called" << std::endl;\n')
                     f.write("#endif\n")
-
+                    # 在rpc_get_conn前调用mem2server
+                    for param in function.parameters:
+                        handle_param(function, param, f, True, 5)
                     f.write(f"    RpcConn *conn = rpc_get_conn();\n")
                     f.write(f"    if(conn == nullptr) {{\n")
                     f.write(f'        std::cerr << "Failed to get rpc conn" << std::endl;\n')
@@ -1617,7 +1651,7 @@ def generate_hook_cpp(header_file, parsed_header, output_dir, function_map, so_f
                     f.write(f"    }}\n")
                     f.write(f"    conn->prepare_request(RPC_mem2server);\n")
 
-                    # 在rpc_get_conn前调用mem2server
+                    # 在rpc_get_conn后调用mem2server
                     for param in function.parameters:
                         handle_param(function, param, f, True, 0)
                     f.write(f"    void *end_flag = (void *)0xffffffff;\n")

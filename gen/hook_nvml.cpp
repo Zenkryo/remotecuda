@@ -4,12 +4,6 @@
 
 #include "hook_api.h"
 #include "client.h"
-extern void *(*real_dlsym)(void *, const char *);
-
-extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssize_t size);
-extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool del_tmp_ptr);
-extern "C" void updateTmpPtr(void *clientPtr, void *serverPtr);
-void *get_so_handle(const std::string &so_file);
 extern "C" nvmlReturn_t nvmlInit_v2() {
 #ifdef DEBUG
     std::cout << "Hook: nvmlInit_v2 called" << std::endl;

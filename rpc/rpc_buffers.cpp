@@ -14,6 +14,7 @@ void *RpcBuffers::malloc_rpc_buffer(std::string client_id, size_t size) {
     if(raw_ptr == nullptr) {
         return nullptr;
     }
+    memset(raw_ptr, 0, size);
     rpc_buffers_[client_id].insert(raw_ptr);
     return raw_ptr;
 }
