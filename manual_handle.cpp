@@ -196,7 +196,7 @@ ERROR:
 
 int handle_cudaFree(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaFree called" << std::endl;
+    std::cout << "Handle function cudaFree called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -217,7 +217,7 @@ int handle_cudaFree(void *args) {
 
 int handle_cudaFreeHost(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaFreeHost called" << std::endl;
+    std::cout << "Handle function cudaFreeHost called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -282,7 +282,7 @@ int handle_cudaGetErrorString(void *args0) {
 
 int handle_cudaGetSymbolAddress(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaGetSymbolAddress called" << std::endl;
+    std::cout << "Handle function cudaGetSymbolAddress called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -328,7 +328,7 @@ int handle_cudaGraphMemcpyNodeGetParams(void *args0) {
 
 int handle_cudaHostAlloc(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaHostAlloc called" << std::endl;
+    std::cout << "Handle function cudaHostAlloc called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -525,7 +525,7 @@ int handle_cudaLaunchCooperativeKernel(void *args0) {
 
 int handle_cudaMalloc(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaMalloc called" << std::endl;
+    std::cout << "Handle function cudaMalloc called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -548,7 +548,7 @@ int handle_cudaMalloc(void *args) {
 
 int handle_cudaMalloc3D(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaMalloc3D called" << std::endl;
+    std::cout << "Handle function cudaMalloc3D called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -571,7 +571,7 @@ int handle_cudaMalloc3D(void *args) {
 
 int handle_cudaMallocHost(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaMallocHost called" << std::endl;
+    std::cout << "Handle function cudaMallocHost called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -594,7 +594,7 @@ int handle_cudaMallocHost(void *args) {
 
 int handle_cudaMallocManaged(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaMallocManaged called" << std::endl;
+    std::cout << "Handle function cudaMallocManaged called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -619,7 +619,7 @@ int handle_cudaMallocManaged(void *args) {
 
 int handle_cudaMallocPitch(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cudaMallocPitch called" << std::endl;
+    std::cout << "Handle function cudaMallocPitch called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -1002,7 +1002,7 @@ int handle___cudaInitModule(void *args0) {
 
 int handle_cuExternalMemoryGetMappedBuffer(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuExternalMemoryGetMappedBuffer called" << std::endl;
+    std::cout << "Handle function cuExternalMemoryGetMappedBuffer called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -1087,7 +1087,7 @@ int handle_cuGetProcAddress(void *args0) {
 
 int handle_cuGraphicsResourceGetMappedPointer_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
+    std::cout << "Handle function cuGraphicsResourceGetMappedPointer_v2 called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args0;
@@ -1167,7 +1167,7 @@ int handle_cuLaunchCooperativeKernel(void *args0) {
 
 int handle_cuImportExternalMemory(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuImportExternalMemory called" << std::endl;
+    std::cout << "Handle function cuImportExternalMemory called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args0;
     CUexternalMemory extMem_out;
@@ -1189,7 +1189,7 @@ int handle_cuImportExternalMemory(void *args0) {
 
 int handle_cuIpcOpenMemHandle_v2(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuIpcOpenMemHandle_v2 called" << std::endl;
+    std::cout << "Handle function cuIpcOpenMemHandle_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args0;
     CUdeviceptr dptr;
@@ -1214,7 +1214,7 @@ int handle_cuIpcOpenMemHandle_v2(void *args0) {
 #if CUDA_VERSION > 11040
 int handle_cuLibraryGetGlobal(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuLibraryGetGlobal called" << std::endl;
+    std::cout << "Handle function cuLibraryGetGlobal called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args0;
     CUdeviceptr dptr;
@@ -1249,7 +1249,7 @@ int handle_cuLibraryGetGlobal(void *args0) {
 
 int handle_cuLibraryGetManaged(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuLibraryGetManaged called" << std::endl;
+    std::cout << "Handle function cuLibraryGetManaged called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args0;
     CUdeviceptr dptr;
@@ -1285,7 +1285,7 @@ int handle_cuLibraryGetManaged(void *args0) {
 
 int handle_cuMemAddressReserve(void *args0) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAddressReserve called" << std::endl;
+    std::cout << "Handle function cuMemAddressReserve called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args0;
     CUdeviceptr ptr;
@@ -1313,7 +1313,7 @@ int handle_cuMemAddressReserve(void *args0) {
 
 int handle_cuMemAlloc_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAlloc_v2 called" << std::endl;
+    std::cout << "Handle function cuMemAlloc_v2 called" << std::endl;
 #endif
 
     RpcConn *conn = (RpcConn *)args;
@@ -1336,7 +1336,7 @@ int handle_cuMemAlloc_v2(void *args) {
 
 int handle_cuMemAllocHost_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAllocHost_v2 called" << std::endl;
+    std::cout << "Handle function cuMemAllocHost_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     void *pp;
@@ -1358,7 +1358,7 @@ int handle_cuMemAllocHost_v2(void *args) {
 
 int handle_cuMemAllocManaged(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAllocManaged called" << std::endl;
+    std::cout << "Handle function cuMemAllocManaged called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr ptr;
@@ -1382,7 +1382,7 @@ int handle_cuMemAllocManaged(void *args) {
 
 int handle_cuMemAllocPitch_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemAllocPitch_v2 called" << std::endl;
+    std::cout << "Handle function cuMemAllocPitch_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr dptr;
@@ -1410,7 +1410,7 @@ int handle_cuMemAllocPitch_v2(void *args) {
 
 int handle_cuMemCreate(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemCreate called" << std::endl;
+    std::cout << "Handle function cuMemCreate called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUmemGenericAllocationHandle handle;
@@ -1436,7 +1436,7 @@ int handle_cuMemCreate(void *args) {
 
 int handle_cuMemFreeHost(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemFreeHost called" << std::endl;
+    std::cout << "Handle function cuMemFreeHost called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     void *p;
@@ -1456,7 +1456,7 @@ int handle_cuMemFreeHost(void *args) {
 
 int handle_cuMemGetAddressRange_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemGetAddressRange_v2 called" << std::endl;
+    std::cout << "Handle function cuMemGetAddressRange_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr base;
@@ -1546,7 +1546,7 @@ _RTN_:
 
 int handle_cuMemHostAlloc(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemHostAlloc called" << std::endl;
+    std::cout << "Handle function cuMemHostAlloc called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     void *p;
@@ -1570,7 +1570,7 @@ int handle_cuMemHostAlloc(void *args) {
 
 int handle_cuMemHostGetDevicePointer_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemHostGetDevicePointer_v2 called" << std::endl;
+    std::cout << "Handle function cuMemHostGetDevicePointer_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr dptr;
@@ -1594,7 +1594,7 @@ int handle_cuMemHostGetDevicePointer_v2(void *args) {
 
 int handle_cuMemMap(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemMap called" << std::endl;
+    std::cout << "Handle function cuMemMap called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr ptr;
@@ -1622,7 +1622,7 @@ int handle_cuMemMap(void *args) {
 
 int handle_cuMemPoolImportPointer(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemPoolImportPointer called" << std::endl;
+    std::cout << "Handle function cuMemPoolImportPointer called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr ptr_out;
@@ -1646,7 +1646,7 @@ int handle_cuMemPoolImportPointer(void *args) {
 
 int handle_cuMemRelease(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuMemRelease called" << std::endl;
+    std::cout << "Handle function cuMemRelease called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUmemGenericAllocationHandle handle;
@@ -1666,7 +1666,7 @@ int handle_cuMemRelease(void *args) {
 
 int handle_cuModuleGetGlobal_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuModuleGetGlobal_v2 called" << std::endl;
+    std::cout << "Handle function cuModuleGetGlobal_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr dptr;
@@ -1801,7 +1801,7 @@ _RTN_:
 
 int handle_cuTexRefGetAddress_v2(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuTexRefGetAddress_v2 called" << std::endl;
+    std::cout << "Handle function cuTexRefGetAddress_v2 called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUdeviceptr pdptr;
@@ -1823,7 +1823,7 @@ int handle_cuTexRefGetAddress_v2(void *args) {
 
 int handle_cuGraphMemFreeNodeGetParams(void *args) {
 #ifdef DEBUG
-    std::cout << "Handle function handle_cuGraphMemFreeNodeGetParams called" << std::endl;
+    std::cout << "Handle function cuGraphMemFreeNodeGetParams called" << std::endl;
 #endif
     RpcConn *conn = (RpcConn *)args;
     CUgraphNode hNode;

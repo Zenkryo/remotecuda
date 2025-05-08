@@ -129,6 +129,9 @@ class RpcConn {
     // 释放iov临时缓冲区
     void free_iov_buffer(void *ptr);
 
+    // 释放所有iov临时缓冲区
+    void free_all_iov_buffers();
+
     // 友元声明
     friend class RpcServer;
     friend class RpcClient;
@@ -192,7 +195,6 @@ class RpcServer {
     std::atomic<bool> running_{false};
 
     std::map<std::string, std::unique_ptr<RpcConn>> async_conns_;
-    std::map<std::string, std::set<std::shared_ptr<RpcConn>>> sync_conns_; // 所有的同步连接
     std::vector<std::thread> worker_threads_;
     std::map<uint32_t, RequestHandler> handlers_;
 
@@ -265,6 +267,12 @@ class RpcBuffers {
     // 释放主机内存
     void free_rpc_buffer(std::string client_id, void *ptr);
 
+    // 增加连接计数
+    void increment_connection_count(const std::string &client_id);
+
+    // 减少连接计数
+    void decrement_connection_count(const std::string &client_id);
+
   private:
     // 私有构造函数和析构函数
     RpcBuffers() = default;
@@ -272,6 +280,9 @@ class RpcBuffers {
 
     // client id -> rpc buffers
     std::map<std::string, std::set<void *>> rpc_buffers_;
+
+    // client id -> connection count
+    std::map<std::string, std::atomic<int>> connection_counts_;
 
     std::mutex buffers_mutex_;
 };

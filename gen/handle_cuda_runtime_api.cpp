@@ -6769,11 +6769,16 @@ int handle_cudaGraphAddMemsetNode(void *args0) {
     conn->read(&numDependencies, sizeof(numDependencies));
     struct cudaMemsetParams *pMemsetParams = nullptr;
     conn->read(&pMemsetParams, sizeof(pMemsetParams));
+    void *_0dst;
+    conn->read(&_0dst, sizeof(_0dst));
     cudaError_t _result;
     if(conn->prepare_response() != RpcError::OK) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(pMemsetParams != nullptr) {
+        pMemsetParams->dst = _0dst;
     }
     _result = cudaGraphAddMemsetNode(pGraphNode, graph, pDependencies, numDependencies, pMemsetParams);
     conn->write(&_result, sizeof(_result));
@@ -6833,11 +6838,16 @@ int handle_cudaGraphMemsetNodeSetParams(void *args0) {
     conn->read(&node, sizeof(node));
     struct cudaMemsetParams *pNodeParams = nullptr;
     conn->read(&pNodeParams, sizeof(pNodeParams));
+    void *_0dst;
+    conn->read(&_0dst, sizeof(_0dst));
     cudaError_t _result;
     if(conn->prepare_response() != RpcError::OK) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(pNodeParams != nullptr) {
+        pNodeParams->dst = _0dst;
     }
     _result = cudaGraphMemsetNodeSetParams(node, pNodeParams);
     conn->write(&_result, sizeof(_result));
@@ -8381,11 +8391,16 @@ int handle_cudaGraphExecMemsetNodeSetParams(void *args0) {
     conn->read(&node, sizeof(node));
     struct cudaMemsetParams *pNodeParams = nullptr;
     conn->read(&pNodeParams, sizeof(pNodeParams));
+    void *_0dst;
+    conn->read(&_0dst, sizeof(_0dst));
     cudaError_t _result;
     if(conn->prepare_response() != RpcError::OK) {
         std::cerr << "Failed to prepare response" << std::endl;
         rtn = 1;
         goto _RTN_;
+    }
+    if(pNodeParams != nullptr) {
+        pNodeParams->dst = _0dst;
     }
     _result = cudaGraphExecMemsetNodeSetParams(hGraphExec, node, pNodeParams);
     conn->write(&_result, sizeof(_result));

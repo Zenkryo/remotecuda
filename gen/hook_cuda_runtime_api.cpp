@@ -5356,8 +5356,8 @@ extern "C" cudaError_t cudaMemcpyAsync(void *dst, const void *src, size_t count,
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)dst, count, true);
-    mem2client(conn, (void *)src, count, true);
+    mem2client(conn, (void *)dst, count, false);
+    mem2client(conn, (void *)src, count, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5466,8 +5466,8 @@ extern "C" cudaError_t cudaMemcpy2DAsync(void *dst, size_t dpitch, const void *s
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)dst, dpitch * height, true);
-    mem2client(conn, (void *)src, spitch * height, true);
+    mem2client(conn, (void *)dst, dpitch * height, false);
+    mem2client(conn, (void *)src, spitch * height, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5627,7 +5627,7 @@ extern "C" cudaError_t cudaMemcpyToSymbolAsync(const void *symbol, const void *s
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)symbol, -1, true);
-    mem2client(conn, (void *)src, count, true);
+    mem2client(conn, (void *)src, count, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5680,7 +5680,7 @@ extern "C" cudaError_t cudaMemcpyFromSymbolAsync(void *dst, const void *symbol, 
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)dst, count, false);
     mem2client(conn, (void *)symbol, -1, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -9104,7 +9104,7 @@ extern "C" cudaError_t cudaGraphAddMemcpyNodeToSymbol(cudaGraphNode_t *pGraphNod
     mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
     mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
     mem2client(conn, (void *)symbol, -1, true);
-    mem2client(conn, (void *)src, count, true);
+    mem2client(conn, (void *)src, count, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9168,7 +9168,7 @@ extern "C" cudaError_t cudaGraphAddMemcpyNodeFromSymbol(cudaGraphNode_t *pGraphN
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
     mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(conn, (void *)dst, count, true);
+    mem2client(conn, (void *)dst, count, false);
     mem2client(conn, (void *)symbol, -1, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -9489,6 +9489,10 @@ extern "C" cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t *pGraphNode, cudaG
     mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
     void *_0pMemsetParams;
     mem2server(conn, &_0pMemsetParams, (void *)pMemsetParams, sizeof(*pMemsetParams));
+    void *_0dst = nullptr;
+    if(pMemsetParams != nullptr) {
+        mem2server(conn, &_0dst, (void *)pMemsetParams->dst, pMemsetParams->pitch * pMemsetParams->height);
+    }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -9508,6 +9512,8 @@ extern "C" cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t *pGraphNode, cudaG
     conn->write(&numDependencies, sizeof(numDependencies));
     conn->write(&_0pMemsetParams, sizeof(_0pMemsetParams));
     updateTmpPtr((void *)pMemsetParams, _0pMemsetParams);
+    conn->write(&_0dst, sizeof(_0dst));
+    updateTmpPtr((void *)pMemsetParams->dst, _0dst);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9518,6 +9524,8 @@ extern "C" cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t *pGraphNode, cudaG
     mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
     mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
     mem2client(conn, (void *)pMemsetParams, sizeof(*pMemsetParams), true);
+        _0dst = (void *)pMemsetParams->dst;
+        mem2client(conn, (void *)pMemsetParams->dst, pMemsetParams->pitch * pMemsetParams->height, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9525,6 +9533,9 @@ extern "C" cudaError_t cudaGraphAddMemsetNode(cudaGraphNode_t *pGraphNode, cudaG
             rpc_release_conn(conn);
             exit(1);
         }
+    }
+    if(pMemsetParams != nullptr) {
+        const_cast<void *&>(pMemsetParams->dst) = _0dst;
     }
     rpc_release_conn(conn);
     return _result;
@@ -9588,6 +9599,10 @@ extern "C" cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const 
     conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
     mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    void *_0dst = nullptr;
+    if(pNodeParams != nullptr) {
+        mem2server(conn, &_0dst, (void *)pNodeParams->dst, pNodeParams->pitch * pNodeParams->height);
+    }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -9602,6 +9617,8 @@ extern "C" cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const 
     conn->write(&node, sizeof(node));
     conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
+    conn->write(&_0dst, sizeof(_0dst));
+    updateTmpPtr((void *)pNodeParams->dst, _0dst);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -9610,6 +9627,8 @@ extern "C" cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const 
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+        _0dst = (void *)pNodeParams->dst;
+        mem2client(conn, (void *)pNodeParams->dst, pNodeParams->pitch * pNodeParams->height, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9617,6 +9636,9 @@ extern "C" cudaError_t cudaGraphMemsetNodeSetParams(cudaGraphNode_t node, const 
             rpc_release_conn(conn);
             exit(1);
         }
+    }
+    if(pNodeParams != nullptr) {
+        const_cast<void *&>(pNodeParams->dst) = _0dst;
     }
     rpc_release_conn(conn);
     return _result;
@@ -11800,6 +11822,10 @@ extern "C" cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphEx
     conn->prepare_request(RPC_mem2server);
     void *_0pNodeParams;
     mem2server(conn, &_0pNodeParams, (void *)pNodeParams, sizeof(*pNodeParams));
+    void *_0dst = nullptr;
+    if(pNodeParams != nullptr) {
+        mem2server(conn, &_0dst, (void *)pNodeParams->dst, pNodeParams->pitch * pNodeParams->height);
+    }
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -11815,6 +11841,8 @@ extern "C" cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphEx
     conn->write(&node, sizeof(node));
     conn->write(&_0pNodeParams, sizeof(_0pNodeParams));
     updateTmpPtr((void *)pNodeParams, _0pNodeParams);
+    conn->write(&_0dst, sizeof(_0dst));
+    updateTmpPtr((void *)pNodeParams->dst, _0dst);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -11823,6 +11851,8 @@ extern "C" cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphEx
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pNodeParams, sizeof(*pNodeParams), true);
+        _0dst = (void *)pNodeParams->dst;
+        mem2client(conn, (void *)pNodeParams->dst, pNodeParams->pitch * pNodeParams->height, false);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11830,6 +11860,9 @@ extern "C" cudaError_t cudaGraphExecMemsetNodeSetParams(cudaGraphExec_t hGraphEx
             rpc_release_conn(conn);
             exit(1);
         }
+    }
+    if(pNodeParams != nullptr) {
+        const_cast<void *&>(pNodeParams->dst) = _0dst;
     }
     rpc_release_conn(conn);
     return _result;

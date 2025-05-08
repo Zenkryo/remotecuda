@@ -113,6 +113,7 @@ void RpcClient::release_connection(RpcConn *conn) {
         available_sync_conns_.push_back(std::move(*it));
         using_sync_conns_.erase(it);
     }
+    conn->free_all_iov_buffers();
 }
 
 void RpcClient::register_async_handler(uint32_t func_id, AsyncRequestHandler handler) { async_handlers_[func_id] = handler; }

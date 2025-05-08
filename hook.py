@@ -363,6 +363,7 @@ def handle_param_type(function, param, f, is_client=True, position=0):
 
 # 处理void *类型的参数
 def handle_param_pvoid(function, param, f, is_client=True, position=0):
+    function_name = function.name.format()
     if is_client:
         len = calculate_pointer_sizes(function, param)
         if position == 0:
@@ -372,7 +373,23 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
             f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
             f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
+            if (
+                function_name == "cudaGraphAddMemcpyNodeToSymbol"
+                and param.name == "src"
+                or function_name == "cudaGraphAddMemcpyNodeFromSymbol"
+                and param.name == "dst"
+                or function_name == "cudaMemcpyAsync"
+                and param.name in ["src", "dst"]
+                or function_name == "cudaMemcpyToSymbolAsync"
+                and param.name == "src"
+                or function_name == "cudaMemcpyFromSymbolAsync"
+                and param.name == "dst"
+                or function_name == "cudaMemcpy2DAsync"
+                and param.name in ["src", "dst"]
+            ):
+                f.write(f"    mem2client(conn, (void *){param.name}, {len}, false);\n")
+            else:
+                f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -382,6 +399,7 @@ def handle_param_pvoid(function, param, f, is_client=True, position=0):
 
 # 处理const void *参数
 def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
+    function_name = function.name.format()
     if is_client:
         len = calculate_pointer_sizes(function, param)
         if position == 0:
@@ -391,7 +409,23 @@ def handle_param_pconstvoid(function, param, f, is_client=True, position=0):
             f.write(f"    conn->write(&_0{param.name}, sizeof(_0{param.name}));\n")
             f.write(f"    updateTmpPtr((void *){param.name}, _0{param.name});\n")
         elif position == 3:
-            f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
+            if (
+                function_name == "cudaGraphAddMemcpyNodeToSymbol"
+                and param.name == "src"
+                or function_name == "cudaGraphAddMemcpyNodeFromSymbol"
+                and param.name == "dst"
+                or function_name == "cudaMemcpyAsync"
+                and param.name in ["src", "dst"]
+                or function_name == "cudaMemcpyToSymbolAsync"
+                and param.name == "src"
+                or function_name == "cudaMemcpyFromSymbolAsync"
+                and param.name == "dst"
+                or function_name == "cudaMemcpy2DAsync"
+                and param.name in ["src", "dst"]
+            ):
+                f.write(f"    mem2client(conn, (void *){param.name}, {len}, false);\n")
+            else:
+                f.write(f"    mem2client(conn, (void *){param.name}, {len}, true);\n")
     else:
         if position == 0:
             f.write(f"    void *{param.name};\n")
@@ -466,6 +500,11 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"        mem2server(conn, &_0sptr, (void *){param.name}->srcPtr.ptr, {param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize);\n")
                 f.write(f"        mem2server(conn, &_0dptr, (void *){param.name}->dstPtr.ptr, {param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize);\n")
                 f.write(f"    }}\n")
+            elif param_type_name == "struct cudaMemsetParams":
+                f.write(f"    void *_0dst = nullptr;\n")
+                f.write(f"    if({param.name} != nullptr) {{\n")
+                f.write(f"        mem2server(conn, &_0dst, (void *){param.name}->dst, {param.name}->pitch * {param.name}->height);\n")
+                f.write(f"    }}\n")
             elif param_type_name == "struct cudaKernelNodeParams":
                 f.write(f"    for(int i = 0; i < f->param_count; i++) {{\n")
                 f.write(f"        mem2server(conn, &f->params[i].ptr, *((void **){param.name}->kernelParams[i]), -1);\n")
@@ -478,6 +517,9 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    conn->write(&_0dptr, sizeof(_0dptr));\n")
                 f.write(f"    updateTmpPtr((void *){param.name}->srcPtr.ptr, _0sptr);\n")
                 f.write(f"    updateTmpPtr((void *){param.name}->dstPtr.ptr, _0dptr);\n")
+            elif param_type_name == "struct cudaMemsetParams":
+                f.write(f"    conn->write(&_0dst, sizeof(_0dst));\n")
+                f.write(f"    updateTmpPtr((void *){param.name}->dst, _0dst);\n")
             elif param_type_name == "struct cudaKernelNodeParams":
                 f.write(f"    conn->write(&f->param_count, sizeof(f->param_count));\n")
                 f.write(f"    for(int i = 0; i < f->param_count; i++) {{\n")
@@ -494,11 +536,18 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"        mem2client(conn, (void *){param.name}->srcPtr.ptr, {param.name}->srcPtr.pitch * {param.name}->srcPtr.ysize, false);\n")
                 f.write(f"        mem2client(conn, (void *){param.name}->dstPtr.ptr, {param.name}->dstPtr.pitch * {param.name}->dstPtr.ysize, false);\n")
                 f.write(f"    }}\n")
+            elif param_type_name == "struct cudaMemsetParams":
+                f.write(f"        _0dst = (void *){param.name}->dst;\n")
+                f.write(f"        mem2client(conn, (void *){param.name}->dst, {param.name}->pitch * {param.name}->height, false);\n")
         elif position == 4:
             if param_type_name == "struct cudaMemcpy3DParms":
                 f.write(f"    if({param.name} != nullptr) {{\n")
                 f.write(f"        const_cast<void *&>({param.name}->srcPtr.ptr) = _0sptr;\n")
                 f.write(f"        const_cast<void *&>({param.name}->dstPtr.ptr) = _0dptr;\n")
+                f.write(f"    }}\n")
+            elif param_type_name == "struct cudaMemsetParams":
+                f.write(f"    if({param.name} != nullptr) {{\n")
+                f.write(f"        const_cast<void *&>({param.name}->dst) = _0dst;\n")
                 f.write(f"    }}\n")
         elif position == 5:
             if param_type_name == "struct cudaKernelNodeParams":
@@ -524,6 +573,9 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    conn->read(&_0sptr, sizeof(_0sptr));\n")
                 f.write(f"    void *_0dptr;\n")
                 f.write(f"    conn->read(&_0dptr, sizeof(_0dptr));\n")
+            elif param_type_name == "struct cudaMemsetParams":
+                f.write(f"    void *_0dst;\n")
+                f.write(f"    conn->read(&_0dst, sizeof(_0dst));\n")
             elif param_type_name == "struct cudaKernelNodeParams":
                 f.write(f"    void **args = nullptr;\n")
                 f.write(f"    int arg_count;\n")
@@ -534,6 +586,10 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"    if({param.name} != nullptr) {{\n")
                 f.write(f"        {param.name}->srcPtr.ptr = _0sptr;\n")
                 f.write(f"        {param.name}->dstPtr.ptr = _0dptr;\n")
+                f.write(f"    }}\n")
+            elif param_type_name == "struct cudaMemsetParams":
+                f.write(f"    if({param.name} != nullptr) {{\n")
+                f.write(f"        {param.name}->dst = _0dst;\n")
                 f.write(f"    }}\n")
             elif param_type_name == "struct cudaKernelNodeParams":
                 f.write(f"    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);\n")

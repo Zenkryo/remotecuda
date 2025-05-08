@@ -1133,6 +1133,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
 
     for(int i = 0; i < f->param_count; i++) {
         conn->write(&f->params[i].ptr, f->params[i].size, true);
+        updateTmpPtr(*((void **)args[i]), f->params[i].ptr);
     }
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
@@ -1148,7 +1149,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     // 所以这里需要让服务器启动一个回调任务.
     conn->prepare_request(RPC_mem2client_async);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client_async(conn, *((void **)args[i]), -1, true);
+        mem2client_async(conn, *((void **)args[i]), -1, false);
     }
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -1208,6 +1209,7 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
 
     for(int i = 0; i < f->param_count; i++) {
         conn->write(&f->params[i].ptr, f->params[i].size, true);
+        updateTmpPtr(*((void **)args[i]), f->params[i].ptr);
     }
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
@@ -1217,7 +1219,7 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
     }
     conn->prepare_request(RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(conn, *((void **)args[i]), -1, true);
+        mem2client(conn, *((void **)args[i]), -1, false);
     }
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -1974,6 +1976,7 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
 
     for(int i = 0; i < f->param_count; i++) {
         conn->write(&f->params[i].ptr, f->params[i].size, true);
+        updateTmpPtr(*((void **)kernelParams[i]), f->params[i].ptr);
     }
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
@@ -1983,7 +1986,7 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
     }
     conn->prepare_request(RPC_mem2client);
     for(int i = 0; i < f->param_count; i++) {
-        mem2client(conn, *((void **)kernelParams[i]), -1, true);
+        mem2client(conn, *((void **)kernelParams[i]), -1, false);
     }
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));

@@ -14,9 +14,14 @@ RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : func_
     uuid_copy(client_id_, client_id);
     uuid_unparse(client_id_, uuid_str);
     client_id_str_ = std::string(uuid_str);
+    // 增加连接计数
+    RpcBuffers::getInstance().increment_connection_count(client_id_str_);
 }
 
-RpcConn::~RpcConn() { disconnect(); }
+RpcConn::~RpcConn() {
+    // 减少连接计数
+    RpcBuffers::getInstance().decrement_connection_count(client_id_str_);
+}
 
 RpcError RpcConn::set_nonblocking() {
     int flags = fcntl(sockfd_, F_GETFL, 0);
@@ -489,12 +494,13 @@ RpcError RpcConn::read_all(bool with_len) {
             }
 
             void *tmp_buffer = nullptr;
+            void **buffer_ptr;
             if(iov.iov_len == 0) {
                 tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
                 if(tmp_buffer == nullptr) {
                     throw RpcMemoryException("Failed to allocate memory", __LINE__);
                 }
-                void **buffer_ptr = static_cast<void **>(iov.iov_base);
+                buffer_ptr = static_cast<void **>(iov.iov_base);
                 *buffer_ptr = tmp_buffer;
 
                 iov.iov_base = tmp_buffer;
@@ -509,7 +515,6 @@ RpcError RpcConn::read_all(bool with_len) {
             if(err != RpcError::OK) {
                 if(tmp_buffer != nullptr) {
                     RpcBuffers::getInstance().free_rpc_buffer(client_id_str_, tmp_buffer);
-                    void **buffer_ptr = static_cast<void **>(iov.iov_base);
                     *buffer_ptr = nullptr;
                 }
                 return err;
@@ -561,6 +566,7 @@ RpcError RpcConn::read_one_now(void *buffer, size_t size, bool with_len) {
     if(err != RpcError::OK) {
         if(size == 0) {
             RpcBuffers::getInstance().free_rpc_buffer(client_id_str_, tmp_buffer);
+            *(void **)buffer = nullptr;
         }
         return err;
     }
@@ -667,6 +673,14 @@ void RpcConn::free_iov_buffer(void *ptr) {
     }
     iov_buffers_.erase(it);
     free(ptr);
+}
+
+void RpcConn::free_all_iov_buffers() {
+    std::lock_guard<std::mutex> lock(iov_buffers_mutex_);
+    for(auto ptr : iov_buffers_) {
+        free(ptr);
+    }
+    iov_buffers_.clear();
 }
 
 } // namespace rpc

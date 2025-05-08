@@ -84,16 +84,6 @@ void RpcServer::stop() {
     }
     async_conns_.clear();
 
-    // 清理同步连接
-    for(auto &pair : sync_conns_) {
-        for(auto &conn : pair.second) {
-            if(conn) {
-                conn->disconnect();
-            }
-        }
-    }
-    sync_conns_.clear();
-
     // 等待所有工作线程结束
     for(auto &thread : worker_threads_) {
         if(thread.joinable()) {
@@ -198,13 +188,11 @@ void RpcServer::accept_loop() {
             if(async_conns_.find(conn->client_id_str_) != async_conns_.end()) {
                 async_conns_.erase(conn->client_id_str_);
             }
+            // TODO, 需要能探测到异步连接断开
             async_conns_[conn->client_id_str_] = std::move(conn);
         } else {
-            // 处理同步连接, 创建工作线程处理请求
-            std::shared_ptr<RpcConn> conn_ptr = std::move(conn);
-            sync_conns_[conn_ptr->client_id_str_].insert(conn_ptr);
 
-            worker_threads_.emplace_back(&RpcServer::handle_request, this, conn_ptr);
+            worker_threads_.emplace_back(&RpcServer::handle_request, this, std::move(conn));
         }
     }
 }
