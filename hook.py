@@ -16,19 +16,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # 默认的头文件和对应的 .so 文件
 DEFAULT_H_SO_MAP = {
-    ##"hidden_api.h": "/usr/local/cuda/lib64/libcudart.so",
-    ##"/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
-    ##"/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
-    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/libcudart.so",
-    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
+    "hidden_api.h": "/usr/local/cuda/lib64/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/local/cuda/lib64/stubs/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/local/cuda/lib64/stubs/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/lib64/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/lib64/stubs/libcublas.so",
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    ##"hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    ##"/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    ##"/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
