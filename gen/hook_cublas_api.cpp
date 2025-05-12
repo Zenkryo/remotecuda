@@ -710,88 +710,6 @@ extern "C" cublasStatus_t cublasSetSmCountTarget(cublasHandle_t handle, int smCo
     return _result;
 }
 
-extern "C" const char *cublasGetStatusName(cublasStatus_t status) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGetStatusName called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    char *_cublasGetStatusName_result = nullptr;
-    conn->prepare_request(RPC_cublasGetStatusName);
-    conn->write(&status, sizeof(status));
-    conn->read(&_cublasGetStatusName_result, 0, true);
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _cublasGetStatusName_result;
-}
-
-extern "C" const char *cublasGetStatusString(cublasStatus_t status) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGetStatusString called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    char *_cublasGetStatusString_result = nullptr;
-    conn->prepare_request(RPC_cublasGetStatusString);
-    conn->write(&status, sizeof(status));
-    conn->read(&_cublasGetStatusString_result, 0, true);
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _cublasGetStatusString_result;
-}
-
 extern "C" cublasStatus_t cublasLoggerConfigure(int logIsOn, int logToStdOut, int logToStdErr, const char *logFileName) {
 #ifdef DEBUG
     std::cout << "Hook: cublasLoggerConfigure called" << std::endl;
@@ -976,60 +894,6 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSetVector_64(int64_t n, int64_t elemSize, const void *x, int64_t incx, void *devicePtr, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSetVector_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0devicePtr;
-    mem2server(conn, &_0devicePtr, (void *)devicePtr, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSetVector_64);
-    conn->write(&n, sizeof(n));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0devicePtr, sizeof(_0devicePtr));
-    updateTmpPtr((void *)devicePtr, _0devicePtr);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)devicePtr, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasGetVector called" << std::endl;
@@ -1072,60 +936,6 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * elemSize, true);
     mem2client(conn, (void *)y, n * elemSize, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGetVector_64(int64_t n, int64_t elemSize, const void *x, int64_t incx, void *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGetVector_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGetVector_64);
-    conn->write(&n, sizeof(n));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -1193,61 +1003,6 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSetMatrix_64(int64_t rows, int64_t cols, int64_t elemSize, const void *A, int64_t lda, void *B, int64_t ldb) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSetMatrix_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSetMatrix_64);
-    conn->write(&rows, sizeof(rows));
-    conn->write(&cols, sizeof(cols));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb) {
 #ifdef DEBUG
     std::cout << "Hook: cublasGetMatrix called" << std::endl;
@@ -1291,61 +1046,6 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, rows * cols * elemSize, true);
     mem2client(conn, (void *)B, rows * cols * elemSize, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGetMatrix_64(int64_t rows, int64_t cols, int64_t elemSize, const void *A, int64_t lda, void *B, int64_t ldb) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGetMatrix_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGetMatrix_64);
-    conn->write(&rows, sizeof(rows));
-    conn->write(&cols, sizeof(cols));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -1413,61 +1113,6 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSetVectorAsync_64(int64_t n, int64_t elemSize, const void *hostPtr, int64_t incx, void *devicePtr, int64_t incy, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSetVectorAsync_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0hostPtr;
-    mem2server(conn, &_0hostPtr, (void *)hostPtr, 0);
-    void *_0devicePtr;
-    mem2server(conn, &_0devicePtr, (void *)devicePtr, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSetVectorAsync_64);
-    conn->write(&n, sizeof(n));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0hostPtr, sizeof(_0hostPtr));
-    updateTmpPtr((void *)hostPtr, _0hostPtr);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0devicePtr, sizeof(_0devicePtr));
-    updateTmpPtr((void *)devicePtr, _0devicePtr);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)hostPtr, 0, true);
-    mem2client(conn, (void *)devicePtr, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *devicePtr, int incx, void *hostPtr, int incy, cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cublasGetVectorAsync called" << std::endl;
@@ -1511,61 +1156,6 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)devicePtr, n * elemSize, true);
     mem2client(conn, (void *)hostPtr, n * elemSize, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGetVectorAsync_64(int64_t n, int64_t elemSize, const void *devicePtr, int64_t incx, void *hostPtr, int64_t incy, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGetVectorAsync_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0devicePtr;
-    mem2server(conn, &_0devicePtr, (void *)devicePtr, 0);
-    void *_0hostPtr;
-    mem2server(conn, &_0hostPtr, (void *)hostPtr, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGetVectorAsync_64);
-    conn->write(&n, sizeof(n));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0devicePtr, sizeof(_0devicePtr));
-    updateTmpPtr((void *)devicePtr, _0devicePtr);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0hostPtr, sizeof(_0hostPtr));
-    updateTmpPtr((void *)hostPtr, _0hostPtr);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)devicePtr, 0, true);
-    mem2client(conn, (void *)hostPtr, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -1634,62 +1224,6 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSetMatrixAsync_64(int64_t rows, int64_t cols, int64_t elemSize, const void *A, int64_t lda, void *B, int64_t ldb, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSetMatrixAsync_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSetMatrixAsync_64);
-    conn->write(&rows, sizeof(rows));
-    conn->write(&cols, sizeof(cols));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb, cudaStream_t stream) {
 #ifdef DEBUG
     std::cout << "Hook: cublasGetMatrixAsync called" << std::endl;
@@ -1734,62 +1268,6 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, rows * cols * elemSize, true);
     mem2client(conn, (void *)B, rows * cols * elemSize, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGetMatrixAsync_64(int64_t rows, int64_t cols, int64_t elemSize, const void *A, int64_t lda, void *B, int64_t ldb, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGetMatrixAsync_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGetMatrixAsync_64);
-    conn->write(&rows, sizeof(rows));
-    conn->write(&cols, sizeof(cols));
-    conn->write(&elemSize, sizeof(elemSize));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -1898,62 +1376,6 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasNrm2Ex_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, void *result, cudaDataType resultType, cudaDataType executionType) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasNrm2Ex_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasNrm2Ex_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->write(&resultType, sizeof(resultType));
-    conn->write(&executionType, sizeof(executionType));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const float *x, int incx, float *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSnrm2_v2 called" << std::endl;
@@ -1995,59 +1417,6 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSnrm2_v2_64(cublasHandle_t handle, int64_t n, const float *x, int64_t incx, float *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSnrm2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSnrm2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2113,59 +1482,6 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDnrm2_v2_64(cublasHandle_t handle, int64_t n, const double *x, int64_t incx, double *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDnrm2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDnrm2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cuComplex *x, int incx, float *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasScnrm2_v2 called" << std::endl;
@@ -2219,59 +1535,6 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
     return _result;
 }
 
-extern "C" cublasStatus_t cublasScnrm2_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, float *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasScnrm2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasScnrm2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cuDoubleComplex *x, int incx, double *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDznrm2_v2 called" << std::endl;
@@ -2313,59 +1576,6 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDznrm2_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, double *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDznrm2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDznrm2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2441,69 +1651,6 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDotEx_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, const void *y, cudaDataType yType, int64_t incy, void *result, cudaDataType resultType, cudaDataType executionType) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDotEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDotEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->write(&resultType, sizeof(resultType));
-    conn->write(&executionType, sizeof(executionType));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void *x, cudaDataType xType, int incx, const void *y, cudaDataType yType, int incy, void *result, cudaDataType resultType, cudaDataType executionType) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDotcEx called" << std::endl;
@@ -2555,69 +1702,6 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
     mem2client(conn, (void *)x, n * sizeofType(xType), true);
     mem2client(conn, (void *)y, n * sizeofType(yType), true);
     mem2client(conn, (void *)result, sizeofType(resultType), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDotcEx_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, const void *y, cudaDataType yType, int64_t incy, void *result, cudaDataType resultType, cudaDataType executionType) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDotcEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDotcEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->write(&resultType, sizeof(resultType));
-    conn->write(&executionType, sizeof(executionType));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2689,65 +1773,6 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSdot_v2_64(cublasHandle_t handle, int64_t n, const float *x, int64_t incx, const float *y, int64_t incy, float *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSdot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSdot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const double *x, int incx, const double *y, int incy, double *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDdot_v2 called" << std::endl;
@@ -2795,65 +1820,6 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDdot_v2_64(cublasHandle_t handle, int64_t n, const double *x, int64_t incx, const double *y, int64_t incy, double *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDdot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDdot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2925,65 +1891,6 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCdotu_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCdotu_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCdotu_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuComplex *x, int incx, const cuComplex *y, int incy, cuComplex *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCdotc_v2 called" << std::endl;
@@ -3031,65 +1938,6 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCdotc_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCdotc_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCdotc_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3161,65 +2009,6 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZdotu_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZdotu_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZdotu_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZdotc_v2 called" << std::endl;
@@ -3267,65 +2056,6 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZdotc_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZdotc_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZdotc_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3394,62 +2124,6 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasScalEx_64(cublasHandle_t handle, int64_t n, const void *alpha, cudaDataType alphaType, void *x, cudaDataType xType, int64_t incx, cudaDataType executionType) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasScalEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasScalEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&alphaType, sizeof(alphaType));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&executionType, sizeof(executionType));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const float *alpha, float *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSscal_v2 called" << std::endl;
@@ -3491,59 +2165,6 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSscal_v2_64(cublasHandle_t handle, int64_t n, const float *alpha, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSscal_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSscal_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3609,59 +2230,6 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDscal_v2_64(cublasHandle_t handle, int64_t n, const double *alpha, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDscal_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDscal_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuComplex *alpha, cuComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCscal_v2 called" << std::endl;
@@ -3703,59 +2271,6 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCscal_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *alpha, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCscal_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCscal_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3821,59 +2336,6 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsscal_v2_64(cublasHandle_t handle, int64_t n, const float *alpha, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsscal_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsscal_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuDoubleComplex *alpha, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZscal_v2 called" << std::endl;
@@ -3927,59 +2389,6 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZscal_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *alpha, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZscal_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZscal_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const double *alpha, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZdscal_v2 called" << std::endl;
@@ -4021,59 +2430,6 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZdscal_v2_64(cublasHandle_t handle, int64_t n, const double *alpha, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZdscal_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZdscal_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4149,69 +2505,6 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasAxpyEx_64(cublasHandle_t handle, int64_t n, const void *alpha, cudaDataType alphaType, const void *x, cudaDataType xType, int64_t incx, void *y, cudaDataType yType, int64_t incy, cudaDataType executiontype) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasAxpyEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasAxpyEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&alphaType, sizeof(alphaType));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->write(&executiontype, sizeof(executiontype));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const float *alpha, const float *x, int incx, float *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSaxpy_v2 called" << std::endl;
@@ -4259,65 +2552,6 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSaxpy_v2_64(cublasHandle_t handle, int64_t n, const float *alpha, const float *x, int64_t incx, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSaxpy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSaxpy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4389,65 +2623,6 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDaxpy_v2_64(cublasHandle_t handle, int64_t n, const double *alpha, const double *x, int64_t incx, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDaxpy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDaxpy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuComplex *alpha, const cuComplex *x, int incx, cuComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCaxpy_v2 called" << std::endl;
@@ -4495,65 +2670,6 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCaxpy_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCaxpy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCaxpy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4625,65 +2741,6 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZaxpy_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZaxpy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZaxpy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void *x, cudaDataType xType, int incx, void *y, cudaDataType yType, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCopyEx called" << std::endl;
@@ -4728,62 +2785,6 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeofType(xType), true);
     mem2client(conn, (void *)y, n * sizeofType(yType), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCopyEx_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, void *y, cudaDataType yType, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCopyEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCopyEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4850,60 +2851,6 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
     return _result;
 }
 
-extern "C" cublasStatus_t cublasScopy_v2_64(cublasHandle_t handle, int64_t n, const float *x, int64_t incx, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasScopy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasScopy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const double *x, int incx, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDcopy_v2 called" << std::endl;
@@ -4946,60 +2893,6 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDcopy_v2_64(cublasHandle_t handle, int64_t n, const double *x, int64_t incx, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDcopy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDcopy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5066,60 +2959,6 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCcopy_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCcopy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCcopy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuDoubleComplex *x, int incx, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZcopy_v2 called" << std::endl;
@@ -5162,60 +3001,6 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZcopy_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZcopy_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZcopy_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5282,60 +3067,6 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSswap_v2_64(cublasHandle_t handle, int64_t n, float *x, int64_t incx, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSswap_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSswap_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x, int incx, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDswap_v2 called" << std::endl;
@@ -5378,60 +3109,6 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDswap_v2_64(cublasHandle_t handle, int64_t n, double *x, int64_t incx, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDswap_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDswap_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5498,60 +3175,6 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCswap_v2_64(cublasHandle_t handle, int64_t n, cuComplex *x, int64_t incx, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCswap_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCswap_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleComplex *x, int incx, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZswap_v2 called" << std::endl;
@@ -5594,60 +3217,6 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZswap_v2_64(cublasHandle_t handle, int64_t n, cuDoubleComplex *x, int64_t incx, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZswap_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZswap_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5716,62 +3285,6 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSwapEx_64(cublasHandle_t handle, int64_t n, void *x, cudaDataType xType, int64_t incx, void *y, cudaDataType yType, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSwapEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSwapEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const float *x, int incx, int *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasIsamax_v2 called" << std::endl;
@@ -5813,59 +3326,6 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasIsamax_v2_64(cublasHandle_t handle, int64_t n, const float *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIsamax_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIsamax_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5931,59 +3391,6 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
     return _result;
 }
 
-extern "C" cublasStatus_t cublasIdamax_v2_64(cublasHandle_t handle, int64_t n, const double *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIdamax_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIdamax_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cuComplex *x, int incx, int *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasIcamax_v2 called" << std::endl;
@@ -6037,59 +3444,6 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
     return _result;
 }
 
-extern "C" cublasStatus_t cublasIcamax_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIcamax_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIcamax_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cuDoubleComplex *x, int incx, int *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasIzamax_v2 called" << std::endl;
@@ -6131,59 +3485,6 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasIzamax_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIzamax_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIzamax_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6250,60 +3551,6 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
     return _result;
 }
 
-extern "C" cublasStatus_t cublasIamaxEx_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIamaxEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIamaxEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const float *x, int incx, int *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasIsamin_v2 called" << std::endl;
@@ -6345,59 +3592,6 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasIsamin_v2_64(cublasHandle_t handle, int64_t n, const float *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIsamin_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIsamin_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6463,59 +3657,6 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
     return _result;
 }
 
-extern "C" cublasStatus_t cublasIdamin_v2_64(cublasHandle_t handle, int64_t n, const double *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIdamin_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIdamin_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cuComplex *x, int incx, int *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasIcamin_v2 called" << std::endl;
@@ -6557,59 +3698,6 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasIcamin_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIcamin_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIcamin_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6675,59 +3763,6 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
     return _result;
 }
 
-extern "C" cublasStatus_t cublasIzamin_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIzamin_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIzamin_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void *x, cudaDataType xType, int incx, int *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasIaminEx called" << std::endl;
@@ -6770,60 +3805,6 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeofType(xType), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasIaminEx_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, int64_t *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasIaminEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasIaminEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6892,62 +3873,6 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasAsumEx_64(cublasHandle_t handle, int64_t n, const void *x, cudaDataType xType, int64_t incx, void *result, cudaDataType resultType, cudaDataType executiontype) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasAsumEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasAsumEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->write(&resultType, sizeof(resultType));
-    conn->write(&executiontype, sizeof(executiontype));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const float *x, int incx, float *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSasum_v2 called" << std::endl;
@@ -6989,59 +3914,6 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSasum_v2_64(cublasHandle_t handle, int64_t n, const float *x, int64_t incx, float *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSasum_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSasum_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -7107,59 +3979,6 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDasum_v2_64(cublasHandle_t handle, int64_t n, const double *x, int64_t incx, double *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDasum_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDasum_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cuComplex *x, int incx, float *result) {
 #ifdef DEBUG
     std::cout << "Hook: cublasScasum_v2 called" << std::endl;
@@ -7201,59 +4020,6 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)result, sizeof(*result), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasScasum_v2_64(cublasHandle_t handle, int64_t n, const cuComplex *x, int64_t incx, float *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasScasum_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasScasum_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -7319,59 +4085,6 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDzasum_v2_64(cublasHandle_t handle, int64_t n, const cuDoubleComplex *x, int64_t incx, double *result) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDzasum_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0result;
-    mem2server(conn, &_0result, (void *)result, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDzasum_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0result, sizeof(_0result));
-    updateTmpPtr((void *)result, _0result);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)result, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, int incx, float *y, int incy, const float *c, const float *s) {
 #ifdef DEBUG
     std::cout << "Hook: cublasSrot_v2 called" << std::endl;
@@ -7422,70 +4135,6 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    mem2client(conn, (void *)c, sizeof(*c), true);
-    mem2client(conn, (void *)s, sizeof(*s), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSrot_v2_64(cublasHandle_t handle, int64_t n, float *x, int64_t incx, float *y, int64_t incy, const float *c, const float *s) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSrot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeof(*c));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeof(*s));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSrot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     mem2client(conn, (void *)c, sizeof(*c), true);
     mem2client(conn, (void *)s, sizeof(*s), true);
     if(conn->get_iov_read_count(true) > 0) {
@@ -7564,70 +4213,6 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDrot_v2_64(cublasHandle_t handle, int64_t n, double *x, int64_t incx, double *y, int64_t incy, const double *c, const double *s) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDrot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeof(*c));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeof(*s));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDrot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)c, sizeof(*c), true);
-    mem2client(conn, (void *)s, sizeof(*s), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex *x, int incx, cuComplex *y, int incy, const float *c, const cuComplex *s) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCrot_v2 called" << std::endl;
@@ -7678,70 +4263,6 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    mem2client(conn, (void *)c, sizeof(*c), true);
-    mem2client(conn, (void *)s, sizeof(*s), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCrot_v2_64(cublasHandle_t handle, int64_t n, cuComplex *x, int64_t incx, cuComplex *y, int64_t incy, const float *c, const cuComplex *s) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCrot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeof(*c));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeof(*s));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCrot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     mem2client(conn, (void *)c, sizeof(*c), true);
     mem2client(conn, (void *)s, sizeof(*s), true);
     if(conn->get_iov_read_count(true) > 0) {
@@ -7820,70 +4341,6 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsrot_v2_64(cublasHandle_t handle, int64_t n, cuComplex *x, int64_t incx, cuComplex *y, int64_t incy, const float *c, const float *s) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsrot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeof(*c));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeof(*s));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsrot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)c, sizeof(*c), true);
-    mem2client(conn, (void *)s, sizeof(*s), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleComplex *x, int incx, cuDoubleComplex *y, int incy, const double *c, const cuDoubleComplex *s) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZrot_v2 called" << std::endl;
@@ -7934,70 +4391,6 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    mem2client(conn, (void *)c, sizeof(*c), true);
-    mem2client(conn, (void *)s, sizeof(*s), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZrot_v2_64(cublasHandle_t handle, int64_t n, cuDoubleComplex *x, int64_t incx, cuDoubleComplex *y, int64_t incy, const double *c, const cuDoubleComplex *s) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZrot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeof(*c));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeof(*s));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZrot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     mem2client(conn, (void *)c, sizeof(*c), true);
     mem2client(conn, (void *)s, sizeof(*s), true);
     if(conn->get_iov_read_count(true) > 0) {
@@ -8076,70 +4469,6 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZdrot_v2_64(cublasHandle_t handle, int64_t n, cuDoubleComplex *x, int64_t incx, cuDoubleComplex *y, int64_t incy, const double *c, const double *s) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZdrot_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeof(*c));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeof(*s));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZdrot_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)c, sizeof(*c), true);
-    mem2client(conn, (void *)s, sizeof(*s), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cudaDataType xType, int incx, void *y, cudaDataType yType, int incy, const void *c, const void *s, cudaDataType csType, cudaDataType executiontype) {
 #ifdef DEBUG
     std::cout << "Hook: cublasRotEx called" << std::endl;
@@ -8194,74 +4523,6 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)x, n * sizeofType(xType), true);
     mem2client(conn, (void *)y, n * sizeofType(yType), true);
-    mem2client(conn, (void *)c, sizeofType(csType), true);
-    mem2client(conn, (void *)s, sizeofType(csType), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasRotEx_64(cublasHandle_t handle, int64_t n, void *x, cudaDataType xType, int64_t incx, void *y, cudaDataType yType, int64_t incy, const void *c, const void *s, cudaDataType csType, cudaDataType executiontype) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasRotEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0c;
-    mem2server(conn, &_0c, (void *)c, sizeofType(csType));
-    void *_0s;
-    mem2server(conn, &_0s, (void *)s, sizeofType(csType));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasRotEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0c, sizeof(_0c));
-    updateTmpPtr((void *)c, _0c);
-    conn->write(&_0s, sizeof(_0s));
-    updateTmpPtr((void *)s, _0s);
-    conn->write(&csType, sizeof(csType));
-    conn->write(&executiontype, sizeof(executiontype));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
     mem2client(conn, (void *)c, sizeofType(csType), true);
     mem2client(conn, (void *)s, sizeofType(csType), true);
     if(conn->get_iov_read_count(true) > 0) {
@@ -8643,65 +4904,6 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSrotm_v2_64(cublasHandle_t handle, int64_t n, float *x, int64_t incx, float *y, int64_t incy, const float *param) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSrotm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0param;
-    mem2server(conn, &_0param, (void *)param, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSrotm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0param, sizeof(_0param));
-    updateTmpPtr((void *)param, _0param);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)param, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x, int incx, double *y, int incy, const double *param) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDrotm_v2 called" << std::endl;
@@ -8749,65 +4951,6 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)param, 5 * sizeof(*param), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDrotm_v2_64(cublasHandle_t handle, int64_t n, double *x, int64_t incx, double *y, int64_t incy, const double *param) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDrotm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0param;
-    mem2server(conn, &_0param, (void *)param, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDrotm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0param, sizeof(_0param));
-    updateTmpPtr((void *)param, _0param);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)param, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -8871,69 +5014,6 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
     mem2client(conn, (void *)x, n * sizeofType(xType), true);
     mem2client(conn, (void *)y, n * sizeofType(yType), true);
     mem2client(conn, (void *)param, 5 * sizeofType(paramType), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasRotmEx_64(cublasHandle_t handle, int64_t n, void *x, cudaDataType xType, int64_t incx, void *y, cudaDataType yType, int64_t incy, const void *param, cudaDataType paramType, cudaDataType executiontype) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasRotmEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0param;
-    mem2server(conn, &_0param, (void *)param, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasRotmEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&xType, sizeof(xType));
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&yType, sizeof(yType));
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0param, sizeof(_0param));
-    updateTmpPtr((void *)param, _0param);
-    conn->write(&paramType, sizeof(paramType));
-    conn->write(&executiontype, sizeof(executiontype));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)param, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9222,78 +5302,6 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const float *A, int64_t lda, const float *x, int64_t incx, const float *beta, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const double *alpha, const double *A, int lda, const double *x, int incx, const double *beta, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgemv_v2 called" << std::endl;
@@ -9354,78 +5362,6 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
     mem2client(conn, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const double *alpha, const double *A, int64_t lda, const double *x, int64_t incx, const double *beta, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9510,78 +5446,6 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *x, int64_t incx, const cuComplex *beta, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgemv_v2 called" << std::endl;
@@ -9642,78 +5506,6 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
     mem2client(conn, (void *)x, (trans == CUBLAS_OP_N ? n : m) * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, (trans == CUBLAS_OP_N ? m : n) * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9800,80 +5592,6 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgbmv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, int64_t kl, int64_t ku, const float *alpha, const float *A, int64_t lda, const float *x, int64_t incx, const float *beta, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&kl, sizeof(kl));
-    conn->write(&ku, sizeof(ku));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int kl, int ku, const double *alpha, const double *A, int lda, const double *x, int incx, const double *beta, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgbmv_v2 called" << std::endl;
@@ -9936,80 +5654,6 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, m * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgbmv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, int64_t kl, int64_t ku, const double *alpha, const double *A, int64_t lda, const double *x, int64_t incx, const double *beta, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&kl, sizeof(kl));
-    conn->write(&ku, sizeof(ku));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -10096,80 +5740,6 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgbmv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, int64_t kl, int64_t ku, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *x, int64_t incx, const cuComplex *beta, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&kl, sizeof(kl));
-    conn->write(&ku, sizeof(ku));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int kl, int ku, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgbmv_v2 called" << std::endl;
@@ -10244,80 +5814,6 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgbmv_v2_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, int64_t kl, int64_t ku, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&kl, sizeof(kl));
-    conn->write(&ku, sizeof(ku));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const float *A, int lda, float *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasStrmv_v2 called" << std::endl;
@@ -10363,63 +5859,6 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasStrmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const float *A, int64_t lda, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -10489,63 +5928,6 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasDtrmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const double *A, int64_t lda, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const cuComplex *A, int lda, cuComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCtrmv_v2 called" << std::endl;
@@ -10603,63 +5985,6 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtrmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuComplex *A, int64_t lda, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrmv_v2 called" << std::endl;
@@ -10705,63 +6030,6 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtrmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuDoubleComplex *A, int64_t lda, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -10832,64 +6100,6 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const float *A, int64_t lda, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, int k, const double *A, int lda, double *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtbmv_v2 called" << std::endl;
@@ -10936,64 +6146,6 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * k * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const double *A, int64_t lda, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11064,64 +6216,6 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const cuComplex *A, int64_t lda, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, int k, const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtbmv_v2 called" << std::endl;
@@ -11168,64 +6262,6 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * k * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const cuDoubleComplex *A, int64_t lda, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11294,62 +6330,6 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStpmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const float *AP, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStpmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStpmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const double *AP, double *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtpmv_v2 called" << std::endl;
@@ -11394,62 +6374,6 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtpmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const double *AP, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtpmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtpmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11518,62 +6442,6 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtpmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuComplex *AP, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtpmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtpmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const cuDoubleComplex *AP, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtpmv_v2 called" << std::endl;
@@ -11618,62 +6486,6 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtpmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuDoubleComplex *AP, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtpmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtpmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11743,63 +6555,6 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStrsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const float *A, int64_t lda, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const double *A, int lda, double *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrsv_v2 called" << std::endl;
@@ -11845,63 +6600,6 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtrsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const double *A, int64_t lda, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11971,63 +6669,6 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtrsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuComplex *A, int64_t lda, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrsv_v2 called" << std::endl;
@@ -12073,63 +6714,6 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtrsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuDoubleComplex *A, int64_t lda, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12198,62 +6782,6 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStpsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const float *AP, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStpsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStpsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const double *AP, double *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtpsv_v2 called" << std::endl;
@@ -12298,62 +6826,6 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtpsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const double *AP, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtpsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtpsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12422,62 +6894,6 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtpsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuComplex *AP, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtpsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtpsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, const cuDoubleComplex *AP, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtpsv_v2 called" << std::endl;
@@ -12522,62 +6938,6 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtpsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, const cuDoubleComplex *AP, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtpsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtpsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12648,64 +7008,6 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStbsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const float *A, int64_t lda, float *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStbsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStbsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, int k, const double *A, int lda, double *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtbsv_v2 called" << std::endl;
@@ -12752,64 +7054,6 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * k * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtbsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const double *A, int64_t lda, double *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtbsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtbsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12880,64 +7124,6 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtbsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const cuComplex *A, int64_t lda, cuComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtbsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtbsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int n, int k, const cuDoubleComplex *A, int lda, cuDoubleComplex *x, int incx) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtbsv_v2 called" << std::endl;
@@ -12984,64 +7170,6 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)A, n * k * sizeof(*A), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtbsv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t n, int64_t k, const cuDoubleComplex *A, int64_t lda, cuDoubleComplex *x, int64_t incx) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtbsv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtbsv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -13125,77 +7253,6 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsymv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const float *A, int64_t lda, const float *x, int64_t incx, const float *beta, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsymv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsymv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const double *A, int lda, const double *x, int incx, const double *beta, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsymv_v2 called" << std::endl;
@@ -13255,77 +7312,6 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsymv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const double *A, int64_t lda, const double *x, int64_t incx, const double *beta, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsymv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsymv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -13409,77 +7395,6 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsymv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *x, int64_t incx, const cuComplex *beta, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsymv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsymv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsymv_v2 called" << std::endl;
@@ -13539,77 +7454,6 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsymv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsymv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsymv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -13693,77 +7537,6 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasChemv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *x, int64_t incx, const cuComplex *beta, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasChemv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasChemv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZhemv_v2 called" << std::endl;
@@ -13823,77 +7596,6 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZhemv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZhemv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZhemv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -13978,78 +7680,6 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, int64_t k, const float *alpha, const float *A, int64_t lda, const float *x, int64_t incx, const float *beta, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, int k, const double *alpha, const double *A, int lda, const double *x, int incx, const double *beta, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsbmv_v2 called" << std::endl;
@@ -14110,78 +7740,6 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, int64_t k, const double *alpha, const double *A, int64_t lda, const double *x, int64_t incx, const double *beta, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -14266,78 +7824,6 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasChbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *x, int64_t incx, const cuComplex *beta, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasChbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasChbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZhbmv_v2 called" << std::endl;
@@ -14398,78 +7884,6 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZhbmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZhbmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZhbmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -14552,76 +7966,6 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSspmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const float *AP, const float *x, int64_t incx, const float *beta, float *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSspmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSspmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const double *AP, const double *x, int incx, const double *beta, double *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDspmv_v2 called" << std::endl;
@@ -14680,76 +8024,6 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDspmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const double *AP, const double *x, int64_t incx, const double *beta, double *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDspmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDspmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -14832,76 +8106,6 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasChpmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *AP, const cuComplex *x, int64_t incx, const cuComplex *beta, cuComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasChpmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasChpmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *AP, const cuDoubleComplex *x, int incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZhpmv_v2 called" << std::endl;
@@ -14960,76 +8164,6 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZhpmv_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *AP, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZhpmv_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZhpmv_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -15108,72 +8242,6 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSger_v2_64(cublasHandle_t handle, int64_t m, int64_t n, const float *alpha, const float *x, int64_t incx, const float *y, int64_t incy, float *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSger_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSger_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, const double *alpha, const double *x, int incx, const double *y, int incy, double *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDger_v2 called" << std::endl;
@@ -15228,72 +8296,6 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
     mem2client(conn, (void *)x, m * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDger_v2_64(cublasHandle_t handle, int64_t m, int64_t n, const double *alpha, const double *x, int64_t incx, const double *y, int64_t incy, double *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDger_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDger_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -15372,72 +8374,6 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgeru_v2_64(cublasHandle_t handle, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgeru_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgeru_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, const cuComplex *alpha, const cuComplex *x, int incx, const cuComplex *y, int incy, cuComplex *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgerc_v2 called" << std::endl;
@@ -15492,72 +8428,6 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
     mem2client(conn, (void *)x, m * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgerc_v2_64(cublasHandle_t handle, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgerc_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgerc_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -15636,72 +8506,6 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgeru_v2_64(cublasHandle_t handle, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgeru_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgeru_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgerc_v2 called" << std::endl;
@@ -15756,72 +8560,6 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
     mem2client(conn, (void *)x, m * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgerc_v2_64(cublasHandle_t handle, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgerc_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgerc_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -15894,66 +8632,6 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsyr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const float *x, int64_t incx, float *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsyr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsyr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const double *x, int incx, double *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsyr_v2 called" << std::endl;
@@ -16002,66 +8680,6 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsyr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const double *x, int64_t incx, double *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsyr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsyr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -16134,66 +8752,6 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsyr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, cuComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int incx, cuDoubleComplex *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsyr_v2 called" << std::endl;
@@ -16242,66 +8800,6 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsyr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, cuDoubleComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsyr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsyr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -16374,66 +8872,6 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCher_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const cuComplex *x, int64_t incx, cuComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCher_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCher_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const cuDoubleComplex *x, int incx, cuDoubleComplex *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZher_v2 called" << std::endl;
@@ -16482,66 +8920,6 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZher_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const cuDoubleComplex *x, int64_t incx, cuDoubleComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZher_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZher_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -16613,65 +8991,6 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSspr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const float *x, int64_t incx, float *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSspr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSspr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const double *x, int incx, double *AP) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDspr_v2 called" << std::endl;
@@ -16719,65 +9038,6 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDspr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const double *x, int64_t incx, double *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDspr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDspr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -16849,65 +9109,6 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasChpr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const cuComplex *x, int64_t incx, cuComplex *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasChpr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasChpr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const cuDoubleComplex *x, int incx, cuDoubleComplex *AP) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZhpr_v2 called" << std::endl;
@@ -16955,65 +9156,6 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZhpr_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const cuDoubleComplex *x, int64_t incx, cuDoubleComplex *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZhpr_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZhpr_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -17092,72 +9234,6 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsyr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const float *x, int64_t incx, const float *y, int64_t incy, float *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsyr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsyr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const double *x, int incx, const double *y, int incy, double *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsyr2_v2 called" << std::endl;
@@ -17212,72 +9288,6 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsyr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const double *x, int64_t incx, const double *y, int64_t incy, double *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsyr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsyr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -17356,72 +9366,6 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsyr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsyr2_v2 called" << std::endl;
@@ -17476,72 +9420,6 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsyr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsyr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsyr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -17620,72 +9498,6 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCher2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCher2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCher2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *A, int lda) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZher2_v2 called" << std::endl;
@@ -17740,72 +9552,6 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZher2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *A, int64_t lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZher2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZher2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)A, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -17883,71 +9629,6 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSspr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const float *alpha, const float *x, int64_t incx, const float *y, int64_t incy, float *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSspr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSspr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *alpha, const double *x, int incx, const double *y, int incy, double *AP) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDspr2_v2 called" << std::endl;
@@ -18001,71 +9682,6 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDspr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const double *alpha, const double *x, int64_t incx, const double *y, int64_t incy, double *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDspr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDspr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -18143,71 +9759,6 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasChpr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuComplex *alpha, const cuComplex *x, int64_t incx, const cuComplex *y, int64_t incy, cuComplex *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasChpr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasChpr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int incx, const cuDoubleComplex *y, int incy, cuDoubleComplex *AP) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZhpr2_v2 called" << std::endl;
@@ -18261,2263 +9812,6 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)x, n * sizeof(*x), true);
     mem2client(conn, (void *)y, n * sizeof(*y), true);
     mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZhpr2_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *x, int64_t incx, const cuDoubleComplex *y, int64_t incy, cuDoubleComplex *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZhpr2_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZhpr2_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)y, 0, true);
-    mem2client(conn, (void *)AP, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const float *const Aarray[], int lda, const float *const xarray[], int incx, const float *beta, float *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(float *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(float *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(float *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const float *const Aarray[], int64_t lda, const float *const xarray[], int64_t incx, const float *beta, float *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(float *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(float *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(float *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const double *alpha, const double *const Aarray[], int lda, const double *const xarray[], int incx, const double *beta, double *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(double *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(double *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(double *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const double *alpha, const double *const Aarray[], int64_t lda, const double *const xarray[], int64_t incx, const double *beta, double *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(double *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(double *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(double *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const cuComplex *alpha, const cuComplex *const Aarray[], int lda, const cuComplex *const xarray[], int incx, const cuComplex *beta, cuComplex *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *const Aarray[], int64_t lda, const cuComplex *const xarray[], int64_t incx, const cuComplex *beta, cuComplex *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *const Aarray[], int lda, const cuDoubleComplex *const xarray[], int incx, const cuDoubleComplex *beta, cuDoubleComplex *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *const Aarray[], int64_t lda, const cuDoubleComplex *const xarray[], int64_t incx, const cuDoubleComplex *beta, cuDoubleComplex *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSHgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __half *const Aarray[], int lda, const __half *const xarray[], int incx, const float *beta, __half *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSHgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSHgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__half *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__half *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(__half *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSHgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __half *const Aarray[], int64_t lda, const __half *const xarray[], int64_t incx, const float *beta, __half *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSHgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSHgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__half *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__half *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(__half *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSSgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __half *const Aarray[], int lda, const __half *const xarray[], int incx, const float *beta, float *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSSgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSSgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__half *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__half *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(float *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSSgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __half *const Aarray[], int64_t lda, const __half *const xarray[], int64_t incx, const float *beta, float *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSSgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSSgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__half *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__half *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(float *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSTgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __nv_bfloat16 *const Aarray[], int lda, const __nv_bfloat16 *const xarray[], int incx, const float *beta, __nv_bfloat16 *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSTgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSTgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSTgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __nv_bfloat16 *const Aarray[], int64_t lda, const __nv_bfloat16 *const xarray[], int64_t incx, const float *beta, __nv_bfloat16 *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSTgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSTgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSSgemvBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __nv_bfloat16 *const Aarray[], int lda, const __nv_bfloat16 *const xarray[], int incx, const float *beta, float *const yarray[], int incy, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSSgemvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSSgemvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(float *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSSgemvBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __nv_bfloat16 *const Aarray[], int64_t lda, const __nv_bfloat16 *const xarray[], int64_t incx, const float *beta, float *const yarray[], int64_t incy, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSSgemvBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSSgemvBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(xarray, sizeof(__nv_bfloat16 *) * batchCount, true);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(yarray, sizeof(float *) * batchCount, true);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const float *A, int lda, long long int strideA, const float *x, int incx, long long int stridex, const float *beta, float *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const float *A, int64_t lda, long long int strideA, const float *x, int64_t incx, long long int stridex, const float *beta, float *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const double *alpha, const double *A, int lda, long long int strideA, const double *x, int incx, long long int stridex, const double *beta, double *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const double *alpha, const double *A, int64_t lda, long long int strideA, const double *x, int64_t incx, long long int stridex, const double *beta, double *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const cuComplex *alpha, const cuComplex *A, int lda, long long int strideA, const cuComplex *x, int incx, long long int stridex, const cuComplex *beta, cuComplex *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, long long int strideA, const cuComplex *x, int64_t incx, long long int stridex, const cuComplex *beta, cuComplex *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, long long int strideA, const cuDoubleComplex *x, int incx, long long int stridex, const cuDoubleComplex *beta, cuDoubleComplex *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, long long int strideA, const cuDoubleComplex *x, int64_t incx, long long int stridex, const cuDoubleComplex *beta, cuDoubleComplex *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSHgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __half *A, int lda, long long int strideA, const __half *x, int incx, long long int stridex, const float *beta, __half *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSHgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSHgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSHgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __half *A, int64_t lda, long long int strideA, const __half *x, int64_t incx, long long int stridex, const float *beta, __half *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSHgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSHgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSSgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __half *A, int lda, long long int strideA, const __half *x, int incx, long long int stridex, const float *beta, float *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSSgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSSgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHSSgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __half *A, int64_t lda, long long int strideA, const __half *x, int64_t incx, long long int stridex, const float *beta, float *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHSSgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHSSgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSTgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __nv_bfloat16 *A, int lda, long long int strideA, const __nv_bfloat16 *x, int incx, long long int stridex, const float *beta, __nv_bfloat16 *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSTgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSTgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSTgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __nv_bfloat16 *A, int64_t lda, long long int strideA, const __nv_bfloat16 *x, int64_t incx, long long int stridex, const float *beta, __nv_bfloat16 *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSTgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSTgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSSgemvStridedBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, const float *alpha, const __nv_bfloat16 *A, int lda, long long int strideA, const __nv_bfloat16 *x, int incx, long long int stridex, const float *beta, float *y, int incy, long long int stridey, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSSgemvStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSSgemvStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasTSSgemvStridedBatched_64(cublasHandle_t handle, cublasOperation_t trans, int64_t m, int64_t n, const float *alpha, const __nv_bfloat16 *A, int64_t lda, long long int strideA, const __nv_bfloat16 *x, int64_t incx, long long int stridex, const float *beta, float *y, int64_t incy, long long int stridey, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasTSSgemvStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0y;
-    mem2server(conn, &_0y, (void *)y, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasTSSgemvStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&stridex, sizeof(stridex));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0y, sizeof(_0y));
-    updateTmpPtr((void *)y, _0y);
-    conn->write(&incy, sizeof(incy));
-    conn->write(&stridey, sizeof(stridey));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)y, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -20604,80 +9898,6 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemm_v2_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const float *alpha, const float *A, int64_t lda, const float *B, int64_t ldb, const float *beta, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgemm_v2 called" << std::endl;
@@ -20740,80 +9960,6 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
     mem2client(conn, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemm_v2_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const double *alpha, const double *A, int64_t lda, const double *B, int64_t ldb, const double *beta, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -20900,80 +10046,6 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemm_v2_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex *A, int lda, const cuComplex *B, int ldb, const cuComplex *beta, cuComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgemm3m called" << std::endl;
@@ -21036,80 +10108,6 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
     mem2client(conn, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemm3m_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemm3m_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemm3m_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -21199,83 +10197,6 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemm3mEx_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const void *A, cudaDataType Atype, int64_t lda, const void *B, cudaDataType Btype, int64_t ldb, const cuComplex *beta, void *C, cudaDataType Ctype, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemm3mEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemm3mEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgemm_v2 called" << std::endl;
@@ -21338,80 +10259,6 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
     mem2client(conn, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemm_v2_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -21498,80 +10345,6 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgemm3m_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemm3m_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemm3m_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const __half *alpha, const __half *A, int lda, const __half *B, int ldb, const __half *beta, __half *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasHgemm called" << std::endl;
@@ -21634,80 +10407,6 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
     mem2client(conn, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHgemm_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const __half *alpha, const __half *A, int64_t lda, const __half *B, int64_t ldb, const __half *beta, __half *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHgemm_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHgemm_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -21797,162 +10496,6 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemmEx_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const float *alpha, const void *A, cudaDataType Atype, int64_t lda, const void *B, cudaDataType Btype, int64_t ldb, const float *beta, void *C, cudaDataType Ctype, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemmEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemmEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGemmEx_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const void *alpha, const void *A, cudaDataType Atype, int64_t lda, const void *B, cudaDataType Btype, int64_t ldb, const void *beta, void *C, cudaDataType Ctype, int64_t ldc, cublasComputeType_t computeType, cublasGemmAlgo_t algo) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGemmEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGemmEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&computeType, sizeof(computeType));
-    conn->write(&algo, sizeof(algo));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const void *A, cudaDataType Atype, int lda, const void *B, cudaDataType Btype, int ldb, const cuComplex *beta, void *C, cudaDataType Ctype, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgemmEx called" << std::endl;
@@ -22030,9 +10573,9 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemmEx_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const void *A, cudaDataType Atype, int64_t lda, const void *B, cudaDataType Btype, int64_t ldb, const cuComplex *beta, void *C, cudaDataType Ctype, int64_t ldc) {
+extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, cublasOperation_t transc, int m, int n, int k, const unsigned char *A, int A_bias, int lda, const unsigned char *B, int B_bias, int ldb, unsigned char *C, int C_bias, int ldc, int C_mult, int C_shift) {
 #ifdef DEBUG
-    std::cout << "Hook: cublasCgemmEx_64 called" << std::endl;
+    std::cout << "Hook: cublasUint8gemmBias called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -22040,16 +10583,12 @@ extern "C" cublasStatus_t cublasCgemmEx_64(cublasHandle_t handle, cublasOperatio
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
     void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
+    mem2server(conn, &_0A, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
     void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
+    mem2server(conn, &_0B, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
     void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
+    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -22060,29 +10599,28 @@ extern "C" cublasStatus_t cublasCgemmEx_64(cublasHandle_t handle, cublasOperatio
         }
     }
     cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemmEx_64);
+    conn->prepare_request(RPC_cublasUint8gemmBias);
     conn->write(&handle, sizeof(handle));
     conn->write(&transa, sizeof(transa));
     conn->write(&transb, sizeof(transb));
+    conn->write(&transc, sizeof(transc));
     conn->write(&m, sizeof(m));
     conn->write(&n, sizeof(n));
     conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
     conn->write(&_0A, sizeof(_0A));
     updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
+    conn->write(&A_bias, sizeof(A_bias));
     conn->write(&lda, sizeof(lda));
     conn->write(&_0B, sizeof(_0B));
     updateTmpPtr((void *)B, _0B);
-    conn->write(&Btype, sizeof(Btype));
+    conn->write(&B_bias, sizeof(B_bias));
     conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
     conn->write(&_0C, sizeof(_0C));
     updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
+    conn->write(&C_bias, sizeof(C_bias));
     conn->write(&ldc, sizeof(ldc));
+    conn->write(&C_mult, sizeof(C_mult));
+    conn->write(&C_shift, sizeof(C_shift));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -22090,11 +10628,9 @@ extern "C" cublasStatus_t cublasCgemmEx_64(cublasHandle_t handle, cublasOperatio
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
+    mem2client(conn, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
+    mem2client(conn, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -22174,73 +10710,6 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsyrk_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const float *alpha, const float *A, int64_t lda, const float *beta, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsyrk_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsyrk_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const double *alpha, const double *A, int lda, const double *beta, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsyrk_v2 called" << std::endl;
@@ -22296,73 +10765,6 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsyrk_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const double *alpha, const double *A, int64_t lda, const double *beta, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsyrk_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsyrk_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -22442,73 +10844,6 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsyrk_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyrk_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyrk_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsyrk_v2 called" << std::endl;
@@ -22564,73 +10899,6 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsyrk_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsyrk_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsyrk_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -22712,75 +10980,6 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsyrkEx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const void *A, cudaDataType Atype, int64_t lda, const cuComplex *beta, void *C, cudaDataType Ctype, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyrkEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyrkEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const cuComplex *alpha, const void *A, cudaDataType Atype, int lda, const cuComplex *beta, void *C, cudaDataType Ctype, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCsyrk3mEx called" << std::endl;
@@ -22838,75 +11037,6 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
     mem2client(conn, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeofType(Ctype), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCsyrk3mEx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const void *A, cudaDataType Atype, int64_t lda, const cuComplex *beta, void *C, cudaDataType Ctype, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyrk3mEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyrk3mEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -22986,73 +11116,6 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCherk_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const float *alpha, const cuComplex *A, int64_t lda, const float *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCherk_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCherk_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const double *alpha, const cuDoubleComplex *A, int lda, const double *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZherk_v2 called" << std::endl;
@@ -23108,73 +11171,6 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
     mem2client(conn, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*A), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZherk_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const double *alpha, const cuDoubleComplex *A, int64_t lda, const double *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZherk_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZherk_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -23256,75 +11252,6 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCherkEx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const float *alpha, const void *A, cudaDataType Atype, int64_t lda, const float *beta, void *C, cudaDataType Ctype, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCherkEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCherkEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const float *alpha, const void *A, cudaDataType Atype, int lda, const float *beta, void *C, cudaDataType Ctype, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCherk3mEx called" << std::endl;
@@ -23382,75 +11309,6 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
     mem2client(conn, (void *)A, trans == CUBLAS_OP_N ? n * k : k * n * sizeofType(Atype), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeofType(Ctype), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCherk3mEx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const float *alpha, const void *A, cudaDataType Atype, int64_t lda, const float *beta, void *C, cudaDataType Ctype, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCherk3mEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCherk3mEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -23536,79 +11394,6 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsyr2k_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const float *alpha, const float *A, int64_t lda, const float *B, int64_t ldb, const float *beta, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsyr2k_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsyr2k_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsyr2k_v2 called" << std::endl;
@@ -23670,79 +11455,6 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     mem2client(conn, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsyr2k_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const double *alpha, const double *A, int64_t lda, const double *B, int64_t ldb, const double *beta, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsyr2k_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsyr2k_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -23828,79 +11540,6 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsyr2k_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyr2k_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyr2k_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsyr2k_v2 called" << std::endl;
@@ -23962,79 +11601,6 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     mem2client(conn, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsyr2k_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsyr2k_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsyr2k_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -24120,79 +11686,6 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCher2k_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const float *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCher2k_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCher2k_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const double *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZher2k_v2 called" << std::endl;
@@ -24254,79 +11747,6 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
     mem2client(conn, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZher2k_v2_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const double *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZher2k_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZher2k_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -24412,79 +11832,6 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsyrkx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const float *alpha, const float *A, int64_t lda, const float *B, int64_t ldb, const float *beta, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsyrkx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsyrkx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsyrkx called" << std::endl;
@@ -24546,79 +11893,6 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
     mem2client(conn, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsyrkx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const double *alpha, const double *A, int64_t lda, const double *B, int64_t ldb, const double *beta, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsyrkx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsyrkx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -24704,79 +11978,6 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsyrkx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsyrkx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsyrkx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsyrkx called" << std::endl;
@@ -24838,79 +12039,6 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
     mem2client(conn, (void *)B, trans == CUBLAS_OP_N ? n * k : k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsyrkx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsyrkx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsyrkx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -24996,79 +12124,6 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCherkx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const float *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCherkx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCherkx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int n, int k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const double *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZherkx called" << std::endl;
@@ -25130,79 +12185,6 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
     mem2client(conn, (void *)B, n * k * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, n * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZherkx_64(cublasHandle_t handle, cublasFillMode_t uplo, cublasOperation_t trans, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const double *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZherkx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZherkx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -25288,79 +12270,6 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSsymm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int64_t m, int64_t n, const float *alpha, const float *A, int64_t lda, const float *B, int64_t ldb, const float *beta, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSsymm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSsymm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int m, int n, const double *alpha, const double *A, int lda, const double *B, int ldb, const double *beta, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDsymm_v2 called" << std::endl;
@@ -25422,79 +12331,6 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDsymm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int64_t m, int64_t n, const double *alpha, const double *A, int64_t lda, const double *B, int64_t ldb, const double *beta, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDsymm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDsymm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -25580,79 +12416,6 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCsymm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCsymm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCsymm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZsymm_v2 called" << std::endl;
@@ -25714,79 +12477,6 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZsymm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZsymm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZsymm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -25872,79 +12562,6 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasChemm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, const cuComplex *beta, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasChemm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasChemm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZhemm_v2 called" << std::endl;
@@ -26006,79 +12623,6 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZhemm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZhemm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZhemm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -26155,70 +12699,6 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStrsm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const float *alpha, const float *A, int64_t lda, float *B, int64_t ldb) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrsm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrsm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const double *alpha, const double *A, int lda, double *B, int ldb) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrsm_v2 called" << std::endl;
@@ -26271,70 +12751,6 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtrsm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const double *alpha, const double *A, int64_t lda, double *B, int64_t ldb) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrsm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrsm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -26411,70 +12827,6 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtrsm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, cuComplex *B, int64_t ldb) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrsm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrsm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, cuDoubleComplex *B, int ldb) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrsm_v2 called" << std::endl;
@@ -26527,70 +12879,6 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtrsm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, cuDoubleComplex *B, int64_t ldb) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrsm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrsm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -26673,76 +12961,6 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasStrmm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const float *alpha, const float *A, int64_t lda, const float *B, int64_t ldb, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrmm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrmm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const double *alpha, const double *A, int lda, const double *B, int ldb, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDtrmm_v2 called" << std::endl;
@@ -26801,76 +13019,6 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     mem2client(conn, (void *)A, (side == CUBLAS_SIDE_LEFT ? m * m : n * n) * sizeof(*A), true);
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtrmm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const double *alpha, const double *A, int64_t lda, const double *B, int64_t ldb, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrmm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrmm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -26953,76 +13101,6 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCtrmm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *B, int64_t ldb, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrmm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrmm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *B, int ldb, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZtrmm_v2 called" << std::endl;
@@ -27093,76 +13171,6 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZtrmm_v2_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *B, int64_t ldb, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrmm_v2_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrmm_v2_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const __half *alpha, const __half *const Aarray[], int lda, const __half *const Barray[], int ldb, const __half *beta, __half *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasHgemmBatched called" << std::endl;
@@ -27213,69 +13221,6 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHgemmBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const __half *alpha, const __half *const Aarray[], int64_t lda, const __half *const Barray[], int64_t ldb, const __half *beta, __half *const Carray[], int64_t ldc, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHgemmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHgemmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(__half *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(__half *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(__half *) * batchCount, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -27352,69 +13297,6 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemmBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const float *alpha, const float *const Aarray[], int64_t lda, const float *const Barray[], int64_t ldb, const float *beta, float *const Carray[], int64_t ldc, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(float *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(float *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(float *) * batchCount, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const double *alpha, const double *const Aarray[], int lda, const double *const Barray[], int ldb, const double *beta, double *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgemmBatched called" << std::endl;
@@ -27465,69 +13347,6 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemmBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const double *alpha, const double *const Aarray[], int64_t lda, const double *const Barray[], int64_t ldb, const double *beta, double *const Carray[], int64_t ldc, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(double *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(double *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(double *) * batchCount, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -27604,69 +13423,6 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemmBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *const Aarray[], int64_t lda, const cuComplex *const Barray[], int64_t ldb, const cuComplex *beta, cuComplex *const Carray[], int64_t ldc, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex *const Aarray[], int lda, const cuComplex *const Barray[], int ldb, const cuComplex *beta, cuComplex *const Carray[], int ldc, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgemm3mBatched called" << std::endl;
@@ -27717,69 +13473,6 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemm3mBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *const Aarray[], int64_t lda, const cuComplex *const Barray[], int64_t ldb, const cuComplex *beta, cuComplex *const Carray[], int64_t ldc, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemm3mBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemm3mBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -27844,225 +13537,6 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)alpha, sizeof(*alpha), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgemmBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *const Aarray[], int64_t lda, const cuDoubleComplex *const Barray[], int64_t ldb, const cuDoubleComplex *beta, cuDoubleComplex *const Carray[], int64_t ldc, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgemmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const __half *alpha, const __half *A, int lda, long long int strideA, const __half *B, int ldb, long long int strideB, const __half *beta, __half *C, int ldc, long long int strideC, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHgemmStridedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, m * k * sizeof(*A));
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, k * n * sizeof(*B));
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHgemmStridedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    mem2client(conn, (void *)A, m * k * sizeof(*A), true);
-    mem2client(conn, (void *)B, k * n * sizeof(*B), true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasHgemmStridedBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const __half *alpha, const __half *A, int64_t lda, long long int strideA, const __half *B, int64_t ldb, long long int strideB, const __half *beta, __half *C, int64_t ldc, long long int strideC, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasHgemmStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasHgemmStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -28153,84 +13627,6 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgemmStridedBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const float *alpha, const float *A, int64_t lda, long long int strideA, const float *B, int64_t ldb, long long int strideB, const float *beta, float *C, int64_t ldc, long long int strideC, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemmStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemmStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const double *alpha, const double *A, int lda, long long int strideA, const double *B, int ldb, long long int strideB, const double *beta, double *C, int ldc, long long int strideC, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgemmStridedBatched called" << std::endl;
@@ -28297,84 +13693,6 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
     mem2client(conn, (void *)B, k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemmStridedBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const double *alpha, const double *A, int64_t lda, long long int strideA, const double *B, int64_t ldb, long long int strideB, const double *beta, double *C, int64_t ldc, long long int strideC, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemmStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemmStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -28465,84 +13783,6 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgemmStridedBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, long long int strideA, const cuComplex *B, int64_t ldb, long long int strideB, const cuComplex *beta, cuComplex *C, int64_t ldc, long long int strideC, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemmStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemmStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const cuComplex *alpha, const cuComplex *A, int lda, long long int strideA, const cuComplex *B, int ldb, long long int strideB, const cuComplex *beta, cuComplex *C, int ldc, long long int strideC, int batchCount) {
 #ifdef DEBUG
     std::cout << "Hook: cublasCgemm3mStridedBatched called" << std::endl;
@@ -28609,84 +13849,6 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
     mem2client(conn, (void *)B, k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgemm3mStridedBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuComplex *alpha, const cuComplex *A, int64_t lda, long long int strideA, const cuComplex *B, int64_t ldb, long long int strideB, const cuComplex *beta, cuComplex *C, int64_t ldc, long long int strideC, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgemm3mStridedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgemm3mStridedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -28777,9 +13939,9 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
     return _result;
 }
 
-extern "C" cublasStatus_t cublasZgemmStridedBatched_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, long long int strideA, const cuDoubleComplex *B, int64_t ldb, long long int strideB, const cuDoubleComplex *beta, cuDoubleComplex *C, int64_t ldc, long long int strideC, int64_t batchCount) {
+extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k, const __half *alpha, const __half *A, int lda, long long int strideA, const __half *B, int ldb, long long int strideB, const __half *beta, __half *C, int ldc, long long int strideC, int batchCount) {
 #ifdef DEBUG
-    std::cout << "Hook: cublasZgemmStridedBatched_64 called" << std::endl;
+    std::cout << "Hook: cublasHgemmStridedBatched called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -28788,15 +13950,15 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched_64(cublasHandle_t handle, cu
     }
     conn->prepare_request(RPC_mem2server);
     void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
+    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
     void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
+    mem2server(conn, &_0A, (void *)A, m * k * sizeof(*A));
     void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
+    mem2server(conn, &_0B, (void *)B, k * n * sizeof(*B));
     void *_0beta;
     mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
     void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
+    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -28807,7 +13969,7 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched_64(cublasHandle_t handle, cu
         }
     }
     cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgemmStridedBatched_64);
+    conn->prepare_request(RPC_cublasHgemmStridedBatched);
     conn->write(&handle, sizeof(handle));
     conn->write(&transa, sizeof(transa));
     conn->write(&transb, sizeof(transb));
@@ -28838,522 +14000,11 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched_64(cublasHandle_t handle, cu
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
+    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
+    mem2client(conn, (void *)A, m * k * sizeof(*A), true);
+    mem2client(conn, (void *)B, k * n * sizeof(*B), true);
     mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGemmBatchedEx_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const void *alpha, const void *const Aarray[], cudaDataType Atype, int64_t lda, const void *const Barray[], cudaDataType Btype, int64_t ldb, const void *beta, void *const Carray[], cudaDataType Ctype, int64_t ldc, int64_t batchCount, cublasComputeType_t computeType, cublasGemmAlgo_t algo) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGemmBatchedEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGemmBatchedEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(Aarray, sizeof(void *) * batchCount, true);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(Barray, sizeof(void *) * batchCount, true);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(Carray, sizeof(void *) * batchCount, true);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->write(&computeType, sizeof(computeType));
-    conn->write(&algo, sizeof(algo));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)beta, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGemmStridedBatchedEx_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, int64_t k, const void *alpha, const void *A, cudaDataType Atype, int64_t lda, long long int strideA, const void *B, cudaDataType Btype, int64_t ldb, long long int strideB, const void *beta, void *C, cudaDataType Ctype, int64_t ldc, long long int strideC, int64_t batchCount, cublasComputeType_t computeType, cublasGemmAlgo_t algo) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGemmStridedBatchedEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGemmStridedBatchedEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(&lda, sizeof(lda));
-    conn->write(&strideA, sizeof(strideA));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&strideB, sizeof(strideB));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&strideC, sizeof(strideC));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->write(&computeType, sizeof(computeType));
-    conn->write(&algo, sizeof(algo));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)beta, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgemmGroupedBatched(cublasHandle_t handle, const cublasOperation_t transa_array[], const cublasOperation_t transb_array[], const int m_array[], const int n_array[], const int k_array[], const float alpha_array[], const float *const Aarray[], const int lda_array[], const float *const Barray[], const int ldb_array[], const float beta_array[], float *const Carray[], const int ldc_array[], int group_count, const int group_size[]) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemmGroupedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemmGroupedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(transa_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(transb_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(m_array, sizeof(int *) * group_count, true);
-    conn->write(n_array, sizeof(int *) * group_count, true);
-    conn->write(k_array, sizeof(int *) * group_count, true);
-    conn->write(alpha_array, sizeof(float *) * group_count, true);
-    conn->write(Aarray, sizeof(float *) * sum_group((int *)group_size, group_count), true);
-    conn->write(lda_array, sizeof(int *) * group_count, true);
-    conn->write(Barray, sizeof(float *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldb_array, sizeof(int *) * group_count, true);
-    conn->write(beta_array, sizeof(float *) * group_count, true);
-    conn->write(Carray, sizeof(float *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldc_array, sizeof(int *) * group_count, true);
-    conn->write(&group_count, sizeof(group_count));
-    conn->write(group_size, sizeof(int *) * group_count, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgemmGroupedBatched_64(cublasHandle_t handle, const cublasOperation_t transa_array[], const cublasOperation_t transb_array[], const int64_t m_array[], const int64_t n_array[], const int64_t k_array[], const float alpha_array[], const float *const Aarray[], const int64_t lda_array[], const float *const Barray[], const int64_t ldb_array[], const float beta_array[], float *const Carray[], const int64_t ldc_array[], int64_t group_count, const int64_t group_size[]) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgemmGroupedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgemmGroupedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(transa_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(transb_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(m_array, sizeof(int64_t *) * group_count, true);
-    conn->write(n_array, sizeof(int64_t *) * group_count, true);
-    conn->write(k_array, sizeof(int64_t *) * group_count, true);
-    conn->write(alpha_array, sizeof(float *) * group_count, true);
-    conn->write(Aarray, sizeof(float *) * sum_group((int *)group_size, group_count), true);
-    conn->write(lda_array, sizeof(int64_t *) * group_count, true);
-    conn->write(Barray, sizeof(float *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldb_array, sizeof(int64_t *) * group_count, true);
-    conn->write(beta_array, sizeof(float *) * group_count, true);
-    conn->write(Carray, sizeof(float *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldc_array, sizeof(int64_t *) * group_count, true);
-    conn->write(&group_count, sizeof(group_count));
-    conn->write(group_size, sizeof(int64_t *) * group_count, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemmGroupedBatched(cublasHandle_t handle, const cublasOperation_t transa_array[], const cublasOperation_t transb_array[], const int m_array[], const int n_array[], const int k_array[], const double alpha_array[], const double *const Aarray[], const int lda_array[], const double *const Barray[], const int ldb_array[], const double beta_array[], double *const Carray[], const int ldc_array[], int group_count, const int group_size[]) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemmGroupedBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemmGroupedBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(transa_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(transb_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(m_array, sizeof(int *) * group_count, true);
-    conn->write(n_array, sizeof(int *) * group_count, true);
-    conn->write(k_array, sizeof(int *) * group_count, true);
-    conn->write(alpha_array, sizeof(double *) * group_count, true);
-    conn->write(Aarray, sizeof(double *) * sum_group((int *)group_size, group_count), true);
-    conn->write(lda_array, sizeof(int *) * group_count, true);
-    conn->write(Barray, sizeof(double *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldb_array, sizeof(int *) * group_count, true);
-    conn->write(beta_array, sizeof(double *) * group_count, true);
-    conn->write(Carray, sizeof(double *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldc_array, sizeof(int *) * group_count, true);
-    conn->write(&group_count, sizeof(group_count));
-    conn->write(group_size, sizeof(int *) * group_count, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgemmGroupedBatched_64(cublasHandle_t handle, const cublasOperation_t transa_array[], const cublasOperation_t transb_array[], const int64_t m_array[], const int64_t n_array[], const int64_t k_array[], const double alpha_array[], const double *const Aarray[], const int64_t lda_array[], const double *const Barray[], const int64_t ldb_array[], const double beta_array[], double *const Carray[], const int64_t ldc_array[], int64_t group_count, const int64_t group_size[]) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgemmGroupedBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgemmGroupedBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(transa_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(transb_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(m_array, sizeof(int64_t *) * group_count, true);
-    conn->write(n_array, sizeof(int64_t *) * group_count, true);
-    conn->write(k_array, sizeof(int64_t *) * group_count, true);
-    conn->write(alpha_array, sizeof(double *) * group_count, true);
-    conn->write(Aarray, sizeof(double *) * sum_group((int *)group_size, group_count), true);
-    conn->write(lda_array, sizeof(int64_t *) * group_count, true);
-    conn->write(Barray, sizeof(double *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldb_array, sizeof(int64_t *) * group_count, true);
-    conn->write(beta_array, sizeof(double *) * group_count, true);
-    conn->write(Carray, sizeof(double *) * sum_group((int *)group_size, group_count), true);
-    conn->write(ldc_array, sizeof(int64_t *) * group_count, true);
-    conn->write(&group_count, sizeof(group_count));
-    conn->write(group_size, sizeof(int64_t *) * group_count, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGemmGroupedBatchedEx(cublasHandle_t handle, const cublasOperation_t transa_array[], const cublasOperation_t transb_array[], const int m_array[], const int n_array[], const int k_array[], const void *alpha_array, const void *const Aarray[], cudaDataType_t Atype, const int lda_array[], const void *const Barray[], cudaDataType_t Btype, const int ldb_array[], const void *beta_array, void *const Carray[], cudaDataType_t Ctype, const int ldc_array[], int group_count, const int group_size[], cublasComputeType_t computeType) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGemmGroupedBatchedEx called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha_array;
-    mem2server(conn, &_0alpha_array, (void *)alpha_array, 0);
-    void *_0beta_array;
-    mem2server(conn, &_0beta_array, (void *)beta_array, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGemmGroupedBatchedEx);
-    conn->write(&handle, sizeof(handle));
-    conn->write(transa_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(transb_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(m_array, sizeof(int *) * group_count, true);
-    conn->write(n_array, sizeof(int *) * group_count, true);
-    conn->write(k_array, sizeof(int *) * group_count, true);
-    conn->write(&_0alpha_array, sizeof(_0alpha_array));
-    updateTmpPtr((void *)alpha_array, _0alpha_array);
-    conn->write(Aarray, sizeof(void *) * sum_group((int *)group_size, group_count), true);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(lda_array, sizeof(int *) * group_count, true);
-    conn->write(Barray, sizeof(void *) * sum_group((int *)group_size, group_count), true);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(ldb_array, sizeof(int *) * group_count, true);
-    conn->write(&_0beta_array, sizeof(_0beta_array));
-    updateTmpPtr((void *)beta_array, _0beta_array);
-    conn->write(Carray, sizeof(void *) * sum_group((int *)group_size, group_count), true);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(ldc_array, sizeof(int *) * group_count, true);
-    conn->write(&group_count, sizeof(group_count));
-    conn->write(group_size, sizeof(int *) * group_count, true);
-    conn->write(&computeType, sizeof(computeType));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha_array, 0, true);
-    mem2client(conn, (void *)beta_array, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasGemmGroupedBatchedEx_64(cublasHandle_t handle, const cublasOperation_t transa_array[], const cublasOperation_t transb_array[], const int64_t m_array[], const int64_t n_array[], const int64_t k_array[], const void *alpha_array, const void *const Aarray[], cudaDataType_t Atype, const int64_t lda_array[], const void *const Barray[], cudaDataType_t Btype, const int64_t ldb_array[], const void *beta_array, void *const Carray[], cudaDataType_t Ctype, const int64_t ldc_array[], int64_t group_count, const int64_t group_size[], cublasComputeType_t computeType) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasGemmGroupedBatchedEx_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha_array;
-    mem2server(conn, &_0alpha_array, (void *)alpha_array, 0);
-    void *_0beta_array;
-    mem2server(conn, &_0beta_array, (void *)beta_array, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasGemmGroupedBatchedEx_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(transa_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(transb_array, sizeof(cublasOperation_t *) * group_count, true);
-    conn->write(m_array, sizeof(int64_t *) * group_count, true);
-    conn->write(n_array, sizeof(int64_t *) * group_count, true);
-    conn->write(k_array, sizeof(int64_t *) * group_count, true);
-    conn->write(&_0alpha_array, sizeof(_0alpha_array));
-    updateTmpPtr((void *)alpha_array, _0alpha_array);
-    conn->write(Aarray, sizeof(void *) * sum_group((int *)group_size, group_count), true);
-    conn->write(&Atype, sizeof(Atype));
-    conn->write(lda_array, sizeof(int64_t *) * group_count, true);
-    conn->write(Barray, sizeof(void *) * sum_group((int *)group_size, group_count), true);
-    conn->write(&Btype, sizeof(Btype));
-    conn->write(ldb_array, sizeof(int64_t *) * group_count, true);
-    conn->write(&_0beta_array, sizeof(_0beta_array));
-    updateTmpPtr((void *)beta_array, _0beta_array);
-    conn->write(Carray, sizeof(void *) * sum_group((int *)group_size, group_count), true);
-    conn->write(&Ctype, sizeof(Ctype));
-    conn->write(ldc_array, sizeof(int64_t *) * group_count, true);
-    conn->write(&group_count, sizeof(group_count));
-    conn->write(group_size, sizeof(int64_t *) * group_count, true);
-    conn->write(&computeType, sizeof(computeType));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha_array, 0, true);
-    mem2client(conn, (void *)beta_array, 0, true);
+    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -29439,79 +14090,6 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasSgeam_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, const float *alpha, const float *A, int64_t lda, const float *beta, const float *B, int64_t ldb, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgeam_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgeam_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, const double *alpha, const double *A, int lda, const double *beta, const double *B, int ldb, double *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasDgeam called" << std::endl;
@@ -29573,79 +14151,6 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgeam_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, const double *alpha, const double *A, int64_t lda, const double *beta, const double *B, int64_t ldb, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgeam_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgeam_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -29731,79 +14236,6 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
     return _result;
 }
 
-extern "C" cublasStatus_t cublasCgeam_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *A, int64_t lda, const cuComplex *beta, const cuComplex *B, int64_t ldb, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgeam_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgeam_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, const cuDoubleComplex *beta, const cuDoubleComplex *B, int ldb, cuDoubleComplex *C, int ldc) {
 #ifdef DEBUG
     std::cout << "Hook: cublasZgeam called" << std::endl;
@@ -29865,2119 +14297,6 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
     mem2client(conn, (void *)beta, sizeof(*beta), true);
     mem2client(conn, (void *)B, m * n * sizeof(*B), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgeam_64(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *beta, const cuDoubleComplex *B, int64_t ldb, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgeam_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0beta;
-    mem2server(conn, &_0beta, (void *)beta, sizeof(*beta));
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgeam_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0beta, sizeof(_0beta));
-    updateTmpPtr((void *)beta, _0beta);
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)beta, sizeof(*beta), true);
-    mem2client(conn, (void *)B, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const float *alpha, const float *const A[], int lda, float *const B[], int ldb, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrsmBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrsmBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(float *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(float *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasStrsmBatched_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const float *alpha, const float *const A[], int64_t lda, float *const B[], int64_t ldb, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrsmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrsmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(float *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(float *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const double *alpha, const double *const A[], int lda, double *const B[], int ldb, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrsmBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrsmBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(double *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(double *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtrsmBatched_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const double *alpha, const double *const A[], int64_t lda, double *const B[], int64_t ldb, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrsmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrsmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(double *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(double *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuComplex *alpha, const cuComplex *const A[], int lda, cuComplex *const B[], int ldb, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrsmBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrsmBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCtrsmBatched_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const cuComplex *alpha, const cuComplex *const A[], int64_t lda, cuComplex *const B[], int64_t ldb, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrsmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrsmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(cuComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *const A[], int lda, cuDoubleComplex *const B[], int ldb, int batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrsmBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrsmBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtrsmBatched_64(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int64_t m, int64_t n, const cuDoubleComplex *alpha, const cuDoubleComplex *const A[], int64_t lda, cuDoubleComplex *const B[], int64_t ldb, int64_t batchCount) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrsmBatched_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0alpha;
-    mem2server(conn, &_0alpha, (void *)alpha, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrsmBatched_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&side, sizeof(side));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&diag, sizeof(diag));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0alpha, sizeof(_0alpha));
-    updateTmpPtr((void *)alpha, _0alpha);
-    conn->write(A, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(B, sizeof(cuDoubleComplex *) * batchCount, true);
-    conn->write(&ldb, sizeof(ldb));
-    conn->write(&batchCount, sizeof(batchCount));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)alpha, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const float *A, int lda, const float *x, int incx, float *C, int ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSdgmm called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSdgmm);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
-    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSdgmm_64(cublasHandle_t handle, cublasSideMode_t mode, int64_t m, int64_t n, const float *A, int64_t lda, const float *x, int64_t incx, float *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSdgmm_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSdgmm_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const double *A, int lda, const double *x, int incx, double *C, int ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDdgmm called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDdgmm);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
-    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDdgmm_64(cublasHandle_t handle, cublasSideMode_t mode, int64_t m, int64_t n, const double *A, int64_t lda, const double *x, int64_t incx, double *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDdgmm_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDdgmm_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const cuComplex *A, int lda, const cuComplex *x, int incx, cuComplex *C, int ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCdgmm called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCdgmm);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
-    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCdgmm_64(cublasHandle_t handle, cublasSideMode_t mode, int64_t m, int64_t n, const cuComplex *A, int64_t lda, const cuComplex *x, int64_t incx, cuComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCdgmm_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCdgmm_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, cuDoubleComplex *C, int ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZdgmm called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZdgmm);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
-    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
-    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZdgmm_64(cublasHandle_t handle, cublasSideMode_t mode, int64_t m, int64_t n, const cuDoubleComplex *A, int64_t lda, const cuDoubleComplex *x, int64_t incx, cuDoubleComplex *C, int64_t ldc) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZdgmm_64 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, 0);
-    void *_0x;
-    mem2server(conn, &_0x, (void *)x, 0);
-    void *_0C;
-    mem2server(conn, &_0C, (void *)C, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZdgmm_64);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&mode, sizeof(mode));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0x, sizeof(_0x));
-    updateTmpPtr((void *)x, _0x);
-    conn->write(&incx, sizeof(incx));
-    conn->write(&_0C, sizeof(_0C));
-    updateTmpPtr((void *)C, _0C);
-    conn->write(&ldc, sizeof(ldc));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, 0, true);
-    mem2client(conn, (void *)x, 0, true);
-    mem2client(conn, (void *)C, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, const float *const A[], int lda, float *const Ainv[], int lda_inv, int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSmatinvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSmatinvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(A, sizeof(float *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Ainv, sizeof(float *) * batchSize, true);
-    conn->write(&lda_inv, sizeof(lda_inv));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, const double *const A[], int lda, double *const Ainv[], int lda_inv, int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDmatinvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDmatinvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(A, sizeof(double *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Ainv, sizeof(double *) * batchSize, true);
-    conn->write(&lda_inv, sizeof(lda_inv));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, const cuComplex *const A[], int lda, cuComplex *const Ainv[], int lda_inv, int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCmatinvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCmatinvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(A, sizeof(cuComplex *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Ainv, sizeof(cuComplex *) * batchSize, true);
-    conn->write(&lda_inv, sizeof(lda_inv));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, const cuDoubleComplex *const A[], int lda, cuDoubleComplex *const Ainv[], int lda_inv, int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZmatinvBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZmatinvBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&n, sizeof(n));
-    conn->write(A, sizeof(cuDoubleComplex *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Ainv, sizeof(cuDoubleComplex *) * batchSize, true);
-    conn->write(&lda_inv, sizeof(lda_inv));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int n, float *const Aarray[], int lda, float *const TauArray[], int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgeqrfBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgeqrfBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(Aarray, sizeof(float *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(TauArray, sizeof(float *) * batchSize, true);
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int n, double *const Aarray[], int lda, double *const TauArray[], int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgeqrfBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgeqrfBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(Aarray, sizeof(double *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(TauArray, sizeof(double *) * batchSize, true);
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int n, cuComplex *const Aarray[], int lda, cuComplex *const TauArray[], int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgeqrfBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgeqrfBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(Aarray, sizeof(cuComplex *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(TauArray, sizeof(cuComplex *) * batchSize, true);
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int n, cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const TauArray[], int *info, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgeqrfBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgeqrfBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(TauArray, sizeof(cuDoubleComplex *) * batchSize, true);
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, float *const Aarray[], int lda, float *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasSgelsBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *_0devInfoArray;
-    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasSgelsBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&nrhs, sizeof(nrhs));
-    conn->write(Aarray, sizeof(float *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Carray, sizeof(float *) * batchSize, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
-    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, double *const Aarray[], int lda, double *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDgelsBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *_0devInfoArray;
-    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDgelsBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&nrhs, sizeof(nrhs));
-    conn->write(Aarray, sizeof(double *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Carray, sizeof(double *) * batchSize, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
-    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuComplex *const Aarray[], int lda, cuComplex *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCgelsBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *_0devInfoArray;
-    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCgelsBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&nrhs, sizeof(nrhs));
-    conn->write(Aarray, sizeof(cuComplex *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Carray, sizeof(cuComplex *) * batchSize, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
-    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZgelsBatched called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0info;
-    mem2server(conn, &_0info, (void *)info, sizeof(*info));
-    void *_0devInfoArray;
-    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZgelsBatched);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&trans, sizeof(trans));
-    conn->write(&m, sizeof(m));
-    conn->write(&n, sizeof(n));
-    conn->write(&nrhs, sizeof(nrhs));
-    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
-    conn->write(&lda, sizeof(lda));
-    conn->write(Carray, sizeof(cuDoubleComplex *) * batchSize, true);
-    conn->write(&ldc, sizeof(ldc));
-    conn->write(&_0info, sizeof(_0info));
-    updateTmpPtr((void *)info, _0info);
-    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
-    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
-    conn->write(&batchSize, sizeof(batchSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)info, sizeof(*info), true);
-    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const float *AP, float *A, int lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStpttr called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStpttr);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *AP, double *A, int lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtpttr called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtpttr);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuComplex *AP, cuComplex *A, int lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtpttr called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtpttr);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *AP, cuDoubleComplex *A, int lda) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtpttr called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtpttr);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const float *A, int lda, float *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasStrttp called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasStrttp);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *A, int lda, double *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasDtrttp called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasDtrttp);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuComplex *A, int lda, cuComplex *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasCtrttp called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasCtrttp);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *A, int lda, cuDoubleComplex *AP) {
-#ifdef DEBUG
-    std::cout << "Hook: cublasZtrttp called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0A;
-    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
-    void *_0AP;
-    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasZtrttp);
-    conn->write(&handle, sizeof(handle));
-    conn->write(&uplo, sizeof(uplo));
-    conn->write(&n, sizeof(n));
-    conn->write(&_0A, sizeof(_0A));
-    updateTmpPtr((void *)A, _0A);
-    conn->write(&lda, sizeof(lda));
-    conn->write(&_0AP, sizeof(_0AP));
-    updateTmpPtr((void *)AP, _0AP);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
-    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -32674,9 +14993,893 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
     return _result;
 }
 
-extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, cublasOperation_t transc, int m, int n, int k, const unsigned char *A, int A_bias, int lda, const unsigned char *B, int B_bias, int ldb, unsigned char *C, int C_bias, int ldc, int C_mult, int C_shift) {
+extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const float *alpha, const float *const A[], int lda, float *const B[], int ldb, int batchCount) {
 #ifdef DEBUG
-    std::cout << "Hook: cublasUint8gemmBias called" << std::endl;
+    std::cout << "Hook: cublasStrsmBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0alpha;
+    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasStrsmBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&side, sizeof(side));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&diag, sizeof(diag));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
+    conn->write(A, sizeof(float *) * batchCount, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(B, sizeof(float *) * batchCount, true);
+    conn->write(&ldb, sizeof(ldb));
+    conn->write(&batchCount, sizeof(batchCount));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const double *alpha, const double *const A[], int lda, double *const B[], int ldb, int batchCount) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDtrsmBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0alpha;
+    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDtrsmBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&side, sizeof(side));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&diag, sizeof(diag));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
+    conn->write(A, sizeof(double *) * batchCount, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(B, sizeof(double *) * batchCount, true);
+    conn->write(&ldb, sizeof(ldb));
+    conn->write(&batchCount, sizeof(batchCount));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuComplex *alpha, const cuComplex *const A[], int lda, cuComplex *const B[], int ldb, int batchCount) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCtrsmBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0alpha;
+    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCtrsmBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&side, sizeof(side));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&diag, sizeof(diag));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
+    conn->write(A, sizeof(cuComplex *) * batchCount, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(B, sizeof(cuComplex *) * batchCount, true);
+    conn->write(&ldb, sizeof(ldb));
+    conn->write(&batchCount, sizeof(batchCount));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const cuDoubleComplex *alpha, const cuDoubleComplex *const A[], int lda, cuDoubleComplex *const B[], int ldb, int batchCount) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZtrsmBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0alpha;
+    mem2server(conn, &_0alpha, (void *)alpha, sizeof(*alpha));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZtrsmBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&side, sizeof(side));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&diag, sizeof(diag));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0alpha, sizeof(_0alpha));
+    updateTmpPtr((void *)alpha, _0alpha);
+    conn->write(A, sizeof(cuDoubleComplex *) * batchCount, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(B, sizeof(cuDoubleComplex *) * batchCount, true);
+    conn->write(&ldb, sizeof(ldb));
+    conn->write(&batchCount, sizeof(batchCount));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)alpha, sizeof(*alpha), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, const float *const A[], int lda, float *const Ainv[], int lda_inv, int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasSmatinvBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasSmatinvBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&n, sizeof(n));
+    conn->write(A, sizeof(float *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Ainv, sizeof(float *) * batchSize, true);
+    conn->write(&lda_inv, sizeof(lda_inv));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, const double *const A[], int lda, double *const Ainv[], int lda_inv, int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDmatinvBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDmatinvBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&n, sizeof(n));
+    conn->write(A, sizeof(double *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Ainv, sizeof(double *) * batchSize, true);
+    conn->write(&lda_inv, sizeof(lda_inv));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, const cuComplex *const A[], int lda, cuComplex *const Ainv[], int lda_inv, int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCmatinvBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCmatinvBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&n, sizeof(n));
+    conn->write(A, sizeof(cuComplex *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Ainv, sizeof(cuComplex *) * batchSize, true);
+    conn->write(&lda_inv, sizeof(lda_inv));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, const cuDoubleComplex *const A[], int lda, cuDoubleComplex *const Ainv[], int lda_inv, int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZmatinvBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZmatinvBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&n, sizeof(n));
+    conn->write(A, sizeof(cuDoubleComplex *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Ainv, sizeof(cuDoubleComplex *) * batchSize, true);
+    conn->write(&lda_inv, sizeof(lda_inv));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int n, float *const Aarray[], int lda, float *const TauArray[], int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasSgeqrfBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasSgeqrfBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(Aarray, sizeof(float *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(TauArray, sizeof(float *) * batchSize, true);
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int n, double *const Aarray[], int lda, double *const TauArray[], int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDgeqrfBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDgeqrfBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(Aarray, sizeof(double *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(TauArray, sizeof(double *) * batchSize, true);
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int n, cuComplex *const Aarray[], int lda, cuComplex *const TauArray[], int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCgeqrfBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCgeqrfBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(Aarray, sizeof(cuComplex *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(TauArray, sizeof(cuComplex *) * batchSize, true);
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int n, cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const TauArray[], int *info, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZgeqrfBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZgeqrfBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(TauArray, sizeof(cuDoubleComplex *) * batchSize, true);
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, float *const Aarray[], int lda, float *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasSgelsBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *_0devInfoArray;
+    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasSgelsBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&nrhs, sizeof(nrhs));
+    conn->write(Aarray, sizeof(float *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Carray, sizeof(float *) * batchSize, true);
+    conn->write(&ldc, sizeof(ldc));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, double *const Aarray[], int lda, double *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDgelsBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *_0devInfoArray;
+    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDgelsBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&nrhs, sizeof(nrhs));
+    conn->write(Aarray, sizeof(double *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Carray, sizeof(double *) * batchSize, true);
+    conn->write(&ldc, sizeof(ldc));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuComplex *const Aarray[], int lda, cuComplex *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCgelsBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *_0devInfoArray;
+    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCgelsBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&nrhs, sizeof(nrhs));
+    conn->write(Aarray, sizeof(cuComplex *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Carray, sizeof(cuComplex *) * batchSize, true);
+    conn->write(&ldc, sizeof(ldc));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZgelsBatched called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *_0devInfoArray;
+    mem2server(conn, &_0devInfoArray, (void *)devInfoArray, sizeof(*devInfoArray));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZgelsBatched);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&trans, sizeof(trans));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&nrhs, sizeof(nrhs));
+    conn->write(Aarray, sizeof(cuDoubleComplex *) * batchSize, true);
+    conn->write(&lda, sizeof(lda));
+    conn->write(Carray, sizeof(cuDoubleComplex *) * batchSize, true);
+    conn->write(&ldc, sizeof(ldc));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->write(&_0devInfoArray, sizeof(_0devInfoArray));
+    updateTmpPtr((void *)devInfoArray, _0devInfoArray);
+    conn->write(&batchSize, sizeof(batchSize));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    mem2client(conn, (void *)devInfoArray, sizeof(*devInfoArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const float *A, int lda, const float *x, int incx, float *C, int ldc) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasSdgmm called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -32685,9 +15888,9 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
     }
     conn->prepare_request(RPC_mem2server);
     void *_0A;
-    mem2server(conn, &_0A, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A));
-    void *_0B;
-    mem2server(conn, &_0B, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B));
+    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
+    void *_0x;
+    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
     void *_0C;
     mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
     void *end_flag = (void *)0xffffffff;
@@ -32700,28 +15903,20 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         }
     }
     cublasStatus_t _result;
-    conn->prepare_request(RPC_cublasUint8gemmBias);
+    conn->prepare_request(RPC_cublasSdgmm);
     conn->write(&handle, sizeof(handle));
-    conn->write(&transa, sizeof(transa));
-    conn->write(&transb, sizeof(transb));
-    conn->write(&transc, sizeof(transc));
+    conn->write(&mode, sizeof(mode));
     conn->write(&m, sizeof(m));
     conn->write(&n, sizeof(n));
-    conn->write(&k, sizeof(k));
     conn->write(&_0A, sizeof(_0A));
     updateTmpPtr((void *)A, _0A);
-    conn->write(&A_bias, sizeof(A_bias));
     conn->write(&lda, sizeof(lda));
-    conn->write(&_0B, sizeof(_0B));
-    updateTmpPtr((void *)B, _0B);
-    conn->write(&B_bias, sizeof(B_bias));
-    conn->write(&ldb, sizeof(ldb));
+    conn->write(&_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
+    conn->write(&incx, sizeof(incx));
     conn->write(&_0C, sizeof(_0C));
     updateTmpPtr((void *)C, _0C);
-    conn->write(&C_bias, sizeof(C_bias));
     conn->write(&ldc, sizeof(ldc));
-    conn->write(&C_mult, sizeof(C_mult));
-    conn->write(&C_shift, sizeof(C_shift));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -32729,9 +15924,627 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)A, transa == CUBLAS_OP_N ? m * k : k * m * sizeof(*A), true);
-    mem2client(conn, (void *)B, transb == CUBLAS_OP_N ? k * n : n * k * sizeof(*B), true);
+    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
+    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
     mem2client(conn, (void *)C, m * n * sizeof(*C), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const double *A, int lda, const double *x, int incx, double *C, int ldc) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDdgmm called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
+    void *_0x;
+    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    void *_0C;
+    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDdgmm);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&mode, sizeof(mode));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
+    conn->write(&incx, sizeof(incx));
+    conn->write(&_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
+    conn->write(&ldc, sizeof(ldc));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
+    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const cuComplex *A, int lda, const cuComplex *x, int incx, cuComplex *C, int ldc) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCdgmm called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
+    void *_0x;
+    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    void *_0C;
+    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCdgmm);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&mode, sizeof(mode));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
+    conn->write(&incx, sizeof(incx));
+    conn->write(&_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
+    conn->write(&ldc, sizeof(ldc));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
+    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mode, int m, int n, const cuDoubleComplex *A, int lda, const cuDoubleComplex *x, int incx, cuDoubleComplex *C, int ldc) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZdgmm called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, m * n * sizeof(*A));
+    void *_0x;
+    mem2server(conn, &_0x, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x));
+    void *_0C;
+    mem2server(conn, &_0C, (void *)C, m * n * sizeof(*C));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZdgmm);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&mode, sizeof(mode));
+    conn->write(&m, sizeof(m));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0x, sizeof(_0x));
+    updateTmpPtr((void *)x, _0x);
+    conn->write(&incx, sizeof(incx));
+    conn->write(&_0C, sizeof(_0C));
+    updateTmpPtr((void *)C, _0C);
+    conn->write(&ldc, sizeof(ldc));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, m * n * sizeof(*A), true);
+    mem2client(conn, (void *)x, (mode == CUBLAS_SIDE_LEFT ? m : n) * sizeof(*x), true);
+    mem2client(conn, (void *)C, m * n * sizeof(*C), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const float *AP, float *A, int lda) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasStpttr called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasStpttr);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *AP, double *A, int lda) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDtpttr called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDtpttr);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuComplex *AP, cuComplex *A, int lda) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCtpttr called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCtpttr);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *AP, cuDoubleComplex *A, int lda) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZtpttr called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZtpttr);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const float *A, int lda, float *AP) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasStrttp called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasStrttp);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const double *A, int lda, double *AP) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasDtrttp called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasDtrttp);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuComplex *A, int lda, cuComplex *AP) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasCtrttp called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasCtrttp);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t uplo, int n, const cuDoubleComplex *A, int lda, cuDoubleComplex *AP) {
+#ifdef DEBUG
+    std::cout << "Hook: cublasZtrttp called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0A;
+    mem2server(conn, &_0A, (void *)A, n * n * sizeof(*A));
+    void *_0AP;
+    mem2server(conn, &_0AP, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cublasStatus_t _result;
+    conn->prepare_request(RPC_cublasZtrttp);
+    conn->write(&handle, sizeof(handle));
+    conn->write(&uplo, sizeof(uplo));
+    conn->write(&n, sizeof(n));
+    conn->write(&_0A, sizeof(_0A));
+    updateTmpPtr((void *)A, _0A);
+    conn->write(&lda, sizeof(lda));
+    conn->write(&_0AP, sizeof(_0AP));
+    updateTmpPtr((void *)AP, _0AP);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)A, n * n * sizeof(*A), true);
+    mem2client(conn, (void *)AP, (n * (n + 1)) / 2 * sizeof(*AP), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {

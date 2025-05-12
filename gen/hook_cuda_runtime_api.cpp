@@ -359,6 +359,92 @@ extern "C" cudaError_t cudaDeviceSetCacheConfig(enum cudaFuncCache cacheConfig) 
     return _result;
 }
 
+extern "C" cudaError_t cudaDeviceGetSharedMemConfig(enum cudaSharedMemConfig *pConfig) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaDeviceGetSharedMemConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pConfig;
+    mem2server(conn, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaDeviceGetSharedMemConfig);
+    conn->write(&_0pConfig, sizeof(_0pConfig));
+    updateTmpPtr((void *)pConfig, _0pConfig);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pConfig, sizeof(*pConfig), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaDeviceSetSharedMemConfig(enum cudaSharedMemConfig config) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaDeviceSetSharedMemConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaDeviceSetSharedMemConfig);
+    conn->write(&config, sizeof(config));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" cudaError_t cudaDeviceGetByPCIBusId(int *device, const char *pciBusId) {
 #ifdef DEBUG
     std::cout << "Hook: cudaDeviceGetByPCIBusId called" << std::endl;
@@ -703,186 +789,6 @@ extern "C" cudaError_t cudaDeviceFlushGPUDirectRDMAWrites(enum cudaFlushGPUDirec
     conn->prepare_request(RPC_cudaDeviceFlushGPUDirectRDMAWrites);
     conn->write(&target, sizeof(target));
     conn->write(&scope, sizeof(scope));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceRegisterAsyncNotification(int device, cudaAsyncCallback callbackFunc, void *userData, cudaAsyncCallbackHandle_t *callback) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceRegisterAsyncNotification called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0userData;
-    mem2server(conn, &_0userData, (void *)userData, 0);
-    void *_0callback;
-    mem2server(conn, &_0callback, (void *)callback, sizeof(*callback));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaDeviceRegisterAsyncNotification);
-    conn->write(&device, sizeof(device));
-    conn->write(&callbackFunc, sizeof(callbackFunc));
-    conn->write(&_0userData, sizeof(_0userData));
-    updateTmpPtr((void *)userData, _0userData);
-    conn->write(&_0callback, sizeof(_0callback));
-    updateTmpPtr((void *)callback, _0callback);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)userData, 0, true);
-    mem2client(conn, (void *)callback, sizeof(*callback), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceUnregisterAsyncNotification(int device, cudaAsyncCallbackHandle_t callback) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceUnregisterAsyncNotification called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaDeviceUnregisterAsyncNotification);
-    conn->write(&device, sizeof(device));
-    conn->write(&callback, sizeof(callback));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceGetSharedMemConfig(enum cudaSharedMemConfig *pConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceGetSharedMemConfig called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pConfig;
-    mem2server(conn, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaDeviceGetSharedMemConfig);
-    conn->write(&_0pConfig, sizeof(_0pConfig));
-    updateTmpPtr((void *)pConfig, _0pConfig);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pConfig, sizeof(*pConfig), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaDeviceSetSharedMemConfig(enum cudaSharedMemConfig config) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaDeviceSetSharedMemConfig called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaDeviceSetSharedMemConfig);
-    conn->write(&config, sizeof(config));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -1281,9 +1187,9 @@ extern "C" cudaError_t cudaGetDeviceCount(int *count) {
     return _result;
 }
 
-extern "C" cudaError_t cudaGetDeviceProperties_v2(struct cudaDeviceProp *prop, int device) {
+extern "C" cudaError_t cudaGetDeviceProperties(struct cudaDeviceProp *prop, int device) {
 #ifdef DEBUG
-    std::cout << "Hook: cudaGetDeviceProperties_v2 called" << std::endl;
+    std::cout << "Hook: cudaGetDeviceProperties called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -1303,7 +1209,7 @@ extern "C" cudaError_t cudaGetDeviceProperties_v2(struct cudaDeviceProp *prop, i
         }
     }
     cudaError_t _result;
-    conn->prepare_request(RPC_cudaGetDeviceProperties_v2);
+    conn->prepare_request(RPC_cudaGetDeviceProperties);
     conn->write(&_0prop, sizeof(_0prop));
     updateTmpPtr((void *)prop, _0prop);
     conn->write(&device, sizeof(device));
@@ -1641,49 +1547,6 @@ extern "C" cudaError_t cudaChooseDevice(int *device, const struct cudaDeviceProp
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)device, sizeof(*device), true);
     mem2client(conn, (void *)prop, sizeof(*prop), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaInitDevice(int device, unsigned int deviceFlags, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaInitDevice called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaInitDevice);
-    conn->write(&device, sizeof(device));
-    conn->write(&deviceFlags, sizeof(deviceFlags));
-    conn->write(&flags, sizeof(flags));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2144,98 +2007,6 @@ extern "C" cudaError_t cudaStreamGetFlags(cudaStream_t hStream, unsigned int *fl
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamGetId(cudaStream_t hStream, unsigned long long *streamId) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamGetId called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0streamId;
-    mem2server(conn, &_0streamId, (void *)streamId, sizeof(*streamId));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaStreamGetId);
-    conn->write(&hStream, sizeof(hStream));
-    conn->write(&_0streamId, sizeof(_0streamId));
-    updateTmpPtr((void *)streamId, _0streamId);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)streamId, sizeof(*streamId), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaStreamGetDevice(cudaStream_t hStream, int *device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamGetDevice called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0device;
-    mem2server(conn, &_0device, (void *)device, sizeof(*device));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaStreamGetDevice);
-    conn->write(&hStream, sizeof(hStream));
-    conn->write(&_0device, sizeof(_0device));
-    updateTmpPtr((void *)device, _0device);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)device, sizeof(*device), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaCtxResetPersistingL2Cache() {
 #ifdef DEBUG
     std::cout << "Hook: cudaCtxResetPersistingL2Cache called" << std::endl;
@@ -2318,7 +2089,7 @@ extern "C" cudaError_t cudaStreamCopyAttributes(cudaStream_t dst, cudaStream_t s
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, cudaLaunchAttributeValue *value_out) {
+extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, enum cudaStreamAttrID attr, union cudaStreamAttrValue *value_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetAttribute called" << std::endl;
 #endif
@@ -2365,7 +2136,7 @@ extern "C" cudaError_t cudaStreamGetAttribute(cudaStream_t hStream, cudaLaunchAt
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue *value) {
+extern "C" cudaError_t cudaStreamSetAttribute(cudaStream_t hStream, enum cudaStreamAttrID attr, const union cudaStreamAttrValue *value) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamSetAttribute called" << std::endl;
 #endif
@@ -2716,60 +2487,6 @@ extern "C" cudaError_t cudaStreamBeginCapture(cudaStream_t stream, enum cudaStre
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamBeginCaptureToGraph(cudaStream_t stream, cudaGraph_t graph, const cudaGraphNode_t *dependencies, const cudaGraphEdgeData *dependencyData, size_t numDependencies, enum cudaStreamCaptureMode mode) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamBeginCaptureToGraph called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0dependencies;
-    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
-    void *_0dependencyData;
-    mem2server(conn, &_0dependencyData, (void *)dependencyData, sizeof(*dependencyData));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaStreamBeginCaptureToGraph);
-    conn->write(&stream, sizeof(stream));
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0dependencies, sizeof(_0dependencies));
-    updateTmpPtr((void *)dependencies, _0dependencies);
-    conn->write(&_0dependencyData, sizeof(_0dependencyData));
-    updateTmpPtr((void *)dependencyData, _0dependencyData);
-    conn->write(&numDependencies, sizeof(numDependencies));
-    conn->write(&mode, sizeof(mode));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
-    mem2client(conn, (void *)dependencyData, sizeof(*dependencyData), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaThreadExchangeStreamCaptureMode(enum cudaStreamCaptureMode *mode) {
 #ifdef DEBUG
     std::cout << "Hook: cudaThreadExchangeStreamCaptureMode called" << std::endl;
@@ -2907,6 +2624,57 @@ extern "C" cudaError_t cudaStreamIsCapturing(cudaStream_t stream, enum cudaStrea
     return _result;
 }
 
+extern "C" cudaError_t cudaStreamGetCaptureInfo(cudaStream_t stream, enum cudaStreamCaptureStatus *pCaptureStatus, unsigned long long *pId) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaStreamGetCaptureInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pCaptureStatus;
+    mem2server(conn, &_0pCaptureStatus, (void *)pCaptureStatus, sizeof(*pCaptureStatus));
+    void *_0pId;
+    mem2server(conn, &_0pId, (void *)pId, sizeof(*pId));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaStreamGetCaptureInfo);
+    conn->write(&stream, sizeof(stream));
+    conn->write(&_0pCaptureStatus, sizeof(_0pCaptureStatus));
+    updateTmpPtr((void *)pCaptureStatus, _0pCaptureStatus);
+    conn->write(&_0pId, sizeof(_0pId));
+    updateTmpPtr((void *)pId, _0pId);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCaptureStatus, sizeof(*pCaptureStatus), true);
+    mem2client(conn, (void *)pId, sizeof(*pId), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, enum cudaStreamCaptureStatus *captureStatus_out, unsigned long long *id_out, cudaGraph_t *graph_out, const cudaGraphNode_t **dependencies_out, size_t *numDependencies_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamGetCaptureInfo_v2 called" << std::endl;
@@ -2971,73 +2739,6 @@ extern "C" cudaError_t cudaStreamGetCaptureInfo_v2(cudaStream_t stream, enum cud
     return _result;
 }
 
-extern "C" cudaError_t cudaStreamGetCaptureInfo_v3(cudaStream_t stream, enum cudaStreamCaptureStatus *captureStatus_out, unsigned long long *id_out, cudaGraph_t *graph_out, const cudaGraphNode_t **dependencies_out, const cudaGraphEdgeData **edgeData_out, size_t *numDependencies_out) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamGetCaptureInfo_v3 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0captureStatus_out;
-    mem2server(conn, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
-    void *_0id_out;
-    mem2server(conn, &_0id_out, (void *)id_out, sizeof(*id_out));
-    void *_0graph_out;
-    mem2server(conn, &_0graph_out, (void *)graph_out, sizeof(*graph_out));
-    void *_0numDependencies_out;
-    mem2server(conn, &_0numDependencies_out, (void *)numDependencies_out, sizeof(*numDependencies_out));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaStreamGetCaptureInfo_v3);
-    conn->write(&stream, sizeof(stream));
-    conn->write(&_0captureStatus_out, sizeof(_0captureStatus_out));
-    updateTmpPtr((void *)captureStatus_out, _0captureStatus_out);
-    conn->write(&_0id_out, sizeof(_0id_out));
-    updateTmpPtr((void *)id_out, _0id_out);
-    conn->write(&_0graph_out, sizeof(_0graph_out));
-    updateTmpPtr((void *)graph_out, _0graph_out);
-    static cudaGraphNode_t _cudaStreamGetCaptureInfo_v3_dependencies_out;
-    conn->read(&_cudaStreamGetCaptureInfo_v3_dependencies_out, sizeof(cudaGraphNode_t));
-    static cudaGraphEdgeData _cudaStreamGetCaptureInfo_v3_edgeData_out;
-    conn->read(&_cudaStreamGetCaptureInfo_v3_edgeData_out, sizeof(cudaGraphEdgeData));
-    conn->write(&_0numDependencies_out, sizeof(_0numDependencies_out));
-    updateTmpPtr((void *)numDependencies_out, _0numDependencies_out);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    *dependencies_out = &_cudaStreamGetCaptureInfo_v3_dependencies_out;
-    *edgeData_out = &_cudaStreamGetCaptureInfo_v3_edgeData_out;
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
-    mem2client(conn, (void *)id_out, sizeof(*id_out), true);
-    mem2client(conn, (void *)graph_out, sizeof(*graph_out), true);
-    mem2client(conn, (void *)numDependencies_out, sizeof(*numDependencies_out), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, cudaGraphNode_t *dependencies, size_t numDependencies, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaStreamUpdateCaptureDependencies called" << std::endl;
@@ -3074,59 +2775,6 @@ extern "C" cudaError_t cudaStreamUpdateCaptureDependencies(cudaStream_t stream, 
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaStreamUpdateCaptureDependencies_v2(cudaStream_t stream, cudaGraphNode_t *dependencies, const cudaGraphEdgeData *dependencyData, size_t numDependencies, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaStreamUpdateCaptureDependencies_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0dependencies;
-    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
-    void *_0dependencyData;
-    mem2server(conn, &_0dependencyData, (void *)dependencyData, sizeof(*dependencyData));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaStreamUpdateCaptureDependencies_v2);
-    conn->write(&stream, sizeof(stream));
-    conn->write(&_0dependencies, sizeof(_0dependencies));
-    updateTmpPtr((void *)dependencies, _0dependencies);
-    conn->write(&_0dependencyData, sizeof(_0dependencyData));
-    updateTmpPtr((void *)dependencyData, _0dependencyData);
-    conn->write(&numDependencies, sizeof(numDependencies));
-    conn->write(&flags, sizeof(flags));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
-    mem2client(conn, (void *)dependencyData, sizeof(*dependencyData), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3461,53 +3109,6 @@ extern "C" cudaError_t cudaEventElapsedTime(float *ms, cudaEvent_t start, cudaEv
     }
     cudaError_t _result;
     conn->prepare_request(RPC_cudaEventElapsedTime);
-    conn->write(&_0ms, sizeof(_0ms));
-    updateTmpPtr((void *)ms, _0ms);
-    conn->write(&start, sizeof(start));
-    conn->write(&end, sizeof(end));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)ms, sizeof(*ms), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaEventElapsedTime_v2(float *ms, cudaEvent_t start, cudaEvent_t end) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaEventElapsedTime_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0ms;
-    mem2server(conn, &_0ms, (void *)ms, sizeof(*ms));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaEventElapsedTime_v2);
     conn->write(&_0ms, sizeof(_0ms));
     updateTmpPtr((void *)ms, _0ms);
     conn->write(&start, sizeof(start));
@@ -3916,62 +3517,6 @@ extern "C" cudaError_t cudaDestroyExternalSemaphore(cudaExternalSemaphore_t extS
     return _result;
 }
 
-extern "C" cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t *config, const void *func, void **args) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLaunchKernelExC called" << std::endl;
-#endif
-    // PARAM void **args
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0config;
-    mem2server(conn, &_0config, (void *)config, sizeof(*config));
-    void *_0func;
-    mem2server(conn, &_0func, (void *)func, 0);
-    // PARAM void **args
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLaunchKernelExC);
-    conn->write(&_0config, sizeof(_0config));
-    updateTmpPtr((void *)config, _0config);
-    conn->write(&_0func, sizeof(_0func));
-    updateTmpPtr((void *)func, _0func);
-    // PARAM void **args
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **args
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)config, sizeof(*config), true);
-    mem2client(conn, (void *)func, 0, true);
-    // PARAM void **args
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **args
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaLaunchCooperativeKernelMultiDevice(struct cudaLaunchParams *launchParamsList, unsigned int numDevices, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaLaunchCooperativeKernelMultiDevice called" << std::endl;
@@ -4045,6 +3590,52 @@ extern "C" cudaError_t cudaFuncSetCacheConfig(const void *func, enum cudaFuncCac
     conn->write(&_0func, sizeof(_0func));
     updateTmpPtr((void *)func, _0func);
     conn->write(&cacheConfig, sizeof(cacheConfig));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)func, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaFuncSetSharedMemConfig(const void *func, enum cudaSharedMemConfig config) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaFuncSetSharedMemConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0func;
+    mem2server(conn, &_0func, (void *)func, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaFuncSetSharedMemConfig);
+    conn->write(&_0func, sizeof(_0func));
+    updateTmpPtr((void *)func, _0func);
+    conn->write(&config, sizeof(config));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -4150,116 +3741,6 @@ extern "C" cudaError_t cudaFuncSetAttribute(const void *func, enum cudaFuncAttri
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)func, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaFuncGetName(const char **name, const void *func) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaFuncGetName called" << std::endl;
-#endif
-    // PARAM const char **name
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    // PARAM const char **name
-    void *_0func;
-    mem2server(conn, &_0func, (void *)func, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaFuncGetName);
-    // PARAM const char **name
-    static char _cudaFuncGetName_name[1024];
-    conn->read(_cudaFuncGetName_name, 1024, true);
-    conn->write(&_0func, sizeof(_0func));
-    updateTmpPtr((void *)func, _0func);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM const char **name
-    *name = _cudaFuncGetName_name;
-    conn->prepare_request(RPC_mem2client);
-    // PARAM const char **name
-    mem2client(conn, (void *)func, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM const char **name
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaFuncGetParamInfo(const void *func, size_t paramIndex, size_t *paramOffset, size_t *paramSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaFuncGetParamInfo called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0func;
-    mem2server(conn, &_0func, (void *)func, 0);
-    void *_0paramOffset;
-    mem2server(conn, &_0paramOffset, (void *)paramOffset, sizeof(*paramOffset));
-    void *_0paramSize;
-    mem2server(conn, &_0paramSize, (void *)paramSize, sizeof(*paramSize));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaFuncGetParamInfo);
-    conn->write(&_0func, sizeof(_0func));
-    updateTmpPtr((void *)func, _0func);
-    conn->write(&paramIndex, sizeof(paramIndex));
-    conn->write(&_0paramOffset, sizeof(_0paramOffset));
-    updateTmpPtr((void *)paramOffset, _0paramOffset);
-    conn->write(&_0paramSize, sizeof(_0paramSize));
-    updateTmpPtr((void *)paramSize, _0paramSize);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)func, 0, true);
-    mem2client(conn, (void *)paramOffset, sizeof(*paramOffset), true);
-    mem2client(conn, (void *)paramSize, sizeof(*paramSize), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4397,52 +3878,6 @@ extern "C" cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, 
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)userData, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaFuncSetSharedMemConfig(const void *func, enum cudaSharedMemConfig config) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaFuncSetSharedMemConfig called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0func;
-    mem2server(conn, &_0func, (void *)func, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaFuncSetSharedMemConfig);
-    conn->write(&_0func, sizeof(_0func));
-    updateTmpPtr((void *)func, _0func);
-    conn->write(&config, sizeof(config));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)func, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4600,116 +4035,6 @@ extern "C" cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(in
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)numBlocks, sizeof(*numBlocks), true);
     mem2client(conn, (void *)func, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaOccupancyMaxPotentialClusterSize(int *clusterSize, const void *func, const cudaLaunchConfig_t *launchConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaOccupancyMaxPotentialClusterSize called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0clusterSize;
-    mem2server(conn, &_0clusterSize, (void *)clusterSize, sizeof(*clusterSize));
-    void *_0func;
-    mem2server(conn, &_0func, (void *)func, 0);
-    void *_0launchConfig;
-    mem2server(conn, &_0launchConfig, (void *)launchConfig, sizeof(*launchConfig));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaOccupancyMaxPotentialClusterSize);
-    conn->write(&_0clusterSize, sizeof(_0clusterSize));
-    updateTmpPtr((void *)clusterSize, _0clusterSize);
-    conn->write(&_0func, sizeof(_0func));
-    updateTmpPtr((void *)func, _0func);
-    conn->write(&_0launchConfig, sizeof(_0launchConfig));
-    updateTmpPtr((void *)launchConfig, _0launchConfig);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)clusterSize, sizeof(*clusterSize), true);
-    mem2client(conn, (void *)func, 0, true);
-    mem2client(conn, (void *)launchConfig, sizeof(*launchConfig), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaOccupancyMaxActiveClusters(int *numClusters, const void *func, const cudaLaunchConfig_t *launchConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaOccupancyMaxActiveClusters called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0numClusters;
-    mem2server(conn, &_0numClusters, (void *)numClusters, sizeof(*numClusters));
-    void *_0func;
-    mem2server(conn, &_0func, (void *)func, 0);
-    void *_0launchConfig;
-    mem2server(conn, &_0launchConfig, (void *)launchConfig, sizeof(*launchConfig));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaOccupancyMaxActiveClusters);
-    conn->write(&_0numClusters, sizeof(_0numClusters));
-    updateTmpPtr((void *)numClusters, _0numClusters);
-    conn->write(&_0func, sizeof(_0func));
-    updateTmpPtr((void *)func, _0func);
-    conn->write(&_0launchConfig, sizeof(_0launchConfig));
-    updateTmpPtr((void *)launchConfig, _0launchConfig);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)numClusters, sizeof(*numClusters), true);
-    mem2client(conn, (void *)func, 0, true);
-    mem2client(conn, (void *)launchConfig, sizeof(*launchConfig), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5481,100 +4806,6 @@ extern "C" cudaError_t cudaArrayGetPlane(cudaArray_t *pPlaneArray, cudaArray_t h
     return _result;
 }
 
-extern "C" cudaError_t cudaArrayGetMemoryRequirements(struct cudaArrayMemoryRequirements *memoryRequirements, cudaArray_t array, int device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaArrayGetMemoryRequirements called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0memoryRequirements;
-    mem2server(conn, &_0memoryRequirements, (void *)memoryRequirements, sizeof(*memoryRequirements));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaArrayGetMemoryRequirements);
-    conn->write(&_0memoryRequirements, sizeof(_0memoryRequirements));
-    updateTmpPtr((void *)memoryRequirements, _0memoryRequirements);
-    conn->write(&array, sizeof(array));
-    conn->write(&device, sizeof(device));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)memoryRequirements, sizeof(*memoryRequirements), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMipmappedArrayGetMemoryRequirements(struct cudaArrayMemoryRequirements *memoryRequirements, cudaMipmappedArray_t mipmap, int device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMipmappedArrayGetMemoryRequirements called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0memoryRequirements;
-    mem2server(conn, &_0memoryRequirements, (void *)memoryRequirements, sizeof(*memoryRequirements));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaMipmappedArrayGetMemoryRequirements);
-    conn->write(&_0memoryRequirements, sizeof(_0memoryRequirements));
-    updateTmpPtr((void *)memoryRequirements, _0memoryRequirements);
-    conn->write(&mipmap, sizeof(mipmap));
-    conn->write(&device, sizeof(device));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)memoryRequirements, sizeof(*memoryRequirements), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaArrayGetSparseProperties(struct cudaArraySparseProperties *sparseProperties, cudaArray_t array) {
 #ifdef DEBUG
     std::cout << "Hook: cudaArrayGetSparseProperties called" << std::endl;
@@ -6181,134 +5412,6 @@ extern "C" cudaError_t cudaMemcpyPeerAsync(void *dst, int dstDevice, const void 
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)dst, count, true);
     mem2client(conn, (void *)src, count, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMemcpyBatchAsync(void **dsts, void **srcs, size_t *sizes, size_t count, struct cudaMemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemcpyBatchAsync called" << std::endl;
-#endif
-    // PARAM void **dsts
-    // PARAM void **srcs
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    // PARAM void **dsts
-    // PARAM void **srcs
-    void *_0sizes;
-    mem2server(conn, &_0sizes, (void *)sizes, sizeof(*sizes));
-    void *_0attrs;
-    mem2server(conn, &_0attrs, (void *)attrs, sizeof(*attrs));
-    void *_0attrsIdxs;
-    mem2server(conn, &_0attrsIdxs, (void *)attrsIdxs, sizeof(*attrsIdxs));
-    void *_0failIdx;
-    mem2server(conn, &_0failIdx, (void *)failIdx, sizeof(*failIdx));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaMemcpyBatchAsync);
-    // PARAM void **dsts
-    // PARAM void **srcs
-    conn->write(&_0sizes, sizeof(_0sizes));
-    updateTmpPtr((void *)sizes, _0sizes);
-    conn->write(&count, sizeof(count));
-    conn->write(&_0attrs, sizeof(_0attrs));
-    updateTmpPtr((void *)attrs, _0attrs);
-    conn->write(&_0attrsIdxs, sizeof(_0attrsIdxs));
-    updateTmpPtr((void *)attrsIdxs, _0attrsIdxs);
-    conn->write(&numAttrs, sizeof(numAttrs));
-    conn->write(&_0failIdx, sizeof(_0failIdx));
-    updateTmpPtr((void *)failIdx, _0failIdx);
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **dsts
-    // PARAM void **srcs
-    conn->prepare_request(RPC_mem2client);
-    // PARAM void **dsts
-    // PARAM void **srcs
-    mem2client(conn, (void *)sizes, sizeof(*sizes), true);
-    mem2client(conn, (void *)attrs, sizeof(*attrs), true);
-    mem2client(conn, (void *)attrsIdxs, sizeof(*attrsIdxs), true);
-    mem2client(conn, (void *)failIdx, sizeof(*failIdx), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **dsts
-    // PARAM void **srcs
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMemcpy3DBatchAsync(size_t numOps, struct cudaMemcpy3DBatchOp *opList, size_t *failIdx, unsigned long long flags, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemcpy3DBatchAsync called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0opList;
-    mem2server(conn, &_0opList, (void *)opList, sizeof(*opList));
-    void *_0failIdx;
-    mem2server(conn, &_0failIdx, (void *)failIdx, sizeof(*failIdx));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaMemcpy3DBatchAsync);
-    conn->write(&numOps, sizeof(numOps));
-    conn->write(&_0opList, sizeof(_0opList));
-    updateTmpPtr((void *)opList, _0opList);
-    conn->write(&_0failIdx, sizeof(_0failIdx));
-    updateTmpPtr((void *)failIdx, _0failIdx);
-    conn->write(&flags, sizeof(flags));
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)opList, sizeof(*opList), true);
-    mem2client(conn, (void *)failIdx, sizeof(*failIdx), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6970,55 +6073,6 @@ extern "C" cudaError_t cudaMemPrefetchAsync(const void *devPtr, size_t count, in
     return _result;
 }
 
-extern "C" cudaError_t cudaMemPrefetchAsync_v2(const void *devPtr, size_t count, struct cudaMemLocation location, unsigned int flags, cudaStream_t stream) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemPrefetchAsync_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0devPtr;
-    mem2server(conn, &_0devPtr, (void *)devPtr, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaMemPrefetchAsync_v2);
-    conn->write(&_0devPtr, sizeof(_0devPtr));
-    updateTmpPtr((void *)devPtr, _0devPtr);
-    conn->write(&count, sizeof(count));
-    conn->write(&location, sizeof(location));
-    conn->write(&flags, sizeof(flags));
-    conn->write(&stream, sizeof(stream));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)devPtr, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cudaMemoryAdvise advice, int device) {
 #ifdef DEBUG
     std::cout << "Hook: cudaMemAdvise called" << std::endl;
@@ -7055,54 +6109,6 @@ extern "C" cudaError_t cudaMemAdvise(const void *devPtr, size_t count, enum cuda
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)devPtr, count, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaMemAdvise_v2(const void *devPtr, size_t count, enum cudaMemoryAdvise advice, struct cudaMemLocation location) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaMemAdvise_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0devPtr;
-    mem2server(conn, &_0devPtr, (void *)devPtr, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaMemAdvise_v2);
-    conn->write(&_0devPtr, sizeof(_0devPtr));
-    updateTmpPtr((void *)devPtr, _0devPtr);
-    conn->write(&count, sizeof(count));
-    conn->write(&advice, sizeof(advice));
-    conn->write(&location, sizeof(location));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)devPtr, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -8571,6 +7577,474 @@ extern "C" cudaError_t cudaGraphicsResourceGetMappedMipmappedArray(cudaMipmapped
     return _result;
 }
 
+extern "C" cudaError_t cudaBindTexture(size_t *offset, const struct textureReference *texref, const void *devPtr, const struct cudaChannelFormatDesc *desc, size_t size) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTexture called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0offset;
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
+    void *_0texref;
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
+    void *_0devPtr;
+    mem2server(conn, &_0devPtr, (void *)devPtr, size);
+    void *_0desc;
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaBindTexture);
+    conn->write(&_0offset, sizeof(_0offset));
+    updateTmpPtr((void *)offset, _0offset);
+    conn->write(&_0texref, sizeof(_0texref));
+    updateTmpPtr((void *)texref, _0texref);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
+    conn->write(&_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
+    conn->write(&size, sizeof(size));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)devPtr, size, true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindTexture2D(size_t *offset, const struct textureReference *texref, const void *devPtr, const struct cudaChannelFormatDesc *desc, size_t width, size_t height, size_t pitch) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTexture2D called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0offset;
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
+    void *_0texref;
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
+    void *_0devPtr;
+    mem2server(conn, &_0devPtr, (void *)devPtr, pitch * height);
+    void *_0desc;
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaBindTexture2D);
+    conn->write(&_0offset, sizeof(_0offset));
+    updateTmpPtr((void *)offset, _0offset);
+    conn->write(&_0texref, sizeof(_0texref));
+    updateTmpPtr((void *)texref, _0texref);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
+    conn->write(&_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
+    conn->write(&width, sizeof(width));
+    conn->write(&height, sizeof(height));
+    conn->write(&pitch, sizeof(pitch));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)devPtr, pitch * height, true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindTextureToArray(const struct textureReference *texref, cudaArray_const_t array, const struct cudaChannelFormatDesc *desc) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTextureToArray called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0texref;
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
+    void *_0desc;
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaBindTextureToArray);
+    conn->write(&_0texref, sizeof(_0texref));
+    updateTmpPtr((void *)texref, _0texref);
+    conn->write(&array, sizeof(array));
+    conn->write(&_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindTextureToMipmappedArray(const struct textureReference *texref, cudaMipmappedArray_const_t mipmappedArray, const struct cudaChannelFormatDesc *desc) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindTextureToMipmappedArray called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0texref;
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
+    void *_0desc;
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaBindTextureToMipmappedArray);
+    conn->write(&_0texref, sizeof(_0texref));
+    updateTmpPtr((void *)texref, _0texref);
+    conn->write(&mipmappedArray, sizeof(mipmappedArray));
+    conn->write(&_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaUnbindTexture(const struct textureReference *texref) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaUnbindTexture called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0texref;
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaUnbindTexture);
+    conn->write(&_0texref, sizeof(_0texref));
+    updateTmpPtr((void *)texref, _0texref);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGetTextureAlignmentOffset(size_t *offset, const struct textureReference *texref) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGetTextureAlignmentOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0offset;
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
+    void *_0texref;
+    mem2server(conn, &_0texref, (void *)texref, sizeof(*texref));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaGetTextureAlignmentOffset);
+    conn->write(&_0offset, sizeof(_0offset));
+    updateTmpPtr((void *)offset, _0offset);
+    conn->write(&_0texref, sizeof(_0texref));
+    updateTmpPtr((void *)texref, _0texref);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    mem2client(conn, (void *)texref, sizeof(*texref), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGetTextureReference(const struct textureReference **texref, const void *symbol) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGetTextureReference called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0symbol;
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaGetTextureReference);
+    static struct textureReference _cudaGetTextureReference_texref;
+    conn->read(&_cudaGetTextureReference_texref, sizeof(struct textureReference));
+    conn->write(&_0symbol, sizeof(_0symbol));
+    updateTmpPtr((void *)symbol, _0symbol);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    *texref = &_cudaGetTextureReference_texref;
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaBindSurfaceToArray(const struct surfaceReference *surfref, cudaArray_const_t array, const struct cudaChannelFormatDesc *desc) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaBindSurfaceToArray called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0surfref;
+    mem2server(conn, &_0surfref, (void *)surfref, sizeof(*surfref));
+    void *_0desc;
+    mem2server(conn, &_0desc, (void *)desc, sizeof(*desc));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaBindSurfaceToArray);
+    conn->write(&_0surfref, sizeof(_0surfref));
+    updateTmpPtr((void *)surfref, _0surfref);
+    conn->write(&array, sizeof(array));
+    conn->write(&_0desc, sizeof(_0desc));
+    updateTmpPtr((void *)desc, _0desc);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)surfref, sizeof(*surfref), true);
+    mem2client(conn, (void *)desc, sizeof(*desc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" cudaError_t cudaGetSurfaceReference(const struct surfaceReference **surfref, const void *symbol) {
+#ifdef DEBUG
+    std::cout << "Hook: cudaGetSurfaceReference called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0symbol;
+    mem2server(conn, &_0symbol, (void *)symbol, -1);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    cudaError_t _result;
+    conn->prepare_request(RPC_cudaGetSurfaceReference);
+    static struct surfaceReference _cudaGetSurfaceReference_surfref;
+    conn->read(&_cudaGetSurfaceReference_surfref, sizeof(struct surfaceReference));
+    conn->write(&_0symbol, sizeof(_0symbol));
+    updateTmpPtr((void *)symbol, _0symbol);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn);
+        exit(1);
+    }
+    *surfref = &_cudaGetSurfaceReference_surfref;
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)symbol, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" cudaError_t cudaGetChannelDesc(struct cudaChannelFormatDesc *desc, cudaArray_const_t array) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetChannelDesc called" << std::endl;
@@ -9407,7 +8881,7 @@ extern "C" cudaError_t cudaGraphKernelNodeCopyAttributes(cudaGraphNode_t hSrc, c
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, cudaLaunchAttributeValue *value_out) {
+extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, enum cudaKernelNodeAttrID attr, union cudaKernelNodeAttrValue *value_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeGetAttribute called" << std::endl;
 #endif
@@ -9454,7 +8928,7 @@ extern "C" cudaError_t cudaGraphKernelNodeGetAttribute(cudaGraphNode_t hNode, cu
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, cudaLaunchAttributeID attr, const cudaLaunchAttributeValue *value) {
+extern "C" cudaError_t cudaGraphKernelNodeSetAttribute(cudaGraphNode_t hNode, enum cudaKernelNodeAttrID attr, const union cudaKernelNodeAttrValue *value) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphKernelNodeSetAttribute called" << std::endl;
 #endif
@@ -11688,67 +11162,6 @@ extern "C" cudaError_t cudaGraphGetEdges(cudaGraph_t graph, cudaGraphNode_t *fro
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphGetEdges_v2(cudaGraph_t graph, cudaGraphNode_t *from, cudaGraphNode_t *to, cudaGraphEdgeData *edgeData, size_t *numEdges) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphGetEdges_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0from;
-    mem2server(conn, &_0from, (void *)from, sizeof(*from));
-    void *_0to;
-    mem2server(conn, &_0to, (void *)to, sizeof(*to));
-    void *_0edgeData;
-    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
-    void *_0numEdges;
-    mem2server(conn, &_0numEdges, (void *)numEdges, sizeof(*numEdges));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphGetEdges_v2);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0from, sizeof(_0from));
-    updateTmpPtr((void *)from, _0from);
-    conn->write(&_0to, sizeof(_0to));
-    updateTmpPtr((void *)to, _0to);
-    conn->write(&_0edgeData, sizeof(_0edgeData));
-    updateTmpPtr((void *)edgeData, _0edgeData);
-    conn->write(&_0numEdges, sizeof(_0numEdges));
-    updateTmpPtr((void *)numEdges, _0numEdges);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)from, sizeof(*from), true);
-    mem2client(conn, (void *)to, sizeof(*to), true);
-    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
-    mem2client(conn, (void *)numEdges, sizeof(*numEdges), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGraphNode_t *pDependencies, size_t *pNumDependencies) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetDependencies called" << std::endl;
@@ -11800,62 +11213,6 @@ extern "C" cudaError_t cudaGraphNodeGetDependencies(cudaGraphNode_t node, cudaGr
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphNodeGetDependencies_v2(cudaGraphNode_t node, cudaGraphNode_t *pDependencies, cudaGraphEdgeData *edgeData, size_t *pNumDependencies) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeGetDependencies_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pDependencies;
-    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
-    void *_0edgeData;
-    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
-    void *_0pNumDependencies;
-    mem2server(conn, &_0pNumDependencies, (void *)pNumDependencies, sizeof(*pNumDependencies));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphNodeGetDependencies_v2);
-    conn->write(&node, sizeof(node));
-    conn->write(&_0pDependencies, sizeof(_0pDependencies));
-    updateTmpPtr((void *)pDependencies, _0pDependencies);
-    conn->write(&_0edgeData, sizeof(_0edgeData));
-    updateTmpPtr((void *)edgeData, _0edgeData);
-    conn->write(&_0pNumDependencies, sizeof(_0pNumDependencies));
-    updateTmpPtr((void *)pNumDependencies, _0pNumDependencies);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
-    mem2client(conn, (void *)pNumDependencies, sizeof(*pNumDependencies), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cudaGraphNode_t *pDependentNodes, size_t *pNumDependentNodes) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphNodeGetDependentNodes called" << std::endl;
@@ -11894,62 +11251,6 @@ extern "C" cudaError_t cudaGraphNodeGetDependentNodes(cudaGraphNode_t node, cuda
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pDependentNodes, sizeof(*pDependentNodes), true);
-    mem2client(conn, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphNodeGetDependentNodes_v2(cudaGraphNode_t node, cudaGraphNode_t *pDependentNodes, cudaGraphEdgeData *edgeData, size_t *pNumDependentNodes) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeGetDependentNodes_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pDependentNodes;
-    mem2server(conn, &_0pDependentNodes, (void *)pDependentNodes, sizeof(*pDependentNodes));
-    void *_0edgeData;
-    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
-    void *_0pNumDependentNodes;
-    mem2server(conn, &_0pNumDependentNodes, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphNodeGetDependentNodes_v2);
-    conn->write(&node, sizeof(node));
-    conn->write(&_0pDependentNodes, sizeof(_0pDependentNodes));
-    updateTmpPtr((void *)pDependentNodes, _0pDependentNodes);
-    conn->write(&_0edgeData, sizeof(_0edgeData));
-    updateTmpPtr((void *)edgeData, _0edgeData);
-    conn->write(&_0pNumDependentNodes, sizeof(_0pNumDependentNodes));
-    updateTmpPtr((void *)pNumDependentNodes, _0pNumDependentNodes);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pDependentNodes, sizeof(*pDependentNodes), true);
-    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
     mem2client(conn, (void *)pNumDependentNodes, sizeof(*pNumDependentNodes), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -12015,63 +11316,6 @@ extern "C" cudaError_t cudaGraphAddDependencies(cudaGraph_t graph, const cudaGra
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphAddDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t *from, const cudaGraphNode_t *to, const cudaGraphEdgeData *edgeData, size_t numDependencies) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphAddDependencies_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0from;
-    mem2server(conn, &_0from, (void *)from, sizeof(*from));
-    void *_0to;
-    mem2server(conn, &_0to, (void *)to, sizeof(*to));
-    void *_0edgeData;
-    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphAddDependencies_v2);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0from, sizeof(_0from));
-    updateTmpPtr((void *)from, _0from);
-    conn->write(&_0to, sizeof(_0to));
-    updateTmpPtr((void *)to, _0to);
-    conn->write(&_0edgeData, sizeof(_0edgeData));
-    updateTmpPtr((void *)edgeData, _0edgeData);
-    conn->write(&numDependencies, sizeof(numDependencies));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)from, sizeof(*from), true);
-    mem2client(conn, (void *)to, sizeof(*to), true);
-    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cudaGraphNode_t *from, const cudaGraphNode_t *to, size_t numDependencies) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphRemoveDependencies called" << std::endl;
@@ -12112,63 +11356,6 @@ extern "C" cudaError_t cudaGraphRemoveDependencies(cudaGraph_t graph, const cuda
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)from, sizeof(*from), true);
     mem2client(conn, (void *)to, sizeof(*to), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphRemoveDependencies_v2(cudaGraph_t graph, const cudaGraphNode_t *from, const cudaGraphNode_t *to, const cudaGraphEdgeData *edgeData, size_t numDependencies) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphRemoveDependencies_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0from;
-    mem2server(conn, &_0from, (void *)from, sizeof(*from));
-    void *_0to;
-    mem2server(conn, &_0to, (void *)to, sizeof(*to));
-    void *_0edgeData;
-    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphRemoveDependencies_v2);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0from, sizeof(_0from));
-    updateTmpPtr((void *)from, _0from);
-    conn->write(&_0to, sizeof(_0to));
-    updateTmpPtr((void *)to, _0to);
-    conn->write(&_0edgeData, sizeof(_0edgeData));
-    updateTmpPtr((void *)edgeData, _0edgeData);
-    conn->write(&numDependencies, sizeof(numDependencies));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)from, sizeof(*from), true);
-    mem2client(conn, (void *)to, sizeof(*to), true);
-    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12222,7 +11409,7 @@ extern "C" cudaError_t cudaGraphDestroyNode(cudaGraphNode_t node) {
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGraph_t graph, unsigned long long flags) {
+extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGraph_t graph, cudaGraphNode_t *pErrorNode, char *pLogBuffer, size_t bufferSize) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphInstantiate called" << std::endl;
 #endif
@@ -12234,6 +11421,8 @@ extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGra
     conn->prepare_request(RPC_mem2server);
     void *_0pGraphExec;
     mem2server(conn, &_0pGraphExec, (void *)pGraphExec, sizeof(*pGraphExec));
+    void *_0pErrorNode;
+    mem2server(conn, &_0pErrorNode, (void *)pErrorNode, sizeof(*pErrorNode));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -12248,7 +11437,12 @@ extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGra
     conn->write(&_0pGraphExec, sizeof(_0pGraphExec));
     updateTmpPtr((void *)pGraphExec, _0pGraphExec);
     conn->write(&graph, sizeof(graph));
-    conn->write(&flags, sizeof(flags));
+    conn->write(&_0pErrorNode, sizeof(_0pErrorNode));
+    updateTmpPtr((void *)pErrorNode, _0pErrorNode);
+    if(bufferSize > 0) {
+        conn->read(pLogBuffer, bufferSize, true);
+    }
+    conn->write(&bufferSize, sizeof(bufferSize));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -12257,6 +11451,7 @@ extern "C" cudaError_t cudaGraphInstantiate(cudaGraphExec_t *pGraphExec, cudaGra
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pGraphExec, sizeof(*pGraphExec), true);
+    mem2client(conn, (void *)pErrorNode, sizeof(*pErrorNode), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12304,103 +11499,6 @@ extern "C" cudaError_t cudaGraphInstantiateWithFlags(cudaGraphExec_t *pGraphExec
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pGraphExec, sizeof(*pGraphExec), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphInstantiateWithParams(cudaGraphExec_t *pGraphExec, cudaGraph_t graph, cudaGraphInstantiateParams *instantiateParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphInstantiateWithParams called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pGraphExec;
-    mem2server(conn, &_0pGraphExec, (void *)pGraphExec, sizeof(*pGraphExec));
-    void *_0instantiateParams;
-    mem2server(conn, &_0instantiateParams, (void *)instantiateParams, sizeof(*instantiateParams));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphInstantiateWithParams);
-    conn->write(&_0pGraphExec, sizeof(_0pGraphExec));
-    updateTmpPtr((void *)pGraphExec, _0pGraphExec);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0instantiateParams, sizeof(_0instantiateParams));
-    updateTmpPtr((void *)instantiateParams, _0instantiateParams);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pGraphExec, sizeof(*pGraphExec), true);
-    mem2client(conn, (void *)instantiateParams, sizeof(*instantiateParams), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphExecGetFlags(cudaGraphExec_t graphExec, unsigned long long *flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphExecGetFlags called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0flags;
-    mem2server(conn, &_0flags, (void *)flags, sizeof(*flags));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphExecGetFlags);
-    conn->write(&graphExec, sizeof(graphExec));
-    conn->write(&_0flags, sizeof(_0flags));
-    updateTmpPtr((void *)flags, _0flags);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)flags, sizeof(*flags), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -13040,97 +12138,7 @@ extern "C" cudaError_t cudaGraphExecExternalSemaphoresWaitNodeSetParams(cudaGrap
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphNodeSetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int isEnabled) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeSetEnabled called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphNodeSetEnabled);
-    conn->write(&hGraphExec, sizeof(hGraphExec));
-    conn->write(&hNode, sizeof(hNode));
-    conn->write(&isEnabled, sizeof(isEnabled));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphNodeGetEnabled(cudaGraphExec_t hGraphExec, cudaGraphNode_t hNode, unsigned int *isEnabled) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeGetEnabled called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0isEnabled;
-    mem2server(conn, &_0isEnabled, (void *)isEnabled, sizeof(*isEnabled));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphNodeGetEnabled);
-    conn->write(&hGraphExec, sizeof(hGraphExec));
-    conn->write(&hNode, sizeof(hNode));
-    conn->write(&_0isEnabled, sizeof(_0isEnabled));
-    updateTmpPtr((void *)isEnabled, _0isEnabled);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)isEnabled, sizeof(*isEnabled), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphExecUpdateResultInfo *resultInfo) {
+extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph_t hGraph, cudaGraphNode_t *hErrorNode_out, enum cudaGraphExecUpdateResult *updateResult_out) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGraphExecUpdate called" << std::endl;
 #endif
@@ -13140,8 +12148,10 @@ extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0resultInfo;
-    mem2server(conn, &_0resultInfo, (void *)resultInfo, sizeof(*resultInfo));
+    void *_0hErrorNode_out;
+    mem2server(conn, &_0hErrorNode_out, (void *)hErrorNode_out, sizeof(*hErrorNode_out));
+    void *_0updateResult_out;
+    mem2server(conn, &_0updateResult_out, (void *)updateResult_out, sizeof(*updateResult_out));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -13155,8 +12165,10 @@ extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph
     conn->prepare_request(RPC_cudaGraphExecUpdate);
     conn->write(&hGraphExec, sizeof(hGraphExec));
     conn->write(&hGraph, sizeof(hGraph));
-    conn->write(&_0resultInfo, sizeof(_0resultInfo));
-    updateTmpPtr((void *)resultInfo, _0resultInfo);
+    conn->write(&_0hErrorNode_out, sizeof(_0hErrorNode_out));
+    updateTmpPtr((void *)hErrorNode_out, _0hErrorNode_out);
+    conn->write(&_0updateResult_out, sizeof(_0updateResult_out));
+    updateTmpPtr((void *)updateResult_out, _0updateResult_out);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -13164,7 +12176,8 @@ extern "C" cudaError_t cudaGraphExecUpdate(cudaGraphExec_t hGraphExec, cudaGraph
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)resultInfo, sizeof(*resultInfo), true);
+    mem2client(conn, (void *)hErrorNode_out, sizeof(*hErrorNode_out), true);
+    mem2client(conn, (void *)updateResult_out, sizeof(*updateResult_out), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -13610,251 +12623,7 @@ extern "C" cudaError_t cudaGraphReleaseUserObject(cudaGraph_t graph, cudaUserObj
     return _result;
 }
 
-extern "C" cudaError_t cudaGraphAddNode(cudaGraphNode_t *pGraphNode, cudaGraph_t graph, const cudaGraphNode_t *pDependencies, size_t numDependencies, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphAddNode called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pGraphNode;
-    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
-    void *_0pDependencies;
-    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphAddNode);
-    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
-    updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0pDependencies, sizeof(_0pDependencies));
-    updateTmpPtr((void *)pDependencies, _0pDependencies);
-    conn->write(&numDependencies, sizeof(numDependencies));
-    conn->write(&nodeParams, sizeof(nodeParams));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphAddNode_v2(cudaGraphNode_t *pGraphNode, cudaGraph_t graph, const cudaGraphNode_t *pDependencies, const cudaGraphEdgeData *dependencyData, size_t numDependencies, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphAddNode_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pGraphNode;
-    mem2server(conn, &_0pGraphNode, (void *)pGraphNode, sizeof(*pGraphNode));
-    void *_0pDependencies;
-    mem2server(conn, &_0pDependencies, (void *)pDependencies, sizeof(*pDependencies));
-    void *_0dependencyData;
-    mem2server(conn, &_0dependencyData, (void *)dependencyData, sizeof(*dependencyData));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphAddNode_v2);
-    conn->write(&_0pGraphNode, sizeof(_0pGraphNode));
-    updateTmpPtr((void *)pGraphNode, _0pGraphNode);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&_0pDependencies, sizeof(_0pDependencies));
-    updateTmpPtr((void *)pDependencies, _0pDependencies);
-    conn->write(&_0dependencyData, sizeof(_0dependencyData));
-    updateTmpPtr((void *)dependencyData, _0dependencyData);
-    conn->write(&numDependencies, sizeof(numDependencies));
-    conn->write(&nodeParams, sizeof(nodeParams));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pGraphNode, sizeof(*pGraphNode), true);
-    mem2client(conn, (void *)pDependencies, sizeof(*pDependencies), true);
-    mem2client(conn, (void *)dependencyData, sizeof(*dependencyData), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphNodeSetParams(cudaGraphNode_t node, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphNodeSetParams called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphNodeSetParams);
-    conn->write(&node, sizeof(node));
-    conn->write(&nodeParams, sizeof(nodeParams));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphExecNodeSetParams(cudaGraphExec_t graphExec, cudaGraphNode_t node, struct cudaGraphNodeParams *nodeParams) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphExecNodeSetParams called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphExecNodeSetParams);
-    conn->write(&graphExec, sizeof(graphExec));
-    conn->write(&node, sizeof(node));
-    conn->write(&nodeParams, sizeof(nodeParams));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGraphConditionalHandleCreate(cudaGraphConditionalHandle *pHandle_out, cudaGraph_t graph, unsigned int defaultLaunchValue, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGraphConditionalHandleCreate called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pHandle_out;
-    mem2server(conn, &_0pHandle_out, (void *)pHandle_out, sizeof(*pHandle_out));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGraphConditionalHandleCreate);
-    conn->write(&_0pHandle_out, sizeof(_0pHandle_out));
-    updateTmpPtr((void *)pHandle_out, _0pHandle_out);
-    conn->write(&graph, sizeof(graph));
-    conn->write(&defaultLaunchValue, sizeof(defaultLaunchValue));
-    conn->write(&flags, sizeof(flags));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pHandle_out, sizeof(*pHandle_out), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPtr, unsigned long long flags, enum cudaDriverEntryPointQueryResult *driverStatus) {
+extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPtr, unsigned long long flags) {
 #ifdef DEBUG
     std::cout << "Hook: cudaGetDriverEntryPoint called" << std::endl;
 #endif
@@ -13864,8 +12633,6 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0driverStatus;
-    mem2server(conn, &_0driverStatus, (void *)driverStatus, sizeof(*driverStatus));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -13880,581 +12647,6 @@ extern "C" cudaError_t cudaGetDriverEntryPoint(const char *symbol, void **funcPt
     conn->write(symbol, strlen(symbol) + 1, true);
     conn->read(funcPtr, sizeof(void *));
     conn->write(&flags, sizeof(flags));
-    conn->write(&_0driverStatus, sizeof(_0driverStatus));
-    updateTmpPtr((void *)driverStatus, _0driverStatus);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)driverStatus, sizeof(*driverStatus), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGetDriverEntryPointByVersion(const char *symbol, void **funcPtr, unsigned int cudaVersion, unsigned long long flags, enum cudaDriverEntryPointQueryResult *driverStatus) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGetDriverEntryPointByVersion called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0driverStatus;
-    mem2server(conn, &_0driverStatus, (void *)driverStatus, sizeof(*driverStatus));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGetDriverEntryPointByVersion);
-    conn->write(symbol, strlen(symbol) + 1, true);
-    conn->read(funcPtr, sizeof(void *));
-    conn->write(&cudaVersion, sizeof(cudaVersion));
-    conn->write(&flags, sizeof(flags));
-    conn->write(&_0driverStatus, sizeof(_0driverStatus));
-    updateTmpPtr((void *)driverStatus, _0driverStatus);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)driverStatus, sizeof(*driverStatus), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryLoadData(cudaLibrary_t *library, const void *code, enum cudaJitOption *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, enum cudaLibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryLoadData called" << std::endl;
-#endif
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0library;
-    mem2server(conn, &_0library, (void *)library, sizeof(*library));
-    void *_0code;
-    mem2server(conn, &_0code, (void *)code, 0);
-    void *_0jitOptions;
-    mem2server(conn, &_0jitOptions, (void *)jitOptions, sizeof(*jitOptions));
-    // PARAM void **jitOptionsValues
-    void *_0libraryOptions;
-    mem2server(conn, &_0libraryOptions, (void *)libraryOptions, sizeof(*libraryOptions));
-    // PARAM void **libraryOptionValues
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryLoadData);
-    conn->write(&_0library, sizeof(_0library));
-    updateTmpPtr((void *)library, _0library);
-    conn->write(&_0code, sizeof(_0code));
-    updateTmpPtr((void *)code, _0code);
-    conn->write(&_0jitOptions, sizeof(_0jitOptions));
-    updateTmpPtr((void *)jitOptions, _0jitOptions);
-    // PARAM void **jitOptionsValues
-    conn->write(&numJitOptions, sizeof(numJitOptions));
-    conn->write(&_0libraryOptions, sizeof(_0libraryOptions));
-    updateTmpPtr((void *)libraryOptions, _0libraryOptions);
-    // PARAM void **libraryOptionValues
-    conn->write(&numLibraryOptions, sizeof(numLibraryOptions));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)library, sizeof(*library), true);
-    mem2client(conn, (void *)code, 0, true);
-    mem2client(conn, (void *)jitOptions, sizeof(*jitOptions), true);
-    // PARAM void **jitOptionsValues
-    mem2client(conn, (void *)libraryOptions, sizeof(*libraryOptions), true);
-    // PARAM void **libraryOptionValues
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryLoadFromFile(cudaLibrary_t *library, const char *fileName, enum cudaJitOption *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, enum cudaLibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryLoadFromFile called" << std::endl;
-#endif
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0library;
-    mem2server(conn, &_0library, (void *)library, sizeof(*library));
-    void *_0jitOptions;
-    mem2server(conn, &_0jitOptions, (void *)jitOptions, sizeof(*jitOptions));
-    // PARAM void **jitOptionsValues
-    void *_0libraryOptions;
-    mem2server(conn, &_0libraryOptions, (void *)libraryOptions, sizeof(*libraryOptions));
-    // PARAM void **libraryOptionValues
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryLoadFromFile);
-    conn->write(&_0library, sizeof(_0library));
-    updateTmpPtr((void *)library, _0library);
-    conn->write(fileName, strlen(fileName) + 1, true);
-    conn->write(&_0jitOptions, sizeof(_0jitOptions));
-    updateTmpPtr((void *)jitOptions, _0jitOptions);
-    // PARAM void **jitOptionsValues
-    conn->write(&numJitOptions, sizeof(numJitOptions));
-    conn->write(&_0libraryOptions, sizeof(_0libraryOptions));
-    updateTmpPtr((void *)libraryOptions, _0libraryOptions);
-    // PARAM void **libraryOptionValues
-    conn->write(&numLibraryOptions, sizeof(numLibraryOptions));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)library, sizeof(*library), true);
-    mem2client(conn, (void *)jitOptions, sizeof(*jitOptions), true);
-    // PARAM void **jitOptionsValues
-    mem2client(conn, (void *)libraryOptions, sizeof(*libraryOptions), true);
-    // PARAM void **libraryOptionValues
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **jitOptionsValues
-    // PARAM void **libraryOptionValues
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryUnload(cudaLibrary_t library) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryUnload called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryUnload);
-    conn->write(&library, sizeof(library));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetKernel(cudaKernel_t *pKernel, cudaLibrary_t library, const char *name) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetKernel called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pKernel;
-    mem2server(conn, &_0pKernel, (void *)pKernel, sizeof(*pKernel));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryGetKernel);
-    conn->write(&_0pKernel, sizeof(_0pKernel));
-    updateTmpPtr((void *)pKernel, _0pKernel);
-    conn->write(&library, sizeof(library));
-    conn->write(name, strlen(name) + 1, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pKernel, sizeof(*pKernel), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetGlobal(void **dptr, size_t *bytes, cudaLibrary_t library, const char *name) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetGlobal called" << std::endl;
-#endif
-    // PARAM void **dptr
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    // PARAM void **dptr
-    void *_0bytes;
-    mem2server(conn, &_0bytes, (void *)bytes, sizeof(*bytes));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryGetGlobal);
-    // PARAM void **dptr
-    conn->write(&_0bytes, sizeof(_0bytes));
-    updateTmpPtr((void *)bytes, _0bytes);
-    conn->write(&library, sizeof(library));
-    conn->write(name, strlen(name) + 1, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **dptr
-    conn->prepare_request(RPC_mem2client);
-    // PARAM void **dptr
-    mem2client(conn, (void *)bytes, sizeof(*bytes), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **dptr
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetManaged(void **dptr, size_t *bytes, cudaLibrary_t library, const char *name) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetManaged called" << std::endl;
-#endif
-    // PARAM void **dptr
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    // PARAM void **dptr
-    void *_0bytes;
-    mem2server(conn, &_0bytes, (void *)bytes, sizeof(*bytes));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryGetManaged);
-    // PARAM void **dptr
-    conn->write(&_0bytes, sizeof(_0bytes));
-    updateTmpPtr((void *)bytes, _0bytes);
-    conn->write(&library, sizeof(library));
-    conn->write(name, strlen(name) + 1, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **dptr
-    conn->prepare_request(RPC_mem2client);
-    // PARAM void **dptr
-    mem2client(conn, (void *)bytes, sizeof(*bytes), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **dptr
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetUnifiedFunction(void **fptr, cudaLibrary_t library, const char *symbol) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetUnifiedFunction called" << std::endl;
-#endif
-    // PARAM void **fptr
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    // PARAM void **fptr
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryGetUnifiedFunction);
-    // PARAM void **fptr
-    conn->write(&library, sizeof(library));
-    conn->write(symbol, strlen(symbol) + 1, true);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    // PARAM void **fptr
-    conn->prepare_request(RPC_mem2client);
-    // PARAM void **fptr
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    // PARAM void **fptr
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryGetKernelCount(unsigned int *count, cudaLibrary_t lib) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryGetKernelCount called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0count;
-    mem2server(conn, &_0count, (void *)count, sizeof(*count));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryGetKernelCount);
-    conn->write(&_0count, sizeof(_0count));
-    updateTmpPtr((void *)count, _0count);
-    conn->write(&lib, sizeof(lib));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)count, sizeof(*count), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaLibraryEnumerateKernels(cudaKernel_t *kernels, unsigned int numKernels, cudaLibrary_t lib) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaLibraryEnumerateKernels called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0kernels;
-    mem2server(conn, &_0kernels, (void *)kernels, sizeof(*kernels));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaLibraryEnumerateKernels);
-    conn->write(&_0kernels, sizeof(_0kernels));
-    updateTmpPtr((void *)kernels, _0kernels);
-    conn->write(&numKernels, sizeof(numKernels));
-    conn->write(&lib, sizeof(lib));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)kernels, sizeof(*kernels), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaKernelSetAttributeForDevice(cudaKernel_t kernel, enum cudaFuncAttribute attr, int value, int device) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaKernelSetAttributeForDevice called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaKernelSetAttributeForDevice);
-    conn->write(&kernel, sizeof(kernel));
-    conn->write(&attr, sizeof(attr));
-    conn->write(&value, sizeof(value));
-    conn->write(&device, sizeof(device));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -14558,56 +12750,6 @@ extern "C" cudaError_t cudaGetFuncBySymbol(cudaFunction_t *functionPtr, const vo
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)functionPtr, sizeof(*functionPtr), true);
     mem2client(conn, (void *)symbolPtr, 0, true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" cudaError_t cudaGetKernel(cudaKernel_t *kernelPtr, const void *entryFuncAddr) {
-#ifdef DEBUG
-    std::cout << "Hook: cudaGetKernel called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0kernelPtr;
-    mem2server(conn, &_0kernelPtr, (void *)kernelPtr, sizeof(*kernelPtr));
-    void *_0entryFuncAddr;
-    mem2server(conn, &_0entryFuncAddr, (void *)entryFuncAddr, 0);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
-            exit(1);
-        }
-    }
-    cudaError_t _result;
-    conn->prepare_request(RPC_cudaGetKernel);
-    conn->write(&_0kernelPtr, sizeof(_0kernelPtr));
-    updateTmpPtr((void *)kernelPtr, _0kernelPtr);
-    conn->write(&_0entryFuncAddr, sizeof(_0entryFuncAddr));
-    updateTmpPtr((void *)entryFuncAddr, _0entryFuncAddr);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)kernelPtr, sizeof(*kernelPtr), true);
-    mem2client(conn, (void *)entryFuncAddr, 0, true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
