@@ -8,7 +8,7 @@
 
 namespace rpc {
 
-RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), version_key_(version_key) {
+RpcServer::RpcServer(uint16_t port) : listenfd_(-1) {
     // 创建监听socket
     listenfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(listenfd_ < 0) {
@@ -54,10 +54,11 @@ RpcServer::RpcServer(uint16_t port, uint16_t version_key) : listenfd_(-1), versi
 
 RpcServer::~RpcServer() { stop(); }
 
-void RpcServer::start() {
+void RpcServer::start(uint16_t version_key) {
     if(running_) {
         return;
     }
+    version_key_ = version_key;
     running_ = true;
     accept_loop();
 }

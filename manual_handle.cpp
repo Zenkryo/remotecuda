@@ -9,6 +9,18 @@
 #include "hidden_api.h"
 #include "nvml.h"
 
+typedef struct Async2Client {
+    void *clientPtr;
+    void *serverPtr;
+    size_t size;
+    bool to_free;
+} Async2Client;
+
+typedef struct Async2ClientInfo {
+    std::string client_id;
+    std::vector<Async2Client> async2clients;
+} Async2ClientInfo;
+
 cudaMemoryType checkPointer(void *ptr) {
     cudaPointerAttributes attributes;
     cudaError_t err = cudaPointerGetAttributes(&attributes, ptr);
@@ -123,73 +135,63 @@ ERROR:
     }
     return ret;
 }
+void handle_mem2client_async_callback(cudaStream_t stream, cudaError_t status, void *userData) {
+    Async2ClientInfo *async2clients = (Async2ClientInfo *)userData;
+    for(auto async2client : async2clients->async2clients) {
+        // handle_mem2client(async2client);
+    }
+    return;
+}
 
 int handle_mem2client_async(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function mem2client_async called" << std::endl;
 #endif
-    int ret = 1;
     RpcConn *conn = (RpcConn *)args0;
     void *ptrs[32];
     void *clientPtrs[32];
     size_t sizes[32];
     int del_tmp_ptrs[32];
     cudaStream_t stream;
-    std::vector<void *> ptrs2free;
     int i = 0;
     int j = 0;
+    Async2ClientInfo *async2clients = new(std::nothrow) Async2ClientInfo();
+    if(async2clients == nullptr) {
+        std::cerr << "Failed to allocate async2clients" << std::endl;
+        return 1;
+    }
+    async2clients->client_id = conn->get_client_id();
     while(i++ < 32) {
         ptrs[i] = nullptr;
         sizes[i] = 0;
         del_tmp_ptrs[i] = false;
         // 读取服务器端指针
         if(conn->read_one_now(&ptrs[i], sizeof(ptrs[i]), false) != RpcError::OK) {
-            goto ERROR;
+            return 1;
         }
 
         if(ptrs[i] == (void *)0xffffffff) {
             if(conn->read_one_now(&stream, sizeof(stream), false) != RpcError::OK) {
-                goto ERROR;
+                return 1;
             }
             break;
         }
         // 读取是否删除临时指针
         if(conn->read_one_now(&del_tmp_ptrs[i], sizeof(del_tmp_ptrs[i]), false) != RpcError::OK) {
-            goto ERROR;
+            return 1;
         }
         // 读取数据大小
         if(conn->read_one_now(&sizes[i], sizeof(sizes[i]), false) != RpcError::OK) {
-            goto ERROR;
+            return 1;
         }
         // 读取客户端指针
         if(conn->read_one_now(&clientPtrs[i], sizeof(clientPtrs[i]), false) != RpcError::OK) {
-            goto ERROR;
+            return 1;
         }
+        async2clients->async2clients.push_back({clientPtrs[i], ptrs[i], sizes[i], (bool)del_tmp_ptrs[i]});
     }
-    // cudaStreamAddCallback(stream, handle_mem2client_async_callback, (void *)conn);
-    while(j++ < i - 1) {
-        if(sizes[j] <= 0) {
-            continue;
-        }
-        if(ptrs[j] == nullptr) {
-            std::cerr << "WARNING: unknown server side host memory for conn pointer: 0x" << std::hex << ptrs[j] << std::endl;
-            goto ERROR;
-        }
-        conn->write(ptrs[j], sizes[j], true);
-        if(del_tmp_ptrs[j]) {
-            ptrs2free.push_back(ptrs[j]);
-        }
-    }
-    if(conn->submit_response() != RpcError::OK) {
-        std::cerr << "Failed to submit response" << std::endl;
-        goto ERROR;
-    }
-    ret = 0;
-ERROR:
-    for(auto ptr : ptrs2free) {
-        conn->free_host_buffer(ptr);
-    }
-    return ret;
+    cudaStreamAddCallback(stream, handle_mem2client_async_callback, (void *)async2clients, 0);
+    return 0;
 }
 
 // #region CUDA Runtime API (cuda*)

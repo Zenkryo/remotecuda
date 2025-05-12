@@ -18,6 +18,8 @@
 
 namespace rpc {
 
+#define SERVER_PORT 12345
+
 // 前向声明
 class RpcConn;
 class RpcServer;
@@ -126,6 +128,9 @@ class RpcConn {
     // 获取iov临时缓冲区
     void *get_iov_buffer(size_t size);
 
+    // 获取client id
+    std::string get_client_id() const { return client_id_str_; }
+
     // 释放iov临时缓冲区
     void free_iov_buffer(void *ptr);
 
@@ -171,7 +176,13 @@ class RpcConn {
 // RPC服务器类
 class RpcServer {
   public:
-    RpcServer(uint16_t port, uint16_t version_key);
+    // 获取单例实例
+    static RpcServer &getInstance() {
+        static RpcServer instance(SERVER_PORT);
+        return instance;
+    }
+
+    RpcServer(uint16_t port);
     ~RpcServer();
 
     // 禁用拷贝
@@ -179,7 +190,7 @@ class RpcServer {
     RpcServer &operator=(const RpcServer &) = delete;
 
     // 服务器控制
-    void start();
+    void start(uint16_t version_key);
     void stop();
 
     // 注册处理函数

@@ -97,14 +97,14 @@ int calculate_handler(RpcConn *conn) {
 // 服务器端示例
 void run_server() {
     try {
-        RpcServer server(12345, VERSION_KEY);
+        RpcServer &server = RpcServer::getInstance();
 
         // 注册处理函数
         server.register_handler(1, echo_handler);
         server.register_handler(2, calculate_handler);
 
         std::cout << "Server starting..." << std::endl;
-        server.start();
+        server.start(VERSION_KEY);
         printf("server start\n");
     } catch(const RpcException &e) {
         std::cerr << "Server error: " << e.what() << std::endl;

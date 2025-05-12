@@ -9,14 +9,14 @@ extern std::map<uint32_t, RequestHandler> handlerMap;
 
 void run_server() {
     try {
-        RpcServer server(12345, VERSION_KEY);
+        RpcServer &server = RpcServer::getInstance();
 
         // 注册处理函数
         for(auto it = handlerMap.begin(); it != handlerMap.end(); it++) {
             server.register_handler(it->first, it->second);
         }
         std::cout << "Server starting..." << std::endl;
-        server.start();
+        server.start(VERSION_KEY);
     } catch(const RpcException &e) {
         std::cerr << "Server error: " << e.what() << std::endl;
     }
