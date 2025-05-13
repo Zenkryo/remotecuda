@@ -3,3 +3,4 @@
 *.swp
 server
 build/
+gen/original_graph.dot

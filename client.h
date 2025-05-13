@@ -64,7 +64,7 @@ extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool de
 void updateTmpPtr(void *clientPtr, void *serverPtr);
 void *get_so_handle(const std::string &so_file);
 RpcConn *rpc_get_conn();
-void rpc_release_conn(RpcConn *conn);
+void rpc_release_conn(RpcConn *conn, bool to_close = false);
 int sizeofPoolAttribute(int attr);
 int sum_group(int *group_size, int group_count);
 #endif

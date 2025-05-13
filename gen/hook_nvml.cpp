@@ -19,7 +19,7 @@ extern "C" nvmlReturn_t nvmlInit_v2() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -28,7 +28,7 @@ extern "C" nvmlReturn_t nvmlInit_v2() {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -36,7 +36,7 @@ extern "C" nvmlReturn_t nvmlInit_v2() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -59,7 +59,7 @@ extern "C" nvmlReturn_t nvmlInitWithFlags(unsigned int flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -69,7 +69,7 @@ extern "C" nvmlReturn_t nvmlInitWithFlags(unsigned int flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -77,7 +77,7 @@ extern "C" nvmlReturn_t nvmlInitWithFlags(unsigned int flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -100,7 +100,7 @@ extern "C" nvmlReturn_t nvmlShutdown() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -109,7 +109,7 @@ extern "C" nvmlReturn_t nvmlShutdown() {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -117,7 +117,7 @@ extern "C" nvmlReturn_t nvmlShutdown() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -140,7 +140,7 @@ extern "C" nvmlReturn_t nvmlSystemGetDriverVersion(char *version, unsigned int l
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -153,7 +153,7 @@ extern "C" nvmlReturn_t nvmlSystemGetDriverVersion(char *version, unsigned int l
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -161,7 +161,7 @@ extern "C" nvmlReturn_t nvmlSystemGetDriverVersion(char *version, unsigned int l
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -184,7 +184,7 @@ extern "C" nvmlReturn_t nvmlSystemGetNVMLVersion(char *version, unsigned int len
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -197,7 +197,7 @@ extern "C" nvmlReturn_t nvmlSystemGetNVMLVersion(char *version, unsigned int len
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -205,7 +205,7 @@ extern "C" nvmlReturn_t nvmlSystemGetNVMLVersion(char *version, unsigned int len
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -230,7 +230,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion(int *cudaDriverVersion) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -241,7 +241,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion(int *cudaDriverVersion) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -250,7 +250,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion(int *cudaDriverVersion) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -275,7 +275,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int *cudaDriverVersion
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -286,7 +286,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int *cudaDriverVersion
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -295,7 +295,7 @@ extern "C" nvmlReturn_t nvmlSystemGetCudaDriverVersion_v2(int *cudaDriverVersion
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -318,7 +318,7 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -332,7 +332,7 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -340,7 +340,7 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -365,7 +365,7 @@ extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -376,7 +376,7 @@ extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -385,7 +385,7 @@ extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -410,7 +410,7 @@ extern "C" nvmlReturn_t nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -422,7 +422,7 @@ extern "C" nvmlReturn_t nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -431,7 +431,7 @@ extern "C" nvmlReturn_t nvmlUnitGetHandleByIndex(unsigned int index, nvmlUnit_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -456,7 +456,7 @@ extern "C" nvmlReturn_t nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t *inf
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -468,7 +468,7 @@ extern "C" nvmlReturn_t nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t *inf
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -477,7 +477,7 @@ extern "C" nvmlReturn_t nvmlUnitGetUnitInfo(nvmlUnit_t unit, nvmlUnitInfo_t *inf
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -502,7 +502,7 @@ extern "C" nvmlReturn_t nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t *sta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -514,7 +514,7 @@ extern "C" nvmlReturn_t nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t *sta
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -523,7 +523,7 @@ extern "C" nvmlReturn_t nvmlUnitGetLedState(nvmlUnit_t unit, nvmlLedState_t *sta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -548,7 +548,7 @@ extern "C" nvmlReturn_t nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t *psu) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -560,7 +560,7 @@ extern "C" nvmlReturn_t nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t *psu) 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -569,7 +569,7 @@ extern "C" nvmlReturn_t nvmlUnitGetPsuInfo(nvmlUnit_t unit, nvmlPSUInfo_t *psu) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -594,7 +594,7 @@ extern "C" nvmlReturn_t nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int typ
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -607,7 +607,7 @@ extern "C" nvmlReturn_t nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int typ
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -616,7 +616,7 @@ extern "C" nvmlReturn_t nvmlUnitGetTemperature(nvmlUnit_t unit, unsigned int typ
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -641,7 +641,7 @@ extern "C" nvmlReturn_t nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpee
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -653,7 +653,7 @@ extern "C" nvmlReturn_t nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpee
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -662,7 +662,7 @@ extern "C" nvmlReturn_t nvmlUnitGetFanSpeedInfo(nvmlUnit_t unit, nvmlUnitFanSpee
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -689,7 +689,7 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -703,7 +703,7 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -713,7 +713,7 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -740,7 +740,7 @@ extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwb
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -753,7 +753,7 @@ extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwb
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -763,7 +763,7 @@ extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwb
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -788,7 +788,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -799,7 +799,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -808,7 +808,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -833,7 +833,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDevi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -845,7 +845,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDevi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -854,7 +854,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAttributes_v2(nvmlDevice_t device, nvmlDevi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -879,7 +879,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -891,7 +891,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDe
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -900,7 +900,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByIndex_v2(unsigned int index, nvmlDe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -925,7 +925,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleBySerial(const char *serial, nvmlDevi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -937,7 +937,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleBySerial(const char *serial, nvmlDevi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -946,7 +946,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleBySerial(const char *serial, nvmlDevi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -971,7 +971,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -983,7 +983,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -992,7 +992,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1017,7 +1017,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByPciBusId_v2(const char *pciBusId, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1029,7 +1029,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByPciBusId_v2(const char *pciBusId, n
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1038,7 +1038,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByPciBusId_v2(const char *pciBusId, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1061,7 +1061,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetName(nvmlDevice_t device, char *name, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1075,7 +1075,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetName(nvmlDevice_t device, char *name, unsig
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1083,7 +1083,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetName(nvmlDevice_t device, char *name, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1108,7 +1108,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1120,7 +1120,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1129,7 +1129,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBrand(nvmlDevice_t device, nvmlBrandType_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1154,7 +1154,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1166,7 +1166,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *in
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1175,7 +1175,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetIndex(nvmlDevice_t device, unsigned int *in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1198,7 +1198,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1212,7 +1212,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1220,7 +1220,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1245,7 +1245,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1259,7 +1259,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1268,7 +1268,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1293,7 +1293,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1307,7 +1307,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1316,7 +1316,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinityWithinScope(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1341,7 +1341,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1354,7 +1354,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned i
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1363,7 +1363,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCpuAffinity(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1386,7 +1386,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetCpuAffinity(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1396,7 +1396,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetCpuAffinity(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1404,7 +1404,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetCpuAffinity(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1427,7 +1427,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearCpuAffinity(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1437,7 +1437,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearCpuAffinity(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1445,7 +1445,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearCpuAffinity(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1470,7 +1470,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1483,7 +1483,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1492,7 +1492,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1519,7 +1519,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1534,7 +1534,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1544,7 +1544,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1571,7 +1571,7 @@ extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1585,7 +1585,7 @@ extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1595,7 +1595,7 @@ extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1620,7 +1620,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1634,7 +1634,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1643,7 +1643,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1666,7 +1666,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1680,7 +1680,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1688,7 +1688,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1711,7 +1711,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInsta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1725,7 +1725,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInsta
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1733,7 +1733,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInsta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1758,7 +1758,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1770,7 +1770,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned i
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1779,7 +1779,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMinorNumber(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1802,7 +1802,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1816,7 +1816,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1824,7 +1824,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardPartNumber(nvmlDevice_t device, char *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1847,7 +1847,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInf
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1862,7 +1862,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInf
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1870,7 +1870,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomVersion(nvmlDevice_t device, nvmlInf
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1893,7 +1893,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, ch
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1907,7 +1907,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, ch
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1915,7 +1915,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomImageVersion(nvmlDevice_t device, ch
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1940,7 +1940,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1952,7 +1952,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t d
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1961,7 +1961,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetInforomConfigurationChecksum(nvmlDevice_t d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1984,7 +1984,7 @@ extern "C" nvmlReturn_t nvmlDeviceValidateInforom(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1994,7 +1994,7 @@ extern "C" nvmlReturn_t nvmlDeviceValidateInforom(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2002,7 +2002,7 @@ extern "C" nvmlReturn_t nvmlDeviceValidateInforom(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2027,7 +2027,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnable
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2039,7 +2039,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnable
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2048,7 +2048,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnable
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2073,7 +2073,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnab
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2085,7 +2085,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnab
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2094,7 +2094,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDisplayActive(nvmlDevice_t device, nvmlEnab
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2119,7 +2119,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2131,7 +2131,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2140,7 +2140,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2165,7 +2165,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2177,7 +2177,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2186,7 +2186,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2211,7 +2211,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2223,7 +2223,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2232,7 +2232,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2257,7 +2257,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2269,7 +2269,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsig
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2278,7 +2278,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkWidth(nvmlDevice_t device, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2303,7 +2303,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2315,7 +2315,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2324,7 +2324,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkGeneration(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2349,7 +2349,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2361,7 +2361,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2370,7 +2370,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrPcieLinkWidth(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2395,7 +2395,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPci
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2408,7 +2408,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPci
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2417,7 +2417,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieThroughput(nvmlDevice_t device, nvmlPci
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2442,7 +2442,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2454,7 +2454,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2463,7 +2463,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPcieReplayCounter(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2488,7 +2488,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockTyp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2501,7 +2501,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockTyp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2510,7 +2510,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClockInfo(nvmlDevice_t device, nvmlClockTyp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2535,7 +2535,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2548,7 +2548,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2557,7 +2557,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2582,7 +2582,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvml
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2595,7 +2595,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvml
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2604,7 +2604,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvml
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2629,7 +2629,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2642,7 +2642,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2651,7 +2651,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2674,7 +2674,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2684,7 +2684,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2692,7 +2692,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2717,7 +2717,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2731,7 +2731,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2740,7 +2740,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClock(nvmlDevice_t device, nvmlClockType_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2765,7 +2765,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2778,7 +2778,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2787,7 +2787,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxCustomerBoostClock(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2814,7 +2814,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2828,7 +2828,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2838,7 +2838,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedMemoryClocks(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2865,7 +2865,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2880,7 +2880,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2890,7 +2890,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedGraphicsClocks(nvmlDevice_t device
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2917,7 +2917,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2931,7 +2931,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2941,7 +2941,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2964,7 +2964,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2975,7 +2975,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t devic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2983,7 +2983,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3006,7 +3006,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3018,7 +3018,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3026,7 +3026,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3051,7 +3051,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3063,7 +3063,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3072,7 +3072,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3097,7 +3097,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3110,7 +3110,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3119,7 +3119,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3144,7 +3144,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3157,7 +3157,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3166,7 +3166,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3191,7 +3191,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3204,7 +3204,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3213,7 +3213,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3238,7 +3238,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3251,7 +3251,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3260,7 +3260,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3285,7 +3285,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3297,7 +3297,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3306,7 +3306,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3331,7 +3331,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3343,7 +3343,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3352,7 +3352,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3377,7 +3377,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksThrottleReasons(nvmlDevice_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3389,7 +3389,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksThrottleReasons(nvmlDevice_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3398,7 +3398,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksThrottleReasons(nvmlDevice_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3423,7 +3423,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3435,7 +3435,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3444,7 +3444,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3469,7 +3469,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementMode(nvmlDevice_t device, nv
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3481,7 +3481,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementMode(nvmlDevice_t device, nv
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3490,7 +3490,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementMode(nvmlDevice_t device, nv
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3515,7 +3515,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3527,7 +3527,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3536,7 +3536,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimit(nvmlDevice_t device, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3563,7 +3563,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3577,7 +3577,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3587,7 +3587,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementLimitConstraints(nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3612,7 +3612,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3624,7 +3624,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t de
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3633,7 +3633,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerManagementDefaultLimit(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3658,7 +3658,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3670,7 +3670,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned in
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3679,7 +3679,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerUsage(nvmlDevice_t device, unsigned in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3704,7 +3704,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3716,7 +3716,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3725,7 +3725,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEnergyConsumption(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3750,7 +3750,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3762,7 +3762,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3771,7 +3771,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEnforcedPowerLimit(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3798,7 +3798,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3812,7 +3812,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlG
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3822,7 +3822,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuOperationMode(nvmlDevice_t device, nvmlG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3847,7 +3847,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3859,7 +3859,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3868,7 +3868,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3893,7 +3893,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComput
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3905,7 +3905,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComput
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3914,7 +3914,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComput
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3941,7 +3941,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3955,7 +3955,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3965,7 +3965,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3992,7 +3992,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4006,7 +4006,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4016,7 +4016,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4041,7 +4041,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4053,7 +4053,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4062,7 +4062,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBoardId(nvmlDevice_t device, unsigned int *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4087,7 +4087,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4099,7 +4099,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4108,7 +4108,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMultiGpuBoard(nvmlDevice_t device, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4133,7 +4133,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMem
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4147,7 +4147,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMem
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4156,7 +4156,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetTotalEccErrors(nvmlDevice_t device, nvmlMem
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4181,7 +4181,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDetailedEccErrors(nvmlDevice_t device, nvml
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4195,7 +4195,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDetailedEccErrors(nvmlDevice_t device, nvml
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4204,7 +4204,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDetailedEccErrors(nvmlDevice_t device, nvml
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4229,7 +4229,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4244,7 +4244,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvm
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4253,7 +4253,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryErrorCounter(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4278,7 +4278,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4290,7 +4290,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlU
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4299,7 +4299,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetUtilizationRates(nvmlDevice_t device, nvmlU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4326,7 +4326,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4340,7 +4340,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4350,7 +4350,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderUtilization(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4375,7 +4375,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4388,7 +4388,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEn
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4397,7 +4397,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderCapacity(nvmlDevice_t device, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4426,7 +4426,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4442,7 +4442,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4453,7 +4453,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderStats(nvmlDevice_t device, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4480,7 +4480,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4494,7 +4494,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4504,7 +4504,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetEncoderSessions(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4531,7 +4531,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4545,7 +4545,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4555,7 +4555,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4580,7 +4580,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4592,7 +4592,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4601,7 +4601,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4628,7 +4628,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4642,7 +4642,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4652,7 +4652,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4679,7 +4679,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriver
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4693,7 +4693,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriver
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4703,7 +4703,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriver
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4726,7 +4726,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char *ver
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4740,7 +4740,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char *ver
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4748,7 +4748,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVbiosVersion(nvmlDevice_t device, char *ver
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4773,7 +4773,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4785,7 +4785,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4794,7 +4794,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4821,7 +4821,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t dev
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4835,7 +4835,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t dev
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4845,7 +4845,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t dev
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4872,7 +4872,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4886,7 +4886,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t de
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4896,7 +4896,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4923,7 +4923,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4937,7 +4937,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4947,7 +4947,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4972,7 +4972,7 @@ extern "C" nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4985,7 +4985,7 @@ extern "C" nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4994,7 +4994,7 @@ extern "C" nvmlReturn_t nvmlDeviceOnSameBoard(nvmlDevice_t device1, nvmlDevice_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5019,7 +5019,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5032,7 +5032,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRes
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5041,7 +5041,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAPIRestriction(nvmlDevice_t device, nvmlRes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5070,7 +5070,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingTy
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5088,7 +5088,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingTy
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5099,7 +5099,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSamples(nvmlDevice_t device, nvmlSamplingTy
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5124,7 +5124,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5136,7 +5136,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5145,7 +5145,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetBAR1MemoryInfo(nvmlDevice_t device, nvmlBAR
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5170,7 +5170,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5183,7 +5183,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5192,7 +5192,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5217,7 +5217,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEna
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5229,7 +5229,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEna
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5238,7 +5238,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingMode(nvmlDevice_t device, nvmlEna
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5263,7 +5263,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5276,7 +5276,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5285,7 +5285,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingStats(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5312,7 +5312,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5326,7 +5326,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5336,7 +5336,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingPids(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5361,7 +5361,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5373,7 +5373,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5382,7 +5382,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetAccountingBufferSize(nvmlDevice_t device, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5409,7 +5409,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageR
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5424,7 +5424,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageR
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5434,7 +5434,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages(nvmlDevice_t device, nvmlPageR
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5463,7 +5463,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5480,7 +5480,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPa
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5491,7 +5491,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPages_v2(nvmlDevice_t device, nvmlPa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5516,7 +5516,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t devi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5528,7 +5528,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t devi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5537,7 +5537,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRetiredPagesPendingStatus(nvmlDevice_t devi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5568,7 +5568,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5586,7 +5586,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5598,7 +5598,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRemappedRows(nvmlDevice_t device, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5623,7 +5623,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5635,7 +5635,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, n
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5644,7 +5644,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetRowRemapperHistogram(nvmlDevice_t device, n
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5669,7 +5669,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5681,7 +5681,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5690,7 +5690,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5713,7 +5713,7 @@ extern "C" nvmlReturn_t nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t colo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5724,7 +5724,7 @@ extern "C" nvmlReturn_t nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t colo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5732,7 +5732,7 @@ extern "C" nvmlReturn_t nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t colo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5755,7 +5755,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5766,7 +5766,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEn
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5774,7 +5774,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetPersistenceMode(nvmlDevice_t device, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5797,7 +5797,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComput
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5808,7 +5808,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComput
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5816,7 +5816,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetComputeMode(nvmlDevice_t device, nvmlComput
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5839,7 +5839,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableStat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5850,7 +5850,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableStat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5858,7 +5858,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetEccMode(nvmlDevice_t device, nvmlEnableStat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5881,7 +5881,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlE
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5892,7 +5892,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlE
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5900,7 +5900,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearEccErrorCounts(nvmlDevice_t device, nvmlE
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5923,7 +5923,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriver
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5935,7 +5935,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriver
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5943,7 +5943,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetDriverModel(nvmlDevice_t device, nvmlDriver
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5966,7 +5966,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5978,7 +5978,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5986,7 +5986,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuLockedClocks(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6009,7 +6009,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6019,7 +6019,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6027,7 +6027,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetGpuLockedClocks(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6050,7 +6050,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6062,7 +6062,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6070,7 +6070,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMemoryLockedClocks(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6093,7 +6093,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6103,7 +6103,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6111,7 +6111,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetMemoryLockedClocks(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6134,7 +6134,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetApplicationsClocks(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6146,7 +6146,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetApplicationsClocks(nvmlDevice_t device, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6154,7 +6154,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetApplicationsClocks(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6179,7 +6179,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6191,7 +6191,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6200,7 +6200,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6223,7 +6223,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetPowerManagementLimit(nvmlDevice_t device, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6234,7 +6234,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetPowerManagementLimit(nvmlDevice_t device, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6242,7 +6242,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetPowerManagementLimit(nvmlDevice_t device, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6265,7 +6265,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6276,7 +6276,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlG
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6284,7 +6284,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetGpuOperationMode(nvmlDevice_t device, nvmlG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6307,7 +6307,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6319,7 +6319,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRes
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6327,7 +6327,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6350,7 +6350,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEna
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6361,7 +6361,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEna
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6369,7 +6369,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEna
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6392,7 +6392,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearAccountingPids(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6402,7 +6402,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearAccountingPids(nvmlDevice_t device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6410,7 +6410,7 @@ extern "C" nvmlReturn_t nvmlDeviceClearAccountingPids(nvmlDevice_t device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6435,7 +6435,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6448,7 +6448,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned i
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6457,7 +6457,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkState(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6482,7 +6482,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6495,7 +6495,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6504,7 +6504,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkVersion(nvmlDevice_t device, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6529,7 +6529,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6543,7 +6543,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsig
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6552,7 +6552,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkCapability(nvmlDevice_t device, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6577,7 +6577,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6590,7 +6590,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6599,7 +6599,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemotePciInfo_v2(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6624,7 +6624,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6638,7 +6638,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6647,7 +6647,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkErrorCounter(nvmlDevice_t device, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6670,7 +6670,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6681,7 +6681,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6689,7 +6689,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkErrorCounters(nvmlDevice_t device, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6714,7 +6714,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetNvLinkUtilizationControl(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6729,7 +6729,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetNvLinkUtilizationControl(nvmlDevice_t devic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6738,7 +6738,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetNvLinkUtilizationControl(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6763,7 +6763,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationControl(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6777,7 +6777,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationControl(nvmlDevice_t devic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6786,7 +6786,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationControl(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6813,7 +6813,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationCounter(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6829,7 +6829,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationCounter(nvmlDevice_t devic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6839,7 +6839,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkUtilizationCounter(nvmlDevice_t devic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6862,7 +6862,7 @@ extern "C" nvmlReturn_t nvmlDeviceFreezeNvLinkUtilizationCounter(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6875,7 +6875,7 @@ extern "C" nvmlReturn_t nvmlDeviceFreezeNvLinkUtilizationCounter(nvmlDevice_t de
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6883,7 +6883,7 @@ extern "C" nvmlReturn_t nvmlDeviceFreezeNvLinkUtilizationCounter(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6906,7 +6906,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkUtilizationCounter(nvmlDevice_t dev
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6918,7 +6918,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkUtilizationCounter(nvmlDevice_t dev
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6926,7 +6926,7 @@ extern "C" nvmlReturn_t nvmlDeviceResetNvLinkUtilizationCounter(nvmlDevice_t dev
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6951,7 +6951,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6964,7 +6964,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6973,7 +6973,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6998,7 +6998,7 @@ extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7009,7 +7009,7 @@ extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7018,7 +7018,7 @@ extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7041,7 +7041,7 @@ extern "C" nvmlReturn_t nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned l
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7053,7 +7053,7 @@ extern "C" nvmlReturn_t nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned l
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7061,7 +7061,7 @@ extern "C" nvmlReturn_t nvmlDeviceRegisterEvents(nvmlDevice_t device, unsigned l
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7086,7 +7086,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, un
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7098,7 +7098,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, un
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7107,7 +7107,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedEventTypes(nvmlDevice_t device, un
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7132,7 +7132,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7145,7 +7145,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7154,7 +7154,7 @@ extern "C" nvmlReturn_t nvmlEventSetWait_v2(nvmlEventSet_t set, nvmlEventData_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7177,7 +7177,7 @@ extern "C" nvmlReturn_t nvmlEventSetFree(nvmlEventSet_t set) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7187,7 +7187,7 @@ extern "C" nvmlReturn_t nvmlEventSetFree(nvmlEventSet_t set) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7195,7 +7195,7 @@ extern "C" nvmlReturn_t nvmlEventSetFree(nvmlEventSet_t set) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7220,7 +7220,7 @@ extern "C" nvmlReturn_t nvmlDeviceModifyDrainState(nvmlPciInfo_t *pciInfo, nvmlE
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7232,7 +7232,7 @@ extern "C" nvmlReturn_t nvmlDeviceModifyDrainState(nvmlPciInfo_t *pciInfo, nvmlE
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7241,7 +7241,7 @@ extern "C" nvmlReturn_t nvmlDeviceModifyDrainState(nvmlPciInfo_t *pciInfo, nvmlE
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7268,7 +7268,7 @@ extern "C" nvmlReturn_t nvmlDeviceQueryDrainState(nvmlPciInfo_t *pciInfo, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7281,7 +7281,7 @@ extern "C" nvmlReturn_t nvmlDeviceQueryDrainState(nvmlPciInfo_t *pciInfo, nvmlEn
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7291,7 +7291,7 @@ extern "C" nvmlReturn_t nvmlDeviceQueryDrainState(nvmlPciInfo_t *pciInfo, nvmlEn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7316,7 +7316,7 @@ extern "C" nvmlReturn_t nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t *pciInfo, nvmlDetac
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7329,7 +7329,7 @@ extern "C" nvmlReturn_t nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t *pciInfo, nvmlDetac
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7338,7 +7338,7 @@ extern "C" nvmlReturn_t nvmlDeviceRemoveGpu_v2(nvmlPciInfo_t *pciInfo, nvmlDetac
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7363,7 +7363,7 @@ extern "C" nvmlReturn_t nvmlDeviceDiscoverGpus(nvmlPciInfo_t *pciInfo) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7374,7 +7374,7 @@ extern "C" nvmlReturn_t nvmlDeviceDiscoverGpus(nvmlPciInfo_t *pciInfo) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7383,7 +7383,7 @@ extern "C" nvmlReturn_t nvmlDeviceDiscoverGpus(nvmlPciInfo_t *pciInfo) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7408,7 +7408,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7421,7 +7421,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7430,7 +7430,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7455,7 +7455,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7467,7 +7467,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvm
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7476,7 +7476,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7501,7 +7501,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostV
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7513,7 +7513,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostV
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7522,7 +7522,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetHostVgpuMode(nvmlDevice_t device, nvmlHostV
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7545,7 +7545,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7556,7 +7556,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvm
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7564,7 +7564,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7589,7 +7589,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t devi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7601,7 +7601,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t devi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7610,7 +7610,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t devi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7637,7 +7637,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7652,7 +7652,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7662,7 +7662,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7689,7 +7689,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7703,7 +7703,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7713,7 +7713,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetSupportedVgpus(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7740,7 +7740,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7754,7 +7754,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7764,7 +7764,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetCreatableVgpus(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7789,7 +7789,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7804,7 +7804,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7813,7 +7813,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetClass(nvmlVgpuTypeId_t vgpuTypeId, char *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7838,7 +7838,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7853,7 +7853,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7862,7 +7862,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetName(nvmlVgpuTypeId_t vgpuTypeId, char *v
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7887,7 +7887,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7899,7 +7899,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7908,7 +7908,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetGpuInstanceProfileId(nvmlVgpuTypeId_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7935,7 +7935,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7949,7 +7949,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7959,7 +7959,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetDeviceID(nvmlVgpuTypeId_t vgpuTypeId, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7984,7 +7984,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuType
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7996,7 +7996,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuType
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8005,7 +8005,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFramebufferSize(nvmlVgpuTypeId_t vgpuType
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8030,7 +8030,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuType
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8042,7 +8042,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuType
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8051,7 +8051,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetNumDisplayHeads(nvmlVgpuTypeId_t vgpuType
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8078,7 +8078,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8093,7 +8093,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8103,7 +8103,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetResolution(nvmlVgpuTypeId_t vgpuTypeId, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8126,7 +8126,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8140,7 +8140,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8148,7 +8148,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetLicense(nvmlVgpuTypeId_t vgpuTypeId, char
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8173,7 +8173,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeI
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8185,7 +8185,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeI
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8194,7 +8194,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetFrameRateLimit(nvmlVgpuTypeId_t vgpuTypeI
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8219,7 +8219,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8232,7 +8232,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8241,7 +8241,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstances(nvmlDevice_t device, nvmlVgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8266,7 +8266,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8278,7 +8278,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8287,7 +8287,7 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8314,7 +8314,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8328,7 +8328,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned i
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8338,7 +8338,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetActiveVgpus(nvmlDevice_t device, unsigned i
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8363,7 +8363,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8379,7 +8379,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8388,7 +8388,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmID(nvmlVgpuInstance_t vgpuInstance,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8411,7 +8411,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8425,7 +8425,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8433,7 +8433,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetUUID(nvmlVgpuInstance_t vgpuInstance,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8456,7 +8456,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8470,7 +8470,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vg
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8478,7 +8478,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetVmDriverVersion(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8503,7 +8503,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstan
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8515,7 +8515,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstan
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8524,7 +8524,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFbUsage(nvmlVgpuInstance_t vgpuInstan
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8549,7 +8549,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8561,7 +8561,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8570,7 +8570,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseStatus(nvmlVgpuInstance_t vgpu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8595,7 +8595,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8607,7 +8607,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8616,7 +8616,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetType(nvmlVgpuInstance_t vgpuInstance,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8641,7 +8641,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8653,7 +8653,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8662,7 +8662,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFrameRateLimit(nvmlVgpuInstance_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8687,7 +8687,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstan
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8699,7 +8699,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstan
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8708,7 +8708,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEccMode(nvmlVgpuInstance_t vgpuInstan
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8733,7 +8733,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8745,7 +8745,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vg
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8754,7 +8754,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderCapacity(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8777,7 +8777,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8788,7 +8788,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vg
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8796,7 +8796,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceSetEncoderCapacity(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8825,7 +8825,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuI
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8841,7 +8841,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuI
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8852,7 +8852,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderStats(nvmlVgpuInstance_t vgpuI
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8879,7 +8879,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8893,7 +8893,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vg
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8903,7 +8903,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetEncoderSessions(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8928,7 +8928,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInsta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8940,7 +8940,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInsta
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8949,7 +8949,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCStats(nvmlVgpuInstance_t vgpuInsta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8976,7 +8976,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuIn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8990,7 +8990,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuIn
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9000,7 +9000,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetFBCSessions(nvmlVgpuInstance_t vgpuIn
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9025,7 +9025,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9037,7 +9037,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9046,7 +9046,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9073,7 +9073,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInsta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9087,7 +9087,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInsta
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9097,7 +9097,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInsta
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9124,7 +9124,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9138,7 +9138,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuP
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9148,7 +9148,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuMetadata(nvmlDevice_t device, nvmlVgpuP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9177,7 +9177,7 @@ extern "C" nvmlReturn_t nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t *vgpuMetadat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9192,7 +9192,7 @@ extern "C" nvmlReturn_t nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t *vgpuMetadat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9203,7 +9203,7 @@ extern "C" nvmlReturn_t nvmlGetVgpuCompatibility(nvmlVgpuMetadata_t *vgpuMetadat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9228,7 +9228,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9243,7 +9243,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9252,7 +9252,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9279,7 +9279,7 @@ extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9292,7 +9292,7 @@ extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9302,7 +9302,7 @@ extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9327,7 +9327,7 @@ extern "C" nvmlReturn_t nvmlSetVgpuVersion(nvmlVgpuVersion_t *vgpuVersion) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9338,7 +9338,7 @@ extern "C" nvmlReturn_t nvmlSetVgpuVersion(nvmlVgpuVersion_t *vgpuVersion) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9347,7 +9347,7 @@ extern "C" nvmlReturn_t nvmlSetVgpuVersion(nvmlVgpuVersion_t *vgpuVersion) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9376,7 +9376,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9393,7 +9393,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9404,7 +9404,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9431,7 +9431,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9446,7 +9446,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9456,7 +9456,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9481,7 +9481,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9493,7 +9493,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9502,7 +9502,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingMode(nvmlVgpuInstance_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9529,7 +9529,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9543,7 +9543,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9553,7 +9553,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingPids(nvmlVgpuInstance_t vgp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9578,7 +9578,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9591,7 +9591,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vg
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9600,7 +9600,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetAccountingStats(nvmlVgpuInstance_t vg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9623,7 +9623,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t v
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9633,7 +9633,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t v
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9641,7 +9641,7 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t v
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9666,7 +9666,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceCount(unsigned int *deviceCount) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9677,7 +9677,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceCount(unsigned int *deviceCount) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9686,7 +9686,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceCount(unsigned int *deviceCount) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9711,7 +9711,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9723,7 +9723,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvm
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9732,7 +9732,7 @@ extern "C" nvmlReturn_t nvmlGetExcludedDeviceInfoByIndex(unsigned int index, nvm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9757,7 +9757,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int m
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9770,7 +9770,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int m
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9779,7 +9779,7 @@ extern "C" nvmlReturn_t nvmlDeviceSetMigMode(nvmlDevice_t device, unsigned int m
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9806,7 +9806,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9820,7 +9820,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9830,7 +9830,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigMode(nvmlDevice_t device, unsigned int *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9855,7 +9855,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9868,7 +9868,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9877,7 +9877,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9904,7 +9904,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9919,7 +9919,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9929,7 +9929,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstancePossiblePlacements_v2(nvmlDevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9954,7 +9954,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9967,7 +9967,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t d
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9976,7 +9976,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceRemainingCapacity(nvmlDevice_t d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10001,7 +10001,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10014,7 +10014,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10023,7 +10023,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstance(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10050,7 +10050,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10065,7 +10065,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t de
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10075,7 +10075,7 @@ extern "C" nvmlReturn_t nvmlDeviceCreateGpuInstanceWithPlacement(nvmlDevice_t de
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10098,7 +10098,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10108,7 +10108,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10116,7 +10116,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceDestroy(nvmlGpuInstance_t gpuInstance) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10143,7 +10143,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10158,7 +10158,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10168,7 +10168,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstances(nvmlDevice_t device, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10193,7 +10193,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10206,7 +10206,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10215,7 +10215,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceById(nvmlDevice_t device, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10240,7 +10240,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nv
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10252,7 +10252,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nv
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10261,7 +10261,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetInfo(nvmlGpuInstance_t gpuInstance, nv
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10286,7 +10286,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10300,7 +10300,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10309,7 +10309,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10334,7 +10334,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10347,7 +10347,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10356,7 +10356,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10381,7 +10381,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10394,7 +10394,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10403,7 +10403,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10426,7 +10426,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceDestroy(nvmlComputeInstance_t compute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10436,7 +10436,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceDestroy(nvmlComputeInstance_t compute
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10444,7 +10444,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceDestroy(nvmlComputeInstance_t compute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10471,7 +10471,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10486,7 +10486,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10496,7 +10496,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstances(nvmlGpuInstance_t gpu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10521,7 +10521,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10534,7 +10534,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10543,7 +10543,7 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceById(nvmlGpuInstance_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10568,7 +10568,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t comp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10580,7 +10580,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t comp
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10589,7 +10589,7 @@ extern "C" nvmlReturn_t nvmlComputeInstanceGetInfo_v2(nvmlComputeInstance_t comp
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10614,7 +10614,7 @@ extern "C" nvmlReturn_t nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10626,7 +10626,7 @@ extern "C" nvmlReturn_t nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10635,7 +10635,7 @@ extern "C" nvmlReturn_t nvmlDeviceIsMigDeviceHandle(nvmlDevice_t device, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10660,7 +10660,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10672,7 +10672,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10681,7 +10681,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceId(nvmlDevice_t device, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10706,7 +10706,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10718,7 +10718,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10727,7 +10727,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeInstanceId(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10752,7 +10752,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10764,7 +10764,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10773,7 +10773,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxMigDeviceCount(nvmlDevice_t device, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10798,7 +10798,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10811,7 +10811,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10820,7 +10820,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMigDeviceHandleByIndex(nvmlDevice_t device,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10845,7 +10845,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10857,7 +10857,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10866,7 +10866,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }

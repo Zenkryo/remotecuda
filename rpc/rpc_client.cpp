@@ -27,7 +27,7 @@ RpcError RpcClient::connect(const std::string &server, uint16_t port, size_t syn
         if(err != RpcError::OK) {
             return err;
         }
-        available_sync_conns_.push_back(std::move(conn));
+        sync_conns_.push_back(std::move(conn));
     }
 
     // 创建异步连接
@@ -52,18 +52,12 @@ void RpcClient::disconnect() {
 
     // 清理同步连接池
     std::lock_guard<std::mutex> lock(sync_mutex_);
-    for(auto &conn : using_sync_conns_) {
+    for(auto &conn : sync_conns_) {
         if(conn) {
             conn->disconnect();
         }
     }
-    using_sync_conns_.clear();
-    for(auto &conn : available_sync_conns_) {
-        if(conn) {
-            conn->disconnect();
-        }
-    }
-    available_sync_conns_.clear();
+    sync_conns_.clear();
 
     // 清理异步连接
     if(async_conn_) {
@@ -82,13 +76,11 @@ void RpcClient::disconnect() {
 RpcConn *RpcClient::acquire_connection() {
     std::lock_guard<std::mutex> lock(sync_mutex_);
 
-    // 从可用连接中选择一个
-    if(!available_sync_conns_.empty()) {
-        auto conn = std::move(available_sync_conns_.back());
-        RpcConn *conn_ptr = conn.get();
-        available_sync_conns_.pop_back();
-        using_sync_conns_.push_back(std::move(conn));
-        return conn_ptr;
+    for(auto &conn : sync_conns_) {
+        if(conn->is_connected() && !conn->is_using_) {
+            conn->is_using_ = true;
+            return conn.get();
+        }
     }
 
     // 如果没有可用连接，创建新的连接
@@ -99,21 +91,27 @@ RpcConn *RpcClient::acquire_connection() {
     }
 
     RpcConn *conn_ptr = conn.get();
-    using_sync_conns_.push_back(std::move(conn));
+    conn->is_using_ = true;
+    sync_conns_.push_back(std::move(conn));
     return conn_ptr;
 }
 
-void RpcClient::release_connection(RpcConn *conn) {
+void RpcClient::release_connection(RpcConn *conn, bool to_close) {
     if(!conn)
         return;
 
     std::lock_guard<std::mutex> lock(sync_mutex_);
-    auto it = std::find_if(using_sync_conns_.begin(), using_sync_conns_.end(), [conn](const std::unique_ptr<RpcConn> &c) { return c.get() == conn; });
-    if(it != using_sync_conns_.end()) {
-        available_sync_conns_.push_back(std::move(*it));
-        using_sync_conns_.erase(it);
+    auto it = std::find_if(sync_conns_.begin(), sync_conns_.end(), [conn](const std::unique_ptr<RpcConn> &c) { return c.get() == conn; });
+    if(it != sync_conns_.end()) {
+        if(to_close) {
+            sync_conns_.erase(it);
+        }
     }
+    conn->is_using_ = false;
     conn->free_all_iov_buffers();
+    if(to_close) {
+        conn->disconnect();
+    }
 }
 
 void RpcClient::register_async_handler(uint32_t func_id, AsyncRequestHandler handler) { async_handlers_[func_id] = handler; }

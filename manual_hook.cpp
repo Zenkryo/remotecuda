@@ -836,7 +836,7 @@ extern "C" cudaError_t cudaFree(void *devPtr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -867,7 +867,7 @@ extern "C" cudaError_t cudaFreeHost(void *ptr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -894,7 +894,7 @@ extern "C" const char *cudaGetErrorName(cudaError_t error) {
     conn->read(_cudaGetErrorName_result, 1024, true);
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -917,7 +917,7 @@ extern "C" const char *cudaGetErrorString(cudaError_t error) {
     conn->read(_cudaGetErrorString_result, 1024, true);
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -941,7 +941,7 @@ extern "C" cudaError_t cudaGetSymbolAddress(void **devPtr, const void *symbol) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -968,7 +968,7 @@ extern "C" cudaError_t cudaGraphMemcpyNodeGetParams(cudaGraphNode_t node, struct
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -986,7 +986,7 @@ extern "C" cudaError_t cudaGraphMemcpyNodeGetParams(cudaGraphNode_t node, struct
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1018,7 +1018,7 @@ extern "C" cudaError_t cudaHostAlloc(void **pHost, size_t size, unsigned int fla
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*pHost);
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1050,7 +1050,7 @@ extern "C" cudaError_t cudaHostRegister(void *ptr, size_t size, unsigned int fla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1080,7 +1080,7 @@ extern "C" cudaError_t cudaHostUnregister(void *ptr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     cs_host_mems.erase(ptr);
@@ -1118,7 +1118,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1138,15 +1138,10 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
-    // TODO 由于cudaLaunchKernel函数是异步调用的，所以此时还得不到返回值，
-    // 需要实现一个对应的回调机制，让服务器端在执行完cudaLaunchKernel函数后，将返回值写回给客户端
-    // 每个客户端需要启动一个线程，用于接收服务器端的返回值
-    // 服务器端需要知道的信息：
-    // 1. 一个内存区域的服务器端指针和客户端指针，还有大小
-    // 所以这里需要让服务器启动一个回调任务.
+
     conn->prepare_request(RPC_mem2client_async);
     for(int i = 0; i < f->param_count; i++) {
         mem2client_async(conn, *((void **)args[i]), -1, false);
@@ -1156,7 +1151,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         conn->write(&stream, sizeof(stream));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1194,7 +1189,7 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1214,7 +1209,7 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1225,7 +1220,7 @@ extern "C" cudaError_t cudaLaunchCooperativeKernel(const void *func, dim3 gridDi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1250,7 +1245,7 @@ extern "C" cudaError_t cudaMalloc(void **devPtr, size_t size) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1277,7 +1272,7 @@ extern "C" cudaError_t cudaMalloc3D(struct cudaPitchedPtr *pitchedDevPtr, struct
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1311,7 +1306,7 @@ extern "C" cudaError_t cudaMallocHost(void **ptr, size_t size) {
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*ptr);
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1347,7 +1342,7 @@ extern "C" cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned in
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*devPtr);
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1378,7 +1373,7 @@ extern "C" cudaError_t cudaMallocPitch(void **devPtr, size_t *pitch, size_t widt
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == cudaSuccess) {
@@ -1413,7 +1408,7 @@ extern "C" cudaError_t cudaMemRangeGetAttributes(void **data, size_t *dataSizes,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
 
@@ -1440,7 +1435,7 @@ extern "C" cudaError_t __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -1466,7 +1461,7 @@ extern "C" unsigned __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, siz
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -1504,7 +1499,7 @@ extern "C" void **__cudaRegisterFatBinary(void *fatCubin) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -1525,7 +1520,7 @@ extern "C" void __cudaRegisterFatBinaryEnd(void **fatCubinHandle) {
     conn->write(&fatCubinHandle, sizeof(fatCubinHandle));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -1574,14 +1569,13 @@ extern "C" void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFu
     }
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // also memorize the host pointer function
     for(auto &funcinfo : funcinfos) {
         if(strcmp(funcinfo.name, deviceName) == 0) {
             funcinfo.fun_ptr = (void *)hostFun;
-            printf("================ funcinfo.fun_ptr: %p\n", funcinfo.fun_ptr);
         }
     }
     rpc_release_conn(conn);
@@ -1606,7 +1600,7 @@ extern "C" void __cudaRegisterManagedVar(void **fatCubinHandle, void **hostVarPt
     conn->write(&global, sizeof(global));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
 
@@ -1633,7 +1627,7 @@ extern "C" void __cudaRegisterVar(void **fatCubinHandle, char *hostVar, char *de
     conn->write(&global, sizeof(global));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     server_dev_mems[(void *)hostVar] = size;
@@ -1654,7 +1648,7 @@ extern "C" void __cudaUnregisterFatBinary(void **fatCubinHandle) {
     conn->write(&fatCubinHandle, sizeof(fatCubinHandle));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -1676,7 +1670,7 @@ extern "C" char __cudaInitModule(void **fatCubinHandle) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **fatCubinHandle
@@ -1703,7 +1697,7 @@ extern "C" CUresult cuExternalMemoryGetMappedBuffer(CUdeviceptr *devPtr, CUexter
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -1731,7 +1725,7 @@ extern "C" CUresult cuGetErrorName(CUresult error, const char **pStr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     *pStr = _cuGetErrorName_pStr;
@@ -1757,7 +1751,7 @@ extern "C" CUresult cuGetErrorString(CUresult error, const char **pStr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     *pStr = _cuGetErrorString_pStr;
@@ -1797,7 +1791,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedPointer_v2(CUdeviceptr *pDevPtr, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -1824,7 +1818,7 @@ extern "C" CUresult cuImportExternalMemory(CUexternalMemory *extMem_out, const C
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -1852,7 +1846,7 @@ extern "C" CUresult cuIpcOpenMemHandle_v2(CUdeviceptr *pdptr, CUipcMemHandle han
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -1882,7 +1876,7 @@ extern "C" CUresult cuLibraryGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUlibra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -1911,7 +1905,7 @@ extern "C" CUresult cuLibraryGetManaged(CUdeviceptr *dptr, size_t *bytes, CUlibr
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -1957,7 +1951,7 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1981,7 +1975,7 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1992,7 +1986,7 @@ extern "C" CUresult cuLaunchCooperativeKernel(CUfunction func, unsigned int grid
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2022,7 +2016,7 @@ extern "C" CUresult cuMemAddressReserve(CUdeviceptr *ptr, size_t size, size_t al
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         munmap((void *)*ptr, size);
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -2046,7 +2040,7 @@ extern "C" CUresult cuMemAlloc_v2(CUdeviceptr *dptr, size_t bytesize) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2079,7 +2073,7 @@ extern "C" CUresult cuMemAllocHost_v2(void **pp, size_t bytesize) {
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*pp);
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2114,7 +2108,7 @@ extern "C" CUresult cuMemAllocManaged(CUdeviceptr *dptr, size_t bytesize, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2144,7 +2138,7 @@ extern "C" CUresult cuMemAllocPitch_v2(CUdeviceptr *dptr, size_t *pPitch, size_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2173,7 +2167,7 @@ extern "C" CUresult cuMemCreate(CUmemGenericAllocationHandle *handle, size_t siz
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2209,7 +2203,7 @@ extern "C" CUresult cuMemFreeHost(void *p) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2238,7 +2232,7 @@ extern "C" CUresult cuMemGetAddressRange_v2(CUdeviceptr *pbase, size_t *psize, C
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2273,7 +2267,7 @@ extern "C" CUresult cuMemRangeGetAttributes(void **data, size_t *dataSizes, CUme
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
 
@@ -2305,7 +2299,7 @@ extern "C" CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flag
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         free(*pp);
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2340,7 +2334,7 @@ extern "C" CUresult cuMemHostGetDevicePointer_v2(CUdeviceptr *pdptr, void *p, un
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2372,7 +2366,7 @@ extern "C" CUresult cuMemMap(CUdeviceptr ptr, size_t size, size_t offset, CUmemG
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
 
@@ -2398,7 +2392,7 @@ extern "C" CUresult cuMemPoolImportPointer(CUdeviceptr *ptr_out, CUmemoryPool po
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2452,7 +2446,7 @@ extern "C" CUresult cuModuleGetGlobal_v2(CUdeviceptr *dptr, size_t *bytes, CUmod
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2525,7 +2519,7 @@ extern "C" CUresult cuPointerGetAttributes(unsigned int numAttributes, CUpointer
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);
@@ -2549,7 +2543,7 @@ extern "C" CUresult cuTexRefGetAddress_v2(CUdeviceptr *pdptr, CUtexref hTexRef) 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2576,7 +2570,7 @@ extern "C" CUresult cuGraphMemFreeNodeGetParams(CUgraphNode hNode, CUdeviceptr *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     if(_result == CUDA_SUCCESS) {
@@ -2604,7 +2598,7 @@ extern "C" const char *nvmlErrorString(nvmlReturn_t result) {
     conn->read(_nvmlErrorString_result, 1024, true);
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     rpc_release_conn(conn);

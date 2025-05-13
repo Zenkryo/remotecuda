@@ -22,7 +22,7 @@ extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -33,7 +33,7 @@ extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -42,7 +42,7 @@ extern "C" cublasStatus_t cublasCreate_v2(cublasHandle_t *handle) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -65,7 +65,7 @@ extern "C" cublasStatus_t cublasDestroy_v2(cublasHandle_t handle) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -75,7 +75,7 @@ extern "C" cublasStatus_t cublasDestroy_v2(cublasHandle_t handle) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -83,7 +83,7 @@ extern "C" cublasStatus_t cublasDestroy_v2(cublasHandle_t handle) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -108,7 +108,7 @@ extern "C" cublasStatus_t cublasGetVersion_v2(cublasHandle_t handle, int *versio
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -120,7 +120,7 @@ extern "C" cublasStatus_t cublasGetVersion_v2(cublasHandle_t handle, int *versio
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -129,7 +129,7 @@ extern "C" cublasStatus_t cublasGetVersion_v2(cublasHandle_t handle, int *versio
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -154,7 +154,7 @@ extern "C" cublasStatus_t cublasGetProperty(libraryPropertyType type, int *value
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -166,7 +166,7 @@ extern "C" cublasStatus_t cublasGetProperty(libraryPropertyType type, int *value
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -175,7 +175,7 @@ extern "C" cublasStatus_t cublasGetProperty(libraryPropertyType type, int *value
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -198,7 +198,7 @@ extern "C" size_t cublasGetCudartVersion() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -207,7 +207,7 @@ extern "C" size_t cublasGetCudartVersion() {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -215,7 +215,7 @@ extern "C" size_t cublasGetCudartVersion() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -240,7 +240,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -253,7 +253,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -262,7 +262,7 @@ extern "C" cublasStatus_t cublasSetWorkspace_v2(cublasHandle_t handle, void *wor
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -285,7 +285,7 @@ extern "C" cublasStatus_t cublasSetStream_v2(cublasHandle_t handle, cudaStream_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -296,7 +296,7 @@ extern "C" cublasStatus_t cublasSetStream_v2(cublasHandle_t handle, cudaStream_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -304,7 +304,7 @@ extern "C" cublasStatus_t cublasSetStream_v2(cublasHandle_t handle, cudaStream_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -329,7 +329,7 @@ extern "C" cublasStatus_t cublasGetStream_v2(cublasHandle_t handle, cudaStream_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -341,7 +341,7 @@ extern "C" cublasStatus_t cublasGetStream_v2(cublasHandle_t handle, cudaStream_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -350,7 +350,7 @@ extern "C" cublasStatus_t cublasGetStream_v2(cublasHandle_t handle, cudaStream_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -375,7 +375,7 @@ extern "C" cublasStatus_t cublasGetPointerMode_v2(cublasHandle_t handle, cublasP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -387,7 +387,7 @@ extern "C" cublasStatus_t cublasGetPointerMode_v2(cublasHandle_t handle, cublasP
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -396,7 +396,7 @@ extern "C" cublasStatus_t cublasGetPointerMode_v2(cublasHandle_t handle, cublasP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -419,7 +419,7 @@ extern "C" cublasStatus_t cublasSetPointerMode_v2(cublasHandle_t handle, cublasP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -430,7 +430,7 @@ extern "C" cublasStatus_t cublasSetPointerMode_v2(cublasHandle_t handle, cublasP
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -438,7 +438,7 @@ extern "C" cublasStatus_t cublasSetPointerMode_v2(cublasHandle_t handle, cublasP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -463,7 +463,7 @@ extern "C" cublasStatus_t cublasGetAtomicsMode(cublasHandle_t handle, cublasAtom
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -475,7 +475,7 @@ extern "C" cublasStatus_t cublasGetAtomicsMode(cublasHandle_t handle, cublasAtom
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -484,7 +484,7 @@ extern "C" cublasStatus_t cublasGetAtomicsMode(cublasHandle_t handle, cublasAtom
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -507,7 +507,7 @@ extern "C" cublasStatus_t cublasSetAtomicsMode(cublasHandle_t handle, cublasAtom
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -518,7 +518,7 @@ extern "C" cublasStatus_t cublasSetAtomicsMode(cublasHandle_t handle, cublasAtom
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -526,7 +526,7 @@ extern "C" cublasStatus_t cublasSetAtomicsMode(cublasHandle_t handle, cublasAtom
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -551,7 +551,7 @@ extern "C" cublasStatus_t cublasGetMathMode(cublasHandle_t handle, cublasMath_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -563,7 +563,7 @@ extern "C" cublasStatus_t cublasGetMathMode(cublasHandle_t handle, cublasMath_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -572,7 +572,7 @@ extern "C" cublasStatus_t cublasGetMathMode(cublasHandle_t handle, cublasMath_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -595,7 +595,7 @@ extern "C" cublasStatus_t cublasSetMathMode(cublasHandle_t handle, cublasMath_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -606,7 +606,7 @@ extern "C" cublasStatus_t cublasSetMathMode(cublasHandle_t handle, cublasMath_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -614,7 +614,7 @@ extern "C" cublasStatus_t cublasSetMathMode(cublasHandle_t handle, cublasMath_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -639,7 +639,7 @@ extern "C" cublasStatus_t cublasGetSmCountTarget(cublasHandle_t handle, int *smC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -651,7 +651,7 @@ extern "C" cublasStatus_t cublasGetSmCountTarget(cublasHandle_t handle, int *smC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -660,7 +660,7 @@ extern "C" cublasStatus_t cublasGetSmCountTarget(cublasHandle_t handle, int *smC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -683,7 +683,7 @@ extern "C" cublasStatus_t cublasSetSmCountTarget(cublasHandle_t handle, int smCo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -694,7 +694,7 @@ extern "C" cublasStatus_t cublasSetSmCountTarget(cublasHandle_t handle, int smCo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -702,7 +702,7 @@ extern "C" cublasStatus_t cublasSetSmCountTarget(cublasHandle_t handle, int smCo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -725,7 +725,7 @@ extern "C" cublasStatus_t cublasLoggerConfigure(int logIsOn, int logToStdOut, in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -738,7 +738,7 @@ extern "C" cublasStatus_t cublasLoggerConfigure(int logIsOn, int logToStdOut, in
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -746,7 +746,7 @@ extern "C" cublasStatus_t cublasLoggerConfigure(int logIsOn, int logToStdOut, in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -769,7 +769,7 @@ extern "C" cublasStatus_t cublasSetLoggerCallback(cublasLogCallback userCallback
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -779,7 +779,7 @@ extern "C" cublasStatus_t cublasSetLoggerCallback(cublasLogCallback userCallback
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -787,7 +787,7 @@ extern "C" cublasStatus_t cublasSetLoggerCallback(cublasLogCallback userCallback
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -812,7 +812,7 @@ extern "C" cublasStatus_t cublasGetLoggerCallback(cublasLogCallback *userCallbac
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -823,7 +823,7 @@ extern "C" cublasStatus_t cublasGetLoggerCallback(cublasLogCallback *userCallbac
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -832,7 +832,7 @@ extern "C" cublasStatus_t cublasGetLoggerCallback(cublasLogCallback *userCallbac
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -859,7 +859,7 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -876,7 +876,7 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -886,7 +886,7 @@ extern "C" cublasStatus_t cublasSetVector(int n, int elemSize, const void *x, in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -913,7 +913,7 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -930,7 +930,7 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -940,7 +940,7 @@ extern "C" cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, in
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -967,7 +967,7 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -985,7 +985,7 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -995,7 +995,7 @@ extern "C" cublasStatus_t cublasSetMatrix(int rows, int cols, int elemSize, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1022,7 +1022,7 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1040,7 +1040,7 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1050,7 +1050,7 @@ extern "C" cublasStatus_t cublasGetMatrix(int rows, int cols, int elemSize, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1077,7 +1077,7 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1095,7 +1095,7 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1105,7 +1105,7 @@ extern "C" cublasStatus_t cublasSetVectorAsync(int n, int elemSize, const void *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1132,7 +1132,7 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1150,7 +1150,7 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1160,7 +1160,7 @@ extern "C" cublasStatus_t cublasGetVectorAsync(int n, int elemSize, const void *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1187,7 +1187,7 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1206,7 +1206,7 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1216,7 +1216,7 @@ extern "C" cublasStatus_t cublasSetMatrixAsync(int rows, int cols, int elemSize,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1243,7 +1243,7 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1262,7 +1262,7 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1272,7 +1272,7 @@ extern "C" cublasStatus_t cublasGetMatrixAsync(int rows, int cols, int elemSize,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1295,7 +1295,7 @@ extern "C" void cublasXerbla(const char *srName, int info) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1304,7 +1304,7 @@ extern "C" void cublasXerbla(const char *srName, int info) {
     conn->write(&info, sizeof(info));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1312,7 +1312,7 @@ extern "C" void cublasXerbla(const char *srName, int info) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1339,7 +1339,7 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1358,7 +1358,7 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1368,7 +1368,7 @@ extern "C" cublasStatus_t cublasNrm2Ex(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1395,7 +1395,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1411,7 +1411,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1421,7 +1421,7 @@ extern "C" cublasStatus_t cublasSnrm2_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1448,7 +1448,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1464,7 +1464,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1474,7 +1474,7 @@ extern "C" cublasStatus_t cublasDnrm2_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1501,7 +1501,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1517,7 +1517,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1527,7 +1527,7 @@ extern "C" cublasStatus_t cublasScnrm2_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1554,7 +1554,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1570,7 +1570,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1580,7 +1580,7 @@ extern "C" cublasStatus_t cublasDznrm2_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1609,7 +1609,7 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1632,7 +1632,7 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1643,7 +1643,7 @@ extern "C" cublasStatus_t cublasDotEx(cublasHandle_t handle, int n, const void *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1672,7 +1672,7 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1695,7 +1695,7 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1706,7 +1706,7 @@ extern "C" cublasStatus_t cublasDotcEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1735,7 +1735,7 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1754,7 +1754,7 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1765,7 +1765,7 @@ extern "C" cublasStatus_t cublasSdot_v2(cublasHandle_t handle, int n, const floa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1794,7 +1794,7 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1813,7 +1813,7 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1824,7 +1824,7 @@ extern "C" cublasStatus_t cublasDdot_v2(cublasHandle_t handle, int n, const doub
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1853,7 +1853,7 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1872,7 +1872,7 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1883,7 +1883,7 @@ extern "C" cublasStatus_t cublasCdotu_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1912,7 +1912,7 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1931,7 +1931,7 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1942,7 +1942,7 @@ extern "C" cublasStatus_t cublasCdotc_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1971,7 +1971,7 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1990,7 +1990,7 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2001,7 +2001,7 @@ extern "C" cublasStatus_t cublasZdotu_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2030,7 +2030,7 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2049,7 +2049,7 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2060,7 +2060,7 @@ extern "C" cublasStatus_t cublasZdotc_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2087,7 +2087,7 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2106,7 +2106,7 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2116,7 +2116,7 @@ extern "C" cublasStatus_t cublasScalEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2143,7 +2143,7 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2159,7 +2159,7 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2169,7 +2169,7 @@ extern "C" cublasStatus_t cublasSscal_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2196,7 +2196,7 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2212,7 +2212,7 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2222,7 +2222,7 @@ extern "C" cublasStatus_t cublasDscal_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2249,7 +2249,7 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2265,7 +2265,7 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2275,7 +2275,7 @@ extern "C" cublasStatus_t cublasCscal_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2302,7 +2302,7 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2318,7 +2318,7 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2328,7 +2328,7 @@ extern "C" cublasStatus_t cublasCsscal_v2(cublasHandle_t handle, int n, const fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2355,7 +2355,7 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2371,7 +2371,7 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2381,7 +2381,7 @@ extern "C" cublasStatus_t cublasZscal_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2408,7 +2408,7 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2424,7 +2424,7 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2434,7 +2434,7 @@ extern "C" cublasStatus_t cublasZdscal_v2(cublasHandle_t handle, int n, const do
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2463,7 +2463,7 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2486,7 +2486,7 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2497,7 +2497,7 @@ extern "C" cublasStatus_t cublasAxpyEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2526,7 +2526,7 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2545,7 +2545,7 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2556,7 +2556,7 @@ extern "C" cublasStatus_t cublasSaxpy_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2585,7 +2585,7 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2604,7 +2604,7 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2615,7 +2615,7 @@ extern "C" cublasStatus_t cublasDaxpy_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2644,7 +2644,7 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2663,7 +2663,7 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2674,7 +2674,7 @@ extern "C" cublasStatus_t cublasCaxpy_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2703,7 +2703,7 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2722,7 +2722,7 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2733,7 +2733,7 @@ extern "C" cublasStatus_t cublasZaxpy_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2760,7 +2760,7 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2779,7 +2779,7 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2789,7 +2789,7 @@ extern "C" cublasStatus_t cublasCopyEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2816,7 +2816,7 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2833,7 +2833,7 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2843,7 +2843,7 @@ extern "C" cublasStatus_t cublasScopy_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2870,7 +2870,7 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2887,7 +2887,7 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2897,7 +2897,7 @@ extern "C" cublasStatus_t cublasDcopy_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2924,7 +2924,7 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2941,7 +2941,7 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2951,7 +2951,7 @@ extern "C" cublasStatus_t cublasCcopy_v2(cublasHandle_t handle, int n, const cuC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2978,7 +2978,7 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2995,7 +2995,7 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3005,7 +3005,7 @@ extern "C" cublasStatus_t cublasZcopy_v2(cublasHandle_t handle, int n, const cuD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3032,7 +3032,7 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3049,7 +3049,7 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3059,7 +3059,7 @@ extern "C" cublasStatus_t cublasSswap_v2(cublasHandle_t handle, int n, float *x,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3086,7 +3086,7 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3103,7 +3103,7 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3113,7 +3113,7 @@ extern "C" cublasStatus_t cublasDswap_v2(cublasHandle_t handle, int n, double *x
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3140,7 +3140,7 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3157,7 +3157,7 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3167,7 +3167,7 @@ extern "C" cublasStatus_t cublasCswap_v2(cublasHandle_t handle, int n, cuComplex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3194,7 +3194,7 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3211,7 +3211,7 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3221,7 +3221,7 @@ extern "C" cublasStatus_t cublasZswap_v2(cublasHandle_t handle, int n, cuDoubleC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3248,7 +3248,7 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3267,7 +3267,7 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3277,7 +3277,7 @@ extern "C" cublasStatus_t cublasSwapEx(cublasHandle_t handle, int n, void *x, cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3304,7 +3304,7 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3320,7 +3320,7 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3330,7 +3330,7 @@ extern "C" cublasStatus_t cublasIsamax_v2(cublasHandle_t handle, int n, const fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3357,7 +3357,7 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3373,7 +3373,7 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3383,7 +3383,7 @@ extern "C" cublasStatus_t cublasIdamax_v2(cublasHandle_t handle, int n, const do
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3410,7 +3410,7 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3426,7 +3426,7 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3436,7 +3436,7 @@ extern "C" cublasStatus_t cublasIcamax_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3463,7 +3463,7 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3479,7 +3479,7 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3489,7 +3489,7 @@ extern "C" cublasStatus_t cublasIzamax_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3516,7 +3516,7 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3533,7 +3533,7 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3543,7 +3543,7 @@ extern "C" cublasStatus_t cublasIamaxEx(cublasHandle_t handle, int n, const void
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3570,7 +3570,7 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3586,7 +3586,7 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3596,7 +3596,7 @@ extern "C" cublasStatus_t cublasIsamin_v2(cublasHandle_t handle, int n, const fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3623,7 +3623,7 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3639,7 +3639,7 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3649,7 +3649,7 @@ extern "C" cublasStatus_t cublasIdamin_v2(cublasHandle_t handle, int n, const do
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3676,7 +3676,7 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3692,7 +3692,7 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3702,7 +3702,7 @@ extern "C" cublasStatus_t cublasIcamin_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3729,7 +3729,7 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3745,7 +3745,7 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3755,7 +3755,7 @@ extern "C" cublasStatus_t cublasIzamin_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3782,7 +3782,7 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3799,7 +3799,7 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3809,7 +3809,7 @@ extern "C" cublasStatus_t cublasIaminEx(cublasHandle_t handle, int n, const void
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3836,7 +3836,7 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3855,7 +3855,7 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3865,7 +3865,7 @@ extern "C" cublasStatus_t cublasAsumEx(cublasHandle_t handle, int n, const void 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3892,7 +3892,7 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3908,7 +3908,7 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3918,7 +3918,7 @@ extern "C" cublasStatus_t cublasSasum_v2(cublasHandle_t handle, int n, const flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3945,7 +3945,7 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3961,7 +3961,7 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3971,7 +3971,7 @@ extern "C" cublasStatus_t cublasDasum_v2(cublasHandle_t handle, int n, const dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3998,7 +3998,7 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4014,7 +4014,7 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4024,7 +4024,7 @@ extern "C" cublasStatus_t cublasScasum_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4051,7 +4051,7 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4067,7 +4067,7 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4077,7 +4077,7 @@ extern "C" cublasStatus_t cublasDzasum_v2(cublasHandle_t handle, int n, const cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4108,7 +4108,7 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4129,7 +4129,7 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4141,7 +4141,7 @@ extern "C" cublasStatus_t cublasSrot_v2(cublasHandle_t handle, int n, float *x, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4172,7 +4172,7 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4193,7 +4193,7 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4205,7 +4205,7 @@ extern "C" cublasStatus_t cublasDrot_v2(cublasHandle_t handle, int n, double *x,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4236,7 +4236,7 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4257,7 +4257,7 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4269,7 +4269,7 @@ extern "C" cublasStatus_t cublasCrot_v2(cublasHandle_t handle, int n, cuComplex 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4300,7 +4300,7 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4321,7 +4321,7 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4333,7 +4333,7 @@ extern "C" cublasStatus_t cublasCsrot_v2(cublasHandle_t handle, int n, cuComplex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4364,7 +4364,7 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4385,7 +4385,7 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4397,7 +4397,7 @@ extern "C" cublasStatus_t cublasZrot_v2(cublasHandle_t handle, int n, cuDoubleCo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4428,7 +4428,7 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4449,7 +4449,7 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4461,7 +4461,7 @@ extern "C" cublasStatus_t cublasZdrot_v2(cublasHandle_t handle, int n, cuDoubleC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4492,7 +4492,7 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4517,7 +4517,7 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4529,7 +4529,7 @@ extern "C" cublasStatus_t cublasRotEx(cublasHandle_t handle, int n, void *x, cud
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4560,7 +4560,7 @@ extern "C" cublasStatus_t cublasSrotg_v2(cublasHandle_t handle, float *a, float 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4578,7 +4578,7 @@ extern "C" cublasStatus_t cublasSrotg_v2(cublasHandle_t handle, float *a, float 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4590,7 +4590,7 @@ extern "C" cublasStatus_t cublasSrotg_v2(cublasHandle_t handle, float *a, float 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4621,7 +4621,7 @@ extern "C" cublasStatus_t cublasDrotg_v2(cublasHandle_t handle, double *a, doubl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4639,7 +4639,7 @@ extern "C" cublasStatus_t cublasDrotg_v2(cublasHandle_t handle, double *a, doubl
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4651,7 +4651,7 @@ extern "C" cublasStatus_t cublasDrotg_v2(cublasHandle_t handle, double *a, doubl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4682,7 +4682,7 @@ extern "C" cublasStatus_t cublasCrotg_v2(cublasHandle_t handle, cuComplex *a, cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4700,7 +4700,7 @@ extern "C" cublasStatus_t cublasCrotg_v2(cublasHandle_t handle, cuComplex *a, cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4712,7 +4712,7 @@ extern "C" cublasStatus_t cublasCrotg_v2(cublasHandle_t handle, cuComplex *a, cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4743,7 +4743,7 @@ extern "C" cublasStatus_t cublasZrotg_v2(cublasHandle_t handle, cuDoubleComplex 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4761,7 +4761,7 @@ extern "C" cublasStatus_t cublasZrotg_v2(cublasHandle_t handle, cuDoubleComplex 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4773,7 +4773,7 @@ extern "C" cublasStatus_t cublasZrotg_v2(cublasHandle_t handle, cuDoubleComplex 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4804,7 +4804,7 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4825,7 +4825,7 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4837,7 +4837,7 @@ extern "C" cublasStatus_t cublasRotgEx(cublasHandle_t handle, void *a, void *b, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4866,7 +4866,7 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4885,7 +4885,7 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4896,7 +4896,7 @@ extern "C" cublasStatus_t cublasSrotm_v2(cublasHandle_t handle, int n, float *x,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4925,7 +4925,7 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4944,7 +4944,7 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4955,7 +4955,7 @@ extern "C" cublasStatus_t cublasDrotm_v2(cublasHandle_t handle, int n, double *x
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4984,7 +4984,7 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5007,7 +5007,7 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5018,7 +5018,7 @@ extern "C" cublasStatus_t cublasRotmEx(cublasHandle_t handle, int n, void *x, cu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5051,7 +5051,7 @@ extern "C" cublasStatus_t cublasSrotmg_v2(cublasHandle_t handle, float *d1, floa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5071,7 +5071,7 @@ extern "C" cublasStatus_t cublasSrotmg_v2(cublasHandle_t handle, float *d1, floa
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5084,7 +5084,7 @@ extern "C" cublasStatus_t cublasSrotmg_v2(cublasHandle_t handle, float *d1, floa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5117,7 +5117,7 @@ extern "C" cublasStatus_t cublasDrotmg_v2(cublasHandle_t handle, double *d1, dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5137,7 +5137,7 @@ extern "C" cublasStatus_t cublasDrotmg_v2(cublasHandle_t handle, double *d1, dou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5150,7 +5150,7 @@ extern "C" cublasStatus_t cublasDrotmg_v2(cublasHandle_t handle, double *d1, dou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5183,7 +5183,7 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5209,7 +5209,7 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5222,7 +5222,7 @@ extern "C" cublasStatus_t cublasRotmgEx(cublasHandle_t handle, void *d1, cudaDat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5255,7 +5255,7 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5281,7 +5281,7 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5294,7 +5294,7 @@ extern "C" cublasStatus_t cublasSgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5327,7 +5327,7 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5353,7 +5353,7 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5366,7 +5366,7 @@ extern "C" cublasStatus_t cublasDgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5399,7 +5399,7 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5425,7 +5425,7 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5438,7 +5438,7 @@ extern "C" cublasStatus_t cublasCgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5471,7 +5471,7 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5497,7 +5497,7 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5510,7 +5510,7 @@ extern "C" cublasStatus_t cublasZgemv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5543,7 +5543,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5571,7 +5571,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5584,7 +5584,7 @@ extern "C" cublasStatus_t cublasSgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5617,7 +5617,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5645,7 +5645,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5658,7 +5658,7 @@ extern "C" cublasStatus_t cublasDgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5691,7 +5691,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5719,7 +5719,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5732,7 +5732,7 @@ extern "C" cublasStatus_t cublasCgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5765,7 +5765,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5793,7 +5793,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5806,7 +5806,7 @@ extern "C" cublasStatus_t cublasZgbmv_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5833,7 +5833,7 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5853,7 +5853,7 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5863,7 +5863,7 @@ extern "C" cublasStatus_t cublasStrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5890,7 +5890,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5910,7 +5910,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5920,7 +5920,7 @@ extern "C" cublasStatus_t cublasDtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5947,7 +5947,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5967,7 +5967,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5977,7 +5977,7 @@ extern "C" cublasStatus_t cublasCtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6004,7 +6004,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6024,7 +6024,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6034,7 +6034,7 @@ extern "C" cublasStatus_t cublasZtrmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6061,7 +6061,7 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6082,7 +6082,7 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6092,7 +6092,7 @@ extern "C" cublasStatus_t cublasStbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6119,7 +6119,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6140,7 +6140,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6150,7 +6150,7 @@ extern "C" cublasStatus_t cublasDtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6177,7 +6177,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6198,7 +6198,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6208,7 +6208,7 @@ extern "C" cublasStatus_t cublasCtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6235,7 +6235,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6256,7 +6256,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6266,7 +6266,7 @@ extern "C" cublasStatus_t cublasZtbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6293,7 +6293,7 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6312,7 +6312,7 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6322,7 +6322,7 @@ extern "C" cublasStatus_t cublasStpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6349,7 +6349,7 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6368,7 +6368,7 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6378,7 +6378,7 @@ extern "C" cublasStatus_t cublasDtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6405,7 +6405,7 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6424,7 +6424,7 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6434,7 +6434,7 @@ extern "C" cublasStatus_t cublasCtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6461,7 +6461,7 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6480,7 +6480,7 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6490,7 +6490,7 @@ extern "C" cublasStatus_t cublasZtpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6517,7 +6517,7 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6537,7 +6537,7 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6547,7 +6547,7 @@ extern "C" cublasStatus_t cublasStrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6574,7 +6574,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6594,7 +6594,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6604,7 +6604,7 @@ extern "C" cublasStatus_t cublasDtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6631,7 +6631,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6651,7 +6651,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6661,7 +6661,7 @@ extern "C" cublasStatus_t cublasCtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6688,7 +6688,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6708,7 +6708,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6718,7 +6718,7 @@ extern "C" cublasStatus_t cublasZtrsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6745,7 +6745,7 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6764,7 +6764,7 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6774,7 +6774,7 @@ extern "C" cublasStatus_t cublasStpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6801,7 +6801,7 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6820,7 +6820,7 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6830,7 +6830,7 @@ extern "C" cublasStatus_t cublasDtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6857,7 +6857,7 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6876,7 +6876,7 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6886,7 +6886,7 @@ extern "C" cublasStatus_t cublasCtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6913,7 +6913,7 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6932,7 +6932,7 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6942,7 +6942,7 @@ extern "C" cublasStatus_t cublasZtpsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6969,7 +6969,7 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6990,7 +6990,7 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7000,7 +7000,7 @@ extern "C" cublasStatus_t cublasStbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7027,7 +7027,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7048,7 +7048,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7058,7 +7058,7 @@ extern "C" cublasStatus_t cublasDtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7085,7 +7085,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7106,7 +7106,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7116,7 +7116,7 @@ extern "C" cublasStatus_t cublasCtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7143,7 +7143,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7164,7 +7164,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7174,7 +7174,7 @@ extern "C" cublasStatus_t cublasZtbsv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7207,7 +7207,7 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7232,7 +7232,7 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7245,7 +7245,7 @@ extern "C" cublasStatus_t cublasSsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7278,7 +7278,7 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7303,7 +7303,7 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7316,7 +7316,7 @@ extern "C" cublasStatus_t cublasDsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7349,7 +7349,7 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7374,7 +7374,7 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7387,7 +7387,7 @@ extern "C" cublasStatus_t cublasCsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7420,7 +7420,7 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7445,7 +7445,7 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7458,7 +7458,7 @@ extern "C" cublasStatus_t cublasZsymv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7491,7 +7491,7 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7516,7 +7516,7 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7529,7 +7529,7 @@ extern "C" cublasStatus_t cublasChemv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7562,7 +7562,7 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7587,7 +7587,7 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7600,7 +7600,7 @@ extern "C" cublasStatus_t cublasZhemv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7633,7 +7633,7 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7659,7 +7659,7 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7672,7 +7672,7 @@ extern "C" cublasStatus_t cublasSsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7705,7 +7705,7 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7731,7 +7731,7 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7744,7 +7744,7 @@ extern "C" cublasStatus_t cublasDsbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7777,7 +7777,7 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7803,7 +7803,7 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7816,7 +7816,7 @@ extern "C" cublasStatus_t cublasChbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7849,7 +7849,7 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7875,7 +7875,7 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7888,7 +7888,7 @@ extern "C" cublasStatus_t cublasZhbmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7921,7 +7921,7 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7945,7 +7945,7 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7958,7 +7958,7 @@ extern "C" cublasStatus_t cublasSspmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7991,7 +7991,7 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8015,7 +8015,7 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8028,7 +8028,7 @@ extern "C" cublasStatus_t cublasDspmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8061,7 +8061,7 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8085,7 +8085,7 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8098,7 +8098,7 @@ extern "C" cublasStatus_t cublasChpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8131,7 +8131,7 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8155,7 +8155,7 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8168,7 +8168,7 @@ extern "C" cublasStatus_t cublasZhpmv_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8199,7 +8199,7 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8222,7 +8222,7 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8234,7 +8234,7 @@ extern "C" cublasStatus_t cublasSger_v2(cublasHandle_t handle, int m, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8265,7 +8265,7 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8288,7 +8288,7 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8300,7 +8300,7 @@ extern "C" cublasStatus_t cublasDger_v2(cublasHandle_t handle, int m, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8331,7 +8331,7 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8354,7 +8354,7 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8366,7 +8366,7 @@ extern "C" cublasStatus_t cublasCgeru_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8397,7 +8397,7 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8420,7 +8420,7 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8432,7 +8432,7 @@ extern "C" cublasStatus_t cublasCgerc_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8463,7 +8463,7 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8486,7 +8486,7 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8498,7 +8498,7 @@ extern "C" cublasStatus_t cublasZgeru_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8529,7 +8529,7 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8552,7 +8552,7 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8564,7 +8564,7 @@ extern "C" cublasStatus_t cublasZgerc_v2(cublasHandle_t handle, int m, int n, co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8593,7 +8593,7 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8613,7 +8613,7 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8624,7 +8624,7 @@ extern "C" cublasStatus_t cublasSsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8653,7 +8653,7 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8673,7 +8673,7 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8684,7 +8684,7 @@ extern "C" cublasStatus_t cublasDsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8713,7 +8713,7 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8733,7 +8733,7 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8744,7 +8744,7 @@ extern "C" cublasStatus_t cublasCsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8773,7 +8773,7 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8793,7 +8793,7 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8804,7 +8804,7 @@ extern "C" cublasStatus_t cublasZsyr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8833,7 +8833,7 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8853,7 +8853,7 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8864,7 +8864,7 @@ extern "C" cublasStatus_t cublasCher_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8893,7 +8893,7 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8913,7 +8913,7 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8924,7 +8924,7 @@ extern "C" cublasStatus_t cublasZher_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8953,7 +8953,7 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8972,7 +8972,7 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8983,7 +8983,7 @@ extern "C" cublasStatus_t cublasSspr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9012,7 +9012,7 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9031,7 +9031,7 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9042,7 +9042,7 @@ extern "C" cublasStatus_t cublasDspr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9071,7 +9071,7 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9090,7 +9090,7 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9101,7 +9101,7 @@ extern "C" cublasStatus_t cublasChpr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9130,7 +9130,7 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9149,7 +9149,7 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9160,7 +9160,7 @@ extern "C" cublasStatus_t cublasZhpr_v2(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9191,7 +9191,7 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9214,7 +9214,7 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9226,7 +9226,7 @@ extern "C" cublasStatus_t cublasSsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9257,7 +9257,7 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9280,7 +9280,7 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9292,7 +9292,7 @@ extern "C" cublasStatus_t cublasDsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9323,7 +9323,7 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9346,7 +9346,7 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9358,7 +9358,7 @@ extern "C" cublasStatus_t cublasCsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9389,7 +9389,7 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9412,7 +9412,7 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9424,7 +9424,7 @@ extern "C" cublasStatus_t cublasZsyr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9455,7 +9455,7 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9478,7 +9478,7 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9490,7 +9490,7 @@ extern "C" cublasStatus_t cublasCher2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9521,7 +9521,7 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9544,7 +9544,7 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9556,7 +9556,7 @@ extern "C" cublasStatus_t cublasZher2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9587,7 +9587,7 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9609,7 +9609,7 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9621,7 +9621,7 @@ extern "C" cublasStatus_t cublasSspr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9652,7 +9652,7 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9674,7 +9674,7 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9686,7 +9686,7 @@ extern "C" cublasStatus_t cublasDspr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9717,7 +9717,7 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9739,7 +9739,7 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9751,7 +9751,7 @@ extern "C" cublasStatus_t cublasChpr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9782,7 +9782,7 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9804,7 +9804,7 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9816,7 +9816,7 @@ extern "C" cublasStatus_t cublasZhpr2_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9849,7 +9849,7 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9877,7 +9877,7 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9890,7 +9890,7 @@ extern "C" cublasStatus_t cublasSgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9923,7 +9923,7 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9951,7 +9951,7 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9964,7 +9964,7 @@ extern "C" cublasStatus_t cublasDgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9997,7 +9997,7 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10025,7 +10025,7 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10038,7 +10038,7 @@ extern "C" cublasStatus_t cublasCgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10071,7 +10071,7 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10099,7 +10099,7 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10112,7 +10112,7 @@ extern "C" cublasStatus_t cublasCgemm3m(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10145,7 +10145,7 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10176,7 +10176,7 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10189,7 +10189,7 @@ extern "C" cublasStatus_t cublasCgemm3mEx(cublasHandle_t handle, cublasOperation
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10222,7 +10222,7 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10250,7 +10250,7 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10263,7 +10263,7 @@ extern "C" cublasStatus_t cublasZgemm_v2(cublasHandle_t handle, cublasOperation_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10296,7 +10296,7 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10324,7 +10324,7 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10337,7 +10337,7 @@ extern "C" cublasStatus_t cublasZgemm3m(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10370,7 +10370,7 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10398,7 +10398,7 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10411,7 +10411,7 @@ extern "C" cublasStatus_t cublasHgemm(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10444,7 +10444,7 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10475,7 +10475,7 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10488,7 +10488,7 @@ extern "C" cublasStatus_t cublasSgemmEx(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10521,7 +10521,7 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10552,7 +10552,7 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10565,7 +10565,7 @@ extern "C" cublasStatus_t cublasCgemmEx(cublasHandle_t handle, cublasOperation_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10594,7 +10594,7 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10624,7 +10624,7 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10635,7 +10635,7 @@ extern "C" cublasStatus_t cublasUint8gemmBias(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10666,7 +10666,7 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10690,7 +10690,7 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10702,7 +10702,7 @@ extern "C" cublasStatus_t cublasSsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10733,7 +10733,7 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10757,7 +10757,7 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10769,7 +10769,7 @@ extern "C" cublasStatus_t cublasDsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10800,7 +10800,7 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10824,7 +10824,7 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10836,7 +10836,7 @@ extern "C" cublasStatus_t cublasCsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10867,7 +10867,7 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10891,7 +10891,7 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10903,7 +10903,7 @@ extern "C" cublasStatus_t cublasZsyrk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10934,7 +10934,7 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10960,7 +10960,7 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10972,7 +10972,7 @@ extern "C" cublasStatus_t cublasCsyrkEx(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11003,7 +11003,7 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11029,7 +11029,7 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11041,7 +11041,7 @@ extern "C" cublasStatus_t cublasCsyrk3mEx(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11072,7 +11072,7 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11096,7 +11096,7 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11108,7 +11108,7 @@ extern "C" cublasStatus_t cublasCherk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11139,7 +11139,7 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11163,7 +11163,7 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11175,7 +11175,7 @@ extern "C" cublasStatus_t cublasZherk_v2(cublasHandle_t handle, cublasFillMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11206,7 +11206,7 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11232,7 +11232,7 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11244,7 +11244,7 @@ extern "C" cublasStatus_t cublasCherkEx(cublasHandle_t handle, cublasFillMode_t 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11275,7 +11275,7 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11301,7 +11301,7 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11313,7 +11313,7 @@ extern "C" cublasStatus_t cublasCherk3mEx(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11346,7 +11346,7 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11373,7 +11373,7 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11386,7 +11386,7 @@ extern "C" cublasStatus_t cublasSsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11419,7 +11419,7 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11446,7 +11446,7 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11459,7 +11459,7 @@ extern "C" cublasStatus_t cublasDsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11492,7 +11492,7 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11519,7 +11519,7 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11532,7 +11532,7 @@ extern "C" cublasStatus_t cublasCsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11565,7 +11565,7 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11592,7 +11592,7 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11605,7 +11605,7 @@ extern "C" cublasStatus_t cublasZsyr2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11638,7 +11638,7 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11665,7 +11665,7 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11678,7 +11678,7 @@ extern "C" cublasStatus_t cublasCher2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11711,7 +11711,7 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11738,7 +11738,7 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11751,7 +11751,7 @@ extern "C" cublasStatus_t cublasZher2k_v2(cublasHandle_t handle, cublasFillMode_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11784,7 +11784,7 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11811,7 +11811,7 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11824,7 +11824,7 @@ extern "C" cublasStatus_t cublasSsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11857,7 +11857,7 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11884,7 +11884,7 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11897,7 +11897,7 @@ extern "C" cublasStatus_t cublasDsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11930,7 +11930,7 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11957,7 +11957,7 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11970,7 +11970,7 @@ extern "C" cublasStatus_t cublasCsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12003,7 +12003,7 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12030,7 +12030,7 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12043,7 +12043,7 @@ extern "C" cublasStatus_t cublasZsyrkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12076,7 +12076,7 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12103,7 +12103,7 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12116,7 +12116,7 @@ extern "C" cublasStatus_t cublasCherkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12149,7 +12149,7 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12176,7 +12176,7 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12189,7 +12189,7 @@ extern "C" cublasStatus_t cublasZherkx(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12222,7 +12222,7 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12249,7 +12249,7 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12262,7 +12262,7 @@ extern "C" cublasStatus_t cublasSsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12295,7 +12295,7 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12322,7 +12322,7 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12335,7 +12335,7 @@ extern "C" cublasStatus_t cublasDsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12368,7 +12368,7 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12395,7 +12395,7 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12408,7 +12408,7 @@ extern "C" cublasStatus_t cublasCsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12441,7 +12441,7 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12468,7 +12468,7 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12481,7 +12481,7 @@ extern "C" cublasStatus_t cublasZsymm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12514,7 +12514,7 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12541,7 +12541,7 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12554,7 +12554,7 @@ extern "C" cublasStatus_t cublasChemm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12587,7 +12587,7 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12614,7 +12614,7 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12627,7 +12627,7 @@ extern "C" cublasStatus_t cublasZhemm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12656,7 +12656,7 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12680,7 +12680,7 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12691,7 +12691,7 @@ extern "C" cublasStatus_t cublasStrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12720,7 +12720,7 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12744,7 +12744,7 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12755,7 +12755,7 @@ extern "C" cublasStatus_t cublasDtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12784,7 +12784,7 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12808,7 +12808,7 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12819,7 +12819,7 @@ extern "C" cublasStatus_t cublasCtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12848,7 +12848,7 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12872,7 +12872,7 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12883,7 +12883,7 @@ extern "C" cublasStatus_t cublasZtrsm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12914,7 +12914,7 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12941,7 +12941,7 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12953,7 +12953,7 @@ extern "C" cublasStatus_t cublasStrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12984,7 +12984,7 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13011,7 +13011,7 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13023,7 +13023,7 @@ extern "C" cublasStatus_t cublasDtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13054,7 +13054,7 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13081,7 +13081,7 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13093,7 +13093,7 @@ extern "C" cublasStatus_t cublasCtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13124,7 +13124,7 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13151,7 +13151,7 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13163,7 +13163,7 @@ extern "C" cublasStatus_t cublasZtrmm_v2(cublasHandle_t handle, cublasSideMode_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13190,7 +13190,7 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13216,7 +13216,7 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13226,7 +13226,7 @@ extern "C" cublasStatus_t cublasHgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13253,7 +13253,7 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13279,7 +13279,7 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13289,7 +13289,7 @@ extern "C" cublasStatus_t cublasSgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13316,7 +13316,7 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13342,7 +13342,7 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13352,7 +13352,7 @@ extern "C" cublasStatus_t cublasDgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13379,7 +13379,7 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13405,7 +13405,7 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13415,7 +13415,7 @@ extern "C" cublasStatus_t cublasCgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13442,7 +13442,7 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13468,7 +13468,7 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13478,7 +13478,7 @@ extern "C" cublasStatus_t cublasCgemm3mBatched(cublasHandle_t handle, cublasOper
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13505,7 +13505,7 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13531,7 +13531,7 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13541,7 +13541,7 @@ extern "C" cublasStatus_t cublasZgemmBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13574,7 +13574,7 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13606,7 +13606,7 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13619,7 +13619,7 @@ extern "C" cublasStatus_t cublasSgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13652,7 +13652,7 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13684,7 +13684,7 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13697,7 +13697,7 @@ extern "C" cublasStatus_t cublasDgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13730,7 +13730,7 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13762,7 +13762,7 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13775,7 +13775,7 @@ extern "C" cublasStatus_t cublasCgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13808,7 +13808,7 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13840,7 +13840,7 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13853,7 +13853,7 @@ extern "C" cublasStatus_t cublasCgemm3mStridedBatched(cublasHandle_t handle, cub
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13886,7 +13886,7 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13918,7 +13918,7 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13931,7 +13931,7 @@ extern "C" cublasStatus_t cublasZgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13964,7 +13964,7 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13996,7 +13996,7 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14009,7 +14009,7 @@ extern "C" cublasStatus_t cublasHgemmStridedBatched(cublasHandle_t handle, cubla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14042,7 +14042,7 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14069,7 +14069,7 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14082,7 +14082,7 @@ extern "C" cublasStatus_t cublasSgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14115,7 +14115,7 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14142,7 +14142,7 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14155,7 +14155,7 @@ extern "C" cublasStatus_t cublasDgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14188,7 +14188,7 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14215,7 +14215,7 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14228,7 +14228,7 @@ extern "C" cublasStatus_t cublasCgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14261,7 +14261,7 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14288,7 +14288,7 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14301,7 +14301,7 @@ extern "C" cublasStatus_t cublasZgeam(cublasHandle_t handle, cublasOperation_t t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14328,7 +14328,7 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14346,7 +14346,7 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14356,7 +14356,7 @@ extern "C" cublasStatus_t cublasSgetrfBatched(cublasHandle_t handle, int n, floa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14383,7 +14383,7 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14401,7 +14401,7 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14411,7 +14411,7 @@ extern "C" cublasStatus_t cublasDgetrfBatched(cublasHandle_t handle, int n, doub
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14438,7 +14438,7 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14456,7 +14456,7 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14466,7 +14466,7 @@ extern "C" cublasStatus_t cublasCgetrfBatched(cublasHandle_t handle, int n, cuCo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14493,7 +14493,7 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14511,7 +14511,7 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14521,7 +14521,7 @@ extern "C" cublasStatus_t cublasZgetrfBatched(cublasHandle_t handle, int n, cuDo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14548,7 +14548,7 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14568,7 +14568,7 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14578,7 +14578,7 @@ extern "C" cublasStatus_t cublasSgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14605,7 +14605,7 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14625,7 +14625,7 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14635,7 +14635,7 @@ extern "C" cublasStatus_t cublasDgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14662,7 +14662,7 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14682,7 +14682,7 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14692,7 +14692,7 @@ extern "C" cublasStatus_t cublasCgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14719,7 +14719,7 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14739,7 +14739,7 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14749,7 +14749,7 @@ extern "C" cublasStatus_t cublasZgetriBatched(cublasHandle_t handle, int n, cons
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14776,7 +14776,7 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14798,7 +14798,7 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14808,7 +14808,7 @@ extern "C" cublasStatus_t cublasSgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14835,7 +14835,7 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14857,7 +14857,7 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14867,7 +14867,7 @@ extern "C" cublasStatus_t cublasDgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14894,7 +14894,7 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14916,7 +14916,7 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14926,7 +14926,7 @@ extern "C" cublasStatus_t cublasCgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14953,7 +14953,7 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14975,7 +14975,7 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14985,7 +14985,7 @@ extern "C" cublasStatus_t cublasZgetrsBatched(cublasHandle_t handle, cublasOpera
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15010,7 +15010,7 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15033,7 +15033,7 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15042,7 +15042,7 @@ extern "C" cublasStatus_t cublasStrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15067,7 +15067,7 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15090,7 +15090,7 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15099,7 +15099,7 @@ extern "C" cublasStatus_t cublasDtrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15124,7 +15124,7 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15147,7 +15147,7 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15156,7 +15156,7 @@ extern "C" cublasStatus_t cublasCtrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15181,7 +15181,7 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15204,7 +15204,7 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15213,7 +15213,7 @@ extern "C" cublasStatus_t cublasZtrsmBatched(cublasHandle_t handle, cublasSideMo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15238,7 +15238,7 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15256,7 +15256,7 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15265,7 +15265,7 @@ extern "C" cublasStatus_t cublasSmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15290,7 +15290,7 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15308,7 +15308,7 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15317,7 +15317,7 @@ extern "C" cublasStatus_t cublasDmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15342,7 +15342,7 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15360,7 +15360,7 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15369,7 +15369,7 @@ extern "C" cublasStatus_t cublasCmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15394,7 +15394,7 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15412,7 +15412,7 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15421,7 +15421,7 @@ extern "C" cublasStatus_t cublasZmatinvBatched(cublasHandle_t handle, int n, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15446,7 +15446,7 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15464,7 +15464,7 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15473,7 +15473,7 @@ extern "C" cublasStatus_t cublasSgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15498,7 +15498,7 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15516,7 +15516,7 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15525,7 +15525,7 @@ extern "C" cublasStatus_t cublasDgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15550,7 +15550,7 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15568,7 +15568,7 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15577,7 +15577,7 @@ extern "C" cublasStatus_t cublasCgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15602,7 +15602,7 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15620,7 +15620,7 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15629,7 +15629,7 @@ extern "C" cublasStatus_t cublasZgeqrfBatched(cublasHandle_t handle, int m, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15656,7 +15656,7 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15679,7 +15679,7 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15689,7 +15689,7 @@ extern "C" cublasStatus_t cublasSgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15716,7 +15716,7 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15739,7 +15739,7 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15749,7 +15749,7 @@ extern "C" cublasStatus_t cublasDgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15776,7 +15776,7 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15799,7 +15799,7 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15809,7 +15809,7 @@ extern "C" cublasStatus_t cublasCgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15836,7 +15836,7 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15859,7 +15859,7 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15869,7 +15869,7 @@ extern "C" cublasStatus_t cublasZgelsBatched(cublasHandle_t handle, cublasOperat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15898,7 +15898,7 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15920,7 +15920,7 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15931,7 +15931,7 @@ extern "C" cublasStatus_t cublasSdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15960,7 +15960,7 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15982,7 +15982,7 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15993,7 +15993,7 @@ extern "C" cublasStatus_t cublasDdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16022,7 +16022,7 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16044,7 +16044,7 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16055,7 +16055,7 @@ extern "C" cublasStatus_t cublasCdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16084,7 +16084,7 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16106,7 +16106,7 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16117,7 +16117,7 @@ extern "C" cublasStatus_t cublasZdgmm(cublasHandle_t handle, cublasSideMode_t mo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16144,7 +16144,7 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16161,7 +16161,7 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16171,7 +16171,7 @@ extern "C" cublasStatus_t cublasStpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16198,7 +16198,7 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16215,7 +16215,7 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16225,7 +16225,7 @@ extern "C" cublasStatus_t cublasDtpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16252,7 +16252,7 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16269,7 +16269,7 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16279,7 +16279,7 @@ extern "C" cublasStatus_t cublasCtpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16306,7 +16306,7 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16323,7 +16323,7 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16333,7 +16333,7 @@ extern "C" cublasStatus_t cublasZtpttr(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16360,7 +16360,7 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16377,7 +16377,7 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16387,7 +16387,7 @@ extern "C" cublasStatus_t cublasStrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16414,7 +16414,7 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16431,7 +16431,7 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16441,7 +16441,7 @@ extern "C" cublasStatus_t cublasDtrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16468,7 +16468,7 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16485,7 +16485,7 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16495,7 +16495,7 @@ extern "C" cublasStatus_t cublasCtrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16522,7 +16522,7 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -16539,7 +16539,7 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -16549,7 +16549,7 @@ extern "C" cublasStatus_t cublasZtrttp(cublasHandle_t handle, cublasFillMode_t u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }

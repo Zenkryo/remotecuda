@@ -41,6 +41,7 @@ typedef struct __cudaFatCudaBinary2EntryRec {
 enum FatBin2EntryType { FATBIN_2_PTX = 0x1 };
 
 #define FATBIN_FLAG_COMPRESS 0x0000000000002000LL
+#define RPC_mem2server_async 0x11223344
 
 extern "C" char __cudaInitModule(void **fatCubinHandle);
 

@@ -135,12 +135,25 @@ ERROR:
     }
     return ret;
 }
-void handle_mem2client_async_callback(cudaStream_t stream, cudaError_t status, void *userData) {
+
+void mem2client_async_task(cudaStream_t stream, cudaError_t status, void *userData) {
     Async2ClientInfo *async2clients = (Async2ClientInfo *)userData;
-    for(auto async2client : async2clients->async2clients) {
-        // handle_mem2client(async2client);
+    RpcConn *conn = RpcServer::getInstance().get_async_conn(async2clients->client_id);
+    if(conn == nullptr) {
+        std::cerr << "Failed to get conn" << std::endl;
+        return;
     }
-    return;
+    conn->prepare_request(RPC_mem2server_async);
+    for(auto async2client : async2clients->async2clients) {
+        conn->write(&async2client.clientPtr, sizeof(async2client.clientPtr));
+        conn->write(async2client.serverPtr, async2client.size, true);
+    }
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        RpcServer::getInstance().release_async_conn(conn, true);
+        return;
+    }
+    RpcServer::getInstance().release_async_conn(conn);
 }
 
 int handle_mem2client_async(void *args0) {
@@ -190,7 +203,7 @@ int handle_mem2client_async(void *args0) {
         }
         async2clients->async2clients.push_back({clientPtrs[i], ptrs[i], sizes[i], (bool)del_tmp_ptrs[i]});
     }
-    cudaStreamAddCallback(stream, handle_mem2client_async_callback, (void *)async2clients, 0);
+    cudaStreamAddCallback(stream, mem2client_async_task, (void *)async2clients, 0);
     return 0;
 }
 

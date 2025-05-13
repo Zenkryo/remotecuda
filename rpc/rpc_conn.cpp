@@ -285,6 +285,7 @@ RpcError RpcConn::disconnect() {
 }
 
 void RpcConn::prepare_request(uint32_t func_id) {
+
     func_id_ = func_id;
     iov_send_.clear();
     iov_send2_.clear();

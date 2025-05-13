@@ -19,7 +19,7 @@ extern "C" CUresult cuInit(unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -29,7 +29,7 @@ extern "C" CUresult cuInit(unsigned int Flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -37,7 +37,7 @@ extern "C" CUresult cuInit(unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -62,7 +62,7 @@ extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -73,7 +73,7 @@ extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -82,7 +82,7 @@ extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -107,7 +107,7 @@ extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -119,7 +119,7 @@ extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -128,7 +128,7 @@ extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -153,7 +153,7 @@ extern "C" CUresult cuDeviceGetCount(int *count) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -164,7 +164,7 @@ extern "C" CUresult cuDeviceGetCount(int *count) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -173,7 +173,7 @@ extern "C" CUresult cuDeviceGetCount(int *count) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -196,7 +196,7 @@ extern "C" CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -210,7 +210,7 @@ extern "C" CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -218,7 +218,7 @@ extern "C" CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -243,7 +243,7 @@ extern "C" CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -255,7 +255,7 @@ extern "C" CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -264,7 +264,7 @@ extern "C" CUresult cuDeviceGetUuid(CUuuid *uuid, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -289,7 +289,7 @@ extern "C" CUresult cuDeviceGetUuid_v2(CUuuid *uuid, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -301,7 +301,7 @@ extern "C" CUresult cuDeviceGetUuid_v2(CUuuid *uuid, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -310,7 +310,7 @@ extern "C" CUresult cuDeviceGetUuid_v2(CUuuid *uuid, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -335,7 +335,7 @@ extern "C" CUresult cuDeviceGetLuid(char *luid, unsigned int *deviceNodeMask, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -350,7 +350,7 @@ extern "C" CUresult cuDeviceGetLuid(char *luid, unsigned int *deviceNodeMask, CU
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -359,7 +359,7 @@ extern "C" CUresult cuDeviceGetLuid(char *luid, unsigned int *deviceNodeMask, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -384,7 +384,7 @@ extern "C" CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -396,7 +396,7 @@ extern "C" CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -405,7 +405,7 @@ extern "C" CUresult cuDeviceTotalMem_v2(size_t *bytes, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -430,7 +430,7 @@ extern "C" CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInElement
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -444,7 +444,7 @@ extern "C" CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInElement
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -453,7 +453,7 @@ extern "C" CUresult cuDeviceGetTexture1DLinearMaxWidth(size_t *maxWidthInElement
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -478,7 +478,7 @@ extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUd
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -491,7 +491,7 @@ extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUd
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -500,7 +500,7 @@ extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUd
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -525,7 +525,7 @@ extern "C" CUresult cuDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList, CUde
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -538,7 +538,7 @@ extern "C" CUresult cuDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList, CUde
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -547,7 +547,7 @@ extern "C" CUresult cuDeviceGetNvSciSyncAttributes(void *nvSciSyncAttrList, CUde
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -570,7 +570,7 @@ extern "C" CUresult cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -581,7 +581,7 @@ extern "C" CUresult cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -589,7 +589,7 @@ extern "C" CUresult cuDeviceSetMemPool(CUdevice dev, CUmemoryPool pool) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -614,7 +614,7 @@ extern "C" CUresult cuDeviceGetMemPool(CUmemoryPool *pool, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -626,7 +626,7 @@ extern "C" CUresult cuDeviceGetMemPool(CUmemoryPool *pool, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -635,7 +635,7 @@ extern "C" CUresult cuDeviceGetMemPool(CUmemoryPool *pool, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -660,7 +660,7 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -672,7 +672,7 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -681,7 +681,7 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -706,7 +706,7 @@ extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -718,7 +718,7 @@ extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -727,7 +727,7 @@ extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -754,7 +754,7 @@ extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -768,7 +768,7 @@ extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice d
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -778,7 +778,7 @@ extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -803,7 +803,7 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -815,7 +815,7 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -824,7 +824,7 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -847,7 +847,7 @@ extern "C" CUresult cuDevicePrimaryCtxRelease_v2(CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -857,7 +857,7 @@ extern "C" CUresult cuDevicePrimaryCtxRelease_v2(CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -865,7 +865,7 @@ extern "C" CUresult cuDevicePrimaryCtxRelease_v2(CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -888,7 +888,7 @@ extern "C" CUresult cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int fla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -899,7 +899,7 @@ extern "C" CUresult cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int fla
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -907,7 +907,7 @@ extern "C" CUresult cuDevicePrimaryCtxSetFlags_v2(CUdevice dev, unsigned int fla
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -934,7 +934,7 @@ extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -948,7 +948,7 @@ extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -958,7 +958,7 @@ extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -981,7 +981,7 @@ extern "C" CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -991,7 +991,7 @@ extern "C" CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -999,7 +999,7 @@ extern "C" CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1024,7 +1024,7 @@ extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1037,7 +1037,7 @@ extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1046,7 +1046,7 @@ extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1071,7 +1071,7 @@ extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1084,7 +1084,7 @@ extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1093,7 +1093,7 @@ extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1120,7 +1120,7 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1136,7 +1136,7 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1146,7 +1146,7 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1169,7 +1169,7 @@ extern "C" CUresult cuCtxDestroy_v2(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1179,7 +1179,7 @@ extern "C" CUresult cuCtxDestroy_v2(CUcontext ctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1187,7 +1187,7 @@ extern "C" CUresult cuCtxDestroy_v2(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1210,7 +1210,7 @@ extern "C" CUresult cuCtxPushCurrent_v2(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1220,7 +1220,7 @@ extern "C" CUresult cuCtxPushCurrent_v2(CUcontext ctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1228,7 +1228,7 @@ extern "C" CUresult cuCtxPushCurrent_v2(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1253,7 +1253,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1264,7 +1264,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1273,7 +1273,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1296,7 +1296,7 @@ extern "C" CUresult cuCtxSetCurrent(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1306,7 +1306,7 @@ extern "C" CUresult cuCtxSetCurrent(CUcontext ctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1314,7 +1314,7 @@ extern "C" CUresult cuCtxSetCurrent(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1339,7 +1339,7 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1350,7 +1350,7 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1359,7 +1359,7 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1384,7 +1384,7 @@ extern "C" CUresult cuCtxGetDevice(CUdevice *device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1395,7 +1395,7 @@ extern "C" CUresult cuCtxGetDevice(CUdevice *device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1404,7 +1404,7 @@ extern "C" CUresult cuCtxGetDevice(CUdevice *device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1429,7 +1429,7 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1440,7 +1440,7 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1449,7 +1449,7 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1472,7 +1472,7 @@ extern "C" CUresult cuCtxSynchronize() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1481,7 +1481,7 @@ extern "C" CUresult cuCtxSynchronize() {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1489,7 +1489,7 @@ extern "C" CUresult cuCtxSynchronize() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1512,7 +1512,7 @@ extern "C" CUresult cuCtxSetLimit(CUlimit limit, size_t value) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1523,7 +1523,7 @@ extern "C" CUresult cuCtxSetLimit(CUlimit limit, size_t value) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1531,7 +1531,7 @@ extern "C" CUresult cuCtxSetLimit(CUlimit limit, size_t value) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1556,7 +1556,7 @@ extern "C" CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1568,7 +1568,7 @@ extern "C" CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1577,7 +1577,7 @@ extern "C" CUresult cuCtxGetLimit(size_t *pvalue, CUlimit limit) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1602,7 +1602,7 @@ extern "C" CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1613,7 +1613,7 @@ extern "C" CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1622,7 +1622,7 @@ extern "C" CUresult cuCtxGetCacheConfig(CUfunc_cache *pconfig) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1645,7 +1645,7 @@ extern "C" CUresult cuCtxSetCacheConfig(CUfunc_cache config) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1655,7 +1655,7 @@ extern "C" CUresult cuCtxSetCacheConfig(CUfunc_cache config) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1663,7 +1663,7 @@ extern "C" CUresult cuCtxSetCacheConfig(CUfunc_cache config) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1688,7 +1688,7 @@ extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1699,7 +1699,7 @@ extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1708,7 +1708,7 @@ extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1731,7 +1731,7 @@ extern "C" CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1741,7 +1741,7 @@ extern "C" CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1749,7 +1749,7 @@ extern "C" CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1774,7 +1774,7 @@ extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1786,7 +1786,7 @@ extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1795,7 +1795,7 @@ extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1822,7 +1822,7 @@ extern "C" CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greates
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1835,7 +1835,7 @@ extern "C" CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greates
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1845,7 +1845,7 @@ extern "C" CUresult cuCtxGetStreamPriorityRange(int *leastPriority, int *greates
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1868,7 +1868,7 @@ extern "C" CUresult cuCtxResetPersistingL2Cache() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1877,7 +1877,7 @@ extern "C" CUresult cuCtxResetPersistingL2Cache() {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1885,7 +1885,7 @@ extern "C" CUresult cuCtxResetPersistingL2Cache() {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1910,7 +1910,7 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1922,7 +1922,7 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1931,7 +1931,7 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1956,7 +1956,7 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -1968,7 +1968,7 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -1977,7 +1977,7 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2000,7 +2000,7 @@ extern "C" CUresult cuCtxDetach(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2010,7 +2010,7 @@ extern "C" CUresult cuCtxDetach(CUcontext ctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2018,7 +2018,7 @@ extern "C" CUresult cuCtxDetach(CUcontext ctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2043,7 +2043,7 @@ extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2055,7 +2055,7 @@ extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2064,7 +2064,7 @@ extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2091,7 +2091,7 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2104,7 +2104,7 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2114,7 +2114,7 @@ extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2145,7 +2145,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2162,7 +2162,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **optionValues
@@ -2175,7 +2175,7 @@ extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2203,7 +2203,7 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2216,7 +2216,7 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2226,7 +2226,7 @@ extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2249,7 +2249,7 @@ extern "C" CUresult cuModuleUnload(CUmodule hmod) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2259,7 +2259,7 @@ extern "C" CUresult cuModuleUnload(CUmodule hmod) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2267,7 +2267,7 @@ extern "C" CUresult cuModuleUnload(CUmodule hmod) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2292,7 +2292,7 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2305,7 +2305,7 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2314,7 +2314,7 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2339,7 +2339,7 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2352,7 +2352,7 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2361,7 +2361,7 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2386,7 +2386,7 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2399,7 +2399,7 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2408,7 +2408,7 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2437,7 +2437,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2452,7 +2452,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **optionValues
@@ -2464,7 +2464,7 @@ extern "C" CUresult cuLinkCreate_v2(unsigned int numOptions, CUjit_option *optio
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2494,7 +2494,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2513,7 +2513,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **optionValues
@@ -2525,7 +2525,7 @@ extern "C" CUresult cuLinkAddData_v2(CUlinkState state, CUjitInputType type, voi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2553,7 +2553,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2569,7 +2569,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **optionValues
@@ -2580,7 +2580,7 @@ extern "C" CUresult cuLinkAddFile_v2(CUlinkState state, CUjitInputType type, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2608,7 +2608,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2621,7 +2621,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **cubinOut
@@ -2632,7 +2632,7 @@ extern "C" CUresult cuLinkComplete(CUlinkState state, void **cubinOut, size_t *s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2656,7 +2656,7 @@ extern "C" CUresult cuLinkDestroy(CUlinkState state) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2666,7 +2666,7 @@ extern "C" CUresult cuLinkDestroy(CUlinkState state) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2674,7 +2674,7 @@ extern "C" CUresult cuLinkDestroy(CUlinkState state) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2701,7 +2701,7 @@ extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2714,7 +2714,7 @@ extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2724,7 +2724,7 @@ extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2749,7 +2749,7 @@ extern "C" CUresult cuMemFree_v2(CUdeviceptr dptr) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2760,7 +2760,7 @@ extern "C" CUresult cuMemFree_v2(CUdeviceptr dptr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2769,7 +2769,7 @@ extern "C" CUresult cuMemFree_v2(CUdeviceptr dptr) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2796,7 +2796,7 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2809,7 +2809,7 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2819,7 +2819,7 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2844,7 +2844,7 @@ extern "C" CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2856,7 +2856,7 @@ extern "C" CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2865,7 +2865,7 @@ extern "C" CUresult cuDeviceGetByPCIBusId(CUdevice *dev, const char *pciBusId) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2888,7 +2888,7 @@ extern "C" CUresult cuDeviceGetPCIBusId(char *pciBusId, int len, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2902,7 +2902,7 @@ extern "C" CUresult cuDeviceGetPCIBusId(char *pciBusId, int len, CUdevice dev) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2910,7 +2910,7 @@ extern "C" CUresult cuDeviceGetPCIBusId(char *pciBusId, int len, CUdevice dev) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2935,7 +2935,7 @@ extern "C" CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2947,7 +2947,7 @@ extern "C" CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -2956,7 +2956,7 @@ extern "C" CUresult cuIpcGetEventHandle(CUipcEventHandle *pHandle, CUevent event
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2981,7 +2981,7 @@ extern "C" CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle hand
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -2993,7 +2993,7 @@ extern "C" CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle hand
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3002,7 +3002,7 @@ extern "C" CUresult cuIpcOpenEventHandle(CUevent *phEvent, CUipcEventHandle hand
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3029,7 +3029,7 @@ extern "C" CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3042,7 +3042,7 @@ extern "C" CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3052,7 +3052,7 @@ extern "C" CUresult cuIpcGetMemHandle(CUipcMemHandle *pHandle, CUdeviceptr dptr)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3077,7 +3077,7 @@ extern "C" CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3088,7 +3088,7 @@ extern "C" CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3097,7 +3097,7 @@ extern "C" CUresult cuIpcCloseMemHandle(CUdeviceptr dptr) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3122,7 +3122,7 @@ extern "C" CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3135,7 +3135,7 @@ extern "C" CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3144,7 +3144,7 @@ extern "C" CUresult cuMemHostRegister_v2(void *p, size_t bytesize, unsigned int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3169,7 +3169,7 @@ extern "C" CUresult cuMemHostUnregister(void *p) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3180,7 +3180,7 @@ extern "C" CUresult cuMemHostUnregister(void *p) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3189,7 +3189,7 @@ extern "C" CUresult cuMemHostUnregister(void *p) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3216,7 +3216,7 @@ extern "C" CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3230,7 +3230,7 @@ extern "C" CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3240,7 +3240,7 @@ extern "C" CUresult cuMemcpy(CUdeviceptr dst, CUdeviceptr src, size_t ByteCount)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3267,7 +3267,7 @@ extern "C" CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3283,7 +3283,7 @@ extern "C" CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CU
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3293,7 +3293,7 @@ extern "C" CUresult cuMemcpyPeer(CUdeviceptr dstDevice, CUcontext dstContext, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3320,7 +3320,7 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3334,7 +3334,7 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3344,7 +3344,7 @@ extern "C" CUresult cuMemcpyHtoD_v2(CUdeviceptr dstDevice, const void *srcHost, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3371,7 +3371,7 @@ extern "C" CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3385,7 +3385,7 @@ extern "C" CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3395,7 +3395,7 @@ extern "C" CUresult cuMemcpyDtoH_v2(void *dstHost, CUdeviceptr srcDevice, size_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3422,7 +3422,7 @@ extern "C" CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3436,7 +3436,7 @@ extern "C" CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3446,7 +3446,7 @@ extern "C" CUresult cuMemcpyDtoD_v2(CUdeviceptr dstDevice, CUdeviceptr srcDevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3471,7 +3471,7 @@ extern "C" CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3485,7 +3485,7 @@ extern "C" CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdevice
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3494,7 +3494,7 @@ extern "C" CUresult cuMemcpyDtoA_v2(CUarray dstArray, size_t dstOffset, CUdevice
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3519,7 +3519,7 @@ extern "C" CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3533,7 +3533,7 @@ extern "C" CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, siz
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3542,7 +3542,7 @@ extern "C" CUresult cuMemcpyAtoD_v2(CUdeviceptr dstDevice, CUarray srcArray, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3567,7 +3567,7 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3581,7 +3581,7 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3590,7 +3590,7 @@ extern "C" CUresult cuMemcpyHtoA_v2(CUarray dstArray, size_t dstOffset, const vo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3615,7 +3615,7 @@ extern "C" CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcO
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3629,7 +3629,7 @@ extern "C" CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcO
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3638,7 +3638,7 @@ extern "C" CUresult cuMemcpyAtoH_v2(void *dstHost, CUarray srcArray, size_t srcO
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3661,7 +3661,7 @@ extern "C" CUresult cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3675,7 +3675,7 @@ extern "C" CUresult cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3683,7 +3683,7 @@ extern "C" CUresult cuMemcpyAtoA_v2(CUarray dstArray, size_t dstOffset, CUarray 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3708,7 +3708,7 @@ extern "C" CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3719,7 +3719,7 @@ extern "C" CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3728,7 +3728,7 @@ extern "C" CUresult cuMemcpy2D_v2(const CUDA_MEMCPY2D *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3753,7 +3753,7 @@ extern "C" CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3764,7 +3764,7 @@ extern "C" CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3773,7 +3773,7 @@ extern "C" CUresult cuMemcpy2DUnaligned_v2(const CUDA_MEMCPY2D *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3798,7 +3798,7 @@ extern "C" CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3809,7 +3809,7 @@ extern "C" CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3818,7 +3818,7 @@ extern "C" CUresult cuMemcpy3D_v2(const CUDA_MEMCPY3D *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3843,7 +3843,7 @@ extern "C" CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3854,7 +3854,7 @@ extern "C" CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3863,7 +3863,7 @@ extern "C" CUresult cuMemcpy3DPeer(const CUDA_MEMCPY3D_PEER *pCopy) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3890,7 +3890,7 @@ extern "C" CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3905,7 +3905,7 @@ extern "C" CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3915,7 +3915,7 @@ extern "C" CUresult cuMemcpyAsync(CUdeviceptr dst, CUdeviceptr src, size_t ByteC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3942,7 +3942,7 @@ extern "C" CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3959,7 +3959,7 @@ extern "C" CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContex
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -3969,7 +3969,7 @@ extern "C" CUresult cuMemcpyPeerAsync(CUdeviceptr dstDevice, CUcontext dstContex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -3996,7 +3996,7 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4011,7 +4011,7 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4021,7 +4021,7 @@ extern "C" CUresult cuMemcpyHtoDAsync_v2(CUdeviceptr dstDevice, const void *srcH
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4048,7 +4048,7 @@ extern "C" CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4063,7 +4063,7 @@ extern "C" CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, s
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4073,7 +4073,7 @@ extern "C" CUresult cuMemcpyDtoHAsync_v2(void *dstHost, CUdeviceptr srcDevice, s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4100,7 +4100,7 @@ extern "C" CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4115,7 +4115,7 @@ extern "C" CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcD
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4125,7 +4125,7 @@ extern "C" CUresult cuMemcpyDtoDAsync_v2(CUdeviceptr dstDevice, CUdeviceptr srcD
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4150,7 +4150,7 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4165,7 +4165,7 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4174,7 +4174,7 @@ extern "C" CUresult cuMemcpyHtoAAsync_v2(CUarray dstArray, size_t dstOffset, con
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4199,7 +4199,7 @@ extern "C" CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4214,7 +4214,7 @@ extern "C" CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4223,7 +4223,7 @@ extern "C" CUresult cuMemcpyAtoHAsync_v2(void *dstHost, CUarray srcArray, size_t
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4248,7 +4248,7 @@ extern "C" CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4260,7 +4260,7 @@ extern "C" CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStr
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4269,7 +4269,7 @@ extern "C" CUresult cuMemcpy2DAsync_v2(const CUDA_MEMCPY2D *pCopy, CUstream hStr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4294,7 +4294,7 @@ extern "C" CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4306,7 +4306,7 @@ extern "C" CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStr
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4315,7 +4315,7 @@ extern "C" CUresult cuMemcpy3DAsync_v2(const CUDA_MEMCPY3D *pCopy, CUstream hStr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4340,7 +4340,7 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4352,7 +4352,7 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4361,7 +4361,7 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4386,7 +4386,7 @@ extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4399,7 +4399,7 @@ extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4408,7 +4408,7 @@ extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4433,7 +4433,7 @@ extern "C" CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4446,7 +4446,7 @@ extern "C" CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, siz
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4455,7 +4455,7 @@ extern "C" CUresult cuMemsetD16_v2(CUdeviceptr dstDevice, unsigned short us, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4480,7 +4480,7 @@ extern "C" CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4493,7 +4493,7 @@ extern "C" CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4502,7 +4502,7 @@ extern "C" CUresult cuMemsetD32_v2(CUdeviceptr dstDevice, unsigned int ui, size_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4527,7 +4527,7 @@ extern "C" CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4542,7 +4542,7 @@ extern "C" CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4551,7 +4551,7 @@ extern "C" CUresult cuMemsetD2D8_v2(CUdeviceptr dstDevice, size_t dstPitch, unsi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4576,7 +4576,7 @@ extern "C" CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4591,7 +4591,7 @@ extern "C" CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4600,7 +4600,7 @@ extern "C" CUresult cuMemsetD2D16_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4625,7 +4625,7 @@ extern "C" CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4640,7 +4640,7 @@ extern "C" CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4649,7 +4649,7 @@ extern "C" CUresult cuMemsetD2D32_v2(CUdeviceptr dstDevice, size_t dstPitch, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4674,7 +4674,7 @@ extern "C" CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4688,7 +4688,7 @@ extern "C" CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, siz
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4697,7 +4697,7 @@ extern "C" CUresult cuMemsetD8Async(CUdeviceptr dstDevice, unsigned char uc, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4722,7 +4722,7 @@ extern "C" CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4736,7 +4736,7 @@ extern "C" CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, s
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4745,7 +4745,7 @@ extern "C" CUresult cuMemsetD16Async(CUdeviceptr dstDevice, unsigned short us, s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4770,7 +4770,7 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4784,7 +4784,7 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4793,7 +4793,7 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4818,7 +4818,7 @@ extern "C" CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, un
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4834,7 +4834,7 @@ extern "C" CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, un
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4843,7 +4843,7 @@ extern "C" CUresult cuMemsetD2D8Async(CUdeviceptr dstDevice, size_t dstPitch, un
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4868,7 +4868,7 @@ extern "C" CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4884,7 +4884,7 @@ extern "C" CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4893,7 +4893,7 @@ extern "C" CUresult cuMemsetD2D16Async(CUdeviceptr dstDevice, size_t dstPitch, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4918,7 +4918,7 @@ extern "C" CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4934,7 +4934,7 @@ extern "C" CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, u
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4943,7 +4943,7 @@ extern "C" CUresult cuMemsetD2D32Async(CUdeviceptr dstDevice, size_t dstPitch, u
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4970,7 +4970,7 @@ extern "C" CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPT
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -4983,7 +4983,7 @@ extern "C" CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPT
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -4993,7 +4993,7 @@ extern "C" CUresult cuArrayCreate_v2(CUarray *pHandle, const CUDA_ARRAY_DESCRIPT
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5018,7 +5018,7 @@ extern "C" CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescrip
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5030,7 +5030,7 @@ extern "C" CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescrip
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5039,7 +5039,7 @@ extern "C" CUresult cuArrayGetDescriptor_v2(CUDA_ARRAY_DESCRIPTOR *pArrayDescrip
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5064,7 +5064,7 @@ extern "C" CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES *spa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5076,7 +5076,7 @@ extern "C" CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES *spa
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5085,7 +5085,7 @@ extern "C" CUresult cuArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPERTIES *spa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5110,7 +5110,7 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5122,7 +5122,7 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5131,7 +5131,7 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5156,7 +5156,7 @@ extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5169,7 +5169,7 @@ extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5178,7 +5178,7 @@ extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5201,7 +5201,7 @@ extern "C" CUresult cuArrayDestroy(CUarray hArray) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5211,7 +5211,7 @@ extern "C" CUresult cuArrayDestroy(CUarray hArray) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5219,7 +5219,7 @@ extern "C" CUresult cuArrayDestroy(CUarray hArray) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5246,7 +5246,7 @@ extern "C" CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5259,7 +5259,7 @@ extern "C" CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESC
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5269,7 +5269,7 @@ extern "C" CUresult cuArray3DCreate_v2(CUarray *pHandle, const CUDA_ARRAY3D_DESC
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5294,7 +5294,7 @@ extern "C" CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5306,7 +5306,7 @@ extern "C" CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDes
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5315,7 +5315,7 @@ extern "C" CUresult cuArray3DGetDescriptor_v2(CUDA_ARRAY3D_DESCRIPTOR *pArrayDes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5342,7 +5342,7 @@ extern "C" CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5356,7 +5356,7 @@ extern "C" CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5366,7 +5366,7 @@ extern "C" CUresult cuMipmappedArrayCreate(CUmipmappedArray *pHandle, const CUDA
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5391,7 +5391,7 @@ extern "C" CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedAr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5404,7 +5404,7 @@ extern "C" CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedAr
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5413,7 +5413,7 @@ extern "C" CUresult cuMipmappedArrayGetLevel(CUarray *pLevelArray, CUmipmappedAr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5436,7 +5436,7 @@ extern "C" CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5446,7 +5446,7 @@ extern "C" CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5454,7 +5454,7 @@ extern "C" CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5479,7 +5479,7 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5491,7 +5491,7 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5500,7 +5500,7 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr ptr, size_t size) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5525,7 +5525,7 @@ extern "C" CUresult cuMemMapArrayAsync(CUarrayMapInfo *mapInfoList, unsigned int
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5538,7 +5538,7 @@ extern "C" CUresult cuMemMapArrayAsync(CUarrayMapInfo *mapInfoList, unsigned int
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5547,7 +5547,7 @@ extern "C" CUresult cuMemMapArrayAsync(CUarrayMapInfo *mapInfoList, unsigned int
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5572,7 +5572,7 @@ extern "C" CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5584,7 +5584,7 @@ extern "C" CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5593,7 +5593,7 @@ extern "C" CUresult cuMemUnmap(CUdeviceptr ptr, size_t size) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5620,7 +5620,7 @@ extern "C" CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAcce
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5635,7 +5635,7 @@ extern "C" CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAcce
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5645,7 +5645,7 @@ extern "C" CUresult cuMemSetAccess(CUdeviceptr ptr, size_t size, const CUmemAcce
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5674,7 +5674,7 @@ extern "C" CUresult cuMemGetAccess(unsigned long long *flags, const CUmemLocatio
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5689,7 +5689,7 @@ extern "C" CUresult cuMemGetAccess(unsigned long long *flags, const CUmemLocatio
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5700,7 +5700,7 @@ extern "C" CUresult cuMemGetAccess(unsigned long long *flags, const CUmemLocatio
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5725,7 +5725,7 @@ extern "C" CUresult cuMemExportToShareableHandle(void *shareableHandle, CUmemGen
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5739,7 +5739,7 @@ extern "C" CUresult cuMemExportToShareableHandle(void *shareableHandle, CUmemGen
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5748,7 +5748,7 @@ extern "C" CUresult cuMemExportToShareableHandle(void *shareableHandle, CUmemGen
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5775,7 +5775,7 @@ extern "C" CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5789,7 +5789,7 @@ extern "C" CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5799,7 +5799,7 @@ extern "C" CUresult cuMemImportFromShareableHandle(CUmemGenericAllocationHandle 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5826,7 +5826,7 @@ extern "C" CUresult cuMemGetAllocationGranularity(size_t *granularity, const CUm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5840,7 +5840,7 @@ extern "C" CUresult cuMemGetAllocationGranularity(size_t *granularity, const CUm
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5850,7 +5850,7 @@ extern "C" CUresult cuMemGetAllocationGranularity(size_t *granularity, const CUm
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5875,7 +5875,7 @@ extern "C" CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5887,7 +5887,7 @@ extern "C" CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5896,7 +5896,7 @@ extern "C" CUresult cuMemGetAllocationPropertiesFromHandle(CUmemAllocationProp *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5923,7 +5923,7 @@ extern "C" CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle *ha
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5936,7 +5936,7 @@ extern "C" CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle *ha
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5946,7 +5946,7 @@ extern "C" CUresult cuMemRetainAllocationHandle(CUmemGenericAllocationHandle *ha
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5971,7 +5971,7 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -5983,7 +5983,7 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -5992,7 +5992,7 @@ extern "C" CUresult cuMemFreeAsync(CUdeviceptr dptr, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6017,7 +6017,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6030,7 +6030,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6039,7 +6039,7 @@ extern "C" CUresult cuMemAllocAsync(CUdeviceptr *dptr, size_t bytesize, CUstream
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6062,7 +6062,7 @@ extern "C" CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6073,7 +6073,7 @@ extern "C" CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6081,7 +6081,7 @@ extern "C" CUresult cuMemPoolTrimTo(CUmemoryPool pool, size_t minBytesToKeep) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6106,7 +6106,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6119,7 +6119,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6128,7 +6128,7 @@ extern "C" CUresult cuMemPoolSetAttribute(CUmemoryPool pool, CUmemPool_attribute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6153,7 +6153,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6166,7 +6166,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6175,7 +6175,7 @@ extern "C" CUresult cuMemPoolGetAttribute(CUmemoryPool pool, CUmemPool_attribute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6200,7 +6200,7 @@ extern "C" CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6213,7 +6213,7 @@ extern "C" CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6222,7 +6222,7 @@ extern "C" CUresult cuMemPoolSetAccess(CUmemoryPool pool, const CUmemAccessDesc 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6249,7 +6249,7 @@ extern "C" CUresult cuMemPoolGetAccess(CUmemAccess_flags *flags, CUmemoryPool me
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6263,7 +6263,7 @@ extern "C" CUresult cuMemPoolGetAccess(CUmemAccess_flags *flags, CUmemoryPool me
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6273,7 +6273,7 @@ extern "C" CUresult cuMemPoolGetAccess(CUmemAccess_flags *flags, CUmemoryPool me
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6300,7 +6300,7 @@ extern "C" CUresult cuMemPoolCreate(CUmemoryPool *pool, const CUmemPoolProps *po
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6313,7 +6313,7 @@ extern "C" CUresult cuMemPoolCreate(CUmemoryPool *pool, const CUmemPoolProps *po
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6323,7 +6323,7 @@ extern "C" CUresult cuMemPoolCreate(CUmemoryPool *pool, const CUmemPoolProps *po
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6346,7 +6346,7 @@ extern "C" CUresult cuMemPoolDestroy(CUmemoryPool pool) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6356,7 +6356,7 @@ extern "C" CUresult cuMemPoolDestroy(CUmemoryPool pool) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6364,7 +6364,7 @@ extern "C" CUresult cuMemPoolDestroy(CUmemoryPool pool) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6389,7 +6389,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6403,7 +6403,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6412,7 +6412,7 @@ extern "C" CUresult cuMemAllocFromPoolAsync(CUdeviceptr *dptr, size_t bytesize, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6437,7 +6437,7 @@ extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6451,7 +6451,7 @@ extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryP
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6460,7 +6460,7 @@ extern "C" CUresult cuMemPoolExportToShareableHandle(void *handle_out, CUmemoryP
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6487,7 +6487,7 @@ extern "C" CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool *pool_out, v
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6502,7 +6502,7 @@ extern "C" CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool *pool_out, v
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6512,7 +6512,7 @@ extern "C" CUresult cuMemPoolImportFromShareableHandle(CUmemoryPool *pool_out, v
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6539,7 +6539,7 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6552,7 +6552,7 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6562,7 +6562,7 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6589,7 +6589,7 @@ extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attrib
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6603,7 +6603,7 @@ extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attrib
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6613,7 +6613,7 @@ extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attrib
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6638,7 +6638,7 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6652,7 +6652,7 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6661,7 +6661,7 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6686,7 +6686,7 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6700,7 +6700,7 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6709,7 +6709,7 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6736,7 +6736,7 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6752,7 +6752,7 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6762,7 +6762,7 @@ extern "C" CUresult cuMemRangeGetAttribute(void *data, size_t dataSize, CUmem_ra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6789,7 +6789,7 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6803,7 +6803,7 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6813,7 +6813,7 @@ extern "C" CUresult cuPointerSetAttribute(const void *value, CUpointer_attribute
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6838,7 +6838,7 @@ extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6850,7 +6850,7 @@ extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6859,7 +6859,7 @@ extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6884,7 +6884,7 @@ extern "C" CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6897,7 +6897,7 @@ extern "C" CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6906,7 +6906,7 @@ extern "C" CUresult cuStreamCreateWithPriority(CUstream *phStream, unsigned int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6931,7 +6931,7 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6943,7 +6943,7 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6952,7 +6952,7 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6977,7 +6977,7 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -6989,7 +6989,7 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -6998,7 +6998,7 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7023,7 +7023,7 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7035,7 +7035,7 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7044,7 +7044,7 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7067,7 +7067,7 @@ extern "C" CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7079,7 +7079,7 @@ extern "C" CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7087,7 +7087,7 @@ extern "C" CUresult cuStreamWaitEvent(CUstream hStream, CUevent hEvent, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7112,7 +7112,7 @@ extern "C" CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callb
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7126,7 +7126,7 @@ extern "C" CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callb
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7135,7 +7135,7 @@ extern "C" CUresult cuStreamAddCallback(CUstream hStream, CUstreamCallback callb
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7158,7 +7158,7 @@ extern "C" CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7169,7 +7169,7 @@ extern "C" CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMod
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7177,7 +7177,7 @@ extern "C" CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7202,7 +7202,7 @@ extern "C" CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7213,7 +7213,7 @@ extern "C" CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7222,7 +7222,7 @@ extern "C" CUresult cuThreadExchangeStreamCaptureMode(CUstreamCaptureMode *mode)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7247,7 +7247,7 @@ extern "C" CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7259,7 +7259,7 @@ extern "C" CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7268,7 +7268,7 @@ extern "C" CUresult cuStreamEndCapture(CUstream hStream, CUgraph *phGraph) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7293,7 +7293,7 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7305,7 +7305,7 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7314,7 +7314,7 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7341,7 +7341,7 @@ extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7355,7 +7355,7 @@ extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStat
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7365,7 +7365,7 @@ extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStat
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7396,7 +7396,7 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7416,7 +7416,7 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     *dependencies_out = &_cuStreamGetCaptureInfo_v2_dependencies_out;
@@ -7429,7 +7429,7 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7454,7 +7454,7 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7468,7 +7468,7 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7477,7 +7477,7 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7502,7 +7502,7 @@ extern "C" CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7516,7 +7516,7 @@ extern "C" CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, s
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7525,7 +7525,7 @@ extern "C" CUresult cuStreamAttachMemAsync(CUstream hStream, CUdeviceptr dptr, s
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7548,7 +7548,7 @@ extern "C" CUresult cuStreamQuery(CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7558,7 +7558,7 @@ extern "C" CUresult cuStreamQuery(CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7566,7 +7566,7 @@ extern "C" CUresult cuStreamQuery(CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7589,7 +7589,7 @@ extern "C" CUresult cuStreamSynchronize(CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7599,7 +7599,7 @@ extern "C" CUresult cuStreamSynchronize(CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7607,7 +7607,7 @@ extern "C" CUresult cuStreamSynchronize(CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7630,7 +7630,7 @@ extern "C" CUresult cuStreamDestroy_v2(CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7640,7 +7640,7 @@ extern "C" CUresult cuStreamDestroy_v2(CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7648,7 +7648,7 @@ extern "C" CUresult cuStreamDestroy_v2(CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7671,7 +7671,7 @@ extern "C" CUresult cuStreamCopyAttributes(CUstream dst, CUstream src) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7682,7 +7682,7 @@ extern "C" CUresult cuStreamCopyAttributes(CUstream dst, CUstream src) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7690,7 +7690,7 @@ extern "C" CUresult cuStreamCopyAttributes(CUstream dst, CUstream src) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7715,7 +7715,7 @@ extern "C" CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7728,7 +7728,7 @@ extern "C" CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7737,7 +7737,7 @@ extern "C" CUresult cuStreamGetAttribute(CUstream hStream, CUstreamAttrID attr, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7762,7 +7762,7 @@ extern "C" CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7775,7 +7775,7 @@ extern "C" CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7784,7 +7784,7 @@ extern "C" CUresult cuStreamSetAttribute(CUstream hStream, CUstreamAttrID attr, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7809,7 +7809,7 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7821,7 +7821,7 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7830,7 +7830,7 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7853,7 +7853,7 @@ extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7864,7 +7864,7 @@ extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7872,7 +7872,7 @@ extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7895,7 +7895,7 @@ extern "C" CUresult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7907,7 +7907,7 @@ extern "C" CUresult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, uns
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7915,7 +7915,7 @@ extern "C" CUresult cuEventRecordWithFlags(CUevent hEvent, CUstream hStream, uns
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7938,7 +7938,7 @@ extern "C" CUresult cuEventQuery(CUevent hEvent) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7948,7 +7948,7 @@ extern "C" CUresult cuEventQuery(CUevent hEvent) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7956,7 +7956,7 @@ extern "C" CUresult cuEventQuery(CUevent hEvent) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7979,7 +7979,7 @@ extern "C" CUresult cuEventSynchronize(CUevent hEvent) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -7989,7 +7989,7 @@ extern "C" CUresult cuEventSynchronize(CUevent hEvent) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -7997,7 +7997,7 @@ extern "C" CUresult cuEventSynchronize(CUevent hEvent) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8020,7 +8020,7 @@ extern "C" CUresult cuEventDestroy_v2(CUevent hEvent) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8030,7 +8030,7 @@ extern "C" CUresult cuEventDestroy_v2(CUevent hEvent) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8038,7 +8038,7 @@ extern "C" CUresult cuEventDestroy_v2(CUevent hEvent) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8063,7 +8063,7 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8076,7 +8076,7 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8085,7 +8085,7 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8112,7 +8112,7 @@ extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8126,7 +8126,7 @@ extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mi
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8136,7 +8136,7 @@ extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mi
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8159,7 +8159,7 @@ extern "C" CUresult cuDestroyExternalMemory(CUexternalMemory extMem) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8169,7 +8169,7 @@ extern "C" CUresult cuDestroyExternalMemory(CUexternalMemory extMem) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8177,7 +8177,7 @@ extern "C" CUresult cuDestroyExternalMemory(CUexternalMemory extMem) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8204,7 +8204,7 @@ extern "C" CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, c
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8217,7 +8217,7 @@ extern "C" CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, c
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8227,7 +8227,7 @@ extern "C" CUresult cuImportExternalSemaphore(CUexternalSemaphore *extSem_out, c
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8254,7 +8254,7 @@ extern "C" CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *e
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8269,7 +8269,7 @@ extern "C" CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *e
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8279,7 +8279,7 @@ extern "C" CUresult cuSignalExternalSemaphoresAsync(const CUexternalSemaphore *e
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8306,7 +8306,7 @@ extern "C" CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *ext
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8321,7 +8321,7 @@ extern "C" CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *ext
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8331,7 +8331,7 @@ extern "C" CUresult cuWaitExternalSemaphoresAsync(const CUexternalSemaphore *ext
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8354,7 +8354,7 @@ extern "C" CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8364,7 +8364,7 @@ extern "C" CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8372,7 +8372,7 @@ extern "C" CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8397,7 +8397,7 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8411,7 +8411,7 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8420,7 +8420,7 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8445,7 +8445,7 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8459,7 +8459,7 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8468,7 +8468,7 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8493,7 +8493,7 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8507,7 +8507,7 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8516,7 +8516,7 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8541,7 +8541,7 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8555,7 +8555,7 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8564,7 +8564,7 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8589,7 +8589,7 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8603,7 +8603,7 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8612,7 +8612,7 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8637,7 +8637,7 @@ extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUf
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8650,7 +8650,7 @@ extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUf
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8659,7 +8659,7 @@ extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUf
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8682,7 +8682,7 @@ extern "C" CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute at
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8694,7 +8694,7 @@ extern "C" CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute at
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8702,7 +8702,7 @@ extern "C" CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute at
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8725,7 +8725,7 @@ extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8736,7 +8736,7 @@ extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8744,7 +8744,7 @@ extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8767,7 +8767,7 @@ extern "C" CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8778,7 +8778,7 @@ extern "C" CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig co
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8786,7 +8786,7 @@ extern "C" CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig co
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8811,7 +8811,7 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8823,7 +8823,7 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8832,7 +8832,7 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8859,7 +8859,7 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8879,7 +8879,7 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     // PARAM void **kernelParams
@@ -8891,7 +8891,7 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8918,7 +8918,7 @@ extern "C" CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *lau
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8931,7 +8931,7 @@ extern "C" CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *lau
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8940,7 +8940,7 @@ extern "C" CUresult cuLaunchCooperativeKernelMultiDevice(CUDA_LAUNCH_PARAMS *lau
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8965,7 +8965,7 @@ extern "C" CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userDa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -8978,7 +8978,7 @@ extern "C" CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userDa
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -8987,7 +8987,7 @@ extern "C" CUresult cuLaunchHostFunc(CUstream hStream, CUhostFn fn, void *userDa
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9010,7 +9010,7 @@ extern "C" CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9023,7 +9023,7 @@ extern "C" CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9031,7 +9031,7 @@ extern "C" CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9054,7 +9054,7 @@ extern "C" CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9065,7 +9065,7 @@ extern "C" CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9073,7 +9073,7 @@ extern "C" CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9096,7 +9096,7 @@ extern "C" CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9107,7 +9107,7 @@ extern "C" CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9115,7 +9115,7 @@ extern "C" CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9138,7 +9138,7 @@ extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9150,7 +9150,7 @@ extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9158,7 +9158,7 @@ extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9181,7 +9181,7 @@ extern "C" CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9193,7 +9193,7 @@ extern "C" CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9201,7 +9201,7 @@ extern "C" CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9226,7 +9226,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9240,7 +9240,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9249,7 +9249,7 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9272,7 +9272,7 @@ extern "C" CUresult cuLaunch(CUfunction f) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9282,7 +9282,7 @@ extern "C" CUresult cuLaunch(CUfunction f) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9290,7 +9290,7 @@ extern "C" CUresult cuLaunch(CUfunction f) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9313,7 +9313,7 @@ extern "C" CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9325,7 +9325,7 @@ extern "C" CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9333,7 +9333,7 @@ extern "C" CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9356,7 +9356,7 @@ extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_hei
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9369,7 +9369,7 @@ extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_hei
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9377,7 +9377,7 @@ extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_hei
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9400,7 +9400,7 @@ extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9412,7 +9412,7 @@ extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTe
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9420,7 +9420,7 @@ extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9445,7 +9445,7 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9457,7 +9457,7 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9466,7 +9466,7 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9495,7 +9495,7 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9512,7 +9512,7 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9523,7 +9523,7 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9548,7 +9548,7 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9560,7 +9560,7 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9569,7 +9569,7 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9594,7 +9594,7 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9606,7 +9606,7 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9615,7 +9615,7 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9644,7 +9644,7 @@ extern "C" CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9662,7 +9662,7 @@ extern "C" CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGrap
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9673,7 +9673,7 @@ extern "C" CUresult cuGraphAddMemcpyNode(CUgraphNode *phGraphNode, CUgraph hGrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9698,7 +9698,7 @@ extern "C" CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9710,7 +9710,7 @@ extern "C" CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9719,7 +9719,7 @@ extern "C" CUresult cuGraphMemcpyNodeGetParams(CUgraphNode hNode, CUDA_MEMCPY3D 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9744,7 +9744,7 @@ extern "C" CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEM
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9756,7 +9756,7 @@ extern "C" CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEM
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9765,7 +9765,7 @@ extern "C" CUresult cuGraphMemcpyNodeSetParams(CUgraphNode hNode, const CUDA_MEM
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9794,7 +9794,7 @@ extern "C" CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9812,7 +9812,7 @@ extern "C" CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGrap
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9823,7 +9823,7 @@ extern "C" CUresult cuGraphAddMemsetNode(CUgraphNode *phGraphNode, CUgraph hGrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9848,7 +9848,7 @@ extern "C" CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NO
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9860,7 +9860,7 @@ extern "C" CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NO
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9869,7 +9869,7 @@ extern "C" CUresult cuGraphMemsetNodeGetParams(CUgraphNode hNode, CUDA_MEMSET_NO
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9894,7 +9894,7 @@ extern "C" CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEM
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9906,7 +9906,7 @@ extern "C" CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEM
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9915,7 +9915,7 @@ extern "C" CUresult cuGraphMemsetNodeSetParams(CUgraphNode hNode, const CUDA_MEM
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9944,7 +9944,7 @@ extern "C" CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9961,7 +9961,7 @@ extern "C" CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -9972,7 +9972,7 @@ extern "C" CUresult cuGraphAddHostNode(CUgraphNode *phGraphNode, CUgraph hGraph,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -9997,7 +9997,7 @@ extern "C" CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_P
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10009,7 +10009,7 @@ extern "C" CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_P
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10018,7 +10018,7 @@ extern "C" CUresult cuGraphHostNodeGetParams(CUgraphNode hNode, CUDA_HOST_NODE_P
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10043,7 +10043,7 @@ extern "C" CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10055,7 +10055,7 @@ extern "C" CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10064,7 +10064,7 @@ extern "C" CUresult cuGraphHostNodeSetParams(CUgraphNode hNode, const CUDA_HOST_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10091,7 +10091,7 @@ extern "C" CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph h
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10107,7 +10107,7 @@ extern "C" CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph h
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10117,7 +10117,7 @@ extern "C" CUresult cuGraphAddChildGraphNode(CUgraphNode *phGraphNode, CUgraph h
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10142,7 +10142,7 @@ extern "C" CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *ph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10154,7 +10154,7 @@ extern "C" CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *ph
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10163,7 +10163,7 @@ extern "C" CUresult cuGraphChildGraphNodeGetGraph(CUgraphNode hNode, CUgraph *ph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10190,7 +10190,7 @@ extern "C" CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10205,7 +10205,7 @@ extern "C" CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10215,7 +10215,7 @@ extern "C" CUresult cuGraphAddEmptyNode(CUgraphNode *phGraphNode, CUgraph hGraph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10242,7 +10242,7 @@ extern "C" CUresult cuGraphAddEventRecordNode(CUgraphNode *phGraphNode, CUgraph 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10258,7 +10258,7 @@ extern "C" CUresult cuGraphAddEventRecordNode(CUgraphNode *phGraphNode, CUgraph 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10268,7 +10268,7 @@ extern "C" CUresult cuGraphAddEventRecordNode(CUgraphNode *phGraphNode, CUgraph 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10293,7 +10293,7 @@ extern "C" CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent *e
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10305,7 +10305,7 @@ extern "C" CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent *e
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10314,7 +10314,7 @@ extern "C" CUresult cuGraphEventRecordNodeGetEvent(CUgraphNode hNode, CUevent *e
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10337,7 +10337,7 @@ extern "C" CUresult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent ev
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10348,7 +10348,7 @@ extern "C" CUresult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent ev
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10356,7 +10356,7 @@ extern "C" CUresult cuGraphEventRecordNodeSetEvent(CUgraphNode hNode, CUevent ev
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10383,7 +10383,7 @@ extern "C" CUresult cuGraphAddEventWaitNode(CUgraphNode *phGraphNode, CUgraph hG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10399,7 +10399,7 @@ extern "C" CUresult cuGraphAddEventWaitNode(CUgraphNode *phGraphNode, CUgraph hG
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10409,7 +10409,7 @@ extern "C" CUresult cuGraphAddEventWaitNode(CUgraphNode *phGraphNode, CUgraph hG
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10434,7 +10434,7 @@ extern "C" CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent *eve
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10446,7 +10446,7 @@ extern "C" CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent *eve
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10455,7 +10455,7 @@ extern "C" CUresult cuGraphEventWaitNodeGetEvent(CUgraphNode hNode, CUevent *eve
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10478,7 +10478,7 @@ extern "C" CUresult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent even
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10489,7 +10489,7 @@ extern "C" CUresult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent even
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10497,7 +10497,7 @@ extern "C" CUresult cuGraphEventWaitNodeSetEvent(CUgraphNode hNode, CUevent even
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10526,7 +10526,7 @@ extern "C" CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode *phGraphN
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10543,7 +10543,7 @@ extern "C" CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode *phGraphN
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10554,7 +10554,7 @@ extern "C" CUresult cuGraphAddExternalSemaphoresSignalNode(CUgraphNode *phGraphN
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10579,7 +10579,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10591,7 +10591,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10600,7 +10600,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeGetParams(CUgraphNode hNo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10625,7 +10625,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10637,7 +10637,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10646,7 +10646,7 @@ extern "C" CUresult cuGraphExternalSemaphoresSignalNodeSetParams(CUgraphNode hNo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10675,7 +10675,7 @@ extern "C" CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode *phGraphNod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10692,7 +10692,7 @@ extern "C" CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode *phGraphNod
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10703,7 +10703,7 @@ extern "C" CUresult cuGraphAddExternalSemaphoresWaitNode(CUgraphNode *phGraphNod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10728,7 +10728,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10740,7 +10740,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10749,7 +10749,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeGetParams(CUgraphNode hNode
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10774,7 +10774,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10786,7 +10786,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10795,7 +10795,7 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10824,7 +10824,7 @@ extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10841,7 +10841,7 @@ extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGr
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10852,7 +10852,7 @@ extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10877,7 +10877,7 @@ extern "C" CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALL
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10889,7 +10889,7 @@ extern "C" CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALL
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10898,7 +10898,7 @@ extern "C" CUresult cuGraphMemAllocNodeGetParams(CUgraphNode hNode, CUDA_MEM_ALL
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10927,7 +10927,7 @@ extern "C" CUresult cuGraphAddMemFreeNode(CUgraphNode *phGraphNode, CUgraph hGra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10944,7 +10944,7 @@ extern "C" CUresult cuGraphAddMemFreeNode(CUgraphNode *phGraphNode, CUgraph hGra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10955,7 +10955,7 @@ extern "C" CUresult cuGraphAddMemFreeNode(CUgraphNode *phGraphNode, CUgraph hGra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10978,7 +10978,7 @@ extern "C" CUresult cuDeviceGraphMemTrim(CUdevice device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -10988,7 +10988,7 @@ extern "C" CUresult cuDeviceGraphMemTrim(CUdevice device) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -10996,7 +10996,7 @@ extern "C" CUresult cuDeviceGraphMemTrim(CUdevice device) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11021,7 +11021,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11034,7 +11034,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11043,7 +11043,7 @@ extern "C" CUresult cuDeviceGetGraphMemAttribute(CUdevice device, CUgraphMem_att
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11068,7 +11068,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11081,7 +11081,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11090,7 +11090,7 @@ extern "C" CUresult cuDeviceSetGraphMemAttribute(CUdevice device, CUgraphMem_att
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11115,7 +11115,7 @@ extern "C" CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11127,7 +11127,7 @@ extern "C" CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11136,7 +11136,7 @@ extern "C" CUresult cuGraphClone(CUgraph *phGraphClone, CUgraph originalGraph) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11161,7 +11161,7 @@ extern "C" CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOri
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11174,7 +11174,7 @@ extern "C" CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOri
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11183,7 +11183,7 @@ extern "C" CUresult cuGraphNodeFindInClone(CUgraphNode *phNode, CUgraphNode hOri
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11208,7 +11208,7 @@ extern "C" CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11220,7 +11220,7 @@ extern "C" CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11229,7 +11229,7 @@ extern "C" CUresult cuGraphNodeGetType(CUgraphNode hNode, CUgraphNodeType *type)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11256,7 +11256,7 @@ extern "C" CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11270,7 +11270,7 @@ extern "C" CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11280,7 +11280,7 @@ extern "C" CUresult cuGraphGetNodes(CUgraph hGraph, CUgraphNode *nodes, size_t *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11307,7 +11307,7 @@ extern "C" CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11321,7 +11321,7 @@ extern "C" CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11331,7 +11331,7 @@ extern "C" CUresult cuGraphGetRootNodes(CUgraph hGraph, CUgraphNode *rootNodes, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11360,7 +11360,7 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11376,7 +11376,7 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11387,7 +11387,7 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11414,7 +11414,7 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11428,7 +11428,7 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11438,7 +11438,7 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11465,7 +11465,7 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11479,7 +11479,7 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11489,7 +11489,7 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11516,7 +11516,7 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11531,7 +11531,7 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11541,7 +11541,7 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11568,7 +11568,7 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11583,7 +11583,7 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11593,7 +11593,7 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11616,7 +11616,7 @@ extern "C" CUresult cuGraphDestroyNode(CUgraphNode hNode) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11626,7 +11626,7 @@ extern "C" CUresult cuGraphDestroyNode(CUgraphNode hNode) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11634,7 +11634,7 @@ extern "C" CUresult cuGraphDestroyNode(CUgraphNode hNode) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11661,7 +11661,7 @@ extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11679,7 +11679,7 @@ extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11689,7 +11689,7 @@ extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11714,7 +11714,7 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11727,7 +11727,7 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11736,7 +11736,7 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11761,7 +11761,7 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11774,7 +11774,7 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11783,7 +11783,7 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11808,7 +11808,7 @@ extern "C" CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11822,7 +11822,7 @@ extern "C" CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11831,7 +11831,7 @@ extern "C" CUresult cuGraphExecMemcpyNodeSetParams(CUgraphExec hGraphExec, CUgra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11856,7 +11856,7 @@ extern "C" CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11870,7 +11870,7 @@ extern "C" CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgra
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11879,7 +11879,7 @@ extern "C" CUresult cuGraphExecMemsetNodeSetParams(CUgraphExec hGraphExec, CUgra
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11904,7 +11904,7 @@ extern "C" CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11917,7 +11917,7 @@ extern "C" CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraph
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11926,7 +11926,7 @@ extern "C" CUresult cuGraphExecHostNodeSetParams(CUgraphExec hGraphExec, CUgraph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11949,7 +11949,7 @@ extern "C" CUresult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, C
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11961,7 +11961,7 @@ extern "C" CUresult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, C
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -11969,7 +11969,7 @@ extern "C" CUresult cuGraphExecChildGraphNodeSetParams(CUgraphExec hGraphExec, C
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -11992,7 +11992,7 @@ extern "C" CUresult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, C
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12004,7 +12004,7 @@ extern "C" CUresult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, C
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12012,7 +12012,7 @@ extern "C" CUresult cuGraphExecEventRecordNodeSetEvent(CUgraphExec hGraphExec, C
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12035,7 +12035,7 @@ extern "C" CUresult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12047,7 +12047,7 @@ extern "C" CUresult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUg
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12055,7 +12055,7 @@ extern "C" CUresult cuGraphExecEventWaitNodeSetEvent(CUgraphExec hGraphExec, CUg
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12080,7 +12080,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12093,7 +12093,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12102,7 +12102,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresSignalNodeSetParams(CUgraphExec
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12127,7 +12127,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12140,7 +12140,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12149,7 +12149,7 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12172,7 +12172,7 @@ extern "C" CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12183,7 +12183,7 @@ extern "C" CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12191,7 +12191,7 @@ extern "C" CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12214,7 +12214,7 @@ extern "C" CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12225,7 +12225,7 @@ extern "C" CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12233,7 +12233,7 @@ extern "C" CUresult cuGraphLaunch(CUgraphExec hGraphExec, CUstream hStream) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12256,7 +12256,7 @@ extern "C" CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12266,7 +12266,7 @@ extern "C" CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12274,7 +12274,7 @@ extern "C" CUresult cuGraphExecDestroy(CUgraphExec hGraphExec) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12297,7 +12297,7 @@ extern "C" CUresult cuGraphDestroy(CUgraph hGraph) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12307,7 +12307,7 @@ extern "C" CUresult cuGraphDestroy(CUgraph hGraph) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12315,7 +12315,7 @@ extern "C" CUresult cuGraphDestroy(CUgraph hGraph) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12342,7 +12342,7 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12357,7 +12357,7 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12367,7 +12367,7 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12390,7 +12390,7 @@ extern "C" CUresult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12401,7 +12401,7 @@ extern "C" CUresult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12409,7 +12409,7 @@ extern "C" CUresult cuGraphKernelNodeCopyAttributes(CUgraphNode dst, CUgraphNode
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12434,7 +12434,7 @@ extern "C" CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12447,7 +12447,7 @@ extern "C" CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNod
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12456,7 +12456,7 @@ extern "C" CUresult cuGraphKernelNodeGetAttribute(CUgraphNode hNode, CUkernelNod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12481,7 +12481,7 @@ extern "C" CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12494,7 +12494,7 @@ extern "C" CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNod
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12503,7 +12503,7 @@ extern "C" CUresult cuGraphKernelNodeSetAttribute(CUgraphNode hNode, CUkernelNod
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12526,7 +12526,7 @@ extern "C" CUresult cuGraphDebugDotPrint(CUgraph hGraph, const char *path, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12538,7 +12538,7 @@ extern "C" CUresult cuGraphDebugDotPrint(CUgraph hGraph, const char *path, unsig
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12546,7 +12546,7 @@ extern "C" CUresult cuGraphDebugDotPrint(CUgraph hGraph, const char *path, unsig
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12573,7 +12573,7 @@ extern "C" CUresult cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUho
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12589,7 +12589,7 @@ extern "C" CUresult cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUho
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12599,7 +12599,7 @@ extern "C" CUresult cuUserObjectCreate(CUuserObject *object_out, void *ptr, CUho
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12622,7 +12622,7 @@ extern "C" CUresult cuUserObjectRetain(CUuserObject object, unsigned int count) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12633,7 +12633,7 @@ extern "C" CUresult cuUserObjectRetain(CUuserObject object, unsigned int count) 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12641,7 +12641,7 @@ extern "C" CUresult cuUserObjectRetain(CUuserObject object, unsigned int count) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12664,7 +12664,7 @@ extern "C" CUresult cuUserObjectRelease(CUuserObject object, unsigned int count)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12675,7 +12675,7 @@ extern "C" CUresult cuUserObjectRelease(CUuserObject object, unsigned int count)
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12683,7 +12683,7 @@ extern "C" CUresult cuUserObjectRelease(CUuserObject object, unsigned int count)
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12706,7 +12706,7 @@ extern "C" CUresult cuGraphRetainUserObject(CUgraph graph, CUuserObject object, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12719,7 +12719,7 @@ extern "C" CUresult cuGraphRetainUserObject(CUgraph graph, CUuserObject object, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12727,7 +12727,7 @@ extern "C" CUresult cuGraphRetainUserObject(CUgraph graph, CUuserObject object, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12750,7 +12750,7 @@ extern "C" CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12762,7 +12762,7 @@ extern "C" CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object,
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12770,7 +12770,7 @@ extern "C" CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object,
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12795,7 +12795,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12809,7 +12809,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12818,7 +12818,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12843,7 +12843,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *nu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12858,7 +12858,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *nu
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12867,7 +12867,7 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int *nu
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12894,7 +12894,7 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *bloc
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12911,7 +12911,7 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *bloc
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12921,7 +12921,7 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int *minGridSize, int *bloc
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12948,7 +12948,7 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -12966,7 +12966,7 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -12976,7 +12976,7 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int *minGridSize, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13001,7 +13001,7 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13015,7 +13015,7 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13024,7 +13024,7 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13047,7 +13047,7 @@ extern "C" CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13059,7 +13059,7 @@ extern "C" CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13067,7 +13067,7 @@ extern "C" CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13090,7 +13090,7 @@ extern "C" CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13102,7 +13102,7 @@ extern "C" CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13110,7 +13110,7 @@ extern "C" CUresult cuTexRefSetMipmappedArray(CUtexref hTexRef, CUmipmappedArray
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13137,7 +13137,7 @@ extern "C" CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13152,7 +13152,7 @@ extern "C" CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13162,7 +13162,7 @@ extern "C" CUresult cuTexRefSetAddress_v2(size_t *ByteOffset, CUtexref hTexRef, 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13189,7 +13189,7 @@ extern "C" CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_D
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13204,7 +13204,7 @@ extern "C" CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_D
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13214,7 +13214,7 @@ extern "C" CUresult cuTexRefSetAddress2D_v3(CUtexref hTexRef, const CUDA_ARRAY_D
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13237,7 +13237,7 @@ extern "C" CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13249,7 +13249,7 @@ extern "C" CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13257,7 +13257,7 @@ extern "C" CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13280,7 +13280,7 @@ extern "C" CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13292,7 +13292,7 @@ extern "C" CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13300,7 +13300,7 @@ extern "C" CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13323,7 +13323,7 @@ extern "C" CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13334,7 +13334,7 @@ extern "C" CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13342,7 +13342,7 @@ extern "C" CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13365,7 +13365,7 @@ extern "C" CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13376,7 +13376,7 @@ extern "C" CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13384,7 +13384,7 @@ extern "C" CUresult cuTexRefSetMipmapFilterMode(CUtexref hTexRef, CUfilter_mode 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13407,7 +13407,7 @@ extern "C" CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13418,7 +13418,7 @@ extern "C" CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13426,7 +13426,7 @@ extern "C" CUresult cuTexRefSetMipmapLevelBias(CUtexref hTexRef, float bias) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13449,7 +13449,7 @@ extern "C" CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipma
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13461,7 +13461,7 @@ extern "C" CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipma
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13469,7 +13469,7 @@ extern "C" CUresult cuTexRefSetMipmapLevelClamp(CUtexref hTexRef, float minMipma
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13492,7 +13492,7 @@ extern "C" CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxA
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13503,7 +13503,7 @@ extern "C" CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxA
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13511,7 +13511,7 @@ extern "C" CUresult cuTexRefSetMaxAnisotropy(CUtexref hTexRef, unsigned int maxA
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13536,7 +13536,7 @@ extern "C" CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13548,7 +13548,7 @@ extern "C" CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13557,7 +13557,7 @@ extern "C" CUresult cuTexRefSetBorderColor(CUtexref hTexRef, float *pBorderColor
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13580,7 +13580,7 @@ extern "C" CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13591,7 +13591,7 @@ extern "C" CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13599,7 +13599,7 @@ extern "C" CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13624,7 +13624,7 @@ extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13636,7 +13636,7 @@ extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13645,7 +13645,7 @@ extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13670,7 +13670,7 @@ extern "C" CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13682,7 +13682,7 @@ extern "C" CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13691,7 +13691,7 @@ extern "C" CUresult cuTexRefGetMipmappedArray(CUmipmappedArray *phMipmappedArray
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13716,7 +13716,7 @@ extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13729,7 +13729,7 @@ extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13738,7 +13738,7 @@ extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13763,7 +13763,7 @@ extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13775,7 +13775,7 @@ extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13784,7 +13784,7 @@ extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13811,7 +13811,7 @@ extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13825,7 +13825,7 @@ extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13835,7 +13835,7 @@ extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13860,7 +13860,7 @@ extern "C" CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13872,7 +13872,7 @@ extern "C" CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTe
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13881,7 +13881,7 @@ extern "C" CUresult cuTexRefGetMipmapFilterMode(CUfilter_mode *pfm, CUtexref hTe
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13906,7 +13906,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13918,7 +13918,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13927,7 +13927,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelBias(float *pbias, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13954,7 +13954,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -13968,7 +13968,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, flo
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -13978,7 +13978,7 @@ extern "C" CUresult cuTexRefGetMipmapLevelClamp(float *pminMipmapLevelClamp, flo
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14003,7 +14003,7 @@ extern "C" CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14015,7 +14015,7 @@ extern "C" CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14024,7 +14024,7 @@ extern "C" CUresult cuTexRefGetMaxAnisotropy(int *pmaxAniso, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14049,7 +14049,7 @@ extern "C" CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14061,7 +14061,7 @@ extern "C" CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14070,7 +14070,7 @@ extern "C" CUresult cuTexRefGetBorderColor(float *pBorderColor, CUtexref hTexRef
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14095,7 +14095,7 @@ extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14107,7 +14107,7 @@ extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14116,7 +14116,7 @@ extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14141,7 +14141,7 @@ extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14152,7 +14152,7 @@ extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14161,7 +14161,7 @@ extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14184,7 +14184,7 @@ extern "C" CUresult cuTexRefDestroy(CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14194,7 +14194,7 @@ extern "C" CUresult cuTexRefDestroy(CUtexref hTexRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14202,7 +14202,7 @@ extern "C" CUresult cuTexRefDestroy(CUtexref hTexRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14225,7 +14225,7 @@ extern "C" CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14237,7 +14237,7 @@ extern "C" CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsign
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14245,7 +14245,7 @@ extern "C" CUresult cuSurfRefSetArray(CUsurfref hSurfRef, CUarray hArray, unsign
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14270,7 +14270,7 @@ extern "C" CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14282,7 +14282,7 @@ extern "C" CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14291,7 +14291,7 @@ extern "C" CUresult cuSurfRefGetArray(CUarray *phArray, CUsurfref hSurfRef) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14322,7 +14322,7 @@ extern "C" CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOUR
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14339,7 +14339,7 @@ extern "C" CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOUR
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14351,7 +14351,7 @@ extern "C" CUresult cuTexObjectCreate(CUtexObject *pTexObject, const CUDA_RESOUR
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14374,7 +14374,7 @@ extern "C" CUresult cuTexObjectDestroy(CUtexObject texObject) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14384,7 +14384,7 @@ extern "C" CUresult cuTexObjectDestroy(CUtexObject texObject) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14392,7 +14392,7 @@ extern "C" CUresult cuTexObjectDestroy(CUtexObject texObject) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14417,7 +14417,7 @@ extern "C" CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUt
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14429,7 +14429,7 @@ extern "C" CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUt
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14438,7 +14438,7 @@ extern "C" CUresult cuTexObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CUt
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14463,7 +14463,7 @@ extern "C" CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14475,7 +14475,7 @@ extern "C" CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtex
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14484,7 +14484,7 @@ extern "C" CUresult cuTexObjectGetTextureDesc(CUDA_TEXTURE_DESC *pTexDesc, CUtex
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14509,7 +14509,7 @@ extern "C" CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pRes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14521,7 +14521,7 @@ extern "C" CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pRes
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14530,7 +14530,7 @@ extern "C" CUresult cuTexObjectGetResourceViewDesc(CUDA_RESOURCE_VIEW_DESC *pRes
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14557,7 +14557,7 @@ extern "C" CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RES
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14570,7 +14570,7 @@ extern "C" CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RES
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14580,7 +14580,7 @@ extern "C" CUresult cuSurfObjectCreate(CUsurfObject *pSurfObject, const CUDA_RES
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14603,7 +14603,7 @@ extern "C" CUresult cuSurfObjectDestroy(CUsurfObject surfObject) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14613,7 +14613,7 @@ extern "C" CUresult cuSurfObjectDestroy(CUsurfObject surfObject) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14621,7 +14621,7 @@ extern "C" CUresult cuSurfObjectDestroy(CUsurfObject surfObject) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14646,7 +14646,7 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14658,7 +14658,7 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14667,7 +14667,7 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14692,7 +14692,7 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14705,7 +14705,7 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14714,7 +14714,7 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14737,7 +14737,7 @@ extern "C" CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14748,7 +14748,7 @@ extern "C" CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Fl
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14756,7 +14756,7 @@ extern "C" CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int Fl
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14779,7 +14779,7 @@ extern "C" CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14789,7 +14789,7 @@ extern "C" CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14797,7 +14797,7 @@ extern "C" CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14822,7 +14822,7 @@ extern "C" CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute at
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14836,7 +14836,7 @@ extern "C" CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute at
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14845,7 +14845,7 @@ extern "C" CUresult cuDeviceGetP2PAttribute(int *value, CUdevice_P2PAttribute at
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14868,7 +14868,7 @@ extern "C" CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14878,7 +14878,7 @@ extern "C" CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) {
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14886,7 +14886,7 @@ extern "C" CUresult cuGraphicsUnregisterResource(CUgraphicsResource resource) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14911,7 +14911,7 @@ extern "C" CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14925,7 +14925,7 @@ extern "C" CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraph
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14934,7 +14934,7 @@ extern "C" CUresult cuGraphicsSubResourceGetMappedArray(CUarray *pArray, CUgraph
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14959,7 +14959,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -14971,7 +14971,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -14980,7 +14980,7 @@ extern "C" CUresult cuGraphicsResourceGetMappedMipmappedArray(CUmipmappedArray *
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15003,7 +15003,7 @@ extern "C" CUresult cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15014,7 +15014,7 @@ extern "C" CUresult cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15022,7 +15022,7 @@ extern "C" CUresult cuGraphicsResourceSetMapFlags_v2(CUgraphicsResource resource
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15047,7 +15047,7 @@ extern "C" CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResourc
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15060,7 +15060,7 @@ extern "C" CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResourc
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15069,7 +15069,7 @@ extern "C" CUresult cuGraphicsMapResources(unsigned int count, CUgraphicsResourc
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15094,7 +15094,7 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15107,7 +15107,7 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15116,7 +15116,7 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15141,7 +15141,7 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15153,7 +15153,7 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15162,7 +15162,7 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15185,7 +15185,7 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }
@@ -15196,7 +15196,7 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn);
+        rpc_release_conn(conn, true);
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
@@ -15204,7 +15204,7 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
             std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn);
+            rpc_release_conn(conn, true);
             exit(1);
         }
     }

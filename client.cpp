@@ -181,7 +181,7 @@ RpcConn *rpc_get_conn() {
     return nullptr;
 }
 
-void rpc_release_conn(RpcConn *conn) { client->release_connection(conn); }
+void rpc_release_conn(RpcConn *conn, bool to_close) { client->release_connection(conn, to_close); }
 
 int sum_group(int *group_size, int group_count) {
     int sum = 0;

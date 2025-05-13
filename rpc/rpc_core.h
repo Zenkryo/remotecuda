@@ -18,7 +18,7 @@
 
 namespace rpc {
 
-#define SERVER_PORT 12345
+constexpr uint16_t SERVER_PORT = 12345;
 
 // 前向声明
 class RpcConn;
@@ -155,6 +155,7 @@ class RpcConn {
     std::string server_;
     uint16_t port_;
     bool is_async_;
+    bool is_using_{false};
 
     std::vector<iovec> iov_send_;
     std::vector<iovec> iov_send2_;
@@ -199,6 +200,7 @@ class RpcServer {
 
     // 获取异步连接
     RpcConn *get_async_conn(const std::string &client_id_str);
+    void release_async_conn(RpcConn *conn, bool to_close = false);
 
   private:
     int listenfd_;
@@ -232,8 +234,8 @@ class RpcClient {
 
     // 同步连接池管理
     RpcConn *acquire_connection();
-    void release_connection(RpcConn *conn);
-    bool is_connected() const { return !using_sync_conns_.empty() && async_conn_ != nullptr; }
+    void release_connection(RpcConn *conn, bool to_close = false);
+    bool is_connected() const { return !sync_conns_.empty() && async_conn_ != nullptr; }
 
     // 异步请求处理
     using AsyncRequestHandler = std::function<void(RpcConn *)>;
@@ -247,8 +249,7 @@ class RpcClient {
     std::atomic<bool> running_{false};
 
     // 同步连接池
-    std::vector<std::unique_ptr<RpcConn>> using_sync_conns_;
-    std::vector<std::unique_ptr<RpcConn>> available_sync_conns_;
+    std::vector<std::unique_ptr<RpcConn>> sync_conns_;
     std::mutex sync_mutex_;
 
     // 异步连接

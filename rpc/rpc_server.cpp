@@ -97,9 +97,28 @@ void RpcServer::stop() {
 void RpcServer::register_handler(uint32_t func_id, RequestHandler handler) { handlers_[func_id] = handler; }
 
 RpcConn *RpcServer::get_async_conn(const std::string &client_id_str) {
+    while(true) {
+        std::lock_guard<std::mutex> lock(async_mutex_);
+        auto it = async_conns_.find(client_id_str);
+        if(it == async_conns_.end()) {
+            break;
+        }
+        if(!it->second->is_using_) {
+            it->second->is_using_ = true;
+            return it->second.get();
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    return nullptr;
+}
+
+void RpcServer::release_async_conn(RpcConn *conn, bool to_close) {
     std::lock_guard<std::mutex> lock(async_mutex_);
-    auto it = async_conns_.find(client_id_str);
-    return (it != async_conns_.end()) ? it->second.get() : nullptr;
+    conn->is_using_ = false;
+    if(to_close) {
+        conn->disconnect();
+        async_conns_.erase(conn->client_id_str_);
+    }
 }
 
 void RpcServer::accept_loop() {
@@ -192,7 +211,6 @@ void RpcServer::accept_loop() {
             // TODO, 需要能探测到异步连接断开
             async_conns_[conn->client_id_str_] = std::move(conn);
         } else {
-
             worker_threads_.emplace_back(&RpcServer::handle_request, this, std::move(conn));
         }
     }
