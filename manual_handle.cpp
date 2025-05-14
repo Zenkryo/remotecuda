@@ -59,7 +59,7 @@ int handle_mem2server(void *args0) {
             return 1;
         }
         if(ptrs[j] == nullptr && size > 0) {
-            void *tmp_buffer = conn->get_host_buffer(size);
+            void *tmp_buffer = conn->alloc_host_buffer(size);
             if(tmp_buffer == nullptr) {
                 std::cerr << "Failed to get tmp buffer" << std::endl;
                 return 1;
@@ -391,7 +391,7 @@ int handle_cudaHostRegister(void *args0) {
             rtn = 1;
             goto _RTN_;
         }
-        ptr = conn->get_host_buffer(size);
+        ptr = conn->alloc_host_buffer(size);
         if(ptr == nullptr) {
             std::cerr << "Failed to malloc" << std::endl;
             rtn = 1;

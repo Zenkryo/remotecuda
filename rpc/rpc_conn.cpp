@@ -167,8 +167,8 @@ RpcError RpcConn::connect(const std::string &server, uint16_t port, bool is_asyn
     }
 
     // 保存连接信息，用于断线重连
-    server_ = server;
-    port_ = port;
+    server_addr_ = server;
+    server_port_ = port;
     is_async_ = is_async;
 
     return RpcError::OK;
@@ -197,8 +197,8 @@ RpcError RpcConn::reconnect() {
     struct sockaddr_in server_addr;
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port_);
-    if(inet_pton(AF_INET, server_.c_str(), &server_addr.sin_addr) <= 0) {
+    server_addr.sin_port = htons(server_port_);
+    if(inet_pton(AF_INET, server_addr_.c_str(), &server_addr.sin_addr) <= 0) {
         close(sockfd_);
         sockfd_ = -1;
         return RpcError::INVALID_ADDRESS;
@@ -497,7 +497,7 @@ RpcError RpcConn::read_all(bool with_len) {
             void *tmp_buffer = nullptr;
             void **buffer_ptr;
             if(iov.iov_len == 0) {
-                tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
+                tmp_buffer = RpcBuffers::getInstance().alloc_rpc_buffer(client_id_str_, length);
                 if(tmp_buffer == nullptr) {
                     throw RpcMemoryException("Failed to allocate memory", __LINE__);
                 }
@@ -553,7 +553,7 @@ RpcError RpcConn::read_one_now(void *buffer, size_t size, bool with_len) {
     void *tmp_buffer = nullptr;
     if(size == 0) {
         // 动态分配缓冲区
-        tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
+        tmp_buffer = RpcBuffers::getInstance().alloc_rpc_buffer(client_id_str_, length);
         if(tmp_buffer == nullptr) {
             throw RpcMemoryException("Failed to allocate memory", __LINE__);
         }
@@ -588,7 +588,7 @@ RpcError RpcConn::read_all_now(void **buffer, size_t *size, int count) {
         // 分配新的缓冲区
         void *tmp_buffer = buffer[i];
         if(tmp_buffer == nullptr) {
-            tmp_buffer = RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, length);
+            tmp_buffer = RpcBuffers::getInstance().alloc_rpc_buffer(client_id_str_, length);
             if(tmp_buffer == nullptr) {
                 return RpcError::MALLOC_FAILED;
             }
@@ -606,13 +606,6 @@ RpcError RpcConn::read_all_now(void **buffer, size_t *size, int count) {
     }
 
     return RpcError::OK;
-}
-
-void RpcConn::reset() {
-    iov_send_.clear();
-    iov_send2_.clear();
-    iov_read_.clear();
-    iov_read2_.clear();
 }
 
 void RpcConn::hexdump(const char *desc, const void *buf, size_t len) {
@@ -648,11 +641,11 @@ void RpcConn::hexdump(const char *desc, const void *buf, size_t len) {
     }
 }
 
-void *RpcConn::get_host_buffer(size_t size) { return RpcBuffers::getInstance().malloc_rpc_buffer(client_id_str_, size); }
+void *RpcConn::alloc_host_buffer(size_t size) { return RpcBuffers::getInstance().alloc_rpc_buffer(client_id_str_, size); }
 
 void RpcConn::free_host_buffer(void *ptr) { RpcBuffers::getInstance().free_rpc_buffer(client_id_str_, ptr); }
 
-void *RpcConn::get_iov_buffer(size_t size) {
+void *RpcConn::alloc_iov_buffer(size_t size) {
     std::lock_guard<std::mutex> lock(iov_buffers_mutex_);
     void *iov_buffer = malloc(size);
     if(iov_buffer == nullptr) {

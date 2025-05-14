@@ -542,7 +542,7 @@ extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssi
             return;
         }
         // 写入null指针
-        void **tmp_ptr = (void **)conn->get_iov_buffer(sizeof(ptr));
+        void **tmp_ptr = (void **)conn->alloc_iov_buffer(sizeof(ptr));
         if(tmp_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             *serverPtr = clientPtr;
@@ -561,7 +561,7 @@ extern "C" void mem2server(RpcConn *conn, void **serverPtr, void *clientPtr, ssi
         cs_host_tmp_mems[clientPtr] = std::make_pair(nullptr, size);
     } else {
         // 写入服务器端内存指针
-        void **tmp_ptr = (void **)conn->get_iov_buffer(sizeof(ptr));
+        void **tmp_ptr = (void **)conn->alloc_iov_buffer(sizeof(ptr));
         if(tmp_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             *serverPtr = clientPtr;
@@ -660,7 +660,7 @@ extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool de
     }
     if(memSize > 0) {
         // 写入服务器端内存指针
-        void **tmp_ptr = (void **)conn->get_iov_buffer(sizeof(ptr));
+        void **tmp_ptr = (void **)conn->alloc_iov_buffer(sizeof(ptr));
         if(tmp_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
@@ -669,7 +669,7 @@ extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool de
         conn->write(tmp_ptr, sizeof(*tmp_ptr));
 
         // 写入是否删除临时内存
-        int *int_ptr = (int *)conn->get_iov_buffer(sizeof(int));
+        int *int_ptr = (int *)conn->alloc_iov_buffer(sizeof(int));
         if(int_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
@@ -678,7 +678,7 @@ extern "C" void mem2client(RpcConn *conn, void *clientPtr, ssize_t size, bool de
         conn->write(int_ptr, sizeof(*int_ptr));
 
         // 写入大小
-        ssize_t *tmp_size = (ssize_t *)conn->get_iov_buffer(sizeof(size));
+        ssize_t *tmp_size = (ssize_t *)conn->alloc_iov_buffer(sizeof(size));
         if(tmp_size == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
@@ -775,7 +775,7 @@ extern "C" void mem2client_async(RpcConn *conn, void *clientPtr, ssize_t size, b
     }
     if(memSize > 0) {
         // 写入服务器端内存指针
-        void **tmp_ptr = (void **)conn->get_iov_buffer(sizeof(ptr));
+        void **tmp_ptr = (void **)conn->alloc_iov_buffer(sizeof(ptr));
         if(tmp_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
@@ -784,7 +784,7 @@ extern "C" void mem2client_async(RpcConn *conn, void *clientPtr, ssize_t size, b
         conn->write(tmp_ptr, sizeof(*tmp_ptr));
 
         // 写入是否删除临时内存
-        int *int_ptr = (int *)conn->get_iov_buffer(sizeof(int));
+        int *int_ptr = (int *)conn->alloc_iov_buffer(sizeof(int));
         if(int_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
@@ -793,7 +793,7 @@ extern "C" void mem2client_async(RpcConn *conn, void *clientPtr, ssize_t size, b
         conn->write(int_ptr, sizeof(*int_ptr));
 
         // 写入大小
-        ssize_t *tmp_size = (ssize_t *)conn->get_iov_buffer(sizeof(size));
+        ssize_t *tmp_size = (ssize_t *)conn->alloc_iov_buffer(sizeof(size));
         if(tmp_size == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
@@ -802,7 +802,7 @@ extern "C" void mem2client_async(RpcConn *conn, void *clientPtr, ssize_t size, b
         conn->write(tmp_size, sizeof(*tmp_size));
 
         // 写入客户端指针
-        void **tmp_client_ptr = (void **)conn->get_iov_buffer(sizeof(clientPtr));
+        void **tmp_client_ptr = (void **)conn->alloc_iov_buffer(sizeof(clientPtr));
         if(tmp_client_ptr == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;

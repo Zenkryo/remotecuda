@@ -6208,7 +6208,7 @@ int handle_cudaGraphAddKernelNode(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);
+    args = (void **)conn->alloc_host_buffer(sizeof(void *) * arg_count);
     if(args == nullptr) {
         std::cerr << "Failed to allocate args" << std::endl;
         return 1;
@@ -6286,7 +6286,7 @@ int handle_cudaGraphKernelNodeSetParams(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);
+    args = (void **)conn->alloc_host_buffer(sizeof(void *) * arg_count);
     if(args == nullptr) {
         std::cerr << "Failed to allocate args" << std::endl;
         return 1;
@@ -8186,7 +8186,7 @@ int handle_cudaGraphExecKernelNodeSetParams(void *args0) {
         rtn = 1;
         goto _RTN_;
     }
-    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);
+    args = (void **)conn->alloc_host_buffer(sizeof(void *) * arg_count);
     if(args == nullptr) {
         std::cerr << "Failed to allocate args" << std::endl;
         return 1;

@@ -73,6 +73,23 @@ void RpcClient::disconnect() {
     async_conn_.reset();
 }
 
+bool RpcClient::is_connected() {
+    std::lock_guard<std::mutex> lock(sync_mutex_);
+    bool has_connected_sync_conn = false;
+    for(auto &conn : sync_conns_) {
+        if(conn->is_connected()) {
+            has_connected_sync_conn = true;
+            break;
+        }
+    }
+    if(has_connected_sync_conn) {
+        if(async_conn_ && async_conn_->is_connected()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 RpcConn *RpcClient::acquire_connection() {
     std::lock_guard<std::mutex> lock(sync_mutex_);
 
@@ -114,7 +131,7 @@ void RpcClient::release_connection(RpcConn *conn, bool to_close) {
     }
 }
 
-void RpcClient::register_async_handler(uint32_t func_id, AsyncRequestHandler handler) { async_handlers_[func_id] = handler; }
+void RpcClient::register_async_handler(uint32_t func_id, RequestHandler handler) { async_handlers_[func_id] = handler; }
 
 void RpcClient::async_receive_loop() {
     while(running_) {
@@ -128,7 +145,7 @@ void RpcClient::async_receive_loop() {
         }
 
         // 获取处理函数
-        AsyncRequestHandler handler;
+        RequestHandler handler;
 
         auto it = async_handlers_.find(func_id);
         if(it == async_handlers_.end()) {

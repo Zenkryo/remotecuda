@@ -592,7 +592,7 @@ def handle_param_pconsttype(function, param, f, is_client=True, position=0):
                 f.write(f"        {param.name}->dst = _0dst;\n")
                 f.write(f"    }}\n")
             elif param_type_name == "struct cudaKernelNodeParams":
-                f.write(f"    args = (void **)conn->get_host_buffer(sizeof(void *) * arg_count);\n")
+                f.write(f"    args = (void **)conn->alloc_host_buffer(sizeof(void *) * arg_count);\n")
                 f.write(f"    if(args == nullptr) {{\n")
                 f.write(f'        std::cerr << "Failed to allocate args" << std::endl;\n')
                 f.write(f"        return 1;\n")

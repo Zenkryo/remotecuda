@@ -8,21 +8,21 @@
 
 namespace rpc {
 
-void *RpcBuffers::malloc_rpc_buffer(std::string client_id, size_t size) {
+void *RpcBuffers::alloc_rpc_buffer(std::string client_id, size_t size) {
     std::lock_guard<std::mutex> lock(buffers_mutex_);
     void *raw_ptr = malloc(size);
     if(raw_ptr == nullptr) {
         return nullptr;
     }
     memset(raw_ptr, 0, size);
-    rpc_buffers_[client_id].insert(raw_ptr);
+    buffers_[client_id].insert(raw_ptr);
     return raw_ptr;
 }
 
 void RpcBuffers::free_rpc_buffer(std::string client_id, void *ptr) {
     std::lock_guard<std::mutex> lock(buffers_mutex_);
-    auto it = rpc_buffers_.find(client_id);
-    if(it == rpc_buffers_.end()) {
+    auto it = buffers_.find(client_id);
+    if(it == buffers_.end()) {
         return;
     }
     auto &buffers = it->second;
@@ -47,14 +47,14 @@ void RpcBuffers::decrement_connection_count(const std::string &client_id) {
         return;
     }
 
+    // 当连接计数为0时，清理该client的所有缓冲区
     if(--it->second <= 0) {
-        // 当连接计数为0时，清理该client的所有缓冲区
-        auto buffers_it = rpc_buffers_.find(client_id);
-        if(buffers_it != rpc_buffers_.end()) {
+        auto buffers_it = buffers_.find(client_id);
+        if(buffers_it != buffers_.end()) {
             for(auto ptr : buffers_it->second) {
                 free(ptr);
             }
-            rpc_buffers_.erase(buffers_it);
+            buffers_.erase(buffers_it);
         }
         connection_counts_.erase(it);
     }
