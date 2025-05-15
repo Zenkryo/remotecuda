@@ -61,7 +61,9 @@ static std::map<std::string, void *> so_handles;
 std::unique_ptr<RpcClient> client;
 
 int handle_mem2client(RpcConn *conn) {
+#ifdef DEBUG
     std::cout << "Async mem2client called" << std::endl;
+#endif
     void *ptrs[32];
     size_t size;
     int i = 0;
