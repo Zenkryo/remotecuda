@@ -89,7 +89,11 @@ void rpc_init() {
     client = std::unique_ptr<RpcClient>(new RpcClient(VERSION_KEY));
     client->register_async_handler(0x11223344, handle_mem2client);
     // 连接到服务器
-    RpcError err = client->connect("127.0.0.1", 12345, 5);
+    const char *server_addr = getenv("CUDA_SERVER");
+    if(server_addr == nullptr) {
+        server_addr = "127.0.0.1";
+    }
+    RpcError err = client->connect(server_addr, SERVER_PORT, 5);
     if(err != RpcError::OK) {
         std::cerr << "Failed to connect: " << static_cast<int>(err) << std::endl;
         return;
