@@ -8,7 +8,7 @@
 
 namespace rpc {
 
-RpcServer::RpcServer(uint16_t port) : listenfd_(-1) {
+RpcServer::RpcServer(uint16_t port) {
     // 创建监听socket
     listenfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(listenfd_ < 0) {

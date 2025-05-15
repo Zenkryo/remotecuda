@@ -9,7 +9,7 @@
 
 namespace rpc {
 
-RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : func_id_(0), client_id_(), version_key_(version_key), is_server(is_server) {
+RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : version_key_(version_key), is_server(is_server) {
     char uuid_str[37];
     uuid_copy(client_id_, client_id);
     uuid_unparse(client_id_, uuid_str);
@@ -19,6 +19,7 @@ RpcConn::RpcConn(uint16_t version_key, uuid_t client_id, bool is_server) : func_
 }
 
 RpcConn::~RpcConn() {
+    disconnect();
     // 减少连接计数
     RpcBuffers::getInstance().decrement_connection_count(client_id_str_);
 }
@@ -74,7 +75,6 @@ RpcError RpcConn::connect(const std::string &server, uint16_t port, bool is_asyn
     if(sockfd_ >= 0) {
         return RpcError::INVALID_SOCKET;
     }
-    running_ = true;
 
     sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd_ < 0) {
@@ -171,6 +171,7 @@ RpcError RpcConn::connect(const std::string &server, uint16_t port, bool is_asyn
     server_port_ = port;
     is_async_ = is_async;
 
+    running_ = true;
     return RpcError::OK;
 }
 
@@ -180,98 +181,7 @@ RpcError RpcConn::reconnect() {
         ::close(sockfd_);
         sockfd_ = -1;
     }
-
-    sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockfd_ < 0) {
-        return RpcError::INVALID_SOCKET;
-    }
-
-    // 设置为非阻塞模式
-    RpcError err = set_nonblocking();
-    if(err != RpcError::OK) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return err;
-    }
-
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(server_port_);
-    if(inet_pton(AF_INET, server_addr_.c_str(), &server_addr.sin_addr) <= 0) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return RpcError::INVALID_ADDRESS;
-    }
-
-    // 非阻塞连接
-    int ret = ::connect(sockfd_, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    if(ret < 0) {
-        if(errno == EINPROGRESS) {
-            // 等待连接完成
-            err = wait_for_writable(CONNECT_TIMEOUT_MS);
-            if(err != RpcError::OK) {
-                close(sockfd_);
-                sockfd_ = -1;
-                return err;
-            }
-
-            // 检查连接是否成功
-            int error = 0;
-            socklen_t len = sizeof(error);
-            if(getsockopt(sockfd_, SOL_SOCKET, SO_ERROR, &error, &len) < 0 || error != 0) {
-                close(sockfd_);
-                sockfd_ = -1;
-                return RpcError::CONNECTION_CLOSED;
-            }
-        } else {
-            close(sockfd_);
-            sockfd_ = -1;
-            return RpcError::CONNECTION_CLOSED;
-        }
-    }
-
-    // 发送握手请求
-    HandshakeRequest handshake_req;
-    uuid_copy(handshake_req.id, client_id_);
-    handshake_req.is_async = is_async_;
-    handshake_req.version_key = version_key_;
-
-    err = wait_for_writable(WRITE_TIMEOUT_MS);
-    if(err != RpcError::OK) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return err;
-    }
-
-    if(::write(sockfd_, &handshake_req, sizeof(handshake_req)) != sizeof(handshake_req)) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return RpcError::WRITE_ERROR;
-    }
-
-    // 读取握手响应
-    err = wait_for_readable(READ_TIMEOUT_MS);
-    if(err != RpcError::OK) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return err;
-    }
-
-    HandshakeResponse handshake_rsp;
-    if(::read(sockfd_, &handshake_rsp, sizeof(handshake_rsp)) != sizeof(handshake_rsp)) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return RpcError::READ_ERROR;
-    }
-
-    if(handshake_rsp.status != 0) {
-        close(sockfd_);
-        sockfd_ = -1;
-        return RpcError::HANDSHAKE_FAILED;
-    }
-
-    return RpcError::OK;
+    return connect(server_addr_, server_port_, is_async_);
 }
 
 RpcError RpcConn::disconnect() {
@@ -285,7 +195,6 @@ RpcError RpcConn::disconnect() {
 }
 
 void RpcConn::prepare_request(uint32_t func_id) {
-
     func_id_ = func_id;
     iov_send_.clear();
     iov_send2_.clear();

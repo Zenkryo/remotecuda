@@ -1146,7 +1146,7 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
     for(int i = 0; i < f->param_count; i++) {
         mem2client_async(conn, *((void **)args[i]), -1, false);
     }
-    if(conn->get_iov_send_count(true) > 0) {
+    if(conn->get_iov_send_count(false) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         conn->write(&stream, sizeof(stream));
         if(conn->submit_request() != RpcError::OK) {

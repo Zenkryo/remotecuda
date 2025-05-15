@@ -7,7 +7,7 @@
 #include "rpc_core.h"
 namespace rpc {
 
-RpcClient::RpcClient(uint16_t version_key) : server_addr_(), server_port_(0), version_key_(version_key) { uuid_generate(client_id_); }
+RpcClient::RpcClient(uint16_t version_key) : version_key_(version_key) { uuid_generate(client_id_); }
 
 RpcClient::~RpcClient() { disconnect(); }
 
@@ -15,10 +15,11 @@ RpcError RpcClient::connect(const std::string &server, uint16_t port, size_t syn
     if(running_) {
         return RpcError::INVALID_SOCKET;
     }
+    running_ = true;
 
     server_addr_ = server;
     server_port_ = port;
-    running_ = true;
+    std::lock_guard<std::mutex> lock(sync_mutex_);
 
     // 创建同步连接池
     for(size_t i = 0; i < sync_pool_size; i++) {
@@ -50,13 +51,9 @@ void RpcClient::disconnect() {
 
     running_ = false;
 
-    // 清理同步连接池
     std::lock_guard<std::mutex> lock(sync_mutex_);
-    for(auto &conn : sync_conns_) {
-        if(conn) {
-            conn->disconnect();
-        }
-    }
+
+    // 释放所有同步连接
     sync_conns_.clear();
 
     // 清理异步连接
@@ -69,7 +66,7 @@ void RpcClient::disconnect() {
         async_thread_.join();
     }
 
-    // 最后释放异步连接
+    // 释放异步连接
     async_conn_.reset();
 }
 

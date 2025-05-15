@@ -60,8 +60,32 @@ extern "C" void *dlsym(void *handle, const char *symbol) {
 static std::map<std::string, void *> so_handles;
 std::unique_ptr<RpcClient> client;
 
+int handle_mem2client(RpcConn *conn) {
+    std::cout << "Async mem2client called" << std::endl;
+    void *ptrs[32];
+    size_t size;
+    int i = 0;
+    int j = 0;
+    for(i = 0; i < 32; i++) {
+        ptrs[i] = nullptr;
+        // 读取客户端指针
+        if(conn->read_one_now(&ptrs[i], sizeof(ptrs[i]), false) != RpcError::OK) {
+            return 1;
+        }
+        if(ptrs[i] == (void *)0xffffffff) {
+            break;
+        }
+    }
+    if(i > 0) {
+        conn->read_all_now(ptrs, nullptr, i);
+    }
+
+    return 0;
+}
+
 void rpc_init() {
     client = std::unique_ptr<RpcClient>(new RpcClient(VERSION_KEY));
+    client->register_async_handler(0x11223344, handle_mem2client);
     // 连接到服务器
     RpcError err = client->connect("127.0.0.1", 12345, 5);
     if(err != RpcError::OK) {

@@ -156,20 +156,20 @@ class RpcConn {
     std::atomic<int> sockfd_{-1};                       // 使用原子类型
     std::atomic<bool> running_{false};                  // 是否运行, 用于通知退出
     std::atomic<bool> is_using_{false};                 // 是否正在使用，防止并行使用
-    uuid_t client_id_;                                  // 客户端id
-    uint16_t version_key_;                              // 版本号
-    std::string client_id_str_;                         // 客户端id字符串
-    bool is_server;                                     // 是否是用于服务端
-    bool is_async_;                                     // 是否是异步连接
-    std::set<void *> iov_buffers_;                      // 临时iov数据的缓冲区
-    std::mutex iov_buffers_mutex_;                      // 临时iov缓冲区互斥锁
-    std::string server_addr_;                           // 服务器地址
-    uint16_t server_port_;                              // 服务器端口
-    uint32_t func_id_;                                  // 请求的函数id
-    std::vector<iovec> iov_send_;                       // iov发送缓冲区, 用于发送不带长度的数据
-    std::vector<iovec> iov_send2_;                      // iov发送缓冲区, 用于发送带长度的数据
-    std::vector<iovec> iov_read_;                       // iov读取缓冲区, 用于读取不带长度的数据
-    std::vector<iovec> iov_read2_;                      // iov读取缓冲区, 用于读取带长度的数据
+    uuid_t client_id_{};                                // 客户端id
+    uint16_t version_key_{};                            // 版本号
+    std::string client_id_str_{};                       // 客户端id字符串
+    bool is_server{false};                              // 是否是用于服务端
+    bool is_async_{false};                              // 是否是异步连接
+    std::set<void *> iov_buffers_{};                    // 临时iov数据的缓冲区
+    std::mutex iov_buffers_mutex_{};                    // 临时iov缓冲区互斥锁
+    std::string server_addr_{};                         // 服务器地址
+    uint16_t server_port_{};                            // 服务器端口
+    uint32_t func_id_{};                                // 请求的函数id
+    std::vector<iovec> iov_send_{};                     // iov发送缓冲区, 用于发送不带长度的数据
+    std::vector<iovec> iov_send2_{};                    // iov发送缓冲区, 用于发送带长度的数据
+    std::vector<iovec> iov_read_{};                     // iov读取缓冲区, 用于读取不带长度的数据
+    std::vector<iovec> iov_read2_{};                    // iov读取缓冲区, 用于读取带长度的数据
     RpcError wait_for_readable(int timeout_ms);         // 等待可读
     RpcError wait_for_writable(int timeout_ms);         // 等待可写
     RpcError set_nonblocking();                         // 设置非阻塞
@@ -211,15 +211,15 @@ class RpcServer {
     // 私有构造函数和析构函数
     RpcServer(uint16_t port);
     ~RpcServer();
-    int listenfd_;                                                // 监听socket
-    uint16_t version_key_;                                        // 版本号
-    std::atomic<bool> running_{false};                            // 是否运行, 用于通知退出
-    std::map<std::string, std::unique_ptr<RpcConn>> async_conns_; // 每个client id一个异步连接
-    std::mutex async_mutex_;                                      // 异步连接互斥锁
-    std::vector<std::thread> worker_threads_;                     // 工作线程
-    std::map<uint32_t, RequestHandler> handlers_;                 // 每个函数id一个处理函数
-    void handle_request(std::shared_ptr<RpcConn> conn);           // 处理请求
-    void accept_loop();                                           // 接受连接循环
+    int listenfd_{-1};                                              // 监听socket
+    uint16_t version_key_{};                                        // 版本号
+    std::atomic<bool> running_{false};                              // 是否运行, 用于通知退出
+    std::map<std::string, std::unique_ptr<RpcConn>> async_conns_{}; // 每个client id一个异步连接
+    std::mutex async_mutex_{};                                      // 异步连接互斥锁
+    std::vector<std::thread> worker_threads_{};                     // 工作线程
+    std::map<uint32_t, RequestHandler> handlers_{};                 // 每个函数id一个处理函数
+    void handle_request(std::shared_ptr<RpcConn> conn);             // 处理请求
+    void accept_loop();                                             // 接受连接循环
 };
 
 // RPC客户端类, 代表一个RPC客户端
@@ -251,17 +251,17 @@ class RpcClient {
     void register_async_handler(uint32_t func_id, RequestHandler handler);
 
   private:
-    std::string server_addr_;                           // 服务器地址
-    uint16_t server_port_;                              // 服务器端口
-    uuid_t client_id_;                                  // 客户端id
-    uint16_t version_key_;                              // 版本号
-    std::atomic<bool> running_{false};                  // 是否运行, 用于通知退出
-    std::vector<std::unique_ptr<RpcConn>> sync_conns_;  // 同步连接池
-    std::mutex sync_mutex_;                             // 同步连接池互斥锁
-    std::unique_ptr<RpcConn> async_conn_;               // 异步连接
-    std::thread async_thread_;                          // 异步消息处理线程
-    std::map<uint32_t, RequestHandler> async_handlers_; // 异步请求处理函数
-    void async_receive_loop();                          // 异步接收循环
+    std::string server_addr_{};                           // 服务器地址
+    uint16_t server_port_{};                              // 服务器端口
+    uuid_t client_id_{};                                  // 客户端id
+    uint16_t version_key_{};                              // 版本号
+    std::atomic<bool> running_{false};                    // 是否运行, 用于通知退出
+    std::vector<std::unique_ptr<RpcConn>> sync_conns_{};  // 同步连接池
+    std::mutex sync_mutex_{};                             // 同步连接池互斥锁
+    std::unique_ptr<RpcConn> async_conn_{};               // 异步连接
+    std::thread async_thread_{};                          // 异步消息处理线程
+    std::map<uint32_t, RequestHandler> async_handlers_{}; // 异步请求处理函数
+    void async_receive_loop();                            // 异步接收循环
 };
 
 // RPC缓冲区管理类, 用于管理RPC缓冲区
