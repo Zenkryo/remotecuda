@@ -38,6 +38,13 @@ typedef struct __cudaFatCudaBinary2EntryRec {
     unsigned long long int uncompressedBinarySize;
 } __cudaFatCudaBinary2Entry;
 
+typedef struct __attribute__((__packed__)) Async2Client {
+    void *clientPtr;
+    void *serverPtr;
+    ssize_t size;
+    bool to_free;
+} Async2Client;
+
 enum FatBin2EntryType { FATBIN_2_PTX = 0x1 };
 
 #define FATBIN_FLAG_COMPRESS 0x0000000000002000LL

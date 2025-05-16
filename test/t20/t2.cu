@@ -19,7 +19,7 @@ void checkCudaError(cudaError_t error, const char *msg) {
 }
 
 int main() {
-    const int N = 32; // 向量大小
+    const int N = 1024; // 向量大小
     size_t size = N * sizeof(float);
 
     // 使用统一内存分配内存
@@ -48,7 +48,6 @@ int main() {
     // 启动内核
     vectorAdd<<<blocksPerGrid, threadsPerBlock>>>(a, b, c, N);
 
-    sleep(1);
     // 等待内核完成
     checkCudaError(cudaDeviceSynchronize(), "内核执行失败");
 

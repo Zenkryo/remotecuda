@@ -81,7 +81,9 @@ int handle_mem2client(RpcConn *conn) {
     if(i > 0) {
         conn->read_all_now(ptrs, nullptr, i);
     }
-
+    int result = 0;
+    conn->write(&result, sizeof(result));
+    conn->submit_request();
     return 0;
 }
 

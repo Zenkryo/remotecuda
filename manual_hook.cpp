@@ -774,41 +774,16 @@ extern "C" void mem2client_async(RpcConn *conn, void *clientPtr, ssize_t size, b
         return;
     }
     if(memSize > 0) {
-        // 写入服务器端内存指针
-        void **tmp_ptr = (void **)conn->alloc_iov_buffer(sizeof(ptr));
-        if(tmp_ptr == nullptr) {
+        Async2Client *info = (Async2Client *)conn->alloc_iov_buffer(sizeof(Async2Client));
+        if(info == nullptr) {
             printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
             return;
         }
-        *tmp_ptr = ptr;
-        conn->write(tmp_ptr, sizeof(*tmp_ptr));
-
-        // 写入是否删除临时内存
-        int *int_ptr = (int *)conn->alloc_iov_buffer(sizeof(int));
-        if(int_ptr == nullptr) {
-            printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
-            return;
-        }
-        *int_ptr = del_tmp_ptr;
-        conn->write(int_ptr, sizeof(*int_ptr));
-
-        // 写入大小
-        ssize_t *tmp_size = (ssize_t *)conn->alloc_iov_buffer(sizeof(size));
-        if(tmp_size == nullptr) {
-            printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
-            return;
-        }
-        *tmp_size = memSize;
-        conn->write(tmp_size, sizeof(*tmp_size));
-
-        // 写入客户端指针
-        void **tmp_client_ptr = (void **)conn->alloc_iov_buffer(sizeof(clientPtr));
-        if(tmp_client_ptr == nullptr) {
-            printf("WARNING: failed to get iov buffer for conn host memory 0x%p\n", clientPtr);
-            return;
-        }
-        *tmp_client_ptr = clientPtr;
-        conn->write(tmp_client_ptr, sizeof(*tmp_client_ptr));
+        info->clientPtr = clientPtr;
+        info->serverPtr = ptr;
+        info->size = memSize;
+        info->to_free = del_tmp_ptr;
+        conn->write(info, sizeof(Async2Client), true);
     }
     return;
 }
@@ -1136,24 +1111,17 @@ extern "C" cudaError_t cudaLaunchKernel(const void *func, dim3 gridDim, dim3 blo
         updateTmpPtr(*((void **)args[i]), f->params[i].ptr);
     }
     conn->read(&_result, sizeof(_result));
+
+    for(int i = 0; i < f->param_count; i++) {
+        mem2client_async(conn, *((void **)args[i]), -1, false);
+    }
+    conn->write(&end_flag, sizeof(end_flag), true);
+    conn->write(&stream, sizeof(stream), true);
+
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
         rpc_release_conn(conn, true);
         exit(1);
-    }
-
-    conn->prepare_request(RPC_mem2client_async);
-    for(int i = 0; i < f->param_count; i++) {
-        mem2client_async(conn, *((void **)args[i]), -1, false);
-    }
-    if(conn->get_iov_send_count(false) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        conn->write(&stream, sizeof(stream));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
     }
     rpc_release_conn(conn);
     return _result;
