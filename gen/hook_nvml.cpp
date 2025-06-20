@@ -348,6 +348,153 @@ extern "C" nvmlReturn_t nvmlSystemGetProcessName(unsigned int pid, char *name, u
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwbcEntry_t *hwbcEntries) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetHicVersion called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0hwbcCount;
+    mem2server(conn, &_0hwbcCount, (void *)hwbcCount, sizeof(*hwbcCount));
+    void *_0hwbcEntries;
+    mem2server(conn, &_0hwbcEntries, (void *)hwbcEntries, sizeof(*hwbcEntries));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetHicVersion);
+    conn->write(&_0hwbcCount, sizeof(_0hwbcCount));
+    updateTmpPtr((void *)hwbcCount, _0hwbcCount);
+    conn->write(&_0hwbcEntries, sizeof(_0hwbcEntries));
+    updateTmpPtr((void *)hwbcEntries, _0hwbcEntries);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)hwbcCount, sizeof(*hwbcCount), true);
+    mem2client(conn, (void *)hwbcEntries, sizeof(*hwbcEntries), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int *count, nvmlDevice_t *deviceArray) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetTopologyGpuSet called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0count;
+    mem2server(conn, &_0count, (void *)count, sizeof(*count));
+    void *_0deviceArray;
+    mem2server(conn, &_0deviceArray, (void *)deviceArray, sizeof(*deviceArray));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetTopologyGpuSet);
+    conn->write(&cpuNumber, sizeof(cpuNumber));
+    conn->write(&_0count, sizeof(_0count));
+    updateTmpPtr((void *)count, _0count);
+    conn->write(&_0deviceArray, sizeof(_0deviceArray));
+    updateTmpPtr((void *)deviceArray, _0deviceArray);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)count, sizeof(*count), true);
+    mem2client(conn, (void *)deviceArray, sizeof(*deviceArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetDriverBranch(nvmlSystemDriverBranchInfo_t *branchInfo, unsigned int length) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetDriverBranch called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0branchInfo;
+    mem2server(conn, &_0branchInfo, (void *)branchInfo, sizeof(*branchInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetDriverBranch);
+    conn->write(&_0branchInfo, sizeof(_0branchInfo));
+    updateTmpPtr((void *)branchInfo, _0branchInfo);
+    conn->write(&length, sizeof(length));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)branchInfo, sizeof(*branchInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlUnitGetCount(unsigned int *unitCount) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitGetCount called" << std::endl;
@@ -721,56 +868,6 @@ extern "C" nvmlReturn_t nvmlUnitGetDevices(nvmlUnit_t unit, unsigned int *device
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlSystemGetHicVersion(unsigned int *hwbcCount, nvmlHwbcEntry_t *hwbcEntries) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetHicVersion called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0hwbcCount;
-    mem2server(conn, &_0hwbcCount, (void *)hwbcCount, sizeof(*hwbcCount));
-    void *_0hwbcEntries;
-    mem2server(conn, &_0hwbcEntries, (void *)hwbcEntries, sizeof(*hwbcEntries));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlSystemGetHicVersion);
-    conn->write(&_0hwbcCount, sizeof(_0hwbcCount));
-    updateTmpPtr((void *)hwbcCount, _0hwbcCount);
-    conn->write(&_0hwbcEntries, sizeof(_0hwbcEntries));
-    updateTmpPtr((void *)hwbcEntries, _0hwbcEntries);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)hwbcCount, sizeof(*hwbcCount), true);
-    mem2client(conn, (void *)hwbcEntries, sizeof(*hwbcEntries), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetCount_v2(unsigned int *deviceCount) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCount_v2 called" << std::endl;
@@ -987,6 +1084,56 @@ extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUID(const char *uuid, nvmlDevice_t
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)device, sizeof(*device), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetHandleByUUIDV(const nvmlUUID_t *uuid, nvmlDevice_t *device) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetHandleByUUIDV called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0uuid;
+    mem2server(conn, &_0uuid, (void *)uuid, sizeof(*uuid));
+    void *_0device;
+    mem2server(conn, &_0device, (void *)device, sizeof(*device));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetHandleByUUIDV);
+    conn->write(&_0uuid, sizeof(_0uuid));
+    updateTmpPtr((void *)uuid, _0uuid);
+    conn->write(&_0device, sizeof(_0device));
+    updateTmpPtr((void *)device, _0device);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)uuid, sizeof(*uuid), true);
     mem2client(conn, (void *)device, sizeof(*device), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -1228,6 +1375,98 @@ extern "C" nvmlReturn_t nvmlDeviceGetSerial(nvmlDevice_t device, char *serial, u
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetModuleId(nvmlDevice_t device, unsigned int *moduleId) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetModuleId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0moduleId;
+    mem2server(conn, &_0moduleId, (void *)moduleId, sizeof(*moduleId));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetModuleId);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0moduleId, sizeof(_0moduleId));
+    updateTmpPtr((void *)moduleId, _0moduleId);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)moduleId, sizeof(*moduleId), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetC2cModeInfoV(nvmlDevice_t device, nvmlC2cModeInfo_v1_t *c2cModeInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetC2cModeInfoV called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0c2cModeInfo;
+    mem2server(conn, &_0c2cModeInfo, (void *)c2cModeInfo, sizeof(*c2cModeInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetC2cModeInfoV);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0c2cModeInfo, sizeof(_0c2cModeInfo));
+    updateTmpPtr((void *)c2cModeInfo, _0c2cModeInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)c2cModeInfo, sizeof(*c2cModeInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetMemoryAffinity(nvmlDevice_t device, unsigned int nodeSetSize, unsigned long *nodeSet, nvmlAffinityScope_t scope) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetMemoryAffinity called" << std::endl;
@@ -1453,6 +1692,52 @@ extern "C" nvmlReturn_t nvmlDeviceClearCpuAffinity(nvmlDevice_t device) {
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetNumaNodeId(nvmlDevice_t device, unsigned int *node) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetNumaNodeId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0node;
+    mem2server(conn, &_0node, (void *)node, sizeof(*node));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetNumaNodeId);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0node, sizeof(_0node));
+    updateTmpPtr((void *)node, _0node);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)node, sizeof(*node), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetTopologyCommonAncestor(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuTopologyLevel_t *pathInfo) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTopologyCommonAncestor called" << std::endl;
@@ -1552,57 +1837,6 @@ extern "C" nvmlReturn_t nvmlDeviceGetTopologyNearestGpus(nvmlDevice_t device, nv
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlSystemGetTopologyGpuSet(unsigned int cpuNumber, unsigned int *count, nvmlDevice_t *deviceArray) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlSystemGetTopologyGpuSet called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0count;
-    mem2server(conn, &_0count, (void *)count, sizeof(*count));
-    void *_0deviceArray;
-    mem2server(conn, &_0deviceArray, (void *)deviceArray, sizeof(*deviceArray));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlSystemGetTopologyGpuSet);
-    conn->write(&cpuNumber, sizeof(cpuNumber));
-    conn->write(&_0count, sizeof(_0count));
-    updateTmpPtr((void *)count, _0count);
-    conn->write(&_0deviceArray, sizeof(_0deviceArray));
-    updateTmpPtr((void *)deviceArray, _0deviceArray);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)count, sizeof(*count), true);
-    mem2client(conn, (void *)deviceArray, sizeof(*deviceArray), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetP2PStatus(nvmlDevice_t device1, nvmlDevice_t device2, nvmlGpuP2PCapsIndex_t p2pIndex, nvmlGpuP2PStatus_t *p2pStatus) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetP2PStatus called" << std::endl;
@@ -1677,51 +1911,6 @@ extern "C" nvmlReturn_t nvmlDeviceGetUUID(nvmlDevice_t device, char *uuid, unsig
         conn->read(uuid, length, true);
     }
     conn->write(&length, sizeof(length));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, char *mdevUuid, unsigned int size) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlVgpuInstanceGetMdevUUID called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlVgpuInstanceGetMdevUUID);
-    conn->write(&vgpuInstance, sizeof(vgpuInstance));
-    if(size > 0) {
-        conn->read(mdevUuid, size, true);
-    }
-    conn->write(&size, sizeof(size));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2010,6 +2199,57 @@ extern "C" nvmlReturn_t nvmlDeviceValidateInforom(nvmlDevice_t device) {
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetLastBBXFlushTime(nvmlDevice_t device, unsigned long long *timestamp, unsigned long *durationUs) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetLastBBXFlushTime called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0timestamp;
+    mem2server(conn, &_0timestamp, (void *)timestamp, sizeof(*timestamp));
+    void *_0durationUs;
+    mem2server(conn, &_0durationUs, (void *)durationUs, sizeof(*durationUs));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetLastBBXFlushTime);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0timestamp, sizeof(_0timestamp));
+    updateTmpPtr((void *)timestamp, _0timestamp);
+    conn->write(&_0durationUs, sizeof(_0durationUs));
+    updateTmpPtr((void *)durationUs, _0durationUs);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)timestamp, sizeof(*timestamp), true);
+    mem2client(conn, (void *)durationUs, sizeof(*durationUs), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetDisplayMode(nvmlDevice_t device, nvmlEnableState_t *display) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetDisplayMode called" << std::endl;
@@ -2148,6 +2388,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetPersistenceMode(nvmlDevice_t device, nvmlEn
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetPciInfoExt(nvmlDevice_t device, nvmlPciInfoExt_t *pci) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetPciInfoExt called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pci;
+    mem2server(conn, &_0pci, (void *)pci, sizeof(*pci));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetPciInfoExt);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pci, sizeof(_0pci));
+    updateTmpPtr((void *)pci, _0pci);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pci, sizeof(*pci), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetPciInfo_v3(nvmlDevice_t device, nvmlPciInfo_t *pci) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetPciInfo_v3 called" << std::endl;
@@ -2228,6 +2514,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxPcieLinkGeneration(nvmlDevice_t device, 
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)maxLinkGen, sizeof(*maxLinkGen), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGpuMaxPcieLinkGeneration(nvmlDevice_t device, unsigned int *maxLinkGenDevice) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGpuMaxPcieLinkGeneration called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0maxLinkGenDevice;
+    mem2server(conn, &_0maxLinkGenDevice, (void *)maxLinkGenDevice, sizeof(*maxLinkGenDevice));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGpuMaxPcieLinkGeneration);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0maxLinkGenDevice, sizeof(_0maxLinkGenDevice));
+    updateTmpPtr((void *)maxLinkGenDevice, _0maxLinkGenDevice);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)maxLinkGenDevice, sizeof(*maxLinkGenDevice), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2565,6 +2897,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetMaxClockInfo(nvmlDevice_t device, nvmlClock
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetGpcClkVfOffset(nvmlDevice_t device, int *offset) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGpcClkVfOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0offset;
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGpcClkVfOffset);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0offset, sizeof(_0offset));
+    updateTmpPtr((void *)offset, _0offset);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetApplicationsClock(nvmlDevice_t device, nvmlClockType_t clockType, unsigned int *clockMHz) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetApplicationsClock called" << std::endl;
@@ -2647,47 +3025,6 @@ extern "C" nvmlReturn_t nvmlDeviceGetDefaultApplicationsClock(nvmlDevice_t devic
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)clockMHz, sizeof(*clockMHz), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceResetApplicationsClocks called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceResetApplicationsClocks);
-    conn->write(&device, sizeof(device));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2949,91 +3286,6 @@ extern "C" nvmlReturn_t nvmlDeviceGetAutoBoostedClocksEnabled(nvmlDevice_t devic
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetAutoBoostedClocksEnabled called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceSetAutoBoostedClocksEnabled);
-    conn->write(&device, sizeof(device));
-    conn->write(&enabled, sizeof(enabled));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled, unsigned int flags) {
-#ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetDefaultAutoBoostedClocksEnabled called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceSetDefaultAutoBoostedClocksEnabled);
-    conn->write(&device, sizeof(device));
-    conn->write(&enabled, sizeof(enabled));
-    conn->write(&flags, sizeof(flags));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed(nvmlDevice_t device, unsigned int *speed) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFanSpeed called" << std::endl;
@@ -3127,6 +3379,243 @@ extern "C" nvmlReturn_t nvmlDeviceGetFanSpeed_v2(nvmlDevice_t device, unsigned i
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetFanSpeedRPM(nvmlDevice_t device, nvmlFanSpeedInfo_t *fanSpeed) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetFanSpeedRPM called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0fanSpeed;
+    mem2server(conn, &_0fanSpeed, (void *)fanSpeed, sizeof(*fanSpeed));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetFanSpeedRPM);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0fanSpeed, sizeof(_0fanSpeed));
+    updateTmpPtr((void *)fanSpeed, _0fanSpeed);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)fanSpeed, sizeof(*fanSpeed), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetTargetFanSpeed(nvmlDevice_t device, unsigned int fan, unsigned int *targetSpeed) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetTargetFanSpeed called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0targetSpeed;
+    mem2server(conn, &_0targetSpeed, (void *)targetSpeed, sizeof(*targetSpeed));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetTargetFanSpeed);
+    conn->write(&device, sizeof(device));
+    conn->write(&fan, sizeof(fan));
+    conn->write(&_0targetSpeed, sizeof(_0targetSpeed));
+    updateTmpPtr((void *)targetSpeed, _0targetSpeed);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)targetSpeed, sizeof(*targetSpeed), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetMinMaxFanSpeed(nvmlDevice_t device, unsigned int *minSpeed, unsigned int *maxSpeed) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetMinMaxFanSpeed called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0minSpeed;
+    mem2server(conn, &_0minSpeed, (void *)minSpeed, sizeof(*minSpeed));
+    void *_0maxSpeed;
+    mem2server(conn, &_0maxSpeed, (void *)maxSpeed, sizeof(*maxSpeed));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetMinMaxFanSpeed);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0minSpeed, sizeof(_0minSpeed));
+    updateTmpPtr((void *)minSpeed, _0minSpeed);
+    conn->write(&_0maxSpeed, sizeof(_0maxSpeed));
+    updateTmpPtr((void *)maxSpeed, _0maxSpeed);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)minSpeed, sizeof(*minSpeed), true);
+    mem2client(conn, (void *)maxSpeed, sizeof(*maxSpeed), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetFanControlPolicy_v2(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t *policy) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetFanControlPolicy_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0policy;
+    mem2server(conn, &_0policy, (void *)policy, sizeof(*policy));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetFanControlPolicy_v2);
+    conn->write(&device, sizeof(device));
+    conn->write(&fan, sizeof(fan));
+    conn->write(&_0policy, sizeof(_0policy));
+    updateTmpPtr((void *)policy, _0policy);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)policy, sizeof(*policy), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetNumFans(nvmlDevice_t device, unsigned int *numFans) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetNumFans called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0numFans;
+    mem2server(conn, &_0numFans, (void *)numFans, sizeof(*numFans));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetNumFans);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0numFans, sizeof(_0numFans));
+    updateTmpPtr((void *)numFans, _0numFans);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)numFans, sizeof(*numFans), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemperatureSensors_t sensorType, unsigned int *temp) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetTemperature called" << std::endl;
@@ -3162,6 +3651,98 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperature(nvmlDevice_t device, nvmlTemper
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)temp, sizeof(*temp), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetCoolerInfo(nvmlDevice_t device, nvmlCoolerInfo_t *coolerInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetCoolerInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0coolerInfo;
+    mem2server(conn, &_0coolerInfo, (void *)coolerInfo, sizeof(*coolerInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetCoolerInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0coolerInfo, sizeof(_0coolerInfo));
+    updateTmpPtr((void *)coolerInfo, _0coolerInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)coolerInfo, sizeof(*coolerInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetTemperatureV(nvmlDevice_t device, nvmlTemperature_t *temperature) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetTemperatureV called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0temperature;
+    mem2server(conn, &_0temperature, (void *)temperature, sizeof(*temperature));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetTemperatureV);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0temperature, sizeof(_0temperature));
+    updateTmpPtr((void *)temperature, _0temperature);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)temperature, sizeof(*temperature), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3221,9 +3802,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetTemperatureThreshold(nvmlDevice_t device, n
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int *temp) {
+extern "C" nvmlReturn_t nvmlDeviceGetMarginTemperature(nvmlDevice_t device, nvmlMarginTemperature_t *marginTempInfo) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceSetTemperatureThreshold called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetMarginTemperature called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -3231,8 +3812,8 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0temp;
-    mem2server(conn, &_0temp, (void *)temp, sizeof(*temp));
+    void *_0marginTempInfo;
+    mem2server(conn, &_0marginTempInfo, (void *)marginTempInfo, sizeof(*marginTempInfo));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -3243,11 +3824,10 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceSetTemperatureThreshold);
+    conn->prepare_request(RPC_nvmlDeviceGetMarginTemperature);
     conn->write(&device, sizeof(device));
-    conn->write(&thresholdType, sizeof(thresholdType));
-    conn->write(&_0temp, sizeof(_0temp));
-    updateTmpPtr((void *)temp, _0temp);
+    conn->write(&_0marginTempInfo, sizeof(_0marginTempInfo));
+    updateTmpPtr((void *)marginTempInfo, _0marginTempInfo);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -3255,7 +3835,54 @@ extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, n
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)temp, sizeof(*temp), true);
+    mem2client(conn, (void *)marginTempInfo, sizeof(*marginTempInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetThermalSettings(nvmlDevice_t device, unsigned int sensorIndex, nvmlGpuThermalSettings_t *pThermalSettings) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetThermalSettings called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pThermalSettings;
+    mem2server(conn, &_0pThermalSettings, (void *)pThermalSettings, sizeof(*pThermalSettings));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetThermalSettings);
+    conn->write(&device, sizeof(device));
+    conn->write(&sensorIndex, sizeof(sensorIndex));
+    conn->write(&_0pThermalSettings, sizeof(_0pThermalSettings));
+    updateTmpPtr((void *)pThermalSettings, _0pThermalSettings);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pThermalSettings, sizeof(*pThermalSettings), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3314,6 +3941,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetPerformanceState(nvmlDevice_t device, nvmlP
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksEventReasons(nvmlDevice_t device, unsigned long long *clocksEventReasons) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetCurrentClocksEventReasons called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0clocksEventReasons;
+    mem2server(conn, &_0clocksEventReasons, (void *)clocksEventReasons, sizeof(*clocksEventReasons));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetCurrentClocksEventReasons);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0clocksEventReasons, sizeof(_0clocksEventReasons));
+    updateTmpPtr((void *)clocksEventReasons, _0clocksEventReasons);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)clocksEventReasons, sizeof(*clocksEventReasons), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t device, unsigned long long *clocksThrottleReasons) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetCurrentClocksThrottleReasons called" << std::endl;
@@ -3348,6 +4021,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetCurrentClocksThrottleReasons(nvmlDevice_t d
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)clocksThrottleReasons, sizeof(*clocksThrottleReasons), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetSupportedClocksEventReasons(nvmlDevice_t device, unsigned long long *supportedClocksEventReasons) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetSupportedClocksEventReasons called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0supportedClocksEventReasons;
+    mem2server(conn, &_0supportedClocksEventReasons, (void *)supportedClocksEventReasons, sizeof(*supportedClocksEventReasons));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetSupportedClocksEventReasons);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0supportedClocksEventReasons, sizeof(_0supportedClocksEventReasons));
+    updateTmpPtr((void *)supportedClocksEventReasons, _0supportedClocksEventReasons);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)supportedClocksEventReasons, sizeof(*supportedClocksEventReasons), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3440,6 +4159,484 @@ extern "C" nvmlReturn_t nvmlDeviceGetPowerState(nvmlDevice_t device, nvmlPstates
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pState, sizeof(*pState), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetDynamicPstatesInfo(nvmlDevice_t device, nvmlGpuDynamicPstatesInfo_t *pDynamicPstatesInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetDynamicPstatesInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pDynamicPstatesInfo;
+    mem2server(conn, &_0pDynamicPstatesInfo, (void *)pDynamicPstatesInfo, sizeof(*pDynamicPstatesInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetDynamicPstatesInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pDynamicPstatesInfo, sizeof(_0pDynamicPstatesInfo));
+    updateTmpPtr((void *)pDynamicPstatesInfo, _0pDynamicPstatesInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pDynamicPstatesInfo, sizeof(*pDynamicPstatesInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetMemClkVfOffset(nvmlDevice_t device, int *offset) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetMemClkVfOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0offset;
+    mem2server(conn, &_0offset, (void *)offset, sizeof(*offset));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetMemClkVfOffset);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0offset, sizeof(_0offset));
+    updateTmpPtr((void *)offset, _0offset);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)offset, sizeof(*offset), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetMinMaxClockOfPState(nvmlDevice_t device, nvmlClockType_t type, nvmlPstates_t pstate, unsigned int *minClockMHz, unsigned int *maxClockMHz) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetMinMaxClockOfPState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0minClockMHz;
+    mem2server(conn, &_0minClockMHz, (void *)minClockMHz, sizeof(*minClockMHz));
+    void *_0maxClockMHz;
+    mem2server(conn, &_0maxClockMHz, (void *)maxClockMHz, sizeof(*maxClockMHz));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetMinMaxClockOfPState);
+    conn->write(&device, sizeof(device));
+    conn->write(&type, sizeof(type));
+    conn->write(&pstate, sizeof(pstate));
+    conn->write(&_0minClockMHz, sizeof(_0minClockMHz));
+    updateTmpPtr((void *)minClockMHz, _0minClockMHz);
+    conn->write(&_0maxClockMHz, sizeof(_0maxClockMHz));
+    updateTmpPtr((void *)maxClockMHz, _0maxClockMHz);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)minClockMHz, sizeof(*minClockMHz), true);
+    mem2client(conn, (void *)maxClockMHz, sizeof(*maxClockMHz), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetSupportedPerformanceStates(nvmlDevice_t device, nvmlPstates_t *pstates, unsigned int size) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetSupportedPerformanceStates called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pstates;
+    mem2server(conn, &_0pstates, (void *)pstates, sizeof(*pstates));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetSupportedPerformanceStates);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pstates, sizeof(_0pstates));
+    updateTmpPtr((void *)pstates, _0pstates);
+    conn->write(&size, sizeof(size));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pstates, sizeof(*pstates), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGpcClkMinMaxVfOffset(nvmlDevice_t device, int *minOffset, int *maxOffset) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGpcClkMinMaxVfOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0minOffset;
+    mem2server(conn, &_0minOffset, (void *)minOffset, sizeof(*minOffset));
+    void *_0maxOffset;
+    mem2server(conn, &_0maxOffset, (void *)maxOffset, sizeof(*maxOffset));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGpcClkMinMaxVfOffset);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0minOffset, sizeof(_0minOffset));
+    updateTmpPtr((void *)minOffset, _0minOffset);
+    conn->write(&_0maxOffset, sizeof(_0maxOffset));
+    updateTmpPtr((void *)maxOffset, _0maxOffset);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)minOffset, sizeof(*minOffset), true);
+    mem2client(conn, (void *)maxOffset, sizeof(*maxOffset), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetMemClkMinMaxVfOffset(nvmlDevice_t device, int *minOffset, int *maxOffset) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetMemClkMinMaxVfOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0minOffset;
+    mem2server(conn, &_0minOffset, (void *)minOffset, sizeof(*minOffset));
+    void *_0maxOffset;
+    mem2server(conn, &_0maxOffset, (void *)maxOffset, sizeof(*maxOffset));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetMemClkMinMaxVfOffset);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0minOffset, sizeof(_0minOffset));
+    updateTmpPtr((void *)minOffset, _0minOffset);
+    conn->write(&_0maxOffset, sizeof(_0maxOffset));
+    updateTmpPtr((void *)maxOffset, _0maxOffset);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)minOffset, sizeof(*minOffset), true);
+    mem2client(conn, (void *)maxOffset, sizeof(*maxOffset), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetClockOffsets called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetClockOffsets);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetClockOffsets(nvmlDevice_t device, nvmlClockOffset_t *info) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetClockOffsets called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetClockOffsets);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetPerformanceModes(nvmlDevice_t device, nvmlDevicePerfModes_t *perfModes) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetPerformanceModes called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0perfModes;
+    mem2server(conn, &_0perfModes, (void *)perfModes, sizeof(*perfModes));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetPerformanceModes);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0perfModes, sizeof(_0perfModes));
+    updateTmpPtr((void *)perfModes, _0perfModes);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)perfModes, sizeof(*perfModes), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetCurrentClockFreqs(nvmlDevice_t device, nvmlDeviceCurrentClockFreqs_t *currentClockFreqs) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetCurrentClockFreqs called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0currentClockFreqs;
+    mem2server(conn, &_0currentClockFreqs, (void *)currentClockFreqs, sizeof(*currentClockFreqs));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetCurrentClockFreqs);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0currentClockFreqs, sizeof(_0currentClockFreqs));
+    updateTmpPtr((void *)currentClockFreqs, _0currentClockFreqs);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)currentClockFreqs, sizeof(*currentClockFreqs), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -3876,6 +5073,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo(nvmlDevice_t device, nvmlMemory_
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetMemoryInfo_v2(nvmlDevice_t device, nvmlMemory_v2_t *memory) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetMemoryInfo_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0memory;
+    mem2server(conn, &_0memory, (void *)memory, sizeof(*memory));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetMemoryInfo_v2);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0memory, sizeof(_0memory));
+    updateTmpPtr((void *)memory, _0memory);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memory, sizeof(*memory), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetComputeMode(nvmlDevice_t device, nvmlComputeMode_t *mode) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetComputeMode called" << std::endl;
@@ -3973,6 +5216,103 @@ extern "C" nvmlReturn_t nvmlDeviceGetCudaComputeCapability(nvmlDevice_t device, 
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetDramEncryptionMode(nvmlDevice_t device, nvmlDramEncryptionInfo_t *current, nvmlDramEncryptionInfo_t *pending) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetDramEncryptionMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0current;
+    mem2server(conn, &_0current, (void *)current, sizeof(*current));
+    void *_0pending;
+    mem2server(conn, &_0pending, (void *)pending, sizeof(*pending));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetDramEncryptionMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0current, sizeof(_0current));
+    updateTmpPtr((void *)current, _0current);
+    conn->write(&_0pending, sizeof(_0pending));
+    updateTmpPtr((void *)pending, _0pending);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)current, sizeof(*current), true);
+    mem2client(conn, (void *)pending, sizeof(*pending), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetDramEncryptionMode(nvmlDevice_t device, const nvmlDramEncryptionInfo_t *dramEncryption) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetDramEncryptionMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0dramEncryption;
+    mem2server(conn, &_0dramEncryption, (void *)dramEncryption, sizeof(*dramEncryption));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetDramEncryptionMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0dramEncryption, sizeof(_0dramEncryption));
+    updateTmpPtr((void *)dramEncryption, _0dramEncryption);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dramEncryption, sizeof(*dramEncryption), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableState_t *current, nvmlEnableState_t *pending) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetEccMode called" << std::endl;
@@ -4012,6 +5352,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetEccMode(nvmlDevice_t device, nvmlEnableStat
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)current, sizeof(*current), true);
     mem2client(conn, (void *)pending, sizeof(*pending), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetDefaultEccMode(nvmlDevice_t device, nvmlEnableState_t *defaultMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetDefaultEccMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0defaultMode;
+    mem2server(conn, &_0defaultMode, (void *)defaultMode, sizeof(*defaultMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetDefaultEccMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0defaultMode, sizeof(_0defaultMode));
+    updateTmpPtr((void *)defaultMode, _0defaultMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)defaultMode, sizeof(*defaultMode), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4563,6 +5949,108 @@ extern "C" nvmlReturn_t nvmlDeviceGetDecoderUtilization(nvmlDevice_t device, uns
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetJpgUtilization(nvmlDevice_t device, unsigned int *utilization, unsigned int *samplingPeriodUs) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetJpgUtilization called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0utilization;
+    mem2server(conn, &_0utilization, (void *)utilization, sizeof(*utilization));
+    void *_0samplingPeriodUs;
+    mem2server(conn, &_0samplingPeriodUs, (void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetJpgUtilization);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0utilization, sizeof(_0utilization));
+    updateTmpPtr((void *)utilization, _0utilization);
+    conn->write(&_0samplingPeriodUs, sizeof(_0samplingPeriodUs));
+    updateTmpPtr((void *)samplingPeriodUs, _0samplingPeriodUs);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)utilization, sizeof(*utilization), true);
+    mem2client(conn, (void *)samplingPeriodUs, sizeof(*samplingPeriodUs), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetOfaUtilization(nvmlDevice_t device, unsigned int *utilization, unsigned int *samplingPeriodUs) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetOfaUtilization called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0utilization;
+    mem2server(conn, &_0utilization, (void *)utilization, sizeof(*utilization));
+    void *_0samplingPeriodUs;
+    mem2server(conn, &_0samplingPeriodUs, (void *)samplingPeriodUs, sizeof(*samplingPeriodUs));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetOfaUtilization);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0utilization, sizeof(_0utilization));
+    updateTmpPtr((void *)utilization, _0utilization);
+    conn->write(&_0samplingPeriodUs, sizeof(_0samplingPeriodUs));
+    updateTmpPtr((void *)samplingPeriodUs, _0samplingPeriodUs);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)utilization, sizeof(*utilization), true);
+    mem2client(conn, (void *)samplingPeriodUs, sizeof(*samplingPeriodUs), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetFBCStats(nvmlDevice_t device, nvmlFBCStats_t *fbcStats) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetFBCStats called" << std::endl;
@@ -4660,9 +6148,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetFBCSessions(nvmlDevice_t device, unsigned i
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriverModel_t *current, nvmlDriverModel_t *pending) {
+extern "C" nvmlReturn_t nvmlDeviceGetDriverModel_v2(nvmlDevice_t device, nvmlDriverModel_t *current, nvmlDriverModel_t *pending) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetDriverModel called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetDriverModel_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -4684,7 +6172,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetDriverModel(nvmlDevice_t device, nvmlDriver
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetDriverModel);
+    conn->prepare_request(RPC_nvmlDeviceGetDriverModel_v2);
     conn->write(&device, sizeof(device));
     conn->write(&_0current, sizeof(_0current));
     updateTmpPtr((void *)current, _0current);
@@ -4802,9 +6290,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetBridgeChipInfo(nvmlDevice_t device, nvmlBri
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetComputeRunningProcesses_v2 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetComputeRunningProcesses_v3 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -4826,7 +6314,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t dev
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetComputeRunningProcesses_v2);
+    conn->prepare_request(RPC_nvmlDeviceGetComputeRunningProcesses_v3);
     conn->write(&device, sizeof(device));
     conn->write(&_0infoCount, sizeof(_0infoCount));
     updateTmpPtr((void *)infoCount, _0infoCount);
@@ -4853,9 +6341,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetComputeRunningProcesses_v2(nvmlDevice_t dev
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGraphicsRunningProcesses_v2 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetGraphicsRunningProcesses_v3 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -4877,7 +6365,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t de
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetGraphicsRunningProcesses_v2);
+    conn->prepare_request(RPC_nvmlDeviceGetGraphicsRunningProcesses_v3);
     conn->write(&device, sizeof(device));
     conn->write(&_0infoCount, sizeof(_0infoCount));
     updateTmpPtr((void *)infoCount, _0infoCount);
@@ -4904,9 +6392,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetGraphicsRunningProcesses_v2(nvmlDevice_t de
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
+extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v3(nvmlDevice_t device, unsigned int *infoCount, nvmlProcessInfo_t *infos) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetMPSComputeRunningProcesses_v2 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetMPSComputeRunningProcesses_v3 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -4928,7 +6416,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t 
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetMPSComputeRunningProcesses_v2);
+    conn->prepare_request(RPC_nvmlDeviceGetMPSComputeRunningProcesses_v3);
     conn->write(&device, sizeof(device));
     conn->write(&_0infoCount, sizeof(_0infoCount));
     updateTmpPtr((void *)infoCount, _0infoCount);
@@ -4943,6 +6431,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetMPSComputeRunningProcesses_v2(nvmlDevice_t 
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)infoCount, sizeof(*infoCount), true);
     mem2client(conn, (void *)infos, sizeof(*infos), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetRunningProcessDetailList(nvmlDevice_t device, nvmlProcessDetailList_t *plist) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetRunningProcessDetailList called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0plist;
+    mem2server(conn, &_0plist, (void *)plist, sizeof(*plist));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetRunningProcessDetailList);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0plist, sizeof(_0plist));
+    updateTmpPtr((void *)plist, _0plist);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)plist, sizeof(*plist), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5188,6 +6722,1144 @@ extern "C" nvmlReturn_t nvmlDeviceGetViolationStatus(nvmlDevice_t device, nvmlPe
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)violTime, sizeof(*violTime), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetIrqNum(nvmlDevice_t device, unsigned int *irqNum) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetIrqNum called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0irqNum;
+    mem2server(conn, &_0irqNum, (void *)irqNum, sizeof(*irqNum));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetIrqNum);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0irqNum, sizeof(_0irqNum));
+    updateTmpPtr((void *)irqNum, _0irqNum);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)irqNum, sizeof(*irqNum), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetNumGpuCores(nvmlDevice_t device, unsigned int *numCores) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetNumGpuCores called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0numCores;
+    mem2server(conn, &_0numCores, (void *)numCores, sizeof(*numCores));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetNumGpuCores);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0numCores, sizeof(_0numCores));
+    updateTmpPtr((void *)numCores, _0numCores);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)numCores, sizeof(*numCores), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetPowerSource(nvmlDevice_t device, nvmlPowerSource_t *powerSource) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetPowerSource called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0powerSource;
+    mem2server(conn, &_0powerSource, (void *)powerSource, sizeof(*powerSource));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetPowerSource);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0powerSource, sizeof(_0powerSource));
+    updateTmpPtr((void *)powerSource, _0powerSource);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)powerSource, sizeof(*powerSource), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetMemoryBusWidth(nvmlDevice_t device, unsigned int *busWidth) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetMemoryBusWidth called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0busWidth;
+    mem2server(conn, &_0busWidth, (void *)busWidth, sizeof(*busWidth));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetMemoryBusWidth);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0busWidth, sizeof(_0busWidth));
+    updateTmpPtr((void *)busWidth, _0busWidth);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)busWidth, sizeof(*busWidth), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetPcieLinkMaxSpeed(nvmlDevice_t device, unsigned int *maxSpeed) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetPcieLinkMaxSpeed called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0maxSpeed;
+    mem2server(conn, &_0maxSpeed, (void *)maxSpeed, sizeof(*maxSpeed));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetPcieLinkMaxSpeed);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0maxSpeed, sizeof(_0maxSpeed));
+    updateTmpPtr((void *)maxSpeed, _0maxSpeed);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)maxSpeed, sizeof(*maxSpeed), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetPcieSpeed(nvmlDevice_t device, unsigned int *pcieSpeed) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetPcieSpeed called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pcieSpeed;
+    mem2server(conn, &_0pcieSpeed, (void *)pcieSpeed, sizeof(*pcieSpeed));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetPcieSpeed);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pcieSpeed, sizeof(_0pcieSpeed));
+    updateTmpPtr((void *)pcieSpeed, _0pcieSpeed);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pcieSpeed, sizeof(*pcieSpeed), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetAdaptiveClockInfoStatus(nvmlDevice_t device, unsigned int *adaptiveClockStatus) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetAdaptiveClockInfoStatus called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0adaptiveClockStatus;
+    mem2server(conn, &_0adaptiveClockStatus, (void *)adaptiveClockStatus, sizeof(*adaptiveClockStatus));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetAdaptiveClockInfoStatus);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0adaptiveClockStatus, sizeof(_0adaptiveClockStatus));
+    updateTmpPtr((void *)adaptiveClockStatus, _0adaptiveClockStatus);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)adaptiveClockStatus, sizeof(*adaptiveClockStatus), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetBusType(nvmlDevice_t device, nvmlBusType_t *type) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetBusType called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0type;
+    mem2server(conn, &_0type, (void *)type, sizeof(*type));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetBusType);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0type, sizeof(_0type));
+    updateTmpPtr((void *)type, _0type);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)type, sizeof(*type), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGpuFabricInfo(nvmlDevice_t device, nvmlGpuFabricInfo_t *gpuFabricInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGpuFabricInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gpuFabricInfo;
+    mem2server(conn, &_0gpuFabricInfo, (void *)gpuFabricInfo, sizeof(*gpuFabricInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGpuFabricInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0gpuFabricInfo, sizeof(_0gpuFabricInfo));
+    updateTmpPtr((void *)gpuFabricInfo, _0gpuFabricInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gpuFabricInfo, sizeof(*gpuFabricInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGpuFabricInfoV(nvmlDevice_t device, nvmlGpuFabricInfoV_t *gpuFabricInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGpuFabricInfoV called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gpuFabricInfo;
+    mem2server(conn, &_0gpuFabricInfo, (void *)gpuFabricInfo, sizeof(*gpuFabricInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGpuFabricInfoV);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0gpuFabricInfo, sizeof(_0gpuFabricInfo));
+    updateTmpPtr((void *)gpuFabricInfo, _0gpuFabricInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gpuFabricInfo, sizeof(*gpuFabricInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetConfComputeCapabilities(nvmlConfComputeSystemCaps_t *capabilities) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetConfComputeCapabilities called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0capabilities;
+    mem2server(conn, &_0capabilities, (void *)capabilities, sizeof(*capabilities));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetConfComputeCapabilities);
+    conn->write(&_0capabilities, sizeof(_0capabilities));
+    updateTmpPtr((void *)capabilities, _0capabilities);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)capabilities, sizeof(*capabilities), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetConfComputeState(nvmlConfComputeSystemState_t *state) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetConfComputeState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0state;
+    mem2server(conn, &_0state, (void *)state, sizeof(*state));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetConfComputeState);
+    conn->write(&_0state, sizeof(_0state));
+    updateTmpPtr((void *)state, _0state);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)state, sizeof(*state), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetConfComputeMemSizeInfo(nvmlDevice_t device, nvmlConfComputeMemSizeInfo_t *memInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetConfComputeMemSizeInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0memInfo;
+    mem2server(conn, &_0memInfo, (void *)memInfo, sizeof(*memInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetConfComputeMemSizeInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0memInfo, sizeof(_0memInfo));
+    updateTmpPtr((void *)memInfo, _0memInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memInfo, sizeof(*memInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetConfComputeGpusReadyState(unsigned int *isAcceptingWork) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetConfComputeGpusReadyState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0isAcceptingWork;
+    mem2server(conn, &_0isAcceptingWork, (void *)isAcceptingWork, sizeof(*isAcceptingWork));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetConfComputeGpusReadyState);
+    conn->write(&_0isAcceptingWork, sizeof(_0isAcceptingWork));
+    updateTmpPtr((void *)isAcceptingWork, _0isAcceptingWork);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)isAcceptingWork, sizeof(*isAcceptingWork), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetConfComputeProtectedMemoryUsage(nvmlDevice_t device, nvmlMemory_t *memory) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetConfComputeProtectedMemoryUsage called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0memory;
+    mem2server(conn, &_0memory, (void *)memory, sizeof(*memory));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetConfComputeProtectedMemoryUsage);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0memory, sizeof(_0memory));
+    updateTmpPtr((void *)memory, _0memory);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memory, sizeof(*memory), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetConfComputeGpuCertificate(nvmlDevice_t device, nvmlConfComputeGpuCertificate_t *gpuCert) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetConfComputeGpuCertificate called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gpuCert;
+    mem2server(conn, &_0gpuCert, (void *)gpuCert, sizeof(*gpuCert));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetConfComputeGpuCertificate);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0gpuCert, sizeof(_0gpuCert));
+    updateTmpPtr((void *)gpuCert, _0gpuCert);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gpuCert, sizeof(*gpuCert), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetConfComputeGpuAttestationReport(nvmlDevice_t device, nvmlConfComputeGpuAttestationReport_t *gpuAtstReport) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetConfComputeGpuAttestationReport called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gpuAtstReport;
+    mem2server(conn, &_0gpuAtstReport, (void *)gpuAtstReport, sizeof(*gpuAtstReport));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetConfComputeGpuAttestationReport);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0gpuAtstReport, sizeof(_0gpuAtstReport));
+    updateTmpPtr((void *)gpuAtstReport, _0gpuAtstReport);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gpuAtstReport, sizeof(*gpuAtstReport), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetConfComputeKeyRotationThresholdInfo(nvmlConfComputeGetKeyRotationThresholdInfo_t *pKeyRotationThrInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetConfComputeKeyRotationThresholdInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pKeyRotationThrInfo;
+    mem2server(conn, &_0pKeyRotationThrInfo, (void *)pKeyRotationThrInfo, sizeof(*pKeyRotationThrInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetConfComputeKeyRotationThresholdInfo);
+    conn->write(&_0pKeyRotationThrInfo, sizeof(_0pKeyRotationThrInfo));
+    updateTmpPtr((void *)pKeyRotationThrInfo, _0pKeyRotationThrInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pKeyRotationThrInfo, sizeof(*pKeyRotationThrInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetConfComputeUnprotectedMemSize(nvmlDevice_t device, unsigned long long sizeKiB) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetConfComputeUnprotectedMemSize called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetConfComputeUnprotectedMemSize);
+    conn->write(&device, sizeof(device));
+    conn->write(&sizeKiB, sizeof(sizeKiB));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemSetConfComputeGpusReadyState(unsigned int isAcceptingWork) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemSetConfComputeGpusReadyState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemSetConfComputeGpusReadyState);
+    conn->write(&isAcceptingWork, sizeof(isAcceptingWork));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemSetConfComputeKeyRotationThresholdInfo(nvmlConfComputeSetKeyRotationThresholdInfo_t *pKeyRotationThrInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemSetConfComputeKeyRotationThresholdInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pKeyRotationThrInfo;
+    mem2server(conn, &_0pKeyRotationThrInfo, (void *)pKeyRotationThrInfo, sizeof(*pKeyRotationThrInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemSetConfComputeKeyRotationThresholdInfo);
+    conn->write(&_0pKeyRotationThrInfo, sizeof(_0pKeyRotationThrInfo));
+    updateTmpPtr((void *)pKeyRotationThrInfo, _0pKeyRotationThrInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pKeyRotationThrInfo, sizeof(*pKeyRotationThrInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetConfComputeSettings(nvmlSystemConfComputeSettings_t *settings) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetConfComputeSettings called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0settings;
+    mem2server(conn, &_0settings, (void *)settings, sizeof(*settings));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetConfComputeSettings);
+    conn->write(&_0settings, sizeof(_0settings));
+    updateTmpPtr((void *)settings, _0settings);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)settings, sizeof(*settings), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGspFirmwareVersion(nvmlDevice_t device, char *version) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGspFirmwareVersion called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGspFirmwareVersion);
+    conn->write(&device, sizeof(device));
+    if(32 > 0) {
+        conn->read(version, 32, true);
+    }
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGspFirmwareMode(nvmlDevice_t device, unsigned int *isEnabled, unsigned int *defaultMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGspFirmwareMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0isEnabled;
+    mem2server(conn, &_0isEnabled, (void *)isEnabled, sizeof(*isEnabled));
+    void *_0defaultMode;
+    mem2server(conn, &_0defaultMode, (void *)defaultMode, sizeof(*defaultMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGspFirmwareMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0isEnabled, sizeof(_0isEnabled));
+    updateTmpPtr((void *)isEnabled, _0isEnabled);
+    conn->write(&_0defaultMode, sizeof(_0defaultMode));
+    updateTmpPtr((void *)defaultMode, _0defaultMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)isEnabled, sizeof(*isEnabled), true);
+    mem2client(conn, (void *)defaultMode, sizeof(*defaultMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetSramEccErrorStatus(nvmlDevice_t device, nvmlEccSramErrorStatus_t *status) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetSramEccErrorStatus called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0status;
+    mem2server(conn, &_0status, (void *)status, sizeof(*status));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetSramEccErrorStatus);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0status, sizeof(_0status));
+    updateTmpPtr((void *)status, _0status);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)status, sizeof(*status), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -5698,6 +8370,196 @@ extern "C" nvmlReturn_t nvmlDeviceGetArchitecture(nvmlDevice_t device, nvmlDevic
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStatus_t *status) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetClkMonStatus called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0status;
+    mem2server(conn, &_0status, (void *)status, sizeof(*status));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetClkMonStatus);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0status, sizeof(_0status));
+    updateTmpPtr((void *)status, _0status);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)status, sizeof(*status), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProcessUtilizationSample_t *utilization, unsigned int *processSamplesCount, unsigned long long lastSeenTimeStamp) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetProcessUtilization called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0utilization;
+    mem2server(conn, &_0utilization, (void *)utilization, sizeof(*utilization));
+    void *_0processSamplesCount;
+    mem2server(conn, &_0processSamplesCount, (void *)processSamplesCount, sizeof(*processSamplesCount));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetProcessUtilization);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0utilization, sizeof(_0utilization));
+    updateTmpPtr((void *)utilization, _0utilization);
+    conn->write(&_0processSamplesCount, sizeof(_0processSamplesCount));
+    updateTmpPtr((void *)processSamplesCount, _0processSamplesCount);
+    conn->write(&lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)utilization, sizeof(*utilization), true);
+    mem2client(conn, (void *)processSamplesCount, sizeof(*processSamplesCount), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetProcessesUtilizationInfo(nvmlDevice_t device, nvmlProcessesUtilizationInfo_t *procesesUtilInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetProcessesUtilizationInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0procesesUtilInfo;
+    mem2server(conn, &_0procesesUtilInfo, (void *)procesesUtilInfo, sizeof(*procesesUtilInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetProcessesUtilizationInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0procesesUtilInfo, sizeof(_0procesesUtilInfo));
+    updateTmpPtr((void *)procesesUtilInfo, _0procesesUtilInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)procesesUtilInfo, sizeof(*procesesUtilInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetPlatformInfo(nvmlDevice_t device, nvmlPlatformInfo_t *platformInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetPlatformInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0platformInfo;
+    mem2server(conn, &_0platformInfo, (void *)platformInfo, sizeof(*platformInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetPlatformInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0platformInfo, sizeof(_0platformInfo));
+    updateTmpPtr((void *)platformInfo, _0platformInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)platformInfo, sizeof(*platformInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlUnitSetLedState(nvmlUnit_t unit, nvmlLedColor_t color) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlUnitSetLedState called" << std::endl;
@@ -6162,9 +9024,9 @@ extern "C" nvmlReturn_t nvmlDeviceSetApplicationsClocks(nvmlDevice_t device, uns
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMonStatus_t *status) {
+extern "C" nvmlReturn_t nvmlDeviceResetApplicationsClocks(nvmlDevice_t device) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetClkMonStatus called" << std::endl;
+    std::cout << "Hook: nvmlDeviceResetApplicationsClocks called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -6172,8 +9034,6 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0status;
-    mem2server(conn, &_0status, (void *)status, sizeof(*status));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -6184,10 +9044,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetClkMonStatus);
+    conn->prepare_request(RPC_nvmlDeviceResetApplicationsClocks);
     conn->write(&device, sizeof(device));
-    conn->write(&_0status, sizeof(_0status));
-    updateTmpPtr((void *)status, _0status);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6195,7 +9053,223 @@ extern "C" nvmlReturn_t nvmlDeviceGetClkMonStatus(nvmlDevice_t device, nvmlClkMo
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)status, sizeof(*status), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetAutoBoostedClocksEnabled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetAutoBoostedClocksEnabled);
+    conn->write(&device, sizeof(device));
+    conn->write(&enabled, sizeof(enabled));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetDefaultAutoBoostedClocksEnabled(nvmlDevice_t device, nvmlEnableState_t enabled, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetDefaultAutoBoostedClocksEnabled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetDefaultAutoBoostedClocksEnabled);
+    conn->write(&device, sizeof(device));
+    conn->write(&enabled, sizeof(enabled));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetDefaultFanSpeed_v2(nvmlDevice_t device, unsigned int fan) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetDefaultFanSpeed_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetDefaultFanSpeed_v2);
+    conn->write(&device, sizeof(device));
+    conn->write(&fan, sizeof(fan));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetFanControlPolicy(nvmlDevice_t device, unsigned int fan, nvmlFanControlPolicy_t policy) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetFanControlPolicy called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetFanControlPolicy);
+    conn->write(&device, sizeof(device));
+    conn->write(&fan, sizeof(fan));
+    conn->write(&policy, sizeof(policy));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetTemperatureThreshold(nvmlDevice_t device, nvmlTemperatureThresholds_t thresholdType, int *temp) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetTemperatureThreshold called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0temp;
+    mem2server(conn, &_0temp, (void *)temp, sizeof(*temp));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetTemperatureThreshold);
+    conn->write(&device, sizeof(device));
+    conn->write(&thresholdType, sizeof(thresholdType));
+    conn->write(&_0temp, sizeof(_0temp));
+    updateTmpPtr((void *)temp, _0temp);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)temp, sizeof(*temp), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6335,6 +9409,133 @@ extern "C" nvmlReturn_t nvmlDeviceSetAPIRestriction(nvmlDevice_t device, nvmlRes
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceSetFanSpeed_v2(nvmlDevice_t device, unsigned int fan, unsigned int speed) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetFanSpeed_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetFanSpeed_v2);
+    conn->write(&device, sizeof(device));
+    conn->write(&fan, sizeof(fan));
+    conn->write(&speed, sizeof(speed));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetGpcClkVfOffset(nvmlDevice_t device, int offset) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetGpcClkVfOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetGpcClkVfOffset);
+    conn->write(&device, sizeof(device));
+    conn->write(&offset, sizeof(offset));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetMemClkVfOffset(nvmlDevice_t device, int offset) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetMemClkVfOffset called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetMemClkVfOffset);
+    conn->write(&device, sizeof(device));
+    conn->write(&offset, sizeof(offset));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceSetAccountingMode(nvmlDevice_t device, nvmlEnableState_t mode) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceSetAccountingMode called" << std::endl;
@@ -6406,6 +9607,52 @@ extern "C" nvmlReturn_t nvmlDeviceClearAccountingPids(nvmlDevice_t device) {
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetPowerManagementLimit_v2(nvmlDevice_t device, nvmlPowerValue_v2_t *powerValue) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetPowerManagementLimit_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0powerValue;
+    mem2server(conn, &_0powerValue, (void *)powerValue, sizeof(*powerValue));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetPowerManagementLimit_v2);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0powerValue, sizeof(_0powerValue));
+    updateTmpPtr((void *)powerValue, _0powerValue);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)powerValue, sizeof(*powerValue), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6981,6 +10228,276 @@ extern "C" nvmlReturn_t nvmlDeviceGetNvLinkRemoteDeviceType(nvmlDevice_t device,
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceSetNvLinkDeviceLowPowerThreshold(nvmlDevice_t device, nvmlNvLinkPowerThres_t *info) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetNvLinkDeviceLowPowerThreshold called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetNvLinkDeviceLowPowerThreshold);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemSetNvlinkBwMode(unsigned int nvlinkBwMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemSetNvlinkBwMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemSetNvlinkBwMode);
+    conn->write(&nvlinkBwMode, sizeof(nvlinkBwMode));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemGetNvlinkBwMode(unsigned int *nvlinkBwMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemGetNvlinkBwMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0nvlinkBwMode;
+    mem2server(conn, &_0nvlinkBwMode, (void *)nvlinkBwMode, sizeof(*nvlinkBwMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemGetNvlinkBwMode);
+    conn->write(&_0nvlinkBwMode, sizeof(_0nvlinkBwMode));
+    updateTmpPtr((void *)nvlinkBwMode, _0nvlinkBwMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nvlinkBwMode, sizeof(*nvlinkBwMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetNvlinkSupportedBwModes(nvmlDevice_t device, nvmlNvlinkSupportedBwModes_t *supportedBwMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetNvlinkSupportedBwModes called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0supportedBwMode;
+    mem2server(conn, &_0supportedBwMode, (void *)supportedBwMode, sizeof(*supportedBwMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetNvlinkSupportedBwModes);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0supportedBwMode, sizeof(_0supportedBwMode));
+    updateTmpPtr((void *)supportedBwMode, _0supportedBwMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)supportedBwMode, sizeof(*supportedBwMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkGetBwMode_t *getBwMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetNvlinkBwMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0getBwMode;
+    mem2server(conn, &_0getBwMode, (void *)getBwMode, sizeof(*getBwMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetNvlinkBwMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0getBwMode, sizeof(_0getBwMode));
+    updateTmpPtr((void *)getBwMode, _0getBwMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)getBwMode, sizeof(*getBwMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetNvlinkBwMode(nvmlDevice_t device, nvmlNvlinkSetBwMode_t *setBwMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetNvlinkBwMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0setBwMode;
+    mem2server(conn, &_0setBwMode, (void *)setBwMode, sizeof(*setBwMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetNvlinkBwMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0setBwMode, sizeof(_0setBwMode));
+    updateTmpPtr((void *)setBwMode, _0setBwMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)setBwMode, sizeof(*setBwMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlEventSetCreate(nvmlEventSet_t *set) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlEventSetCreate called" << std::endl;
@@ -7191,6 +10708,186 @@ extern "C" nvmlReturn_t nvmlEventSetFree(nvmlEventSet_t set) {
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemEventSetCreate(nvmlSystemEventSetCreateRequest_t *request) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemEventSetCreate called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0request;
+    mem2server(conn, &_0request, (void *)request, sizeof(*request));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemEventSetCreate);
+    conn->write(&_0request, sizeof(_0request));
+    updateTmpPtr((void *)request, _0request);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)request, sizeof(*request), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemEventSetFree(nvmlSystemEventSetFreeRequest_t *request) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemEventSetFree called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0request;
+    mem2server(conn, &_0request, (void *)request, sizeof(*request));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemEventSetFree);
+    conn->write(&_0request, sizeof(_0request));
+    updateTmpPtr((void *)request, _0request);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)request, sizeof(*request), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemRegisterEvents(nvmlSystemRegisterEventRequest_t *request) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemRegisterEvents called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0request;
+    mem2server(conn, &_0request, (void *)request, sizeof(*request));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemRegisterEvents);
+    conn->write(&_0request, sizeof(_0request));
+    updateTmpPtr((void *)request, _0request);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)request, sizeof(*request), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlSystemEventSetWait(nvmlSystemEventSetWaitRequest_t *request) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlSystemEventSetWait called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0request;
+    mem2server(conn, &_0request, (void *)request, sizeof(*request));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlSystemEventSetWait);
+    conn->write(&_0request, sizeof(_0request));
+    updateTmpPtr((void *)request, _0request);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)request, sizeof(*request), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -7438,6 +11135,53 @@ extern "C" nvmlReturn_t nvmlDeviceGetFieldValues(nvmlDevice_t device, int values
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceClearFieldValues(nvmlDevice_t device, int valuesCount, nvmlFieldValue_t *values) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceClearFieldValues called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0values;
+    mem2server(conn, &_0values, (void *)values, sizeof(*values));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceClearFieldValues);
+    conn->write(&device, sizeof(device));
+    conn->write(&valuesCount, sizeof(valuesCount));
+    conn->write(&_0values, sizeof(_0values));
+    updateTmpPtr((void *)values, _0values);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)values, sizeof(*values), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetVirtualizationMode(nvmlDevice_t device, nvmlGpuVirtualizationMode_t *pVirtualMode) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetVirtualizationMode called" << std::endl;
@@ -7572,9 +11316,422 @@ extern "C" nvmlReturn_t nvmlDeviceSetVirtualizationMode(nvmlDevice_t device, nvm
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t device, nvmlGridLicensableFeatures_t *pGridLicensableFeatures) {
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuHeterogeneousMode(nvmlDevice_t device, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetGridLicensableFeatures_v3 called" << std::endl;
+    std::cout << "Hook: nvmlDeviceGetVgpuHeterogeneousMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pHeterogeneousMode;
+    mem2server(conn, &_0pHeterogeneousMode, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuHeterogeneousMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pHeterogeneousMode, sizeof(_0pHeterogeneousMode));
+    updateTmpPtr((void *)pHeterogeneousMode, _0pHeterogeneousMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetVgpuHeterogeneousMode(nvmlDevice_t device, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetVgpuHeterogeneousMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pHeterogeneousMode;
+    mem2server(conn, &_0pHeterogeneousMode, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetVgpuHeterogeneousMode);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pHeterogeneousMode, sizeof(_0pHeterogeneousMode));
+    updateTmpPtr((void *)pHeterogeneousMode, _0pHeterogeneousMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuInstanceGetPlacementId(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuPlacementId_t *pPlacement) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuInstanceGetPlacementId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pPlacement;
+    mem2server(conn, &_0pPlacement, (void *)pPlacement, sizeof(*pPlacement));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuInstanceGetPlacementId);
+    conn->write(&vgpuInstance, sizeof(vgpuInstance));
+    conn->write(&_0pPlacement, sizeof(_0pPlacement));
+    updateTmpPtr((void *)pPlacement, _0pPlacement);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pPlacement, sizeof(*pPlacement), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuTypeSupportedPlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t *pPlacementList) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuTypeSupportedPlacements called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pPlacementList;
+    mem2server(conn, &_0pPlacementList, (void *)pPlacementList, sizeof(*pPlacementList));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuTypeSupportedPlacements);
+    conn->write(&device, sizeof(device));
+    conn->write(&vgpuTypeId, sizeof(vgpuTypeId));
+    conn->write(&_0pPlacementList, sizeof(_0pPlacementList));
+    updateTmpPtr((void *)pPlacementList, _0pPlacementList);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pPlacementList, sizeof(*pPlacementList), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuTypeCreatablePlacements(nvmlDevice_t device, nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuPlacementList_t *pPlacementList) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuTypeCreatablePlacements called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pPlacementList;
+    mem2server(conn, &_0pPlacementList, (void *)pPlacementList, sizeof(*pPlacementList));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuTypeCreatablePlacements);
+    conn->write(&device, sizeof(device));
+    conn->write(&vgpuTypeId, sizeof(vgpuTypeId));
+    conn->write(&_0pPlacementList, sizeof(_0pPlacementList));
+    updateTmpPtr((void *)pPlacementList, _0pPlacementList);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pPlacementList, sizeof(*pPlacementList), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuTypeGetGspHeapSize(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long *gspHeapSize) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuTypeGetGspHeapSize called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gspHeapSize;
+    mem2server(conn, &_0gspHeapSize, (void *)gspHeapSize, sizeof(*gspHeapSize));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuTypeGetGspHeapSize);
+    conn->write(&vgpuTypeId, sizeof(vgpuTypeId));
+    conn->write(&_0gspHeapSize, sizeof(_0gspHeapSize));
+    updateTmpPtr((void *)gspHeapSize, _0gspHeapSize);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gspHeapSize, sizeof(*gspHeapSize), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuTypeGetFbReservation(nvmlVgpuTypeId_t vgpuTypeId, unsigned long long *fbReservation) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuTypeGetFbReservation called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0fbReservation;
+    mem2server(conn, &_0fbReservation, (void *)fbReservation, sizeof(*fbReservation));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuTypeGetFbReservation);
+    conn->write(&vgpuTypeId, sizeof(vgpuTypeId));
+    conn->write(&_0fbReservation, sizeof(_0fbReservation));
+    updateTmpPtr((void *)fbReservation, _0fbReservation);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)fbReservation, sizeof(*fbReservation), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuInstanceGetRuntimeStateSize(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuRuntimeState_t *pState) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuInstanceGetRuntimeStateSize called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pState;
+    mem2server(conn, &_0pState, (void *)pState, sizeof(*pState));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuInstanceGetRuntimeStateSize);
+    conn->write(&vgpuInstance, sizeof(vgpuInstance));
+    conn->write(&_0pState, sizeof(_0pState));
+    updateTmpPtr((void *)pState, _0pState);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pState, sizeof(*pState), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, nvmlEnableState_t state) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetVgpuCapabilities called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetVgpuCapabilities);
+    conn->write(&device, sizeof(device));
+    conn->write(&capability, sizeof(capability));
+    conn->write(&state, sizeof(state));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v4(nvmlDevice_t device, nvmlGridLicensableFeatures_t *pGridLicensableFeatures) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGridLicensableFeatures_v4 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -7594,7 +11751,7 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t devi
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetGridLicensableFeatures_v3);
+    conn->prepare_request(RPC_nvmlDeviceGetGridLicensableFeatures_v4);
     conn->write(&device, sizeof(device));
     conn->write(&_0pGridLicensableFeatures, sizeof(_0pGridLicensableFeatures));
     updateTmpPtr((void *)pGridLicensableFeatures, _0pGridLicensableFeatures);
@@ -7618,9 +11775,9 @@ extern "C" nvmlReturn_t nvmlDeviceGetGridLicensableFeatures_v3(nvmlDevice_t devi
     return _result;
 }
 
-extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvmlProcessUtilizationSample_t *utilization, unsigned int *processSamplesCount, unsigned long long lastSeenTimeStamp) {
+extern "C" nvmlReturn_t nvmlGetVgpuDriverCapabilities(nvmlVgpuDriverCapability_t capability, unsigned int *capResult) {
 #ifdef DEBUG
-    std::cout << "Hook: nvmlDeviceGetProcessUtilization called" << std::endl;
+    std::cout << "Hook: nvmlGetVgpuDriverCapabilities called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -7628,10 +11785,8 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0utilization;
-    mem2server(conn, &_0utilization, (void *)utilization, sizeof(*utilization));
-    void *_0processSamplesCount;
-    mem2server(conn, &_0processSamplesCount, (void *)processSamplesCount, sizeof(*processSamplesCount));
+    void *_0capResult;
+    mem2server(conn, &_0capResult, (void *)capResult, sizeof(*capResult));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -7642,13 +11797,10 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
         }
     }
     nvmlReturn_t _result;
-    conn->prepare_request(RPC_nvmlDeviceGetProcessUtilization);
-    conn->write(&device, sizeof(device));
-    conn->write(&_0utilization, sizeof(_0utilization));
-    updateTmpPtr((void *)utilization, _0utilization);
-    conn->write(&_0processSamplesCount, sizeof(_0processSamplesCount));
-    updateTmpPtr((void *)processSamplesCount, _0processSamplesCount);
-    conn->write(&lastSeenTimeStamp, sizeof(lastSeenTimeStamp));
+    conn->prepare_request(RPC_nvmlGetVgpuDriverCapabilities);
+    conn->write(&capability, sizeof(capability));
+    conn->write(&_0capResult, sizeof(_0capResult));
+    updateTmpPtr((void *)capResult, _0capResult);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -7656,8 +11808,54 @@ extern "C" nvmlReturn_t nvmlDeviceGetProcessUtilization(nvmlDevice_t device, nvm
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)utilization, sizeof(*utilization), true);
-    mem2client(conn, (void *)processSamplesCount, sizeof(*processSamplesCount), true);
+    mem2client(conn, (void *)capResult, sizeof(*capResult), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuCapabilities(nvmlDevice_t device, nvmlDeviceVgpuCapability_t capability, unsigned int *capResult) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuCapabilities called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0capResult;
+    mem2server(conn, &_0capResult, (void *)capResult, sizeof(*capResult));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuCapabilities);
+    conn->write(&device, sizeof(device));
+    conn->write(&capability, sizeof(capability));
+    conn->write(&_0capResult, sizeof(_0capResult));
+    updateTmpPtr((void *)capResult, _0capResult);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)capResult, sizeof(*capResult), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -8283,6 +12481,52 @@ extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerVm(nvmlVgpuTypeId_t vgpuTy
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)vgpuInstanceCountPerVm, sizeof(*vgpuInstanceCountPerVm), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuTypeGetBAR1Info(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuTypeBar1Info_t *bar1Info) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuTypeGetBAR1Info called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0bar1Info;
+    mem2server(conn, &_0bar1Info, (void *)bar1Info, sizeof(*bar1Info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuTypeGetBAR1Info);
+    conn->write(&vgpuTypeId, sizeof(vgpuTypeId));
+    conn->write(&_0bar1Info, sizeof(_0bar1Info));
+    updateTmpPtr((void *)bar1Info, _0bar1Info);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)bar1Info, sizeof(*bar1Info), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9054,6 +13298,560 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuInstanceId(nvmlVgpuInstance_t vgpu
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlVgpuInstanceGetGpuPciId(nvmlVgpuInstance_t vgpuInstance, char *vgpuPciId, unsigned int *length) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuInstanceGetGpuPciId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0length;
+    mem2server(conn, &_0length, (void *)length, sizeof(*length));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuInstanceGetGpuPciId);
+    conn->write(&vgpuInstance, sizeof(vgpuInstance));
+    if(*length > 0) {
+        conn->read(vgpuPciId, *length, true);
+    }
+    conn->write(&_0length, sizeof(_0length));
+    updateTmpPtr((void *)length, _0length);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)length, sizeof(*length), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuTypeGetCapabilities(nvmlVgpuTypeId_t vgpuTypeId, nvmlVgpuCapability_t capability, unsigned int *capResult) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuTypeGetCapabilities called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0capResult;
+    mem2server(conn, &_0capResult, (void *)capResult, sizeof(*capResult));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuTypeGetCapabilities);
+    conn->write(&vgpuTypeId, sizeof(vgpuTypeId));
+    conn->write(&capability, sizeof(capability));
+    conn->write(&_0capResult, sizeof(_0capResult));
+    updateTmpPtr((void *)capResult, _0capResult);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)capResult, sizeof(*capResult), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuInstanceGetMdevUUID(nvmlVgpuInstance_t vgpuInstance, char *mdevUuid, unsigned int size) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuInstanceGetMdevUUID called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuInstanceGetMdevUUID);
+    conn->write(&vgpuInstance, sizeof(vgpuInstance));
+    if(size > 0) {
+        conn->read(mdevUuid, size, true);
+    }
+    conn->write(&size, sizeof(size));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceGetCreatableVgpus(nvmlGpuInstance_t gpuInstance, nvmlVgpuTypeIdInfo_t *pVgpus) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetCreatableVgpus called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pVgpus;
+    mem2server(conn, &_0pVgpus, (void *)pVgpus, sizeof(*pVgpus));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetCreatableVgpus);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pVgpus, sizeof(_0pVgpus));
+    updateTmpPtr((void *)pVgpus, _0pVgpus);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pVgpus, sizeof(*pVgpus), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuTypeGetMaxInstancesPerGpuInstance(nvmlVgpuTypeMaxInstance_t *pMaxInstance) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuTypeGetMaxInstancesPerGpuInstance called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pMaxInstance;
+    mem2server(conn, &_0pMaxInstance, (void *)pMaxInstance, sizeof(*pMaxInstance));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuTypeGetMaxInstancesPerGpuInstance);
+    conn->write(&_0pMaxInstance, sizeof(_0pMaxInstance));
+    updateTmpPtr((void *)pMaxInstance, _0pMaxInstance);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pMaxInstance, sizeof(*pMaxInstance), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceGetActiveVgpus(nvmlGpuInstance_t gpuInstance, nvmlActiveVgpuInstanceInfo_t *pVgpuInstanceInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetActiveVgpus called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pVgpuInstanceInfo;
+    mem2server(conn, &_0pVgpuInstanceInfo, (void *)pVgpuInstanceInfo, sizeof(*pVgpuInstanceInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetActiveVgpus);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pVgpuInstanceInfo, sizeof(_0pVgpuInstanceInfo));
+    updateTmpPtr((void *)pVgpuInstanceInfo, _0pVgpuInstanceInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pVgpuInstanceInfo, sizeof(*pVgpuInstanceInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceSetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerState_t *pScheduler) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceSetVgpuSchedulerState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pScheduler;
+    mem2server(conn, &_0pScheduler, (void *)pScheduler, sizeof(*pScheduler));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceSetVgpuSchedulerState);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pScheduler, sizeof(_0pScheduler));
+    updateTmpPtr((void *)pScheduler, _0pScheduler);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pScheduler, sizeof(*pScheduler), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerState(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerStateInfo_t *pSchedulerStateInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetVgpuSchedulerState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pSchedulerStateInfo;
+    mem2server(conn, &_0pSchedulerStateInfo, (void *)pSchedulerStateInfo, sizeof(*pSchedulerStateInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetVgpuSchedulerState);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pSchedulerStateInfo, sizeof(_0pSchedulerStateInfo));
+    updateTmpPtr((void *)pSchedulerStateInfo, _0pSchedulerStateInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSchedulerStateInfo, sizeof(*pSchedulerStateInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceGetVgpuSchedulerLog(nvmlGpuInstance_t gpuInstance, nvmlVgpuSchedulerLogInfo_t *pSchedulerLogInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetVgpuSchedulerLog called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pSchedulerLogInfo;
+    mem2server(conn, &_0pSchedulerLogInfo, (void *)pSchedulerLogInfo, sizeof(*pSchedulerLogInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetVgpuSchedulerLog);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pSchedulerLogInfo, sizeof(_0pSchedulerLogInfo));
+    updateTmpPtr((void *)pSchedulerLogInfo, _0pSchedulerLogInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSchedulerLogInfo, sizeof(*pSchedulerLogInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceGetVgpuTypeCreatablePlacements(nvmlGpuInstance_t gpuInstance, nvmlVgpuCreatablePlacementInfo_t *pCreatablePlacementInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetVgpuTypeCreatablePlacements called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pCreatablePlacementInfo;
+    mem2server(conn, &_0pCreatablePlacementInfo, (void *)pCreatablePlacementInfo, sizeof(*pCreatablePlacementInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetVgpuTypeCreatablePlacements);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pCreatablePlacementInfo, sizeof(_0pCreatablePlacementInfo));
+    updateTmpPtr((void *)pCreatablePlacementInfo, _0pCreatablePlacementInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCreatablePlacementInfo, sizeof(*pCreatablePlacementInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceGetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetVgpuHeterogeneousMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pHeterogeneousMode;
+    mem2server(conn, &_0pHeterogeneousMode, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetVgpuHeterogeneousMode);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pHeterogeneousMode, sizeof(_0pHeterogeneousMode));
+    updateTmpPtr((void *)pHeterogeneousMode, _0pHeterogeneousMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceSetVgpuHeterogeneousMode(nvmlGpuInstance_t gpuInstance, const nvmlVgpuHeterogeneousMode_t *pHeterogeneousMode) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceSetVgpuHeterogeneousMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pHeterogeneousMode;
+    mem2server(conn, &_0pHeterogeneousMode, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceSetVgpuHeterogeneousMode);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&_0pHeterogeneousMode, sizeof(_0pHeterogeneousMode));
+    updateTmpPtr((void *)pHeterogeneousMode, _0pHeterogeneousMode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pHeterogeneousMode, sizeof(*pHeterogeneousMode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlVgpuInstanceGetMetadata(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuMetadata_t *vgpuMetadata, unsigned int *bufferSize) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlVgpuInstanceGetMetadata called" << std::endl;
@@ -9260,6 +14058,190 @@ extern "C" nvmlReturn_t nvmlDeviceGetPgpuMetadataString(nvmlDevice_t device, cha
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuSchedulerLog(nvmlDevice_t device, nvmlVgpuSchedulerLog_t *pSchedulerLog) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuSchedulerLog called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pSchedulerLog;
+    mem2server(conn, &_0pSchedulerLog, (void *)pSchedulerLog, sizeof(*pSchedulerLog));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuSchedulerLog);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pSchedulerLog, sizeof(_0pSchedulerLog));
+    updateTmpPtr((void *)pSchedulerLog, _0pSchedulerLog);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSchedulerLog, sizeof(*pSchedulerLog), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerGetState_t *pSchedulerState) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuSchedulerState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pSchedulerState;
+    mem2server(conn, &_0pSchedulerState, (void *)pSchedulerState, sizeof(*pSchedulerState));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuSchedulerState);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pSchedulerState, sizeof(_0pSchedulerState));
+    updateTmpPtr((void *)pSchedulerState, _0pSchedulerState);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSchedulerState, sizeof(*pSchedulerState), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuSchedulerCapabilities(nvmlDevice_t device, nvmlVgpuSchedulerCapabilities_t *pCapabilities) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuSchedulerCapabilities called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pCapabilities;
+    mem2server(conn, &_0pCapabilities, (void *)pCapabilities, sizeof(*pCapabilities));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuSchedulerCapabilities);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pCapabilities, sizeof(_0pCapabilities));
+    updateTmpPtr((void *)pCapabilities, _0pCapabilities);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCapabilities, sizeof(*pCapabilities), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceSetVgpuSchedulerState(nvmlDevice_t device, nvmlVgpuSchedulerSetState_t *pSchedulerState) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceSetVgpuSchedulerState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pSchedulerState;
+    mem2server(conn, &_0pSchedulerState, (void *)pSchedulerState, sizeof(*pSchedulerState));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceSetVgpuSchedulerState);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0pSchedulerState, sizeof(_0pSchedulerState));
+    updateTmpPtr((void *)pSchedulerState, _0pSchedulerState);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSchedulerState, sizeof(*pSchedulerState), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlGetVgpuVersion(nvmlVgpuVersion_t *supported, nvmlVgpuVersion_t *current) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlGetVgpuVersion called" << std::endl;
@@ -9412,6 +14394,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuUtilization(nvmlDevice_t device, unsign
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuInstancesUtilizationInfo(nvmlDevice_t device, nvmlVgpuInstancesUtilizationInfo_t *vgpuUtilInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuInstancesUtilizationInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0vgpuUtilInfo;
+    mem2server(conn, &_0vgpuUtilInfo, (void *)vgpuUtilInfo, sizeof(*vgpuUtilInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuInstancesUtilizationInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0vgpuUtilInfo, sizeof(_0vgpuUtilInfo));
+    updateTmpPtr((void *)vgpuUtilInfo, _0vgpuUtilInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)vgpuUtilInfo, sizeof(*vgpuUtilInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device, unsigned long long lastSeenTimeStamp, unsigned int *vgpuProcessSamplesCount, nvmlVgpuProcessUtilizationSample_t *utilizationSamples) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlDeviceGetVgpuProcessUtilization called" << std::endl;
@@ -9452,6 +14480,52 @@ extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessUtilization(nvmlDevice_t device,
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)vgpuProcessSamplesCount, sizeof(*vgpuProcessSamplesCount), true);
     mem2client(conn, (void *)utilizationSamples, sizeof(*utilizationSamples), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetVgpuProcessesUtilizationInfo(nvmlDevice_t device, nvmlVgpuProcessesUtilizationInfo_t *vgpuProcUtilInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetVgpuProcessesUtilizationInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0vgpuProcUtilInfo;
+    mem2server(conn, &_0vgpuProcUtilInfo, (void *)vgpuProcUtilInfo, sizeof(*vgpuProcUtilInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetVgpuProcessesUtilizationInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0vgpuProcUtilInfo, sizeof(_0vgpuProcUtilInfo));
+    updateTmpPtr((void *)vgpuProcUtilInfo, _0vgpuProcUtilInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)vgpuProcUtilInfo, sizeof(*vgpuProcUtilInfo), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9637,6 +14711,52 @@ extern "C" nvmlReturn_t nvmlVgpuInstanceClearAccountingPids(nvmlVgpuInstance_t v
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlVgpuInstanceGetLicenseInfo_v2(nvmlVgpuInstance_t vgpuInstance, nvmlVgpuLicenseInfo_t *licenseInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlVgpuInstanceGetLicenseInfo_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0licenseInfo;
+    mem2server(conn, &_0licenseInfo, (void *)licenseInfo, sizeof(*licenseInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlVgpuInstanceGetLicenseInfo_v2);
+    conn->write(&vgpuInstance, sizeof(vgpuInstance));
+    conn->write(&_0licenseInfo, sizeof(_0licenseInfo));
+    updateTmpPtr((void *)licenseInfo, _0licenseInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)licenseInfo, sizeof(*licenseInfo), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -9861,6 +14981,53 @@ extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfo(nvmlDevice_t device,
     }
     nvmlReturn_t _result;
     conn->prepare_request(RPC_nvmlDeviceGetGpuInstanceProfileInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&profile, sizeof(profile));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetGpuInstanceProfileInfoV(nvmlDevice_t device, unsigned int profile, nvmlGpuInstanceProfileInfo_v2_t *info) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetGpuInstanceProfileInfoV called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetGpuInstanceProfileInfoV);
     conn->write(&device, sizeof(device));
     conn->write(&profile, sizeof(profile));
     conn->write(&_0info, sizeof(_0info));
@@ -10317,6 +15484,54 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfo(nvmlGpuInst
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceProfileInfoV(nvmlGpuInstance_t gpuInstance, unsigned int profile, unsigned int engProfile, nvmlComputeInstanceProfileInfo_v2_t *info) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetComputeInstanceProfileInfoV called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0info;
+    mem2server(conn, &_0info, (void *)info, sizeof(*info));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetComputeInstanceProfileInfoV);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&profile, sizeof(profile));
+    conn->write(&engProfile, sizeof(engProfile));
+    conn->write(&_0info, sizeof(_0info));
+    updateTmpPtr((void *)info, _0info);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)info, sizeof(*info), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlGpuInstance_t gpuInstance, unsigned int profileId, unsigned int *count) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceGetComputeInstanceRemainingCapacity called" << std::endl;
@@ -10364,6 +15579,58 @@ extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstanceRemainingCapacity(nvmlG
     return _result;
 }
 
+extern "C" nvmlReturn_t nvmlGpuInstanceGetComputeInstancePossiblePlacements(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstancePlacement_t *placements, unsigned int *count) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceGetComputeInstancePossiblePlacements called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0placements;
+    mem2server(conn, &_0placements, (void *)placements, sizeof(*placements));
+    void *_0count;
+    mem2server(conn, &_0count, (void *)count, sizeof(*count));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceGetComputeInstancePossiblePlacements);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&profileId, sizeof(profileId));
+    conn->write(&_0placements, sizeof(_0placements));
+    updateTmpPtr((void *)placements, _0placements);
+    conn->write(&_0count, sizeof(_0count));
+    updateTmpPtr((void *)count, _0count);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)placements, sizeof(*placements), true);
+    mem2client(conn, (void *)count, sizeof(*count), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t gpuInstance, unsigned int profileId, nvmlComputeInstance_t *computeInstance) {
 #ifdef DEBUG
     std::cout << "Hook: nvmlGpuInstanceCreateComputeInstance called" << std::endl;
@@ -10398,6 +15665,58 @@ extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstance(nvmlGpuInstance_t g
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)computeInstance, sizeof(*computeInstance), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpuInstanceCreateComputeInstanceWithPlacement(nvmlGpuInstance_t gpuInstance, unsigned int profileId, const nvmlComputeInstancePlacement_t *placement, nvmlComputeInstance_t *computeInstance) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpuInstanceCreateComputeInstanceWithPlacement called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0placement;
+    mem2server(conn, &_0placement, (void *)placement, sizeof(*placement));
+    void *_0computeInstance;
+    mem2server(conn, &_0computeInstance, (void *)computeInstance, sizeof(*computeInstance));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpuInstanceCreateComputeInstanceWithPlacement);
+    conn->write(&gpuInstance, sizeof(gpuInstance));
+    conn->write(&profileId, sizeof(profileId));
+    conn->write(&_0placement, sizeof(_0placement));
+    updateTmpPtr((void *)placement, _0placement);
+    conn->write(&_0computeInstance, sizeof(_0computeInstance));
+    updateTmpPtr((void *)computeInstance, _0computeInstance);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)placement, sizeof(*placement), true);
     mem2client(conn, (void *)computeInstance, sizeof(*computeInstance), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -10862,6 +16181,724 @@ extern "C" nvmlReturn_t nvmlDeviceGetDeviceHandleFromMigDeviceHandle(nvmlDevice_
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)device, sizeof(*device), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmMetricsGet(nvmlGpmMetricsGet_t *metricsGet) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmMetricsGet called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0metricsGet;
+    mem2server(conn, &_0metricsGet, (void *)metricsGet, sizeof(*metricsGet));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmMetricsGet);
+    conn->write(&_0metricsGet, sizeof(_0metricsGet));
+    updateTmpPtr((void *)metricsGet, _0metricsGet);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)metricsGet, sizeof(*metricsGet), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmSampleFree(nvmlGpmSample_t gpmSample) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmSampleFree called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmSampleFree);
+    conn->write(&gpmSample, sizeof(gpmSample));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmSampleAlloc(nvmlGpmSample_t *gpmSample) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmSampleAlloc called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gpmSample;
+    mem2server(conn, &_0gpmSample, (void *)gpmSample, sizeof(*gpmSample));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmSampleAlloc);
+    conn->write(&_0gpmSample, sizeof(_0gpmSample));
+    updateTmpPtr((void *)gpmSample, _0gpmSample);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gpmSample, sizeof(*gpmSample), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmSampleGet(nvmlDevice_t device, nvmlGpmSample_t gpmSample) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmSampleGet called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmSampleGet);
+    conn->write(&device, sizeof(device));
+    conn->write(&gpmSample, sizeof(gpmSample));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmMigSampleGet(nvmlDevice_t device, unsigned int gpuInstanceId, nvmlGpmSample_t gpmSample) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmMigSampleGet called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmMigSampleGet);
+    conn->write(&device, sizeof(device));
+    conn->write(&gpuInstanceId, sizeof(gpuInstanceId));
+    conn->write(&gpmSample, sizeof(gpmSample));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmQueryDeviceSupport(nvmlDevice_t device, nvmlGpmSupport_t *gpmSupport) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmQueryDeviceSupport called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0gpmSupport;
+    mem2server(conn, &_0gpmSupport, (void *)gpmSupport, sizeof(*gpmSupport));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmQueryDeviceSupport);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0gpmSupport, sizeof(_0gpmSupport));
+    updateTmpPtr((void *)gpmSupport, _0gpmSupport);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)gpmSupport, sizeof(*gpmSupport), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmQueryIfStreamingEnabled(nvmlDevice_t device, unsigned int *state) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmQueryIfStreamingEnabled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0state;
+    mem2server(conn, &_0state, (void *)state, sizeof(*state));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmQueryIfStreamingEnabled);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0state, sizeof(_0state));
+    updateTmpPtr((void *)state, _0state);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)state, sizeof(*state), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlGpmSetStreamingEnabled(nvmlDevice_t device, unsigned int state) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlGpmSetStreamingEnabled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlGpmSetStreamingEnabled);
+    conn->write(&device, sizeof(device));
+    conn->write(&state, sizeof(state));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceGetCapabilities(nvmlDevice_t device, nvmlDeviceCapabilities_t *caps) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceGetCapabilities called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0caps;
+    mem2server(conn, &_0caps, (void *)caps, sizeof(*caps));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceGetCapabilities);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0caps, sizeof(_0caps));
+    updateTmpPtr((void *)caps, _0caps);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)caps, sizeof(*caps), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileGetProfilesInfo(nvmlDevice_t device, nvmlWorkloadPowerProfileProfilesInfo_t *profilesInfo) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileGetProfilesInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0profilesInfo;
+    mem2server(conn, &_0profilesInfo, (void *)profilesInfo, sizeof(*profilesInfo));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceWorkloadPowerProfileGetProfilesInfo);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0profilesInfo, sizeof(_0profilesInfo));
+    updateTmpPtr((void *)profilesInfo, _0profilesInfo);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)profilesInfo, sizeof(*profilesInfo), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileGetCurrentProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileCurrentProfiles_t *currentProfiles) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileGetCurrentProfiles called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0currentProfiles;
+    mem2server(conn, &_0currentProfiles, (void *)currentProfiles, sizeof(*currentProfiles));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceWorkloadPowerProfileGetCurrentProfiles);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0currentProfiles, sizeof(_0currentProfiles));
+    updateTmpPtr((void *)currentProfiles, _0currentProfiles);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)currentProfiles, sizeof(*currentProfiles), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileSetRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileSetRequestedProfiles called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0requestedProfiles;
+    mem2server(conn, &_0requestedProfiles, (void *)requestedProfiles, sizeof(*requestedProfiles));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceWorkloadPowerProfileSetRequestedProfiles);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0requestedProfiles, sizeof(_0requestedProfiles));
+    updateTmpPtr((void *)requestedProfiles, _0requestedProfiles);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)requestedProfiles, sizeof(*requestedProfiles), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDeviceWorkloadPowerProfileClearRequestedProfiles(nvmlDevice_t device, nvmlWorkloadPowerProfileRequestedProfiles_t *requestedProfiles) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDeviceWorkloadPowerProfileClearRequestedProfiles called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0requestedProfiles;
+    mem2server(conn, &_0requestedProfiles, (void *)requestedProfiles, sizeof(*requestedProfiles));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDeviceWorkloadPowerProfileClearRequestedProfiles);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0requestedProfiles, sizeof(_0requestedProfiles));
+    updateTmpPtr((void *)requestedProfiles, _0requestedProfiles);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)requestedProfiles, sizeof(*requestedProfiles), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDevicePowerSmoothingActivatePresetProfile(nvmlDevice_t device, nvmlPowerSmoothingProfile_t *profile) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDevicePowerSmoothingActivatePresetProfile called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0profile;
+    mem2server(conn, &_0profile, (void *)profile, sizeof(*profile));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDevicePowerSmoothingActivatePresetProfile);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0profile, sizeof(_0profile));
+    updateTmpPtr((void *)profile, _0profile);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)profile, sizeof(*profile), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDevicePowerSmoothingUpdatePresetProfileParam(nvmlDevice_t device, nvmlPowerSmoothingProfile_t *profile) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDevicePowerSmoothingUpdatePresetProfileParam called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0profile;
+    mem2server(conn, &_0profile, (void *)profile, sizeof(*profile));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDevicePowerSmoothingUpdatePresetProfileParam);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0profile, sizeof(_0profile));
+    updateTmpPtr((void *)profile, _0profile);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)profile, sizeof(*profile), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" nvmlReturn_t nvmlDevicePowerSmoothingSetState(nvmlDevice_t device, nvmlPowerSmoothingState_t *state) {
+#ifdef DEBUG
+    std::cout << "Hook: nvmlDevicePowerSmoothingSetState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0state;
+    mem2server(conn, &_0state, (void *)state, sizeof(*state));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    nvmlReturn_t _result;
+    conn->prepare_request(RPC_nvmlDevicePowerSmoothingSetState);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0state, sizeof(_0state));
+    updateTmpPtr((void *)state, _0state);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)state, sizeof(*state), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {

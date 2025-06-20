@@ -1218,7 +1218,7 @@ int handle_cuIpcOpenMemHandle_v2(void *args0) {
     return 0;
 }
 
-#if CUDA_VERSION > 11040
+// #if CUDA_VERSION > 11040
 int handle_cuLibraryGetGlobal(void *args0) {
 #ifdef DEBUG
     std::cout << "Handle function cuLibraryGetGlobal called" << std::endl;
@@ -1288,7 +1288,7 @@ int handle_cuLibraryGetManaged(void *args0) {
     }
     return 0;
 }
-#endif
+// #endif
 
 int handle_cuMemAddressReserve(void *args0) {
 #ifdef DEBUG

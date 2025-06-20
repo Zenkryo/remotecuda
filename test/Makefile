@@ -1,6 +1,7 @@
 # 定义编译器和编译选项
 NVCC = nvcc
-NVCC_FLAGS = -arch=sm_35 -Wno-deprecated-gpu-targets -cudart shared -lcuda -lcublas -lpthread -I/usr/local/cuda-11.4/samples/common/inc -lgtest -lgtest_main
+#NVCC_FLAGS = -arch=sm_35 -Wno-deprecated-gpu-targets -cudart shared -lcuda -lcublas -lpthread -I/usr/local/cuda-11.4/samples/common/inc -lgtest -lgtest_main
+NVCC_FLAGS = -Wno-deprecated-gpu-targets -cudart shared -lcuda -lcublas -lpthread -I/usr/local/cuda/samples/common/inc -lgtest -lgtest_main
 
 # 输出目录
 BUILD_DIR = build

@@ -12,7 +12,23 @@
       "intelliSenseMode": "linux-gcc-x64",
       "compilerArgs": [
         ""
-      ]
+      ],
+      "defines": [
+        "__CUDACC__",
+        "__CUDA_ARCH__",
+        "CUDA_NO_HALF",
+        "__CUDA_NO_HALF_OPERATORS__",
+        "__CUDA_NO_HALF_CONVERSIONS__",
+        "__CUDA_NO_BFLOAT16_CONVERSIONS__",
+        "__CUDA_NO_HALF2_OPERATORS__"
+      ],
+      "browse": {
+        "path": [
+          "/usr/local/cuda/include",
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
     }
   ],
   "version": 4

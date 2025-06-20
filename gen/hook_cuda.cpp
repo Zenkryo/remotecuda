@@ -689,6 +689,95 @@ extern "C" CUresult cuDeviceGetDefaultMemPool(CUmemoryPool *pool_out, CUdevice d
     return _result;
 }
 
+extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType type, CUdevice dev) {
+#ifdef DEBUG
+    std::cout << "Hook: cuDeviceGetExecAffinitySupport called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pi;
+    mem2server(conn, &_0pi, (void *)pi, sizeof(*pi));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuDeviceGetExecAffinitySupport);
+    conn->write(&_0pi, sizeof(_0pi));
+    updateTmpPtr((void *)pi, _0pi);
+    conn->write(&type, sizeof(type));
+    conn->write(&dev, sizeof(dev));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pi, sizeof(*pi), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) {
+#ifdef DEBUG
+    std::cout << "Hook: cuFlushGPUDirectRDMAWrites called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuFlushGPUDirectRDMAWrites);
+    conn->write(&target, sizeof(target));
+    conn->write(&scope, sizeof(scope));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceGetProperties called" << std::endl;
@@ -1007,53 +1096,6 @@ extern "C" CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
     return _result;
 }
 
-extern "C" CUresult cuDeviceGetExecAffinitySupport(int *pi, CUexecAffinityType type, CUdevice dev) {
-#ifdef DEBUG
-    std::cout << "Hook: cuDeviceGetExecAffinitySupport called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pi;
-    mem2server(conn, &_0pi, (void *)pi, sizeof(*pi));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    conn->prepare_request(RPC_cuDeviceGetExecAffinitySupport);
-    conn->write(&_0pi, sizeof(_0pi));
-    updateTmpPtr((void *)pi, _0pi);
-    conn->write(&type, sizeof(type));
-    conn->write(&dev, sizeof(dev));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pi, sizeof(*pi), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" CUresult cuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice dev) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxCreate_v2 called" << std::endl;
@@ -1142,6 +1184,58 @@ extern "C" CUresult cuCtxCreate_v3(CUcontext *pctx, CUexecAffinityParam *paramsA
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pctx, sizeof(*pctx), true);
     mem2client(conn, (void *)paramsArray, sizeof(*paramsArray), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxCreate_v4(CUcontext *pctx, CUctxCreateParams *ctxCreateParams, unsigned int flags, CUdevice dev) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxCreate_v4 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pctx;
+    mem2server(conn, &_0pctx, (void *)pctx, sizeof(*pctx));
+    void *_0ctxCreateParams;
+    mem2server(conn, &_0ctxCreateParams, (void *)ctxCreateParams, sizeof(*ctxCreateParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxCreate_v4);
+    conn->write(&_0pctx, sizeof(_0pctx));
+    updateTmpPtr((void *)pctx, _0pctx);
+    conn->write(&_0ctxCreateParams, sizeof(_0ctxCreateParams));
+    updateTmpPtr((void *)ctxCreateParams, _0ctxCreateParams);
+    conn->write(&flags, sizeof(flags));
+    conn->write(&dev, sizeof(dev));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pctx, sizeof(*pctx), true);
+    mem2client(conn, (void *)ctxCreateParams, sizeof(*ctxCreateParams), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -1457,6 +1551,93 @@ extern "C" CUresult cuCtxGetFlags(unsigned int *flags) {
     return _result;
 }
 
+extern "C" CUresult cuCtxSetFlags(unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxSetFlags called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxSetFlags);
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxGetId(CUcontext ctx, unsigned long long *ctxId) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxGetId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0ctxId;
+    mem2server(conn, &_0ctxId, (void *)ctxId, sizeof(*ctxId));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxGetId);
+    conn->write(&ctx, sizeof(ctx));
+    conn->write(&_0ctxId, sizeof(_0ctxId));
+    updateTmpPtr((void *)ctxId, _0ctxId);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)ctxId, sizeof(*ctxId), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuCtxSynchronize() {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxSynchronize called" << std::endl;
@@ -1671,92 +1852,6 @@ extern "C" CUresult cuCtxSetCacheConfig(CUfunc_cache config) {
     return _result;
 }
 
-extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
-#ifdef DEBUG
-    std::cout << "Hook: cuCtxGetSharedMemConfig called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0pConfig;
-    mem2server(conn, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    conn->prepare_request(RPC_cuCtxGetSharedMemConfig);
-    conn->write(&_0pConfig, sizeof(_0pConfig));
-    updateTmpPtr((void *)pConfig, _0pConfig);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pConfig, sizeof(*pConfig), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) {
-#ifdef DEBUG
-    std::cout << "Hook: cuCtxSetSharedMemConfig called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    conn->prepare_request(RPC_cuCtxSetSharedMemConfig);
-    conn->write(&config, sizeof(config));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" CUresult cuCtxGetApiVersion(CUcontext ctx, unsigned int *version) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxGetApiVersion called" << std::endl;
@@ -1939,6 +2034,90 @@ extern "C" CUresult cuCtxGetExecAffinity(CUexecAffinityParam *pExecAffinity, CUe
     return _result;
 }
 
+extern "C" CUresult cuCtxRecordEvent(CUcontext hCtx, CUevent hEvent) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxRecordEvent called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxRecordEvent);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->write(&hEvent, sizeof(hEvent));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxWaitEvent(CUcontext hCtx, CUevent hEvent) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxWaitEvent called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxWaitEvent);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->write(&hEvent, sizeof(hEvent));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuCtxAttach called" << std::endl;
@@ -2007,6 +2186,92 @@ extern "C" CUresult cuCtxDetach(CUcontext ctx) {
     CUresult _result;
     conn->prepare_request(RPC_cuCtxDetach);
     conn->write(&ctx, sizeof(ctx));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxGetSharedMemConfig(CUsharedconfig *pConfig) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxGetSharedMemConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pConfig;
+    mem2server(conn, &_0pConfig, (void *)pConfig, sizeof(*pConfig));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxGetSharedMemConfig);
+    conn->write(&_0pConfig, sizeof(_0pConfig));
+    updateTmpPtr((void *)pConfig, _0pConfig);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pConfig, sizeof(*pConfig), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxSetSharedMemConfig(CUsharedconfig config) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxSetSharedMemConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxSetSharedMemConfig);
+    conn->write(&config, sizeof(config));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2275,6 +2540,51 @@ extern "C" CUresult cuModuleUnload(CUmodule hmod) {
     return _result;
 }
 
+extern "C" CUresult cuModuleGetLoadingMode(CUmoduleLoadingMode *mode) {
+#ifdef DEBUG
+    std::cout << "Hook: cuModuleGetLoadingMode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0mode;
+    mem2server(conn, &_0mode, (void *)mode, sizeof(*mode));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuModuleGetLoadingMode);
+    conn->write(&_0mode, sizeof(_0mode));
+    updateTmpPtr((void *)mode, _0mode);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)mode, sizeof(*mode), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const char *name) {
 #ifdef DEBUG
     std::cout << "Hook: cuModuleGetFunction called" << std::endl;
@@ -2322,9 +2632,9 @@ extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const 
     return _result;
 }
 
-extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *name) {
+extern "C" CUresult cuModuleGetFunctionCount(unsigned int *count, CUmodule mod) {
 #ifdef DEBUG
-    std::cout << "Hook: cuModuleGetTexRef called" << std::endl;
+    std::cout << "Hook: cuModuleGetFunctionCount called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -2332,8 +2642,8 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0pTexRef;
-    mem2server(conn, &_0pTexRef, (void *)pTexRef, sizeof(*pTexRef));
+    void *_0count;
+    mem2server(conn, &_0count, (void *)count, sizeof(*count));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -2344,11 +2654,10 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuModuleGetTexRef);
-    conn->write(&_0pTexRef, sizeof(_0pTexRef));
-    updateTmpPtr((void *)pTexRef, _0pTexRef);
-    conn->write(&hmod, sizeof(hmod));
-    conn->write(name, strlen(name) + 1, true);
+    conn->prepare_request(RPC_cuModuleGetFunctionCount);
+    conn->write(&_0count, sizeof(_0count));
+    updateTmpPtr((void *)count, _0count);
+    conn->write(&mod, sizeof(mod));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2356,7 +2665,7 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pTexRef, sizeof(*pTexRef), true);
+    mem2client(conn, (void *)count, sizeof(*count), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2369,9 +2678,9 @@ extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const ch
     return _result;
 }
 
-extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const char *name) {
+extern "C" CUresult cuModuleEnumerateFunctions(CUfunction *functions, unsigned int numFunctions, CUmodule mod) {
 #ifdef DEBUG
-    std::cout << "Hook: cuModuleGetSurfRef called" << std::endl;
+    std::cout << "Hook: cuModuleEnumerateFunctions called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -2379,8 +2688,8 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0pSurfRef;
-    mem2server(conn, &_0pSurfRef, (void *)pSurfRef, sizeof(*pSurfRef));
+    void *_0functions;
+    mem2server(conn, &_0functions, (void *)functions, sizeof(*functions));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -2391,11 +2700,11 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuModuleGetSurfRef);
-    conn->write(&_0pSurfRef, sizeof(_0pSurfRef));
-    updateTmpPtr((void *)pSurfRef, _0pSurfRef);
-    conn->write(&hmod, sizeof(hmod));
-    conn->write(name, strlen(name) + 1, true);
+    conn->prepare_request(RPC_cuModuleEnumerateFunctions);
+    conn->write(&_0functions, sizeof(_0functions));
+    updateTmpPtr((void *)functions, _0functions);
+    conn->write(&numFunctions, sizeof(numFunctions));
+    conn->write(&mod, sizeof(mod));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -2403,7 +2712,7 @@ extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)pSurfRef, sizeof(*pSurfRef), true);
+    mem2client(conn, (void *)functions, sizeof(*functions), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -2682,6 +2991,848 @@ extern "C" CUresult cuLinkDestroy(CUlinkState state) {
     return _result;
 }
 
+extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *name) {
+#ifdef DEBUG
+    std::cout << "Hook: cuModuleGetTexRef called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pTexRef;
+    mem2server(conn, &_0pTexRef, (void *)pTexRef, sizeof(*pTexRef));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuModuleGetTexRef);
+    conn->write(&_0pTexRef, sizeof(_0pTexRef));
+    updateTmpPtr((void *)pTexRef, _0pTexRef);
+    conn->write(&hmod, sizeof(hmod));
+    conn->write(name, strlen(name) + 1, true);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pTexRef, sizeof(*pTexRef), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuModuleGetSurfRef(CUsurfref *pSurfRef, CUmodule hmod, const char *name) {
+#ifdef DEBUG
+    std::cout << "Hook: cuModuleGetSurfRef called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pSurfRef;
+    mem2server(conn, &_0pSurfRef, (void *)pSurfRef, sizeof(*pSurfRef));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuModuleGetSurfRef);
+    conn->write(&_0pSurfRef, sizeof(_0pSurfRef));
+    updateTmpPtr((void *)pSurfRef, _0pSurfRef);
+    conn->write(&hmod, sizeof(hmod));
+    conn->write(name, strlen(name) + 1, true);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pSurfRef, sizeof(*pSurfRef), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryLoadData(CUlibrary *library, const void *code, CUjit_option *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, CUlibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryLoadData called" << std::endl;
+#endif
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0library;
+    mem2server(conn, &_0library, (void *)library, sizeof(*library));
+    void *_0code;
+    mem2server(conn, &_0code, (void *)code, 0);
+    void *_0jitOptions;
+    mem2server(conn, &_0jitOptions, (void *)jitOptions, sizeof(*jitOptions));
+    // PARAM void **jitOptionsValues
+    void *_0libraryOptions;
+    mem2server(conn, &_0libraryOptions, (void *)libraryOptions, sizeof(*libraryOptions));
+    // PARAM void **libraryOptionValues
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryLoadData);
+    conn->write(&_0library, sizeof(_0library));
+    updateTmpPtr((void *)library, _0library);
+    conn->write(&_0code, sizeof(_0code));
+    updateTmpPtr((void *)code, _0code);
+    conn->write(&_0jitOptions, sizeof(_0jitOptions));
+    updateTmpPtr((void *)jitOptions, _0jitOptions);
+    // PARAM void **jitOptionsValues
+    conn->write(&numJitOptions, sizeof(numJitOptions));
+    conn->write(&_0libraryOptions, sizeof(_0libraryOptions));
+    updateTmpPtr((void *)libraryOptions, _0libraryOptions);
+    // PARAM void **libraryOptionValues
+    conn->write(&numLibraryOptions, sizeof(numLibraryOptions));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)library, sizeof(*library), true);
+    mem2client(conn, (void *)code, 0, true);
+    mem2client(conn, (void *)jitOptions, sizeof(*jitOptions), true);
+    // PARAM void **jitOptionsValues
+    mem2client(conn, (void *)libraryOptions, sizeof(*libraryOptions), true);
+    // PARAM void **libraryOptionValues
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryLoadFromFile(CUlibrary *library, const char *fileName, CUjit_option *jitOptions, void **jitOptionsValues, unsigned int numJitOptions, CUlibraryOption *libraryOptions, void **libraryOptionValues, unsigned int numLibraryOptions) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryLoadFromFile called" << std::endl;
+#endif
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0library;
+    mem2server(conn, &_0library, (void *)library, sizeof(*library));
+    void *_0jitOptions;
+    mem2server(conn, &_0jitOptions, (void *)jitOptions, sizeof(*jitOptions));
+    // PARAM void **jitOptionsValues
+    void *_0libraryOptions;
+    mem2server(conn, &_0libraryOptions, (void *)libraryOptions, sizeof(*libraryOptions));
+    // PARAM void **libraryOptionValues
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryLoadFromFile);
+    conn->write(&_0library, sizeof(_0library));
+    updateTmpPtr((void *)library, _0library);
+    conn->write(fileName, strlen(fileName) + 1, true);
+    conn->write(&_0jitOptions, sizeof(_0jitOptions));
+    updateTmpPtr((void *)jitOptions, _0jitOptions);
+    // PARAM void **jitOptionsValues
+    conn->write(&numJitOptions, sizeof(numJitOptions));
+    conn->write(&_0libraryOptions, sizeof(_0libraryOptions));
+    updateTmpPtr((void *)libraryOptions, _0libraryOptions);
+    // PARAM void **libraryOptionValues
+    conn->write(&numLibraryOptions, sizeof(numLibraryOptions));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)library, sizeof(*library), true);
+    mem2client(conn, (void *)jitOptions, sizeof(*jitOptions), true);
+    // PARAM void **jitOptionsValues
+    mem2client(conn, (void *)libraryOptions, sizeof(*libraryOptions), true);
+    // PARAM void **libraryOptionValues
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM void **jitOptionsValues
+    // PARAM void **libraryOptionValues
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryUnload(CUlibrary library) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryUnload called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryUnload);
+    conn->write(&library, sizeof(library));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryGetKernel(CUkernel *pKernel, CUlibrary library, const char *name) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryGetKernel called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pKernel;
+    mem2server(conn, &_0pKernel, (void *)pKernel, sizeof(*pKernel));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryGetKernel);
+    conn->write(&_0pKernel, sizeof(_0pKernel));
+    updateTmpPtr((void *)pKernel, _0pKernel);
+    conn->write(&library, sizeof(library));
+    conn->write(name, strlen(name) + 1, true);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pKernel, sizeof(*pKernel), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryGetKernelCount(unsigned int *count, CUlibrary lib) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryGetKernelCount called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0count;
+    mem2server(conn, &_0count, (void *)count, sizeof(*count));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryGetKernelCount);
+    conn->write(&_0count, sizeof(_0count));
+    updateTmpPtr((void *)count, _0count);
+    conn->write(&lib, sizeof(lib));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)count, sizeof(*count), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryEnumerateKernels(CUkernel *kernels, unsigned int numKernels, CUlibrary lib) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryEnumerateKernels called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0kernels;
+    mem2server(conn, &_0kernels, (void *)kernels, sizeof(*kernels));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryEnumerateKernels);
+    conn->write(&_0kernels, sizeof(_0kernels));
+    updateTmpPtr((void *)kernels, _0kernels);
+    conn->write(&numKernels, sizeof(numKernels));
+    conn->write(&lib, sizeof(lib));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)kernels, sizeof(*kernels), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryGetModule(CUmodule *pMod, CUlibrary library) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryGetModule called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pMod;
+    mem2server(conn, &_0pMod, (void *)pMod, sizeof(*pMod));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryGetModule);
+    conn->write(&_0pMod, sizeof(_0pMod));
+    updateTmpPtr((void *)pMod, _0pMod);
+    conn->write(&library, sizeof(library));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pMod, sizeof(*pMod), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelGetFunction(CUfunction *pFunc, CUkernel kernel) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelGetFunction called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pFunc;
+    mem2server(conn, &_0pFunc, (void *)pFunc, sizeof(*pFunc));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelGetFunction);
+    conn->write(&_0pFunc, sizeof(_0pFunc));
+    updateTmpPtr((void *)pFunc, _0pFunc);
+    conn->write(&kernel, sizeof(kernel));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pFunc, sizeof(*pFunc), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelGetLibrary(CUlibrary *pLib, CUkernel kernel) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelGetLibrary called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pLib;
+    mem2server(conn, &_0pLib, (void *)pLib, sizeof(*pLib));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelGetLibrary);
+    conn->write(&_0pLib, sizeof(_0pLib));
+    updateTmpPtr((void *)pLib, _0pLib);
+    conn->write(&kernel, sizeof(kernel));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pLib, sizeof(*pLib), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLibraryGetUnifiedFunction(void **fptr, CUlibrary library, const char *symbol) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLibraryGetUnifiedFunction called" << std::endl;
+#endif
+    // PARAM void **fptr
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    // PARAM void **fptr
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLibraryGetUnifiedFunction);
+    // PARAM void **fptr
+    conn->write(&library, sizeof(library));
+    conn->write(symbol, strlen(symbol) + 1, true);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM void **fptr
+    conn->prepare_request(RPC_mem2client);
+    // PARAM void **fptr
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM void **fptr
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelGetAttribute(int *pi, CUfunction_attribute attrib, CUkernel kernel, CUdevice dev) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelGetAttribute called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pi;
+    mem2server(conn, &_0pi, (void *)pi, sizeof(*pi));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelGetAttribute);
+    conn->write(&_0pi, sizeof(_0pi));
+    updateTmpPtr((void *)pi, _0pi);
+    conn->write(&attrib, sizeof(attrib));
+    conn->write(&kernel, sizeof(kernel));
+    conn->write(&dev, sizeof(dev));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pi, sizeof(*pi), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelSetAttribute(CUfunction_attribute attrib, int val, CUkernel kernel, CUdevice dev) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelSetAttribute called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelSetAttribute);
+    conn->write(&attrib, sizeof(attrib));
+    conn->write(&val, sizeof(val));
+    conn->write(&kernel, sizeof(kernel));
+    conn->write(&dev, sizeof(dev));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelSetCacheConfig(CUkernel kernel, CUfunc_cache config, CUdevice dev) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelSetCacheConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelSetCacheConfig);
+    conn->write(&kernel, sizeof(kernel));
+    conn->write(&config, sizeof(config));
+    conn->write(&dev, sizeof(dev));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelGetName(const char **name, CUkernel hfunc) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelGetName called" << std::endl;
+#endif
+    // PARAM const char **name
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    // PARAM const char **name
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelGetName);
+    // PARAM const char **name
+    static char _cuKernelGetName_name[1024];
+    conn->read(_cuKernelGetName_name, 1024, true);
+    conn->write(&hfunc, sizeof(hfunc));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM const char **name
+    *name = _cuKernelGetName_name;
+    conn->prepare_request(RPC_mem2client);
+    // PARAM const char **name
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM const char **name
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuKernelGetParamInfo(CUkernel kernel, size_t paramIndex, size_t *paramOffset, size_t *paramSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cuKernelGetParamInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0paramOffset;
+    mem2server(conn, &_0paramOffset, (void *)paramOffset, sizeof(*paramOffset));
+    void *_0paramSize;
+    mem2server(conn, &_0paramSize, (void *)paramSize, sizeof(*paramSize));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuKernelGetParamInfo);
+    conn->write(&kernel, sizeof(kernel));
+    conn->write(&paramIndex, sizeof(paramIndex));
+    conn->write(&_0paramOffset, sizeof(_0paramOffset));
+    updateTmpPtr((void *)paramOffset, _0paramOffset);
+    conn->write(&_0paramSize, sizeof(_0paramSize));
+    updateTmpPtr((void *)paramSize, _0paramSize);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)paramOffset, sizeof(*paramOffset), true);
+    mem2client(conn, (void *)paramSize, sizeof(*paramSize), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuMemGetInfo_v2(size_t *free, size_t *total) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemGetInfo_v2 called" << std::endl;
@@ -2815,6 +3966,100 @@ extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pFlags, sizeof(*pFlags), true);
     mem2client(conn, (void *)p, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuDeviceRegisterAsyncNotification(CUdevice device, CUasyncCallback callbackFunc, void *userData, CUasyncCallbackHandle *callback) {
+#ifdef DEBUG
+    std::cout << "Hook: cuDeviceRegisterAsyncNotification called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0userData;
+    mem2server(conn, &_0userData, (void *)userData, 0);
+    void *_0callback;
+    mem2server(conn, &_0callback, (void *)callback, sizeof(*callback));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuDeviceRegisterAsyncNotification);
+    conn->write(&device, sizeof(device));
+    conn->write(&callbackFunc, sizeof(callbackFunc));
+    conn->write(&_0userData, sizeof(_0userData));
+    updateTmpPtr((void *)userData, _0userData);
+    conn->write(&_0callback, sizeof(_0callback));
+    updateTmpPtr((void *)callback, _0callback);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)userData, 0, true);
+    mem2client(conn, (void *)callback, sizeof(*callback), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuDeviceUnregisterAsyncNotification(CUdevice device, CUasyncCallbackHandle callback) {
+#ifdef DEBUG
+    std::cout << "Hook: cuDeviceUnregisterAsyncNotification called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuDeviceUnregisterAsyncNotification);
+    conn->write(&device, sizeof(device));
+    conn->write(&callback, sizeof(callback));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -4369,6 +5614,132 @@ extern "C" CUresult cuMemcpy3DPeerAsync(const CUDA_MEMCPY3D_PEER *pCopy, CUstrea
     return _result;
 }
 
+extern "C" CUresult cuMemcpyBatchAsync(CUdeviceptr *dsts, CUdeviceptr *srcs, size_t *sizes, size_t count, CUmemcpyAttributes *attrs, size_t *attrsIdxs, size_t numAttrs, size_t *failIdx, CUstream hStream) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemcpyBatchAsync called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0dsts;
+    mem2server(conn, &_0dsts, (void *)dsts, sizeof(*dsts));
+    void *_0srcs;
+    mem2server(conn, &_0srcs, (void *)srcs, sizeof(*srcs));
+    void *_0sizes;
+    mem2server(conn, &_0sizes, (void *)sizes, sizeof(*sizes));
+    void *_0attrs;
+    mem2server(conn, &_0attrs, (void *)attrs, sizeof(*attrs));
+    void *_0attrsIdxs;
+    mem2server(conn, &_0attrsIdxs, (void *)attrsIdxs, sizeof(*attrsIdxs));
+    void *_0failIdx;
+    mem2server(conn, &_0failIdx, (void *)failIdx, sizeof(*failIdx));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMemcpyBatchAsync);
+    conn->write(&_0dsts, sizeof(_0dsts));
+    updateTmpPtr((void *)dsts, _0dsts);
+    conn->write(&_0srcs, sizeof(_0srcs));
+    updateTmpPtr((void *)srcs, _0srcs);
+    conn->write(&_0sizes, sizeof(_0sizes));
+    updateTmpPtr((void *)sizes, _0sizes);
+    conn->write(&count, sizeof(count));
+    conn->write(&_0attrs, sizeof(_0attrs));
+    updateTmpPtr((void *)attrs, _0attrs);
+    conn->write(&_0attrsIdxs, sizeof(_0attrsIdxs));
+    updateTmpPtr((void *)attrsIdxs, _0attrsIdxs);
+    conn->write(&numAttrs, sizeof(numAttrs));
+    conn->write(&_0failIdx, sizeof(_0failIdx));
+    updateTmpPtr((void *)failIdx, _0failIdx);
+    conn->write(&hStream, sizeof(hStream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dsts, sizeof(*dsts), true);
+    mem2client(conn, (void *)srcs, sizeof(*srcs), true);
+    mem2client(conn, (void *)sizes, sizeof(*sizes), true);
+    mem2client(conn, (void *)attrs, sizeof(*attrs), true);
+    mem2client(conn, (void *)attrsIdxs, sizeof(*attrsIdxs), true);
+    mem2client(conn, (void *)failIdx, sizeof(*failIdx), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMemcpy3DBatchAsync(size_t numOps, CUDA_MEMCPY3D_BATCH_OP *opList, size_t *failIdx, unsigned long long flags, CUstream hStream) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemcpy3DBatchAsync called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0opList;
+    mem2server(conn, &_0opList, (void *)opList, sizeof(*opList));
+    void *_0failIdx;
+    mem2server(conn, &_0failIdx, (void *)failIdx, sizeof(*failIdx));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMemcpy3DBatchAsync);
+    conn->write(&numOps, sizeof(numOps));
+    conn->write(&_0opList, sizeof(_0opList));
+    updateTmpPtr((void *)opList, _0opList);
+    conn->write(&_0failIdx, sizeof(_0failIdx));
+    updateTmpPtr((void *)failIdx, _0failIdx);
+    conn->write(&flags, sizeof(flags));
+    conn->write(&hStream, sizeof(hStream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)opList, sizeof(*opList), true);
+    mem2client(conn, (void *)failIdx, sizeof(*failIdx), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuMemsetD8_v2(CUdeviceptr dstDevice, unsigned char uc, size_t N) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemsetD8_v2 called" << std::endl;
@@ -5139,6 +6510,100 @@ extern "C" CUresult cuMipmappedArrayGetSparseProperties(CUDA_ARRAY_SPARSE_PROPER
     return _result;
 }
 
+extern "C" CUresult cuArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS *memoryRequirements, CUarray array, CUdevice device) {
+#ifdef DEBUG
+    std::cout << "Hook: cuArrayGetMemoryRequirements called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0memoryRequirements;
+    mem2server(conn, &_0memoryRequirements, (void *)memoryRequirements, sizeof(*memoryRequirements));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuArrayGetMemoryRequirements);
+    conn->write(&_0memoryRequirements, sizeof(_0memoryRequirements));
+    updateTmpPtr((void *)memoryRequirements, _0memoryRequirements);
+    conn->write(&array, sizeof(array));
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memoryRequirements, sizeof(*memoryRequirements), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMipmappedArrayGetMemoryRequirements(CUDA_ARRAY_MEMORY_REQUIREMENTS *memoryRequirements, CUmipmappedArray mipmap, CUdevice device) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMipmappedArrayGetMemoryRequirements called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0memoryRequirements;
+    mem2server(conn, &_0memoryRequirements, (void *)memoryRequirements, sizeof(*memoryRequirements));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMipmappedArrayGetMemoryRequirements);
+    conn->write(&_0memoryRequirements, sizeof(_0memoryRequirements));
+    updateTmpPtr((void *)memoryRequirements, _0memoryRequirements);
+    conn->write(&mipmap, sizeof(mipmap));
+    conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memoryRequirements, sizeof(*memoryRequirements), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuArrayGetPlane(CUarray *pPlaneArray, CUarray hArray, unsigned int planeIdx) {
 #ifdef DEBUG
     std::cout << "Hook: cuArrayGetPlane called" << std::endl;
@@ -5450,6 +6915,112 @@ extern "C" CUresult cuMipmappedArrayDestroy(CUmipmappedArray hMipmappedArray) {
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMemGetHandleForAddressRange(void *handle, CUdeviceptr dptr, size_t size, CUmemRangeHandleType handleType, unsigned long long flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemGetHandleForAddressRange called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0handle;
+    mem2server(conn, &_0handle, (void *)handle, 0);
+    void *_0dptr;
+    mem2server(conn, &_0dptr, (void *)dptr, -1);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMemGetHandleForAddressRange);
+    conn->write(&_0handle, sizeof(_0handle));
+    updateTmpPtr((void *)handle, _0handle);
+    conn->write(&_0dptr, sizeof(_0dptr));
+    updateTmpPtr((void *)dptr, _0dptr);
+    conn->write(&size, sizeof(size));
+    conn->write(&handleType, sizeof(handleType));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)handle, 0, true);
+    mem2client(conn, (void *)dptr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMemBatchDecompressAsync(CUmemDecompressParams *paramsArray, size_t count, unsigned int flags, size_t *errorIndex, CUstream stream) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemBatchDecompressAsync called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0paramsArray;
+    mem2server(conn, &_0paramsArray, (void *)paramsArray, sizeof(*paramsArray));
+    void *_0errorIndex;
+    mem2server(conn, &_0errorIndex, (void *)errorIndex, sizeof(*errorIndex));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMemBatchDecompressAsync);
+    conn->write(&_0paramsArray, sizeof(_0paramsArray));
+    updateTmpPtr((void *)paramsArray, _0paramsArray);
+    conn->write(&count, sizeof(count));
+    conn->write(&flags, sizeof(flags));
+    conn->write(&_0errorIndex, sizeof(_0errorIndex));
+    updateTmpPtr((void *)errorIndex, _0errorIndex);
+    conn->write(&stream, sizeof(stream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)paramsArray, sizeof(*paramsArray), true);
+    mem2client(conn, (void *)errorIndex, sizeof(*errorIndex), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -6570,6 +8141,288 @@ extern "C" CUresult cuMemPoolExportPointer(CUmemPoolPtrExportData *shareData_out
     return _result;
 }
 
+extern "C" CUresult cuMulticastCreate(CUmemGenericAllocationHandle *mcHandle, const CUmulticastObjectProp *prop) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMulticastCreate called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0mcHandle;
+    mem2server(conn, &_0mcHandle, (void *)mcHandle, sizeof(*mcHandle));
+    void *_0prop;
+    mem2server(conn, &_0prop, (void *)prop, sizeof(*prop));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMulticastCreate);
+    conn->write(&_0mcHandle, sizeof(_0mcHandle));
+    updateTmpPtr((void *)mcHandle, _0mcHandle);
+    conn->write(&_0prop, sizeof(_0prop));
+    updateTmpPtr((void *)prop, _0prop);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)mcHandle, sizeof(*mcHandle), true);
+    mem2client(conn, (void *)prop, sizeof(*prop), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMulticastAddDevice(CUmemGenericAllocationHandle mcHandle, CUdevice dev) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMulticastAddDevice called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMulticastAddDevice);
+    conn->write(&mcHandle, sizeof(mcHandle));
+    conn->write(&dev, sizeof(dev));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMulticastBindMem(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUmemGenericAllocationHandle memHandle, size_t memOffset, size_t size, unsigned long long flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMulticastBindMem called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMulticastBindMem);
+    conn->write(&mcHandle, sizeof(mcHandle));
+    conn->write(&mcOffset, sizeof(mcOffset));
+    conn->write(&memHandle, sizeof(memHandle));
+    conn->write(&memOffset, sizeof(memOffset));
+    conn->write(&size, sizeof(size));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMulticastBindAddr(CUmemGenericAllocationHandle mcHandle, size_t mcOffset, CUdeviceptr memptr, size_t size, unsigned long long flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMulticastBindAddr called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0memptr;
+    mem2server(conn, &_0memptr, (void *)memptr, -1);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMulticastBindAddr);
+    conn->write(&mcHandle, sizeof(mcHandle));
+    conn->write(&mcOffset, sizeof(mcOffset));
+    conn->write(&_0memptr, sizeof(_0memptr));
+    updateTmpPtr((void *)memptr, _0memptr);
+    conn->write(&size, sizeof(size));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)memptr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMulticastUnbind(CUmemGenericAllocationHandle mcHandle, CUdevice dev, size_t mcOffset, size_t size) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMulticastUnbind called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMulticastUnbind);
+    conn->write(&mcHandle, sizeof(mcHandle));
+    conn->write(&dev, sizeof(dev));
+    conn->write(&mcOffset, sizeof(mcOffset));
+    conn->write(&size, sizeof(size));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMulticastGetGranularity(size_t *granularity, const CUmulticastObjectProp *prop, CUmulticastGranularity_flags option) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMulticastGetGranularity called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0granularity;
+    mem2server(conn, &_0granularity, (void *)granularity, sizeof(*granularity));
+    void *_0prop;
+    mem2server(conn, &_0prop, (void *)prop, sizeof(*prop));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMulticastGetGranularity);
+    conn->write(&_0granularity, sizeof(_0granularity));
+    updateTmpPtr((void *)granularity, _0granularity);
+    conn->write(&_0prop, sizeof(_0prop));
+    updateTmpPtr((void *)prop, _0prop);
+    conn->write(&option, sizeof(option));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)granularity, sizeof(*granularity), true);
+    mem2client(conn, (void *)prop, sizeof(*prop), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuPointerGetAttribute(void *data, CUpointer_attribute attribute, CUdeviceptr ptr) {
 #ifdef DEBUG
     std::cout << "Hook: cuPointerGetAttribute called" << std::endl;
@@ -6669,6 +8522,55 @@ extern "C" CUresult cuMemPrefetchAsync(CUdeviceptr devPtr, size_t count, CUdevic
     return _result;
 }
 
+extern "C" CUresult cuMemPrefetchAsync_v2(CUdeviceptr devPtr, size_t count, CUmemLocation location, unsigned int flags, CUstream hStream) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemPrefetchAsync_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0devPtr;
+    mem2server(conn, &_0devPtr, (void *)devPtr, -1);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMemPrefetchAsync_v2);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
+    conn->write(&count, sizeof(count));
+    conn->write(&location, sizeof(location));
+    conn->write(&flags, sizeof(flags));
+    conn->write(&hStream, sizeof(hStream));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUdevice device) {
 #ifdef DEBUG
     std::cout << "Hook: cuMemAdvise called" << std::endl;
@@ -6697,6 +8599,54 @@ extern "C" CUresult cuMemAdvise(CUdeviceptr devPtr, size_t count, CUmem_advise a
     conn->write(&count, sizeof(count));
     conn->write(&advice, sizeof(advice));
     conn->write(&device, sizeof(device));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)devPtr, -1, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuMemAdvise_v2(CUdeviceptr devPtr, size_t count, CUmem_advise advice, CUmemLocation location) {
+#ifdef DEBUG
+    std::cout << "Hook: cuMemAdvise_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0devPtr;
+    mem2server(conn, &_0devPtr, (void *)devPtr, -1);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuMemAdvise_v2);
+    conn->write(&_0devPtr, sizeof(_0devPtr));
+    updateTmpPtr((void *)devPtr, _0devPtr);
+    conn->write(&count, sizeof(count));
+    conn->write(&advice, sizeof(advice));
+    conn->write(&location, sizeof(location));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -6960,6 +8910,52 @@ extern "C" CUresult cuStreamGetPriority(CUstream hStream, int *priority) {
     return _result;
 }
 
+extern "C" CUresult cuStreamGetDevice(CUstream hStream, CUdevice *device) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamGetDevice called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0device;
+    mem2server(conn, &_0device, (void *)device, sizeof(*device));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamGetDevice);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0device, sizeof(_0device));
+    updateTmpPtr((void *)device, _0device);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)device, sizeof(*device), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetFlags called" << std::endl;
@@ -7006,6 +9002,52 @@ extern "C" CUresult cuStreamGetFlags(CUstream hStream, unsigned int *flags) {
     return _result;
 }
 
+extern "C" CUresult cuStreamGetId(CUstream hStream, unsigned long long *streamId) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamGetId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0streamId;
+    mem2server(conn, &_0streamId, (void *)streamId, sizeof(*streamId));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamGetId);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0streamId, sizeof(_0streamId));
+    updateTmpPtr((void *)streamId, _0streamId);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)streamId, sizeof(*streamId), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetCtx called" << std::endl;
@@ -7040,6 +9082,57 @@ extern "C" CUresult cuStreamGetCtx(CUstream hStream, CUcontext *pctx) {
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)pctx, sizeof(*pctx), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuStreamGetCtx_v2(CUstream hStream, CUcontext *pCtx, CUgreenCtx *pGreenCtx) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamGetCtx_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pCtx;
+    mem2server(conn, &_0pCtx, (void *)pCtx, sizeof(*pCtx));
+    void *_0pGreenCtx;
+    mem2server(conn, &_0pGreenCtx, (void *)pGreenCtx, sizeof(*pGreenCtx));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamGetCtx_v2);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0pCtx, sizeof(_0pCtx));
+    updateTmpPtr((void *)pCtx, _0pCtx);
+    conn->write(&_0pGreenCtx, sizeof(_0pGreenCtx));
+    updateTmpPtr((void *)pGreenCtx, _0pGreenCtx);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pCtx, sizeof(*pCtx), true);
+    mem2client(conn, (void *)pGreenCtx, sizeof(*pGreenCtx), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -7173,6 +9266,60 @@ extern "C" CUresult cuStreamBeginCapture_v2(CUstream hStream, CUstreamCaptureMod
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuStreamBeginCaptureToGraph(CUstream hStream, CUgraph hGraph, const CUgraphNode *dependencies, const CUgraphEdgeData *dependencyData, size_t numDependencies, CUstreamCaptureMode mode) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamBeginCaptureToGraph called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0dependencies;
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0dependencyData;
+    mem2server(conn, &_0dependencyData, (void *)dependencyData, sizeof(*dependencyData));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamBeginCaptureToGraph);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
+    conn->write(&_0dependencyData, sizeof(_0dependencyData));
+    updateTmpPtr((void *)dependencyData, _0dependencyData);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&mode, sizeof(mode));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(conn, (void *)dependencyData, sizeof(*dependencyData), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -7322,57 +9469,6 @@ extern "C" CUresult cuStreamIsCapturing(CUstream hStream, CUstreamCaptureStatus 
     return _result;
 }
 
-extern "C" CUresult cuStreamGetCaptureInfo(CUstream hStream, CUstreamCaptureStatus *captureStatus_out, cuuint64_t *id_out) {
-#ifdef DEBUG
-    std::cout << "Hook: cuStreamGetCaptureInfo called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0captureStatus_out;
-    mem2server(conn, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
-    void *_0id_out;
-    mem2server(conn, &_0id_out, (void *)id_out, sizeof(*id_out));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    conn->prepare_request(RPC_cuStreamGetCaptureInfo);
-    conn->write(&hStream, sizeof(hStream));
-    conn->write(&_0captureStatus_out, sizeof(_0captureStatus_out));
-    updateTmpPtr((void *)captureStatus_out, _0captureStatus_out);
-    conn->write(&_0id_out, sizeof(_0id_out));
-    updateTmpPtr((void *)id_out, _0id_out);
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
-    mem2client(conn, (void *)id_out, sizeof(*id_out), true);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureStatus *captureStatus_out, cuuint64_t *id_out, CUgraph *graph_out, const CUgraphNode **dependencies_out, size_t *numDependencies_out) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamGetCaptureInfo_v2 called" << std::endl;
@@ -7437,6 +9533,73 @@ extern "C" CUresult cuStreamGetCaptureInfo_v2(CUstream hStream, CUstreamCaptureS
     return _result;
 }
 
+extern "C" CUresult cuStreamGetCaptureInfo_v3(CUstream hStream, CUstreamCaptureStatus *captureStatus_out, cuuint64_t *id_out, CUgraph *graph_out, const CUgraphNode **dependencies_out, const CUgraphEdgeData **edgeData_out, size_t *numDependencies_out) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamGetCaptureInfo_v3 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0captureStatus_out;
+    mem2server(conn, &_0captureStatus_out, (void *)captureStatus_out, sizeof(*captureStatus_out));
+    void *_0id_out;
+    mem2server(conn, &_0id_out, (void *)id_out, sizeof(*id_out));
+    void *_0graph_out;
+    mem2server(conn, &_0graph_out, (void *)graph_out, sizeof(*graph_out));
+    void *_0numDependencies_out;
+    mem2server(conn, &_0numDependencies_out, (void *)numDependencies_out, sizeof(*numDependencies_out));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamGetCaptureInfo_v3);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0captureStatus_out, sizeof(_0captureStatus_out));
+    updateTmpPtr((void *)captureStatus_out, _0captureStatus_out);
+    conn->write(&_0id_out, sizeof(_0id_out));
+    updateTmpPtr((void *)id_out, _0id_out);
+    conn->write(&_0graph_out, sizeof(_0graph_out));
+    updateTmpPtr((void *)graph_out, _0graph_out);
+    static CUgraphNode _cuStreamGetCaptureInfo_v3_dependencies_out;
+    conn->read(&_cuStreamGetCaptureInfo_v3_dependencies_out, sizeof(CUgraphNode));
+    static CUgraphEdgeData _cuStreamGetCaptureInfo_v3_edgeData_out;
+    conn->read(&_cuStreamGetCaptureInfo_v3_edgeData_out, sizeof(CUgraphEdgeData));
+    conn->write(&_0numDependencies_out, sizeof(_0numDependencies_out));
+    updateTmpPtr((void *)numDependencies_out, _0numDependencies_out);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    *dependencies_out = &_cuStreamGetCaptureInfo_v3_dependencies_out;
+    *edgeData_out = &_cuStreamGetCaptureInfo_v3_edgeData_out;
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)captureStatus_out, sizeof(*captureStatus_out), true);
+    mem2client(conn, (void *)id_out, sizeof(*id_out), true);
+    mem2client(conn, (void *)graph_out, sizeof(*graph_out), true);
+    mem2client(conn, (void *)numDependencies_out, sizeof(*numDependencies_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphNode *dependencies, size_t numDependencies, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuStreamUpdateCaptureDependencies called" << std::endl;
@@ -7473,6 +9636,59 @@ extern "C" CUresult cuStreamUpdateCaptureDependencies(CUstream hStream, CUgraphN
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuStreamUpdateCaptureDependencies_v2(CUstream hStream, CUgraphNode *dependencies, const CUgraphEdgeData *dependencyData, size_t numDependencies, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamUpdateCaptureDependencies_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0dependencies;
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0dependencyData;
+    mem2server(conn, &_0dependencyData, (void *)dependencyData, sizeof(*dependencyData));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamUpdateCaptureDependencies_v2);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
+    conn->write(&_0dependencyData, sizeof(_0dependencyData));
+    updateTmpPtr((void *)dependencyData, _0dependencyData);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(conn, (void *)dependencyData, sizeof(*dependencyData), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -8093,6 +10309,53 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
     return _result;
 }
 
+extern "C" CUresult cuEventElapsedTime_v2(float *pMilliseconds, CUevent hStart, CUevent hEnd) {
+#ifdef DEBUG
+    std::cout << "Hook: cuEventElapsedTime_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pMilliseconds;
+    mem2server(conn, &_0pMilliseconds, (void *)pMilliseconds, sizeof(*pMilliseconds));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuEventElapsedTime_v2);
+    conn->write(&_0pMilliseconds, sizeof(_0pMilliseconds));
+    updateTmpPtr((void *)pMilliseconds, _0pMilliseconds);
+    conn->write(&hStart, sizeof(hStart));
+    conn->write(&hEnd, sizeof(hEnd));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pMilliseconds, sizeof(*pMilliseconds), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuExternalMemoryGetMappedMipmappedArray(CUmipmappedArray *mipmap, CUexternalMemory extMem, const CUDA_EXTERNAL_MEMORY_MIPMAPPED_ARRAY_DESC *mipmapDesc) {
 #ifdef DEBUG
     std::cout << "Hook: cuExternalMemoryGetMappedMipmappedArray called" << std::endl;
@@ -8380,9 +10643,9 @@ extern "C" CUresult cuDestroyExternalSemaphore(CUexternalSemaphore extSem) {
     return _result;
 }
 
-extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) {
+extern "C" CUresult cuStreamWaitValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) {
 #ifdef DEBUG
-    std::cout << "Hook: cuStreamWaitValue32 called" << std::endl;
+    std::cout << "Hook: cuStreamWaitValue32_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -8402,7 +10665,7 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuStreamWaitValue32);
+    conn->prepare_request(RPC_cuStreamWaitValue32_v2);
     conn->write(&stream, sizeof(stream));
     conn->write(&_0addr, sizeof(_0addr));
     updateTmpPtr((void *)addr, _0addr);
@@ -8428,9 +10691,9 @@ extern "C" CUresult cuStreamWaitValue32(CUstream stream, CUdeviceptr addr, cuuin
     return _result;
 }
 
-extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) {
+extern "C" CUresult cuStreamWaitValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) {
 #ifdef DEBUG
-    std::cout << "Hook: cuStreamWaitValue64 called" << std::endl;
+    std::cout << "Hook: cuStreamWaitValue64_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -8450,7 +10713,7 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuStreamWaitValue64);
+    conn->prepare_request(RPC_cuStreamWaitValue64_v2);
     conn->write(&stream, sizeof(stream));
     conn->write(&_0addr, sizeof(_0addr));
     updateTmpPtr((void *)addr, _0addr);
@@ -8476,9 +10739,9 @@ extern "C" CUresult cuStreamWaitValue64(CUstream stream, CUdeviceptr addr, cuuin
     return _result;
 }
 
-extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) {
+extern "C" CUresult cuStreamWriteValue32_v2(CUstream stream, CUdeviceptr addr, cuuint32_t value, unsigned int flags) {
 #ifdef DEBUG
-    std::cout << "Hook: cuStreamWriteValue32 called" << std::endl;
+    std::cout << "Hook: cuStreamWriteValue32_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -8498,7 +10761,7 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuStreamWriteValue32);
+    conn->prepare_request(RPC_cuStreamWriteValue32_v2);
     conn->write(&stream, sizeof(stream));
     conn->write(&_0addr, sizeof(_0addr));
     updateTmpPtr((void *)addr, _0addr);
@@ -8524,9 +10787,9 @@ extern "C" CUresult cuStreamWriteValue32(CUstream stream, CUdeviceptr addr, cuui
     return _result;
 }
 
-extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) {
+extern "C" CUresult cuStreamWriteValue64_v2(CUstream stream, CUdeviceptr addr, cuuint64_t value, unsigned int flags) {
 #ifdef DEBUG
-    std::cout << "Hook: cuStreamWriteValue64 called" << std::endl;
+    std::cout << "Hook: cuStreamWriteValue64_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -8546,7 +10809,7 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuStreamWriteValue64);
+    conn->prepare_request(RPC_cuStreamWriteValue64_v2);
     conn->write(&stream, sizeof(stream));
     conn->write(&_0addr, sizeof(_0addr));
     updateTmpPtr((void *)addr, _0addr);
@@ -8572,9 +10835,9 @@ extern "C" CUresult cuStreamWriteValue64(CUstream stream, CUdeviceptr addr, cuui
     return _result;
 }
 
-extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUstreamBatchMemOpParams *paramArray, unsigned int flags) {
+extern "C" CUresult cuStreamBatchMemOp_v2(CUstream stream, unsigned int count, CUstreamBatchMemOpParams *paramArray, unsigned int flags) {
 #ifdef DEBUG
-    std::cout << "Hook: cuStreamBatchMemOp called" << std::endl;
+    std::cout << "Hook: cuStreamBatchMemOp_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -8594,7 +10857,7 @@ extern "C" CUresult cuStreamBatchMemOp(CUstream stream, unsigned int count, CUst
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuStreamBatchMemOp);
+    conn->prepare_request(RPC_cuStreamBatchMemOp_v2);
     conn->write(&stream, sizeof(stream));
     conn->write(&count, sizeof(count));
     conn->write(&_0paramArray, sizeof(_0paramArray));
@@ -8752,48 +11015,6 @@ extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) 
     return _result;
 }
 
-extern "C" CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) {
-#ifdef DEBUG
-    std::cout << "Hook: cuFuncSetSharedMemConfig called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    conn->prepare_request(RPC_cuFuncSetSharedMemConfig);
-    conn->write(&hfunc, sizeof(hfunc));
-    conn->write(&config, sizeof(config));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
 extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
 #ifdef DEBUG
     std::cout << "Hook: cuFuncGetModule called" << std::endl;
@@ -8828,6 +11049,195 @@ extern "C" CUresult cuFuncGetModule(CUmodule *hmod, CUfunction hfunc) {
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)hmod, sizeof(*hmod), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuFuncGetName(const char **name, CUfunction hfunc) {
+#ifdef DEBUG
+    std::cout << "Hook: cuFuncGetName called" << std::endl;
+#endif
+    // PARAM const char **name
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    // PARAM const char **name
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuFuncGetName);
+    // PARAM const char **name
+    static char _cuFuncGetName_name[1024];
+    conn->read(_cuFuncGetName_name, 1024, true);
+    conn->write(&hfunc, sizeof(hfunc));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM const char **name
+    *name = _cuFuncGetName_name;
+    conn->prepare_request(RPC_mem2client);
+    // PARAM const char **name
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM const char **name
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuFuncGetParamInfo(CUfunction func, size_t paramIndex, size_t *paramOffset, size_t *paramSize) {
+#ifdef DEBUG
+    std::cout << "Hook: cuFuncGetParamInfo called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0paramOffset;
+    mem2server(conn, &_0paramOffset, (void *)paramOffset, sizeof(*paramOffset));
+    void *_0paramSize;
+    mem2server(conn, &_0paramSize, (void *)paramSize, sizeof(*paramSize));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuFuncGetParamInfo);
+    conn->write(&func, sizeof(func));
+    conn->write(&paramIndex, sizeof(paramIndex));
+    conn->write(&_0paramOffset, sizeof(_0paramOffset));
+    updateTmpPtr((void *)paramOffset, _0paramOffset);
+    conn->write(&_0paramSize, sizeof(_0paramSize));
+    updateTmpPtr((void *)paramSize, _0paramSize);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)paramOffset, sizeof(*paramOffset), true);
+    mem2client(conn, (void *)paramSize, sizeof(*paramSize), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuFuncIsLoaded(CUfunctionLoadingState *state, CUfunction function) {
+#ifdef DEBUG
+    std::cout << "Hook: cuFuncIsLoaded called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0state;
+    mem2server(conn, &_0state, (void *)state, sizeof(*state));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuFuncIsLoaded);
+    conn->write(&_0state, sizeof(_0state));
+    updateTmpPtr((void *)state, _0state);
+    conn->write(&function, sizeof(function));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)state, sizeof(*state), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuFuncLoad(CUfunction function) {
+#ifdef DEBUG
+    std::cout << "Hook: cuFuncLoad called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuFuncLoad);
+    conn->write(&function, sizeof(function));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -8885,6 +11295,64 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
     // PARAM void **kernelParams
     // PARAM void **extra
     conn->prepare_request(RPC_mem2client);
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLaunchKernelEx(const CUlaunchConfig *config, CUfunction f, void **kernelParams, void **extra) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLaunchKernelEx called" << std::endl;
+#endif
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0config;
+    mem2server(conn, &_0config, (void *)config, sizeof(*config));
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLaunchKernelEx);
+    conn->write(&_0config, sizeof(_0config));
+    updateTmpPtr((void *)config, _0config);
+    conn->write(&f, sizeof(f));
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM void **kernelParams
+    // PARAM void **extra
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)config, sizeof(*config), true);
     // PARAM void **kernelParams
     // PARAM void **extra
     if(conn->get_iov_read_count(true) > 0) {
@@ -9428,6 +11896,48 @@ extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTe
     return _result;
 }
 
+extern "C" CUresult cuFuncSetSharedMemConfig(CUfunction hfunc, CUsharedconfig config) {
+#ifdef DEBUG
+    std::cout << "Hook: cuFuncSetSharedMemConfig called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuFuncSetSharedMemConfig);
+    conn->write(&hfunc, sizeof(hfunc));
+    conn->write(&config, sizeof(config));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphCreate called" << std::endl;
@@ -9474,9 +11984,9 @@ extern "C" CUresult cuGraphCreate(CUgraph *phGraph, unsigned int flags) {
     return _result;
 }
 
-extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS *nodeParams) {
+extern "C" CUresult cuGraphAddKernelNode_v2(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_KERNEL_NODE_PARAMS *nodeParams) {
 #ifdef DEBUG
-    std::cout << "Hook: cuGraphAddKernelNode called" << std::endl;
+    std::cout << "Hook: cuGraphAddKernelNode_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -9500,7 +12010,7 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuGraphAddKernelNode);
+    conn->prepare_request(RPC_cuGraphAddKernelNode_v2);
     conn->write(&_0phGraphNode, sizeof(_0phGraphNode));
     updateTmpPtr((void *)phGraphNode, _0phGraphNode);
     conn->write(&hGraph, sizeof(hGraph));
@@ -9531,9 +12041,9 @@ extern "C" CUresult cuGraphAddKernelNode(CUgraphNode *phGraphNode, CUgraph hGrap
     return _result;
 }
 
-extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS *nodeParams) {
+extern "C" CUresult cuGraphKernelNodeGetParams_v2(CUgraphNode hNode, CUDA_KERNEL_NODE_PARAMS *nodeParams) {
 #ifdef DEBUG
-    std::cout << "Hook: cuGraphKernelNodeGetParams called" << std::endl;
+    std::cout << "Hook: cuGraphKernelNodeGetParams_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -9553,7 +12063,7 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuGraphKernelNodeGetParams);
+    conn->prepare_request(RPC_cuGraphKernelNodeGetParams_v2);
     conn->write(&hNode, sizeof(hNode));
     conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
@@ -9577,9 +12087,9 @@ extern "C" CUresult cuGraphKernelNodeGetParams(CUgraphNode hNode, CUDA_KERNEL_NO
     return _result;
 }
 
-extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS *nodeParams) {
+extern "C" CUresult cuGraphKernelNodeSetParams_v2(CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS *nodeParams) {
 #ifdef DEBUG
-    std::cout << "Hook: cuGraphKernelNodeSetParams called" << std::endl;
+    std::cout << "Hook: cuGraphKernelNodeSetParams_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -9599,7 +12109,7 @@ extern "C" CUresult cuGraphKernelNodeSetParams(CUgraphNode hNode, const CUDA_KER
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuGraphKernelNodeSetParams);
+    conn->prepare_request(RPC_cuGraphKernelNodeSetParams_v2);
     conn->write(&hNode, sizeof(hNode));
     conn->write(&_0nodeParams, sizeof(_0nodeParams));
     updateTmpPtr((void *)nodeParams, _0nodeParams);
@@ -10803,6 +13313,202 @@ extern "C" CUresult cuGraphExternalSemaphoresWaitNodeSetParams(CUgraphNode hNode
     return _result;
 }
 
+extern "C" CUresult cuGraphAddBatchMemOpNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, const CUDA_BATCH_MEM_OP_NODE_PARAMS *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphAddBatchMemOpNode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(conn, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphAddBatchMemOpNode);
+    conn->write(&_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphBatchMemOpNodeGetParams(CUgraphNode hNode, CUDA_BATCH_MEM_OP_NODE_PARAMS *nodeParams_out) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphBatchMemOpNodeGetParams called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0nodeParams_out;
+    mem2server(conn, &_0nodeParams_out, (void *)nodeParams_out, sizeof(*nodeParams_out));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphBatchMemOpNodeGetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams_out, sizeof(_0nodeParams_out));
+    updateTmpPtr((void *)nodeParams_out, _0nodeParams_out);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams_out, sizeof(*nodeParams_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphBatchMemOpNodeSetParams(CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphBatchMemOpNodeSetParams called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphBatchMemOpNodeSetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphExecBatchMemOpNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_BATCH_MEM_OP_NODE_PARAMS *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphExecBatchMemOpNodeSetParams called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphExecBatchMemOpNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphAddMemAllocNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, CUDA_MEM_ALLOC_NODE_PARAMS *nodeParams) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphAddMemAllocNode called" << std::endl;
@@ -11395,6 +14101,67 @@ extern "C" CUresult cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNo
     return _result;
 }
 
+extern "C" CUresult cuGraphGetEdges_v2(CUgraph hGraph, CUgraphNode *from, CUgraphNode *to, CUgraphEdgeData *edgeData, size_t *numEdges) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphGetEdges_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0from;
+    mem2server(conn, &_0from, (void *)from, sizeof(*from));
+    void *_0to;
+    mem2server(conn, &_0to, (void *)to, sizeof(*to));
+    void *_0edgeData;
+    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
+    void *_0numEdges;
+    mem2server(conn, &_0numEdges, (void *)numEdges, sizeof(*numEdges));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphGetEdges_v2);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0from, sizeof(_0from));
+    updateTmpPtr((void *)from, _0from);
+    conn->write(&_0to, sizeof(_0to));
+    updateTmpPtr((void *)to, _0to);
+    conn->write(&_0edgeData, sizeof(_0edgeData));
+    updateTmpPtr((void *)edgeData, _0edgeData);
+    conn->write(&_0numEdges, sizeof(_0numEdges));
+    updateTmpPtr((void *)numEdges, _0numEdges);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)from, sizeof(*from), true);
+    mem2client(conn, (void *)to, sizeof(*to), true);
+    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
+    mem2client(conn, (void *)numEdges, sizeof(*numEdges), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *dependencies, size_t *numDependencies) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphNodeGetDependencies called" << std::endl;
@@ -11446,6 +14213,62 @@ extern "C" CUresult cuGraphNodeGetDependencies(CUgraphNode hNode, CUgraphNode *d
     return _result;
 }
 
+extern "C" CUresult cuGraphNodeGetDependencies_v2(CUgraphNode hNode, CUgraphNode *dependencies, CUgraphEdgeData *edgeData, size_t *numDependencies) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphNodeGetDependencies_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0dependencies;
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0edgeData;
+    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
+    void *_0numDependencies;
+    mem2server(conn, &_0numDependencies, (void *)numDependencies, sizeof(*numDependencies));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphNodeGetDependencies_v2);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
+    conn->write(&_0edgeData, sizeof(_0edgeData));
+    updateTmpPtr((void *)edgeData, _0edgeData);
+    conn->write(&_0numDependencies, sizeof(_0numDependencies));
+    updateTmpPtr((void *)numDependencies, _0numDependencies);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
+    mem2client(conn, (void *)numDependencies, sizeof(*numDependencies), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode *dependentNodes, size_t *numDependentNodes) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphNodeGetDependentNodes called" << std::endl;
@@ -11484,6 +14307,62 @@ extern "C" CUresult cuGraphNodeGetDependentNodes(CUgraphNode hNode, CUgraphNode 
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)dependentNodes, sizeof(*dependentNodes), true);
+    mem2client(conn, (void *)numDependentNodes, sizeof(*numDependentNodes), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphNodeGetDependentNodes_v2(CUgraphNode hNode, CUgraphNode *dependentNodes, CUgraphEdgeData *edgeData, size_t *numDependentNodes) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphNodeGetDependentNodes_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0dependentNodes;
+    mem2server(conn, &_0dependentNodes, (void *)dependentNodes, sizeof(*dependentNodes));
+    void *_0edgeData;
+    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
+    void *_0numDependentNodes;
+    mem2server(conn, &_0numDependentNodes, (void *)numDependentNodes, sizeof(*numDependentNodes));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphNodeGetDependentNodes_v2);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0dependentNodes, sizeof(_0dependentNodes));
+    updateTmpPtr((void *)dependentNodes, _0dependentNodes);
+    conn->write(&_0edgeData, sizeof(_0edgeData));
+    updateTmpPtr((void *)edgeData, _0edgeData);
+    conn->write(&_0numDependentNodes, sizeof(_0numDependentNodes));
+    updateTmpPtr((void *)numDependentNodes, _0numDependentNodes);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)dependentNodes, sizeof(*dependentNodes), true);
+    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
     mem2client(conn, (void *)numDependentNodes, sizeof(*numDependentNodes), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -11549,6 +14428,63 @@ extern "C" CUresult cuGraphAddDependencies(CUgraph hGraph, const CUgraphNode *fr
     return _result;
 }
 
+extern "C" CUresult cuGraphAddDependencies_v2(CUgraph hGraph, const CUgraphNode *from, const CUgraphNode *to, const CUgraphEdgeData *edgeData, size_t numDependencies) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphAddDependencies_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0from;
+    mem2server(conn, &_0from, (void *)from, sizeof(*from));
+    void *_0to;
+    mem2server(conn, &_0to, (void *)to, sizeof(*to));
+    void *_0edgeData;
+    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphAddDependencies_v2);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0from, sizeof(_0from));
+    updateTmpPtr((void *)from, _0from);
+    conn->write(&_0to, sizeof(_0to));
+    updateTmpPtr((void *)to, _0to);
+    conn->write(&_0edgeData, sizeof(_0edgeData));
+    updateTmpPtr((void *)edgeData, _0edgeData);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)from, sizeof(*from), true);
+    mem2client(conn, (void *)to, sizeof(*to), true);
+    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode *from, const CUgraphNode *to, size_t numDependencies) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphRemoveDependencies called" << std::endl;
@@ -11601,6 +14537,63 @@ extern "C" CUresult cuGraphRemoveDependencies(CUgraph hGraph, const CUgraphNode 
     return _result;
 }
 
+extern "C" CUresult cuGraphRemoveDependencies_v2(CUgraph hGraph, const CUgraphNode *from, const CUgraphNode *to, const CUgraphEdgeData *edgeData, size_t numDependencies) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphRemoveDependencies_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0from;
+    mem2server(conn, &_0from, (void *)from, sizeof(*from));
+    void *_0to;
+    mem2server(conn, &_0to, (void *)to, sizeof(*to));
+    void *_0edgeData;
+    mem2server(conn, &_0edgeData, (void *)edgeData, sizeof(*edgeData));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphRemoveDependencies_v2);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0from, sizeof(_0from));
+    updateTmpPtr((void *)from, _0from);
+    conn->write(&_0to, sizeof(_0to));
+    updateTmpPtr((void *)to, _0to);
+    conn->write(&_0edgeData, sizeof(_0edgeData));
+    updateTmpPtr((void *)edgeData, _0edgeData);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)from, sizeof(*from), true);
+    mem2client(conn, (void *)to, sizeof(*to), true);
+    mem2client(conn, (void *)edgeData, sizeof(*edgeData), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphDestroyNode(CUgraphNode hNode) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphDestroyNode called" << std::endl;
@@ -11630,61 +14623,6 @@ extern "C" CUresult cuGraphDestroyNode(CUgraphNode hNode) {
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    if(conn->get_iov_read_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    rpc_release_conn(conn);
-    return _result;
-}
-
-extern "C" CUresult cuGraphInstantiate_v2(CUgraphExec *phGraphExec, CUgraph hGraph, CUgraphNode *phErrorNode, char *logBuffer, size_t bufferSize) {
-#ifdef DEBUG
-    std::cout << "Hook: cuGraphInstantiate_v2 called" << std::endl;
-#endif
-    RpcConn *conn = rpc_get_conn();
-    if(conn == nullptr) {
-        std::cerr << "Failed to get rpc conn" << std::endl;
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2server);
-    void *_0phGraphExec;
-    mem2server(conn, &_0phGraphExec, (void *)phGraphExec, sizeof(*phGraphExec));
-    void *_0phErrorNode;
-    mem2server(conn, &_0phErrorNode, (void *)phErrorNode, sizeof(*phErrorNode));
-    void *end_flag = (void *)0xffffffff;
-    if(conn->get_iov_send_count(true) > 0) {
-        conn->write(&end_flag, sizeof(end_flag));
-        if(conn->submit_request() != RpcError::OK) {
-            std::cerr << "Failed to submit request" << std::endl;
-            rpc_release_conn(conn, true);
-            exit(1);
-        }
-    }
-    CUresult _result;
-    conn->prepare_request(RPC_cuGraphInstantiate_v2);
-    conn->write(&_0phGraphExec, sizeof(_0phGraphExec));
-    updateTmpPtr((void *)phGraphExec, _0phGraphExec);
-    conn->write(&hGraph, sizeof(hGraph));
-    conn->write(&_0phErrorNode, sizeof(_0phErrorNode));
-    updateTmpPtr((void *)phErrorNode, _0phErrorNode);
-    if(bufferSize > 0) {
-        conn->read(logBuffer, bufferSize, true);
-    }
-    conn->write(&bufferSize, sizeof(bufferSize));
-    conn->read(&_result, sizeof(_result));
-    if(conn->submit_request() != RpcError::OK) {
-        std::cerr << "Failed to submit request" << std::endl;
-        rpc_release_conn(conn, true);
-        exit(1);
-    }
-    conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)phGraphExec, sizeof(*phGraphExec), true);
-    mem2client(conn, (void *)phErrorNode, sizeof(*phErrorNode), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -11744,9 +14682,106 @@ extern "C" CUresult cuGraphInstantiateWithFlags(CUgraphExec *phGraphExec, CUgrap
     return _result;
 }
 
-extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS *nodeParams) {
+extern "C" CUresult cuGraphInstantiateWithParams(CUgraphExec *phGraphExec, CUgraph hGraph, CUDA_GRAPH_INSTANTIATE_PARAMS *instantiateParams) {
 #ifdef DEBUG
-    std::cout << "Hook: cuGraphExecKernelNodeSetParams called" << std::endl;
+    std::cout << "Hook: cuGraphInstantiateWithParams called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phGraphExec;
+    mem2server(conn, &_0phGraphExec, (void *)phGraphExec, sizeof(*phGraphExec));
+    void *_0instantiateParams;
+    mem2server(conn, &_0instantiateParams, (void *)instantiateParams, sizeof(*instantiateParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphInstantiateWithParams);
+    conn->write(&_0phGraphExec, sizeof(_0phGraphExec));
+    updateTmpPtr((void *)phGraphExec, _0phGraphExec);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0instantiateParams, sizeof(_0instantiateParams));
+    updateTmpPtr((void *)instantiateParams, _0instantiateParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phGraphExec, sizeof(*phGraphExec), true);
+    mem2client(conn, (void *)instantiateParams, sizeof(*instantiateParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphExecGetFlags(CUgraphExec hGraphExec, cuuint64_t *flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphExecGetFlags called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0flags;
+    mem2server(conn, &_0flags, (void *)flags, sizeof(*flags));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphExecGetFlags);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&_0flags, sizeof(_0flags));
+    updateTmpPtr((void *)flags, _0flags);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)flags, sizeof(*flags), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphExecKernelNodeSetParams_v2(CUgraphExec hGraphExec, CUgraphNode hNode, const CUDA_KERNEL_NODE_PARAMS *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphExecKernelNodeSetParams_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -11766,7 +14801,7 @@ extern "C" CUresult cuGraphExecKernelNodeSetParams(CUgraphExec hGraphExec, CUgra
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuGraphExecKernelNodeSetParams);
+    conn->prepare_request(RPC_cuGraphExecKernelNodeSetParams_v2);
     conn->write(&hGraphExec, sizeof(hGraphExec));
     conn->write(&hNode, sizeof(hNode));
     conn->write(&_0nodeParams, sizeof(_0nodeParams));
@@ -12157,6 +15192,96 @@ extern "C" CUresult cuGraphExecExternalSemaphoresWaitNodeSetParams(CUgraphExec h
     return _result;
 }
 
+extern "C" CUresult cuGraphNodeSetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int isEnabled) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphNodeSetEnabled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphNodeSetEnabled);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&isEnabled, sizeof(isEnabled));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphNodeGetEnabled(CUgraphExec hGraphExec, CUgraphNode hNode, unsigned int *isEnabled) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphNodeGetEnabled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0isEnabled;
+    mem2server(conn, &_0isEnabled, (void *)isEnabled, sizeof(*isEnabled));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphNodeGetEnabled);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0isEnabled, sizeof(_0isEnabled));
+    updateTmpPtr((void *)isEnabled, _0isEnabled);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)isEnabled, sizeof(*isEnabled), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGraphUpload(CUgraphExec hGraphExec, CUstream hStream) {
 #ifdef DEBUG
     std::cout << "Hook: cuGraphUpload called" << std::endl;
@@ -12323,9 +15448,9 @@ extern "C" CUresult cuGraphDestroy(CUgraph hGraph) {
     return _result;
 }
 
-extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphNode *hErrorNode_out, CUgraphExecUpdateResult *updateResult_out) {
+extern "C" CUresult cuGraphExecUpdate_v2(CUgraphExec hGraphExec, CUgraph hGraph, CUgraphExecUpdateResultInfo *resultInfo) {
 #ifdef DEBUG
-    std::cout << "Hook: cuGraphExecUpdate called" << std::endl;
+    std::cout << "Hook: cuGraphExecUpdate_v2 called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -12333,10 +15458,8 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
         exit(1);
     }
     conn->prepare_request(RPC_mem2server);
-    void *_0hErrorNode_out;
-    mem2server(conn, &_0hErrorNode_out, (void *)hErrorNode_out, sizeof(*hErrorNode_out));
-    void *_0updateResult_out;
-    mem2server(conn, &_0updateResult_out, (void *)updateResult_out, sizeof(*updateResult_out));
+    void *_0resultInfo;
+    mem2server(conn, &_0resultInfo, (void *)resultInfo, sizeof(*resultInfo));
     void *end_flag = (void *)0xffffffff;
     if(conn->get_iov_send_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
@@ -12347,13 +15470,11 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuGraphExecUpdate);
+    conn->prepare_request(RPC_cuGraphExecUpdate_v2);
     conn->write(&hGraphExec, sizeof(hGraphExec));
     conn->write(&hGraph, sizeof(hGraph));
-    conn->write(&_0hErrorNode_out, sizeof(_0hErrorNode_out));
-    updateTmpPtr((void *)hErrorNode_out, _0hErrorNode_out);
-    conn->write(&_0updateResult_out, sizeof(_0updateResult_out));
-    updateTmpPtr((void *)updateResult_out, _0updateResult_out);
+    conn->write(&_0resultInfo, sizeof(_0resultInfo));
+    updateTmpPtr((void *)resultInfo, _0resultInfo);
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -12361,8 +15482,7 @@ extern "C" CUresult cuGraphExecUpdate(CUgraphExec hGraphExec, CUgraph hGraph, CU
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
-    mem2client(conn, (void *)hErrorNode_out, sizeof(*hErrorNode_out), true);
-    mem2client(conn, (void *)updateResult_out, sizeof(*updateResult_out), true);
+    mem2client(conn, (void *)resultInfo, sizeof(*resultInfo), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -12778,6 +15898,267 @@ extern "C" CUresult cuGraphReleaseUserObject(CUgraph graph, CUuserObject object,
     return _result;
 }
 
+extern "C" CUresult cuGraphAddNode(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, size_t numDependencies, CUgraphNodeParams *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphAddNode called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(conn, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphAddNode);
+    conn->write(&_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphAddNode_v2(CUgraphNode *phGraphNode, CUgraph hGraph, const CUgraphNode *dependencies, const CUgraphEdgeData *dependencyData, size_t numDependencies, CUgraphNodeParams *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphAddNode_v2 called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phGraphNode;
+    mem2server(conn, &_0phGraphNode, (void *)phGraphNode, sizeof(*phGraphNode));
+    void *_0dependencies;
+    mem2server(conn, &_0dependencies, (void *)dependencies, sizeof(*dependencies));
+    void *_0dependencyData;
+    mem2server(conn, &_0dependencyData, (void *)dependencyData, sizeof(*dependencyData));
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphAddNode_v2);
+    conn->write(&_0phGraphNode, sizeof(_0phGraphNode));
+    updateTmpPtr((void *)phGraphNode, _0phGraphNode);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&_0dependencies, sizeof(_0dependencies));
+    updateTmpPtr((void *)dependencies, _0dependencies);
+    conn->write(&_0dependencyData, sizeof(_0dependencyData));
+    updateTmpPtr((void *)dependencyData, _0dependencyData);
+    conn->write(&numDependencies, sizeof(numDependencies));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phGraphNode, sizeof(*phGraphNode), true);
+    mem2client(conn, (void *)dependencies, sizeof(*dependencies), true);
+    mem2client(conn, (void *)dependencyData, sizeof(*dependencyData), true);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphNodeSetParams(CUgraphNode hNode, CUgraphNodeParams *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphNodeSetParams called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphNodeSetParams);
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphExecNodeSetParams(CUgraphExec hGraphExec, CUgraphNode hNode, CUgraphNodeParams *nodeParams) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphExecNodeSetParams called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0nodeParams;
+    mem2server(conn, &_0nodeParams, (void *)nodeParams, sizeof(*nodeParams));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphExecNodeSetParams);
+    conn->write(&hGraphExec, sizeof(hGraphExec));
+    conn->write(&hNode, sizeof(hNode));
+    conn->write(&_0nodeParams, sizeof(_0nodeParams));
+    updateTmpPtr((void *)nodeParams, _0nodeParams);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)nodeParams, sizeof(*nodeParams), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGraphConditionalHandleCreate(CUgraphConditionalHandle *pHandle_out, CUgraph hGraph, CUcontext ctx, unsigned int defaultLaunchValue, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGraphConditionalHandleCreate called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pHandle_out;
+    mem2server(conn, &_0pHandle_out, (void *)pHandle_out, sizeof(*pHandle_out));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGraphConditionalHandleCreate);
+    conn->write(&_0pHandle_out, sizeof(_0pHandle_out));
+    updateTmpPtr((void *)pHandle_out, _0pHandle_out);
+    conn->write(&hGraph, sizeof(hGraph));
+    conn->write(&ctx, sizeof(ctx));
+    conn->write(&defaultLaunchValue, sizeof(defaultLaunchValue));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pHandle_out, sizeof(*pHandle_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int *numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize) {
 #ifdef DEBUG
     std::cout << "Hook: cuOccupancyMaxActiveBlocksPerMultiprocessor called" << std::endl;
@@ -13020,6 +16401,108 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t *dynamicSmemS
     }
     conn->prepare_request(RPC_mem2client);
     mem2client(conn, (void *)dynamicSmemSize, sizeof(*dynamicSmemSize), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuOccupancyMaxPotentialClusterSize(int *clusterSize, CUfunction func, const CUlaunchConfig *config) {
+#ifdef DEBUG
+    std::cout << "Hook: cuOccupancyMaxPotentialClusterSize called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0clusterSize;
+    mem2server(conn, &_0clusterSize, (void *)clusterSize, sizeof(*clusterSize));
+    void *_0config;
+    mem2server(conn, &_0config, (void *)config, sizeof(*config));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuOccupancyMaxPotentialClusterSize);
+    conn->write(&_0clusterSize, sizeof(_0clusterSize));
+    updateTmpPtr((void *)clusterSize, _0clusterSize);
+    conn->write(&func, sizeof(func));
+    conn->write(&_0config, sizeof(_0config));
+    updateTmpPtr((void *)config, _0config);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)clusterSize, sizeof(*clusterSize), true);
+    mem2client(conn, (void *)config, sizeof(*config), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuOccupancyMaxActiveClusters(int *numClusters, CUfunction func, const CUlaunchConfig *config) {
+#ifdef DEBUG
+    std::cout << "Hook: cuOccupancyMaxActiveClusters called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0numClusters;
+    mem2server(conn, &_0numClusters, (void *)numClusters, sizeof(*numClusters));
+    void *_0config;
+    mem2server(conn, &_0config, (void *)config, sizeof(*config));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuOccupancyMaxActiveClusters);
+    conn->write(&_0numClusters, sizeof(_0numClusters));
+    updateTmpPtr((void *)numClusters, _0numClusters);
+    conn->write(&func, sizeof(func));
+    conn->write(&_0config, sizeof(_0config));
+    updateTmpPtr((void *)config, _0config);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)numClusters, sizeof(*numClusters), true);
+    mem2client(conn, (void *)config, sizeof(*config), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {
@@ -14675,6 +18158,291 @@ extern "C" CUresult cuSurfObjectGetResourceDesc(CUDA_RESOURCE_DESC *pResDesc, CU
     return _result;
 }
 
+extern "C" CUresult cuTensorMapEncodeTiled(CUtensorMap *tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void *globalAddress, const cuuint64_t *globalDim, const cuuint64_t *globalStrides, const cuuint32_t *boxDim, const cuuint32_t *elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) {
+#ifdef DEBUG
+    std::cout << "Hook: cuTensorMapEncodeTiled called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0tensorMap;
+    mem2server(conn, &_0tensorMap, (void *)tensorMap, sizeof(*tensorMap));
+    void *_0globalAddress;
+    mem2server(conn, &_0globalAddress, (void *)globalAddress, 0);
+    void *_0globalDim;
+    mem2server(conn, &_0globalDim, (void *)globalDim, sizeof(*globalDim));
+    void *_0globalStrides;
+    mem2server(conn, &_0globalStrides, (void *)globalStrides, sizeof(*globalStrides));
+    void *_0boxDim;
+    mem2server(conn, &_0boxDim, (void *)boxDim, sizeof(*boxDim));
+    void *_0elementStrides;
+    mem2server(conn, &_0elementStrides, (void *)elementStrides, sizeof(*elementStrides));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuTensorMapEncodeTiled);
+    conn->write(&_0tensorMap, sizeof(_0tensorMap));
+    updateTmpPtr((void *)tensorMap, _0tensorMap);
+    conn->write(&tensorDataType, sizeof(tensorDataType));
+    conn->write(&tensorRank, sizeof(tensorRank));
+    conn->write(&_0globalAddress, sizeof(_0globalAddress));
+    updateTmpPtr((void *)globalAddress, _0globalAddress);
+    conn->write(&_0globalDim, sizeof(_0globalDim));
+    updateTmpPtr((void *)globalDim, _0globalDim);
+    conn->write(&_0globalStrides, sizeof(_0globalStrides));
+    updateTmpPtr((void *)globalStrides, _0globalStrides);
+    conn->write(&_0boxDim, sizeof(_0boxDim));
+    updateTmpPtr((void *)boxDim, _0boxDim);
+    conn->write(&_0elementStrides, sizeof(_0elementStrides));
+    updateTmpPtr((void *)elementStrides, _0elementStrides);
+    conn->write(&interleave, sizeof(interleave));
+    conn->write(&swizzle, sizeof(swizzle));
+    conn->write(&l2Promotion, sizeof(l2Promotion));
+    conn->write(&oobFill, sizeof(oobFill));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)tensorMap, sizeof(*tensorMap), true);
+    mem2client(conn, (void *)globalAddress, 0, true);
+    mem2client(conn, (void *)globalDim, sizeof(*globalDim), true);
+    mem2client(conn, (void *)globalStrides, sizeof(*globalStrides), true);
+    mem2client(conn, (void *)boxDim, sizeof(*boxDim), true);
+    mem2client(conn, (void *)elementStrides, sizeof(*elementStrides), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuTensorMapEncodeIm2col(CUtensorMap *tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void *globalAddress, const cuuint64_t *globalDim, const cuuint64_t *globalStrides, const int *pixelBoxLowerCorner, const int *pixelBoxUpperCorner, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t *elementStrides, CUtensorMapInterleave interleave, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) {
+#ifdef DEBUG
+    std::cout << "Hook: cuTensorMapEncodeIm2col called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0tensorMap;
+    mem2server(conn, &_0tensorMap, (void *)tensorMap, sizeof(*tensorMap));
+    void *_0globalAddress;
+    mem2server(conn, &_0globalAddress, (void *)globalAddress, 0);
+    void *_0globalDim;
+    mem2server(conn, &_0globalDim, (void *)globalDim, sizeof(*globalDim));
+    void *_0globalStrides;
+    mem2server(conn, &_0globalStrides, (void *)globalStrides, sizeof(*globalStrides));
+    void *_0pixelBoxLowerCorner;
+    mem2server(conn, &_0pixelBoxLowerCorner, (void *)pixelBoxLowerCorner, sizeof(*pixelBoxLowerCorner));
+    void *_0pixelBoxUpperCorner;
+    mem2server(conn, &_0pixelBoxUpperCorner, (void *)pixelBoxUpperCorner, sizeof(*pixelBoxUpperCorner));
+    void *_0elementStrides;
+    mem2server(conn, &_0elementStrides, (void *)elementStrides, sizeof(*elementStrides));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuTensorMapEncodeIm2col);
+    conn->write(&_0tensorMap, sizeof(_0tensorMap));
+    updateTmpPtr((void *)tensorMap, _0tensorMap);
+    conn->write(&tensorDataType, sizeof(tensorDataType));
+    conn->write(&tensorRank, sizeof(tensorRank));
+    conn->write(&_0globalAddress, sizeof(_0globalAddress));
+    updateTmpPtr((void *)globalAddress, _0globalAddress);
+    conn->write(&_0globalDim, sizeof(_0globalDim));
+    updateTmpPtr((void *)globalDim, _0globalDim);
+    conn->write(&_0globalStrides, sizeof(_0globalStrides));
+    updateTmpPtr((void *)globalStrides, _0globalStrides);
+    conn->write(&_0pixelBoxLowerCorner, sizeof(_0pixelBoxLowerCorner));
+    updateTmpPtr((void *)pixelBoxLowerCorner, _0pixelBoxLowerCorner);
+    conn->write(&_0pixelBoxUpperCorner, sizeof(_0pixelBoxUpperCorner));
+    updateTmpPtr((void *)pixelBoxUpperCorner, _0pixelBoxUpperCorner);
+    conn->write(&channelsPerPixel, sizeof(channelsPerPixel));
+    conn->write(&pixelsPerColumn, sizeof(pixelsPerColumn));
+    conn->write(&_0elementStrides, sizeof(_0elementStrides));
+    updateTmpPtr((void *)elementStrides, _0elementStrides);
+    conn->write(&interleave, sizeof(interleave));
+    conn->write(&swizzle, sizeof(swizzle));
+    conn->write(&l2Promotion, sizeof(l2Promotion));
+    conn->write(&oobFill, sizeof(oobFill));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)tensorMap, sizeof(*tensorMap), true);
+    mem2client(conn, (void *)globalAddress, 0, true);
+    mem2client(conn, (void *)globalDim, sizeof(*globalDim), true);
+    mem2client(conn, (void *)globalStrides, sizeof(*globalStrides), true);
+    mem2client(conn, (void *)pixelBoxLowerCorner, sizeof(*pixelBoxLowerCorner), true);
+    mem2client(conn, (void *)pixelBoxUpperCorner, sizeof(*pixelBoxUpperCorner), true);
+    mem2client(conn, (void *)elementStrides, sizeof(*elementStrides), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuTensorMapEncodeIm2colWide(CUtensorMap *tensorMap, CUtensorMapDataType tensorDataType, cuuint32_t tensorRank, void *globalAddress, const cuuint64_t *globalDim, const cuuint64_t *globalStrides, int pixelBoxLowerCornerWidth, int pixelBoxUpperCornerWidth, cuuint32_t channelsPerPixel, cuuint32_t pixelsPerColumn, const cuuint32_t *elementStrides, CUtensorMapInterleave interleave, CUtensorMapIm2ColWideMode mode, CUtensorMapSwizzle swizzle, CUtensorMapL2promotion l2Promotion, CUtensorMapFloatOOBfill oobFill) {
+#ifdef DEBUG
+    std::cout << "Hook: cuTensorMapEncodeIm2colWide called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0tensorMap;
+    mem2server(conn, &_0tensorMap, (void *)tensorMap, sizeof(*tensorMap));
+    void *_0globalAddress;
+    mem2server(conn, &_0globalAddress, (void *)globalAddress, 0);
+    void *_0globalDim;
+    mem2server(conn, &_0globalDim, (void *)globalDim, sizeof(*globalDim));
+    void *_0globalStrides;
+    mem2server(conn, &_0globalStrides, (void *)globalStrides, sizeof(*globalStrides));
+    void *_0elementStrides;
+    mem2server(conn, &_0elementStrides, (void *)elementStrides, sizeof(*elementStrides));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuTensorMapEncodeIm2colWide);
+    conn->write(&_0tensorMap, sizeof(_0tensorMap));
+    updateTmpPtr((void *)tensorMap, _0tensorMap);
+    conn->write(&tensorDataType, sizeof(tensorDataType));
+    conn->write(&tensorRank, sizeof(tensorRank));
+    conn->write(&_0globalAddress, sizeof(_0globalAddress));
+    updateTmpPtr((void *)globalAddress, _0globalAddress);
+    conn->write(&_0globalDim, sizeof(_0globalDim));
+    updateTmpPtr((void *)globalDim, _0globalDim);
+    conn->write(&_0globalStrides, sizeof(_0globalStrides));
+    updateTmpPtr((void *)globalStrides, _0globalStrides);
+    conn->write(&pixelBoxLowerCornerWidth, sizeof(pixelBoxLowerCornerWidth));
+    conn->write(&pixelBoxUpperCornerWidth, sizeof(pixelBoxUpperCornerWidth));
+    conn->write(&channelsPerPixel, sizeof(channelsPerPixel));
+    conn->write(&pixelsPerColumn, sizeof(pixelsPerColumn));
+    conn->write(&_0elementStrides, sizeof(_0elementStrides));
+    updateTmpPtr((void *)elementStrides, _0elementStrides);
+    conn->write(&interleave, sizeof(interleave));
+    conn->write(&mode, sizeof(mode));
+    conn->write(&swizzle, sizeof(swizzle));
+    conn->write(&l2Promotion, sizeof(l2Promotion));
+    conn->write(&oobFill, sizeof(oobFill));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)tensorMap, sizeof(*tensorMap), true);
+    mem2client(conn, (void *)globalAddress, 0, true);
+    mem2client(conn, (void *)globalDim, sizeof(*globalDim), true);
+    mem2client(conn, (void *)globalStrides, sizeof(*globalStrides), true);
+    mem2client(conn, (void *)elementStrides, sizeof(*elementStrides), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuTensorMapReplaceAddress(CUtensorMap *tensorMap, void *globalAddress) {
+#ifdef DEBUG
+    std::cout << "Hook: cuTensorMapReplaceAddress called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0tensorMap;
+    mem2server(conn, &_0tensorMap, (void *)tensorMap, sizeof(*tensorMap));
+    void *_0globalAddress;
+    mem2server(conn, &_0globalAddress, (void *)globalAddress, 0);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuTensorMapReplaceAddress);
+    conn->write(&_0tensorMap, sizeof(_0tensorMap));
+    updateTmpPtr((void *)tensorMap, _0tensorMap);
+    conn->write(&_0globalAddress, sizeof(_0globalAddress));
+    updateTmpPtr((void *)globalAddress, _0globalAddress);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)tensorMap, sizeof(*tensorMap), true);
+    mem2client(conn, (void *)globalAddress, 0, true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUdevice peerDev) {
 #ifdef DEBUG
     std::cout << "Hook: cuDeviceCanAccessPeer called" << std::endl;
@@ -15124,6 +18892,264 @@ extern "C" CUresult cuGraphicsUnmapResources(unsigned int count, CUgraphicsResou
     return _result;
 }
 
+extern "C" CUresult cuGetProcAddress_v2(const char *symbol, void **pfn, int cudaVersion, cuuint64_t flags, CUdriverProcAddressQueryResult *symbolStatus) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGetProcAddress_v2 called" << std::endl;
+#endif
+    // PARAM void **pfn
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    // PARAM void **pfn
+    void *_0symbolStatus;
+    mem2server(conn, &_0symbolStatus, (void *)symbolStatus, sizeof(*symbolStatus));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGetProcAddress_v2);
+    conn->write(symbol, strlen(symbol) + 1, true);
+    // PARAM void **pfn
+    conn->write(&cudaVersion, sizeof(cudaVersion));
+    conn->write(&flags, sizeof(flags));
+    conn->write(&_0symbolStatus, sizeof(_0symbolStatus));
+    updateTmpPtr((void *)symbolStatus, _0symbolStatus);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    // PARAM void **pfn
+    conn->prepare_request(RPC_mem2client);
+    // PARAM void **pfn
+    mem2client(conn, (void *)symbolStatus, sizeof(*symbolStatus), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    // PARAM void **pfn
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCoredumpGetAttribute(CUcoredumpSettings attrib, void *value, size_t *size) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCoredumpGetAttribute called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0value;
+    mem2server(conn, &_0value, (void *)value, 0);
+    void *_0size;
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCoredumpGetAttribute);
+    conn->write(&attrib, sizeof(attrib));
+    conn->write(&_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
+    conn->write(&_0size, sizeof(_0size));
+    updateTmpPtr((void *)size, _0size);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCoredumpGetAttributeGlobal(CUcoredumpSettings attrib, void *value, size_t *size) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCoredumpGetAttributeGlobal called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0value;
+    mem2server(conn, &_0value, (void *)value, 0);
+    void *_0size;
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCoredumpGetAttributeGlobal);
+    conn->write(&attrib, sizeof(attrib));
+    conn->write(&_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
+    conn->write(&_0size, sizeof(_0size));
+    updateTmpPtr((void *)size, _0size);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCoredumpSetAttribute(CUcoredumpSettings attrib, void *value, size_t *size) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCoredumpSetAttribute called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0value;
+    mem2server(conn, &_0value, (void *)value, 0);
+    void *_0size;
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCoredumpSetAttribute);
+    conn->write(&attrib, sizeof(attrib));
+    conn->write(&_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
+    conn->write(&_0size, sizeof(_0size));
+    updateTmpPtr((void *)size, _0size);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCoredumpSetAttributeGlobal(CUcoredumpSettings attrib, void *value, size_t *size) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCoredumpSetAttributeGlobal called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0value;
+    mem2server(conn, &_0value, (void *)value, 0);
+    void *_0size;
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCoredumpSetAttributeGlobal);
+    conn->write(&attrib, sizeof(attrib));
+    conn->write(&_0value, sizeof(_0value));
+    updateTmpPtr((void *)value, _0value);
+    conn->write(&_0size, sizeof(_0size));
+    updateTmpPtr((void *)size, _0size);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)value, 0, true);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
 extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *pExportTableId) {
 #ifdef DEBUG
     std::cout << "Hook: cuGetExportTable called" << std::endl;
@@ -15170,9 +19196,57 @@ extern "C" CUresult cuGetExportTable(const void **ppExportTable, const CUuuid *p
     return _result;
 }
 
-extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget target, CUflushGPUDirectRDMAWritesScope scope) {
+extern "C" CUresult cuGreenCtxCreate(CUgreenCtx *phCtx, CUdevResourceDesc desc, CUdevice dev, unsigned int flags) {
 #ifdef DEBUG
-    std::cout << "Hook: cuFlushGPUDirectRDMAWrites called" << std::endl;
+    std::cout << "Hook: cuGreenCtxCreate called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phCtx;
+    mem2server(conn, &_0phCtx, (void *)phCtx, sizeof(*phCtx));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGreenCtxCreate);
+    conn->write(&_0phCtx, sizeof(_0phCtx));
+    updateTmpPtr((void *)phCtx, _0phCtx);
+    conn->write(&desc, sizeof(desc));
+    conn->write(&dev, sizeof(dev));
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phCtx, sizeof(*phCtx), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGreenCtxDestroy(CUgreenCtx hCtx) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGreenCtxDestroy called" << std::endl;
 #endif
     RpcConn *conn = rpc_get_conn();
     if(conn == nullptr) {
@@ -15190,9 +19264,8 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
         }
     }
     CUresult _result;
-    conn->prepare_request(RPC_cuFlushGPUDirectRDMAWrites);
-    conn->write(&target, sizeof(target));
-    conn->write(&scope, sizeof(scope));
+    conn->prepare_request(RPC_cuGreenCtxDestroy);
+    conn->write(&hCtx, sizeof(hCtx));
     conn->read(&_result, sizeof(_result));
     if(conn->submit_request() != RpcError::OK) {
         std::cerr << "Failed to submit request" << std::endl;
@@ -15200,6 +19273,999 @@ extern "C" CUresult cuFlushGPUDirectRDMAWrites(CUflushGPUDirectRDMAWritesTarget 
         exit(1);
     }
     conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxFromGreenCtx(CUcontext *pContext, CUgreenCtx hCtx) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxFromGreenCtx called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0pContext;
+    mem2server(conn, &_0pContext, (void *)pContext, sizeof(*pContext));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxFromGreenCtx);
+    conn->write(&_0pContext, sizeof(_0pContext));
+    updateTmpPtr((void *)pContext, _0pContext);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)pContext, sizeof(*pContext), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuDeviceGetDevResource(CUdevice device, CUdevResource *resource, CUdevResourceType type) {
+#ifdef DEBUG
+    std::cout << "Hook: cuDeviceGetDevResource called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0resource;
+    mem2server(conn, &_0resource, (void *)resource, sizeof(*resource));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuDeviceGetDevResource);
+    conn->write(&device, sizeof(device));
+    conn->write(&_0resource, sizeof(_0resource));
+    updateTmpPtr((void *)resource, _0resource);
+    conn->write(&type, sizeof(type));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)resource, sizeof(*resource), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCtxGetDevResource(CUcontext hCtx, CUdevResource *resource, CUdevResourceType type) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCtxGetDevResource called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0resource;
+    mem2server(conn, &_0resource, (void *)resource, sizeof(*resource));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCtxGetDevResource);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->write(&_0resource, sizeof(_0resource));
+    updateTmpPtr((void *)resource, _0resource);
+    conn->write(&type, sizeof(type));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)resource, sizeof(*resource), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGreenCtxGetDevResource(CUgreenCtx hCtx, CUdevResource *resource, CUdevResourceType type) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGreenCtxGetDevResource called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0resource;
+    mem2server(conn, &_0resource, (void *)resource, sizeof(*resource));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGreenCtxGetDevResource);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->write(&_0resource, sizeof(_0resource));
+    updateTmpPtr((void *)resource, _0resource);
+    conn->write(&type, sizeof(type));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)resource, sizeof(*resource), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuDevSmResourceSplitByCount(CUdevResource *result, unsigned int *nbGroups, const CUdevResource *input, CUdevResource *remaining, unsigned int useFlags, unsigned int minCount) {
+#ifdef DEBUG
+    std::cout << "Hook: cuDevSmResourceSplitByCount called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0result;
+    mem2server(conn, &_0result, (void *)result, 0);
+    void *_0nbGroups;
+    mem2server(conn, &_0nbGroups, (void *)nbGroups, sizeof(*nbGroups));
+    void *_0input;
+    mem2server(conn, &_0input, (void *)input, sizeof(*input));
+    void *_0remaining;
+    mem2server(conn, &_0remaining, (void *)remaining, sizeof(*remaining));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuDevSmResourceSplitByCount);
+    conn->write(&_0result, sizeof(_0result));
+    updateTmpPtr((void *)result, _0result);
+    conn->write(&_0nbGroups, sizeof(_0nbGroups));
+    updateTmpPtr((void *)nbGroups, _0nbGroups);
+    conn->write(&_0input, sizeof(_0input));
+    updateTmpPtr((void *)input, _0input);
+    conn->write(&_0remaining, sizeof(_0remaining));
+    updateTmpPtr((void *)remaining, _0remaining);
+    conn->write(&useFlags, sizeof(useFlags));
+    conn->write(&minCount, sizeof(minCount));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)result, 0, true);
+    mem2client(conn, (void *)nbGroups, sizeof(*nbGroups), true);
+    mem2client(conn, (void *)input, sizeof(*input), true);
+    mem2client(conn, (void *)remaining, sizeof(*remaining), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuDevResourceGenerateDesc(CUdevResourceDesc *phDesc, CUdevResource *resources, unsigned int nbResources) {
+#ifdef DEBUG
+    std::cout << "Hook: cuDevResourceGenerateDesc called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phDesc;
+    mem2server(conn, &_0phDesc, (void *)phDesc, sizeof(*phDesc));
+    void *_0resources;
+    mem2server(conn, &_0resources, (void *)resources, sizeof(*resources));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuDevResourceGenerateDesc);
+    conn->write(&_0phDesc, sizeof(_0phDesc));
+    updateTmpPtr((void *)phDesc, _0phDesc);
+    conn->write(&_0resources, sizeof(_0resources));
+    updateTmpPtr((void *)resources, _0resources);
+    conn->write(&nbResources, sizeof(nbResources));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phDesc, sizeof(*phDesc), true);
+    mem2client(conn, (void *)resources, sizeof(*resources), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGreenCtxRecordEvent(CUgreenCtx hCtx, CUevent hEvent) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGreenCtxRecordEvent called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGreenCtxRecordEvent);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->write(&hEvent, sizeof(hEvent));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGreenCtxWaitEvent(CUgreenCtx hCtx, CUevent hEvent) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGreenCtxWaitEvent called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGreenCtxWaitEvent);
+    conn->write(&hCtx, sizeof(hCtx));
+    conn->write(&hEvent, sizeof(hEvent));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuStreamGetGreenCtx(CUstream hStream, CUgreenCtx *phCtx) {
+#ifdef DEBUG
+    std::cout << "Hook: cuStreamGetGreenCtx called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phCtx;
+    mem2server(conn, &_0phCtx, (void *)phCtx, sizeof(*phCtx));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuStreamGetGreenCtx);
+    conn->write(&hStream, sizeof(hStream));
+    conn->write(&_0phCtx, sizeof(_0phCtx));
+    updateTmpPtr((void *)phCtx, _0phCtx);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phCtx, sizeof(*phCtx), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuGreenCtxStreamCreate(CUstream *phStream, CUgreenCtx greenCtx, unsigned int flags, int priority) {
+#ifdef DEBUG
+    std::cout << "Hook: cuGreenCtxStreamCreate called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0phStream;
+    mem2server(conn, &_0phStream, (void *)phStream, sizeof(*phStream));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuGreenCtxStreamCreate);
+    conn->write(&_0phStream, sizeof(_0phStream));
+    updateTmpPtr((void *)phStream, _0phStream);
+    conn->write(&greenCtx, sizeof(greenCtx));
+    conn->write(&flags, sizeof(flags));
+    conn->write(&priority, sizeof(priority));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)phStream, sizeof(*phStream), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLogsRegisterCallback(CUlogsCallback callbackFunc, void *userData, CUlogsCallbackHandle *callback_out) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLogsRegisterCallback called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0userData;
+    mem2server(conn, &_0userData, (void *)userData, 0);
+    void *_0callback_out;
+    mem2server(conn, &_0callback_out, (void *)callback_out, sizeof(*callback_out));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLogsRegisterCallback);
+    conn->write(&callbackFunc, sizeof(callbackFunc));
+    conn->write(&_0userData, sizeof(_0userData));
+    updateTmpPtr((void *)userData, _0userData);
+    conn->write(&_0callback_out, sizeof(_0callback_out));
+    updateTmpPtr((void *)callback_out, _0callback_out);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)userData, 0, true);
+    mem2client(conn, (void *)callback_out, sizeof(*callback_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLogsUnregisterCallback(CUlogsCallbackHandle callback) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLogsUnregisterCallback called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLogsUnregisterCallback);
+    conn->write(&callback, sizeof(callback));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLogsCurrent(CUlogIterator *iterator_out, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLogsCurrent called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0iterator_out;
+    mem2server(conn, &_0iterator_out, (void *)iterator_out, sizeof(*iterator_out));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLogsCurrent);
+    conn->write(&_0iterator_out, sizeof(_0iterator_out));
+    updateTmpPtr((void *)iterator_out, _0iterator_out);
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)iterator_out, sizeof(*iterator_out), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLogsDumpToFile(CUlogIterator *iterator, const char *pathToFile, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLogsDumpToFile called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0iterator;
+    mem2server(conn, &_0iterator, (void *)iterator, sizeof(*iterator));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLogsDumpToFile);
+    conn->write(&_0iterator, sizeof(_0iterator));
+    updateTmpPtr((void *)iterator, _0iterator);
+    conn->write(pathToFile, strlen(pathToFile) + 1, true);
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)iterator, sizeof(*iterator), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuLogsDumpToMemory(CUlogIterator *iterator, char *buffer, size_t *size, unsigned int flags) {
+#ifdef DEBUG
+    std::cout << "Hook: cuLogsDumpToMemory called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0iterator;
+    mem2server(conn, &_0iterator, (void *)iterator, sizeof(*iterator));
+    void *_0size;
+    mem2server(conn, &_0size, (void *)size, sizeof(*size));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuLogsDumpToMemory);
+    conn->write(&_0iterator, sizeof(_0iterator));
+    updateTmpPtr((void *)iterator, _0iterator);
+    if(*size > 0) {
+        conn->read(buffer, *size, true);
+    }
+    conn->write(&_0size, sizeof(_0size));
+    updateTmpPtr((void *)size, _0size);
+    conn->write(&flags, sizeof(flags));
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)iterator, sizeof(*iterator), true);
+    mem2client(conn, (void *)size, sizeof(*size), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCheckpointProcessGetRestoreThreadId(int pid, int *tid) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCheckpointProcessGetRestoreThreadId called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0tid;
+    mem2server(conn, &_0tid, (void *)tid, sizeof(*tid));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCheckpointProcessGetRestoreThreadId);
+    conn->write(&pid, sizeof(pid));
+    conn->write(&_0tid, sizeof(_0tid));
+    updateTmpPtr((void *)tid, _0tid);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)tid, sizeof(*tid), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCheckpointProcessGetState(int pid, CUprocessState *state) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCheckpointProcessGetState called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0state;
+    mem2server(conn, &_0state, (void *)state, sizeof(*state));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCheckpointProcessGetState);
+    conn->write(&pid, sizeof(pid));
+    conn->write(&_0state, sizeof(_0state));
+    updateTmpPtr((void *)state, _0state);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)state, sizeof(*state), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCheckpointProcessLock(int pid, CUcheckpointLockArgs *args) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCheckpointProcessLock called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0args;
+    mem2server(conn, &_0args, (void *)args, sizeof(*args));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCheckpointProcessLock);
+    conn->write(&pid, sizeof(pid));
+    conn->write(&_0args, sizeof(_0args));
+    updateTmpPtr((void *)args, _0args);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)args, sizeof(*args), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCheckpointProcessCheckpoint(int pid, CUcheckpointCheckpointArgs *args) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCheckpointProcessCheckpoint called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0args;
+    mem2server(conn, &_0args, (void *)args, sizeof(*args));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCheckpointProcessCheckpoint);
+    conn->write(&pid, sizeof(pid));
+    conn->write(&_0args, sizeof(_0args));
+    updateTmpPtr((void *)args, _0args);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)args, sizeof(*args), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCheckpointProcessRestore(int pid, CUcheckpointRestoreArgs *args) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCheckpointProcessRestore called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0args;
+    mem2server(conn, &_0args, (void *)args, sizeof(*args));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCheckpointProcessRestore);
+    conn->write(&pid, sizeof(pid));
+    conn->write(&_0args, sizeof(_0args));
+    updateTmpPtr((void *)args, _0args);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)args, sizeof(*args), true);
+    if(conn->get_iov_read_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    rpc_release_conn(conn);
+    return _result;
+}
+
+extern "C" CUresult cuCheckpointProcessUnlock(int pid, CUcheckpointUnlockArgs *args) {
+#ifdef DEBUG
+    std::cout << "Hook: cuCheckpointProcessUnlock called" << std::endl;
+#endif
+    RpcConn *conn = rpc_get_conn();
+    if(conn == nullptr) {
+        std::cerr << "Failed to get rpc conn" << std::endl;
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2server);
+    void *_0args;
+    mem2server(conn, &_0args, (void *)args, sizeof(*args));
+    void *end_flag = (void *)0xffffffff;
+    if(conn->get_iov_send_count(true) > 0) {
+        conn->write(&end_flag, sizeof(end_flag));
+        if(conn->submit_request() != RpcError::OK) {
+            std::cerr << "Failed to submit request" << std::endl;
+            rpc_release_conn(conn, true);
+            exit(1);
+        }
+    }
+    CUresult _result;
+    conn->prepare_request(RPC_cuCheckpointProcessUnlock);
+    conn->write(&pid, sizeof(pid));
+    conn->write(&_0args, sizeof(_0args));
+    updateTmpPtr((void *)args, _0args);
+    conn->read(&_result, sizeof(_result));
+    if(conn->submit_request() != RpcError::OK) {
+        std::cerr << "Failed to submit request" << std::endl;
+        rpc_release_conn(conn, true);
+        exit(1);
+    }
+    conn->prepare_request(RPC_mem2client);
+    mem2client(conn, (void *)args, sizeof(*args), true);
     if(conn->get_iov_read_count(true) > 0) {
         conn->write(&end_flag, sizeof(end_flag));
         if(conn->submit_request() != RpcError::OK) {

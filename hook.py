@@ -24,13 +24,19 @@ DEFAULT_H_SO_MAP = {
     # "/usr/local/cudnn/include/cudnn_graph.h": "/usr/local/cudnn/lib/libcudnn_graph.so",
     # "/usr/local/cudnn/include/cudnn_ops.h": "/usr/local/cudnn/lib/libcudnn_ops.so",
     # -------
-    "hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
-    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
-    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
-    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
+    ##"hidden_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    ##"/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    ##"/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    ##"/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcudart.so",
+    ##"/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda-11.4/targets/x86_64-linux/lib/libcublas.so",
     # "/usr/include/cudnn_graph.h": "//usr/lib/x86_64-linux-gnu/libcudnn_graph.so",
     # "/usr/include/cudnn_ops.h": "/usr/lib/x86_64-linux-gnu/libcudnn_ops.so",
+    # ------- cuda12.9
+    "hidden_api.h": "/usr/local/cuda/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cuda.h": "/usr/lib/x86_64-linux-gnu/libcuda.so",
+    "/usr/local/cuda/include/nvml.h": "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so",
+    "/usr/local/cuda/include/cuda_runtime_api.h": "/usr/local/cuda/targets/x86_64-linux/lib/libcudart.so",
+    "/usr/local/cuda/include/cublas_api.h": "/usr/local/cuda/targets/x86_64-linux/lib/libcublas.so",
     # 可以继续添加其他默认的 .h 和 .so 文件对应关系
 }
 
@@ -685,6 +691,7 @@ def handle_param_ppconstchar(function, param, f, is_client=True, position=0):
 def handle_param_ppconsttype(function, param, f, is_client=True, position=0):
     param_type_name = param.type.ptr_to.ptr_to.format()
     param_type_name = param_type_name[6:]
+    f.write(f"    // PARAM const {param_type_name} **{param.name}\n")
     if is_client:
         function_name = function.name.format()
         if position == 1:
